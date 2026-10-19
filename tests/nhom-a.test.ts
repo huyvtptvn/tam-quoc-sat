@@ -150,7 +150,7 @@ test('Cận Hãm: mở tướng -> người khoảng cách 1 đã mở hết th�
 });
 
 test('Thông Linh: sau khi gây sát thương cho A, người cùng thế lực dùng Sát vào A trúng -> rút 2 lá', async () => {
-  const { game, ctrls } = makeHG([['pengyang', 'liubei'], ['caocao', 'xuchu']]);
+  const { game, ctrls } = makeHG([['liubei', 'pengyang'], ['caocao', 'xuchu']]);
   await game.setup();
   await revealAll(game, 0, 1);
   for (const p of game.state.players) await game.moveCards([...p.hand], { kind: 'hand', seat: p.seat }, { kind: 'discard' }, 'test');

@@ -3,7 +3,7 @@
 // Bàng Thống (Liên Hoàn, Niết Bàn), Từ Hoảng (Đoạn Lương), Thái Sử Từ (Thiên Nghĩa).
 // Mô tả theo bản Việt hóa QSanguosha-Hegemony (content/import/qsgs-viet.json).
 // ============================================================
-import { allCards, discardOwn, hand, inMyPlay, limitedUsed, markLimited, name, pindian, zoneOf } from './lib/tro-giup.mjs';
+import { allCards, discardOwn, hand, inMyPlay, limitedUsed, markLimited, name, pindian, zoneOf, SLOTS } from './lib/tro-giup.mjs';
 
 const isBlack = (c) => c.suit === 'spade' || c.suit === 'club';
 const isTrick = (c) => c.type === 'trick' || c.type === 'delayed';
@@ -24,7 +24,8 @@ export default {
     {
       id: 'lianhuan', name: 'Liên Hoàn',
       desc: 'Giai đoạn ra bài, bạn có thể chuyển hóa sử dụng lá TÉP trên tay thành [Thiết Tác Liên Hoàn] hoặc Trùng Chú lá TÉP trên tay.',
-      convert: (g, s, c) => (c.suit === 'club' && inMyPlay(g, s) && hand(g, s).includes(c.id) ? ['tiesuo'] : []),
+      // Chỉ lá trên tay (khi đang dùng, lá đã sang vùng xử lý nên kiểm tra "không phải trang bị")
+      convert: (g, s, c) => (c.suit === 'club' && inMyPlay(g, s) && !SLOTS.some((sl) => g.player(s).equips[sl].includes(c.id)) ? ['tiesuo'] : []),
     },
     {
       id: 'niepan', name: 'Niết Bàn',

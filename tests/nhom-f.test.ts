@@ -258,7 +258,7 @@ test('Tật Lê: lá thứ X (X = tầm đánh) trong lượt thì rút X lá', 
 });
 
 test('Báo Liệt: dùng Sát vào người có máu ≥ bạn không giới hạn khoảng cách', async () => {
-  const { game } = makeHG([['xiahouba', 'zhangfei'], ['caocao', 'xuchu'], ['sunquan', 'huanggai'], ['zhaoyun', 'guanyu']]);
+  const { game } = makeHG([['zhangfei', 'xiahouba'], ['caocao', 'xuchu'], ['sunquan', 'huanggai'], ['zhaoyun', 'guanyu']]);
   await game.setup();
   await revealAll(game, 0, 1, 2, 3);
   const [s] = await give(game, 0, 'sha');
@@ -354,7 +354,7 @@ test('Độc Tiến: rút thêm nửa số trang bị (làm tròn lên); lần �
 });
 
 test('Phong Thế: lá đơn mục tiêu vào người ít bài hơn -> bỏ 1 lá mỗi bên, sát thương +1', async () => {
-  const { game, ctrls } = makeHG([['mifangfushiren', 'sunquan'], ['caocao', 'xuchu']]);
+  const { game, ctrls } = makeHG([['sunquan', 'mifangfushiren'], ['caocao', 'xuchu']]);
   await game.setup();
   await revealAll(game, 0, 1);
   await give(game, 0, 'tao', 'tao', 'tao', 'tao');
@@ -457,7 +457,7 @@ test('Ám Dũng: nhân đôi sát thương; mục tiêu đã mở hết tướng
 });
 
 test('Vấn Kế: người khác thế lực giao lá thì Lưu Kỳ giao lại 1 lá khác', async () => {
-  const { game, ctrls } = makeHG([['liuqi', 'jiling'], ['caocao', 'xuchu']]);
+  const { game, ctrls } = makeHG([['jiling', 'liuqi'], ['caocao', 'xuchu']]);
   await game.setup();
   await revealAll(game, 0, 1);
   ctrls[0].set('confirm', onlySkill('wenji')).set('chooseTargets', targets(1));

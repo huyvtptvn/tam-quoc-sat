@@ -53,7 +53,7 @@ test('nhóm B: 19 tướng đều được bật và có đủ kỹ năng', () =
 });
 
 test('Mạnh Đạt — Cầu An chặn sát thương, Lượng Phản mất 1 máu và thu lại [Hàm]', async () => {
-  const { game, ctrls } = makeHG([['mengda', 'xuchu'], ['liubei', 'zhangfei']]);
+  const { game, ctrls } = makeHG([['xuchu', 'mengda'], ['liubei', 'zhangfei']]);
   await game.setup();
   await revealAll(game, 0, 1);
   ctrls[0].set('confirm', onlySkill('qiuan'));
@@ -73,7 +73,7 @@ test('Mạnh Đạt — Cầu An chặn sát thương, Lượng Phản mất 1 m
 });
 
 test('Đường Tư — Hưng Thạo 2+: sau khi chịu sát thương, người ít bài hơn rút 1 lá', async () => {
-  const { game } = makeHG([['tangzi', 'xuchu'], ['liubei', 'zhangfei']]);
+  const { game } = makeHG([['xuchu', 'tangzi'], ['liubei', 'zhangfei']]);
   await game.setup();
   await revealAll(game, 0, 1);
   game.player(1).hp -= 1; // Thục có người bị thương
@@ -85,7 +85,7 @@ test('Đường Tư — Hưng Thạo 2+: sau khi chịu sát thương, người 
 });
 
 test('Trương Lỗ — Mễ Đạo đặt [Mễ] rồi thay lá phán định; Bố Thí nhận [Nghĩa Xá]', async () => {
-  const { game, ctrls } = makeHG([['zhanglu', 'huatuo'], ['liubei', 'zhangfei']]);
+  const { game, ctrls } = makeHG([['huatuo', 'zhanglu'], ['liubei', 'zhangfei']]);
   await game.setup();
   await revealAll(game, 0, 1);
   ctrls[0].set('confirm', onlySkill('midao'));
@@ -107,7 +107,7 @@ test('Trương Lỗ — Mễ Đạo đặt [Mễ] rồi thay lá phán định; 
 });
 
 test('Sĩ Nhiếp — Tị Loạn tăng khoảng cách, Lễ Hạ cho Sĩ Nhiếp rút 1 lá', async () => {
-  const { game } = makeHG([['shixie', 'sunquan'], ['liubei', 'zhangfei']]);
+  const { game } = makeHG([['sunquan', 'shixie'], ['liubei', 'zhangfei']]);
   await game.setup();
   await revealAll(game, 0, 1);
   await equip(game, 0, 'defHorse');
@@ -235,7 +235,7 @@ test('Tôn Lâm — Hung Ngược: bỏ [Lục], sát thương lên người cù
 });
 
 test('Văn Khâm — Căng Phạt: mục tiêu không có trang bị thì để Văn Khâm lấy 1 lá', async () => {
-  const { game } = makeHG([['wenqin', 'xuchu'], ['liubei', 'zhangfei']]);
+  const { game } = makeHG([['xuchu', 'wenqin'], ['liubei', 'zhangfei']]);
   await game.setup();
   await revealAll(game, 0, 1);
   play(game, 0);
