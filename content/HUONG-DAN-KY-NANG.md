@@ -533,7 +533,7 @@ Lá bài mới chỉ xuất hiện trong ván khi được đưa vào `deck.json
 ```bash
 npm run content:check                                # kiểm tra + 100 ván 6 người
 npm run content:check -- --games 300 --players 8
-npm run content:check -- --focus chen_gong           # ghế 0 luôn cầm Trần Cung
+npm run content:check -- --focus pang_tong           # ghế 0 luôn cầm Bàng Thống
 ```
 
 Thông báo lỗi luôn có dạng `file > id > vị trí: nội dung`, ví dụ:

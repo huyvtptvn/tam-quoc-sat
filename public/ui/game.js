@@ -228,6 +228,8 @@
   function kingdomTag(p) {
     const k = p.kingdom;
     if (!k) return '<span class="tag">Chưa lộ</span>';
+    // Dã tâm gia: ghi kèm người cầm đầu (đồng minh Lạp Long Nhân Tâm cùng tên)
+    if (k === 'careerist') return `<span class="tag k-ye" title="Mỗi dã tâm gia là một phe riêng; người gia nhập qua Lạp Long Nhân Tâm cùng phe với người cầm đầu">${esc(p.team || 'Dã tâm gia')}</span>`;
     return `<span class="tag k-${esc(k)}">${esc(C.KINGDOM[k]?.label ?? k)}</span>`;
   }
 
@@ -237,6 +239,7 @@
       m.yinyang ? `<span class="tag" title="Âm Dương Ngư ×${m.yinyang}: bốc thêm 1 lá hoặc tăng giới hạn bài">Âm Dương${m.yinyang > 1 ? ` ×${m.yinyang}` : ''}</span>` : '',
       m.pioneer ? `<span class="tag" title="Tiên Khu ×${m.pioneer}: bốc bài đến 4 lá hoặc xem 1 tướng úp">Tiên Khu${m.pioneer > 1 ? ` ×${m.pioneer}` : ''}</span>` : '',
       m.pair ? `<span class="tag" title="Châu Liên Bích Hợp ×${m.pair}: bốc 2 lá hoặc dùng như Đào">Châu Liên${m.pair > 1 ? ` ×${m.pair}` : ''}</span>` : '',
+      m.ambition ? `<span class="tag k-ye" title="Dã Tâm Gia ×${m.ambition}: dùng thay Âm Dương Ngư, Tiên Khu hoặc Châu Liên Bích Hợp">Dã Tâm${m.ambition > 1 ? ` ×${m.ambition}` : ''}</span>` : '',
       p.chained ? '<span class="tag chain" title="Đang bị xích">Xích</span>' : '',
       p.faceDown ? '<span class="tag facedown" title="Bị lật úp: bỏ qua lượt kế tiếp">Lật úp</span>' : '',
       p.lord ? '<span class="tag" title="Quân chủ của thế lực">Quân chủ</span>' : '',
@@ -758,12 +761,15 @@
     let filter = 'all';
     let query = '';
     const kingdomOf = (id) => C.general(id)?.kingdom;
+    const kingdomsOf = (id) => C.general(id)?.kingdoms ?? [kingdomOf(id)];
+    const isDual = (id) => kingdomsOf(id).length > 1;
     const norm = (t) => String(t ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
     const sub = any
       ? 'Loạn tướng: chọn 2 tướng BẤT KỲ (không cần cùng thế lực). Tướng chọn trước là chủ tướng — phe của bạn theo chủ tướng.'
       : big
         ? 'Tự chọn tướng: chọn 2 tướng cùng thế lực. Tướng chọn trước là chủ tướng. Tướng người khác đã chọn không còn trong danh sách.'
         : 'Chọn 2 tướng cùng thế lực. Tướng chọn trước là chủ tướng. Cả hai sẽ được úp cho đến khi bạn lật.';
+    const subRules = ' Tướng tím (Dã tâm gia) chỉ làm chủ tướng. Tướng 2 thế lực chỉ làm phó tướng, chủ tướng phải thuộc 1 trong 2 thế lực của nó.';
 
     const optHTML = (id) => {
       const g = C.general(id) || { name: id, skills: [], halfHp: 0 };
@@ -771,12 +777,15 @@
       // Tướng Dã tâm gia (ye) chỉ làm chủ tướng, ghép với phó tướng thế lực bất kỳ
       const k0 = chosen.length ? kingdomOf(chosen[0]) : null;
       const off = !chosen.includes(id) && (
-        (chosen.length === 1 && kingdomOf(id) === 'ye')
-        || (!any && k0 && k0 !== 'ye' && kingdomOf(id) !== k0));
+        (chosen.length === 0 && isDual(id))
+        || (chosen.length === 1 && kingdomOf(id) === 'ye')
+        || (!any && k0 && k0 !== 'ye' && !kingdomsOf(id).includes(k0)));
+      const kLabel = kingdomsOf(id).map((k) => C.KINGDOM[k]?.label ?? k).join('/');
+      const note = isDual(id) ? ' · chỉ làm phó tướng' : kingdomOf(id) === 'ye' ? ' · tướng tím, chỉ làm chủ tướng' : '';
       const sk = g.skills.map((x) => `<div class="sk"><b>${esc(C.catalog.skills[x]?.name ?? x)}</b> ${esc(C.catalog.skills[x]?.desc ?? '')}</div>`).join('');
       return `<button type="button" class="gen-opt ${role ? 'sel' : ''} ${off ? 'off' : ''}" data-id="${esc(id)}" ${off ? 'disabled' : ''}>
         ${C.portraitHTML(id)}
-        <div class="info"><b class="nm">${esc(g.name)}</b><span class="muted">${esc(C.KINGDOM[g.kingdom]?.label ?? '')} · ${g.halfHp} âm dương ngư</span>${role ? `<br><span class="role">${role}</span>` : ''}${sk}</div>
+        <div class="info"><b class="nm">${esc(g.name)}</b><span class="muted">${esc(kLabel)} · ${g.halfHp} âm dương ngư${note}</span>${role ? `<br><span class="role">${role}</span>` : ''}${sk}</div>
       </button>`;
     };
 
@@ -784,12 +793,12 @@
       const prevScroll = document.querySelector('.gen-pick')?.scrollTop ?? 0;
       const list = r.candidates.filter((id) => {
         if (chosen.includes(id)) return true;
-        if (filter !== 'all' && kingdomOf(id) !== filter) return false;
+        if (filter !== 'all' && !kingdomsOf(id).includes(filter)) return false;
         if (query && !norm(C.general(id)?.name).includes(norm(query))) return false;
         return true;
       });
       const counts = {};
-      for (const id of r.candidates) counts[kingdomOf(id)] = (counts[kingdomOf(id)] ?? 0) + 1;
+      for (const id of r.candidates) for (const k of kingdomsOf(id)) counts[k] = (counts[k] ?? 0) + 1;
       const tabs = big ? `<div class="gen-filter">
           ${['all', 'wei', 'shu', 'wu', 'qun', 'ye'].filter((k) => k === 'all' || counts[k]).map((k) => `<button type="button" class="btn small ${filter === k ? 'primary' : 'ghost'}" data-k="${k}">${k === 'all' ? `Tất cả (${r.candidates.length})` : `${esc(C.KINGDOM[k]?.label ?? k)} (${counts[k] ?? 0})`}</button>`).join('')}
           <input id="gpSearch" class="field" placeholder="Tìm tên tướng…" value="${esc(query)}">
@@ -797,7 +806,7 @@
       const picked = chosen.length ? `<span class="muted">Đã chọn: ${chosen.map((id, i) => `${i ? 'Phó' : 'Chủ'} tướng <b>${esc(C.general(id)?.name ?? id)}</b>`).join(' · ')}</span>` : '';
       openModal(`<div class="dialog ${big ? 'wide' : ''}">
         <h2>Chọn tướng</h2>
-        <p class="sub">${sub}</p>
+        <p class="sub">${sub}${subRules}</p>
         ${tabs}
         <div class="gen-pick">${list.map(optHTML).join('') || '<div class="empty">Không có tướng phù hợp.</div>'}</div>
         <div class="foot"><span class="grow" id="pickTimer"></span>${picked}<button type="button" class="btn ghost" id="gpReset">Chọn lại</button><button type="button" class="btn primary" id="gpOk" ${chosen.length === 2 ? '' : 'disabled'}>Xác nhận</button></div>

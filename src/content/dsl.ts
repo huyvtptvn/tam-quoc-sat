@@ -81,6 +81,8 @@ export interface GeneralJson {
   gender?: string;
   /** Quân chủ (id dạng lord_<tướng thường>): không được chia, chỉ đổi từ tướng thường lúc đầu ván. */
   lord?: boolean;
+  /** Tướng 2 thế lực, ví dụ ["wei", "shu"]: chỉ làm phó tướng, chủ tướng phải thuộc 1 trong 2 thế lực. */
+  kingdoms?: string[];
   disabled?: boolean;
 }
 
@@ -374,6 +376,8 @@ export function checkGeneral(json: GeneralJson, path: string, isNew: boolean, kn
     if (json.halfHp === undefined) errors.push(`${p}: tướng mới cần "halfHp"`);
   }
   if (json.kingdom !== undefined && !['wei', 'shu', 'wu', 'qun', 'ye'].includes(json.kingdom)) errors.push(`${p}: "kingdom" chỉ nhận wei | shu | wu | qun | ye (Dã tâm gia)`);
+  if (json.kingdoms !== undefined && (!Array.isArray(json.kingdoms) || json.kingdoms.length !== 2 || new Set(json.kingdoms).size !== 2
+    || !json.kingdoms.every((k) => ['wei', 'shu', 'wu', 'qun'].includes(k)))) errors.push(`${p}: "kingdoms" là 2 thế lực khác nhau trong wei | shu | wu | qun, ví dụ ["wei", "shu"]`);
   if (json.halfHp !== undefined && (!Number.isInteger(json.halfHp) || json.halfHp < 1 || json.halfHp > 10)) errors.push(`${p}: "halfHp" là số nguyên 1–10`);
   if (json.gender !== undefined && !['male', 'female'].includes(json.gender)) errors.push(`${p}: "gender" chỉ nhận male | female`);
   for (const s of json.skills ?? []) if (!knownSkills.has(s)) errors.push(`${p}: không có kỹ năng "${s}"`);

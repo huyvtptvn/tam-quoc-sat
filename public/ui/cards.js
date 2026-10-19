@@ -174,7 +174,7 @@
       : `<span class="wm">${k.glyph}</span><span class="vname">${esc(g.name)}</span>`;
     return `<div class="portrait k-${g.kingdom}${img ? ' has-img' : ''}${opts.down ? ' face-down' : ''}${opts.removed ? ' removed' : ''} ${opts.cls || ''}" title="${esc(generalTitle(g))}" data-gen="${esc(id)}">
       ${face}
-      <span class="kbadge">${k.glyph}</span>
+      <span class="kbadge">${(g.kingdoms && g.kingdoms.length > 1 ? g.kingdoms : [g.kingdom]).map((x) => (KINGDOM[x] || k).glyph).join('')}</span>
       ${img || opts.nameTag ? `<span class="ntag">${esc(g.name)}</span>` : ''}
       ${opts.down ? '<span class="down-tag">úp</span>' : ''}
       ${opts.removed ? '<span class="removed-tag">đã loại</span>' : ''}
@@ -183,7 +183,9 @@
 
   function generalTitle(g) {
     const sk = (g.skills || []).map((s) => `【${catalog.skills[s]?.name ?? s}】${catalog.skills[s]?.desc ?? ''}`).join('\n');
-    return `${g.name} · ${(KINGDOM[g.kingdom] || {}).label ?? ''} · ${g.halfHp} âm dương ngư\n${sk}`;
+    const ks = (g.kingdoms && g.kingdoms.length > 1 ? g.kingdoms : [g.kingdom]).map((x) => (KINGDOM[x] || {}).label ?? x).join('/');
+    const note = g.kingdoms && g.kingdoms.length > 1 ? ' · tướng 2 thế lực (chỉ làm phó tướng)' : g.kingdom === 'ye' ? ' · tướng tím (chỉ làm chủ tướng)' : '';
+    return `${g.name} · ${ks} · ${g.halfHp} âm dương ngư${note}\n${sk}`;
   }
 
   window.TQSCards = {

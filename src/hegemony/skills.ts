@@ -97,7 +97,7 @@ export interface Skill {
   trickNoDistance?: (g: HegemonyGame, owner: number) => boolean;
   /** Trả true để CẤM `chooser` lấy/bỏ trang bị của `target` (Phong Dương). Chỉ hiệu lực khi chủ kỹ năng đã lật. */
   protectEquip?: (g: HegemonyGame, owner: number, chooser: number, target: number) => boolean;
-  /** Coi như đang có bảo vật này (Dung Tứ: Ngọc Tỷ) khi tính đại thế lực. Chỉ hiệu lực khi đã lật. */
+  /** Coi như đang có bảo vật này (Dong Tứ: Ngọc Tỷ) khi tính đại thế lực. Chỉ hiệu lực khi đã lật. */
   virtualTreasure?: (g: HegemonyGame, owner: number) => CardName | null;
   /** Trả true để chủ kỹ năng (người giết) bỏ qua thưởng/phạt khi giết `victim` (Trấn Vệ của Chu Linh). Chỉ hiệu lực khi đã lật. */
   skipRewardPunish?: (g: HegemonyGame, owner: number, victim: number) => boolean;
@@ -1808,14 +1808,14 @@ Object.assign(SKILLS, {
     name: 'Kiến Anh',
     desc: 'Quân chủ kỹ, Tỏa định kỹ: Bạn có »Ngũ Tử Lương Tướng Đạo«: khi bắt đầu giai đoạn chuẩn bị của người thế lực Ngụy, họ có thể bỏ 1 lá, '
       + 'thực hiện lần lượt: nếu đã mở 2 tướng, chọn úp 1 tướng; họ chọn 1 tướng chưa mở, không thể mở tướng đó đến khi bắt đầu lượt tiếp theo của họ; '
-      + 'họ chọn 1 trong các kỹ năng chưa có trên bàn: »Tập Kích«, »Kiêu Quả«, »Xảo Biến«, »Tiết Việt«, »Đoạn Lương«, nhận kỹ năng đó đến khi bắt đầu lượt tiếp theo của họ.',
+      + 'họ chọn 1 trong các kỹ năng chưa có trên bàn: »Tập Kích«, »Dũng Mãnh«, »Xảo Biến«, »Tiết Viện«, »Đoạn Lương«, nhận kỹ năng đó đến khi bắt đầu lượt tiếp theo của họ.',
   },
 
   elitegeneralflag: {
     id: 'elitegeneralflag',
     name: 'Ngũ Tử Lương Tướng Đạo',
     desc: 'Khi bắt đầu giai đoạn chuẩn bị của người thế lực Ngụy (khi Tào Tháo - Quân còn sống), họ có thể bỏ 1 lá và chọn 1 tướng chưa mở của họ '
-      + '(nếu đã mở 2 tướng thì úp 1 tướng); họ chọn 1 kỹ năng chưa có trên bàn trong »Tập Kích«, »Kiêu Quả«, »Xảo Biến«, »Tiết Việt«, »Đoạn Lương«, '
+      + '(nếu đã mở 2 tướng thì úp 1 tướng); họ chọn 1 kỹ năng chưa có trên bàn trong »Tập Kích«, »Dũng Mãnh«, »Xảo Biến«, »Tiết Viện«, »Đoạn Lương«, '
       + 'nhận kỹ năng đó và không thể mở tướng đã chọn đến khi bắt đầu lượt tiếp theo của họ.',
     bot: { confirm: (v) => v.myHand.length >= 3 },
     blockReveal: (g, _owner, seat) => wuziBlocked(g).has(seat),

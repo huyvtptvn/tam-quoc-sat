@@ -167,7 +167,7 @@ export const EVENT_SPECS: Record<string, EventSpec> = {
   },
   trickTargeted: {
     engine: 'trickTargeted',
-    desc: 'Khi một cẩm nang (không trì hoãn) nhắm vào một người, TRƯỚC khi hỏi Vô Giải. Dùng "cancel" để hủy mục tiêu này (Vãn Nguy, Họa Thủ).',
+    desc: 'Khi một cẩm nang (không trì hoãn) nhắm vào một người, TRƯỚC khi hỏi Vô Giải. Dùng "cancel" để hủy mục tiêu này (Văn Ngụy, Họa Thủ).',
     vars: { user: 'Người dùng cẩm nang', target: 'Người bị nhắm', card: "Lá cẩm nang (card.name: 'guohe', 'nanman'...)" },
     mods: ['cancel'],
     read: (c) => ({ user: c.user, target: c.target, card: cardVars(c.card, c.name) }),

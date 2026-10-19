@@ -130,17 +130,17 @@ export default {
     // ================= Đường Tư =================
     {
       id: 'xingzhao', name: 'Hưng Thạo',
-      desc: 'Tỏa định kỹ: Dựa theo số thế lực trên bàn chơi có người bị thương: 1+: bạn có kỹ năng »Tuần Tuần«; '
+      desc: 'Tỏa định kỹ: Dựa theo số thế lực trên bàn chơi có người bị thương: 1+: bạn có kỹ năng »Tuân Tuân«; '
         + '2+: sau khi bạn nhận sát thương, nếu số bài trên tay bạn và nguồn sát thương khác nhau, người ít bài trên tay hơn rút 1 lá; '
         + '3+: giai đoạn bỏ bài, giới hạn trữ bài của bạn +4; 4+: khi bạn mất bài trong vùng trang bị, bạn rút 1 lá.',
       handLimitBonus: (g) => (g.state.phase === 'discard' && woundedFactions(g) >= 3 ? 4 : 0),
       triggers: [
-        // 1+: Tuần Tuần
+        // 1+: Tuân Tuân
         on('drawPhase', (g, ctx, o) => ctx.seat === o && ctx.count > 0 && woundedFactions(g) >= 1 && g.state.drawPile.length >= 4,
           async (g, ctx, o) => {
             ctx.count = 0;
             const top = g.state.drawPile.slice(-4).reverse();
-            const keep = await g.chooseCards(o, `${XINGZHAO_HINT} (Tuần Tuần): chọn 2 lá để lấy`, top, 2, 2, true);
+            const keep = await g.chooseCards(o, `${XINGZHAO_HINT} (Tuân Tuân): chọn 2 lá để lấy`, top, 2, 2, true);
             await g.moveCards(keep, { kind: 'draw' }, { kind: 'hand', seat: o }, 'xunxun');
             moveToBottom(g, top.filter((id) => !keep.includes(id)));
             g.say(`${name(g, o)} lấy 2 lá, đặt 2 lá xuống đáy chồng bài.`);

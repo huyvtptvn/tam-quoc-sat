@@ -35,7 +35,9 @@ export interface PublicPlayer {
   /** Thế lực đã lộ: 'wei' | 'shu' | 'wu' | 'qun' | 'careerist' (dã tâm gia), null = chưa lộ. */
   kingdom?: string | null;
   generals?: { main: SlotView; deputy: SlotView };
-  marks?: { yinyang: number; pioneer: number; pair: number };
+  marks?: { yinyang: number; pioneer: number; pair: number; ambition?: number };
+  /** Đồng minh dã tâm gia (Lạp Long Nhân Tâm): ghế người cầm đầu. */
+  careeristGroup?: number;
   /** Chồng tướng riêng trên tướng (Hồn của Tả Từ, Lục của Tôn Lâm...): tên, số lá, và id tướng nếu người xem được thấy. */
   generalPiles?: { name: string; count: number; ids?: string[] }[];
   /** Là quân chủ. */

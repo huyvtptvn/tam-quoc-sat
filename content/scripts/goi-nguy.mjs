@@ -99,7 +99,7 @@ export default {
 
     // ---------------- Tào Nhân ----------------
     {
-      id: 'jushou', name: 'Cứ Thủ',
+      id: 'jushou', name: 'Chiếm Thủ',
       desc: 'Khi bắt đầu giai đoạn kết thúc, bạn có thể rút X lá (X là số thế lực còn sống), thực hiện lần lượt: '
         + 'bạn sử dụng 1 trang bị trên tay hoặc bỏ 1 lá phi trang bị; nếu bạn rút > 2 lá, bạn thay đổi trạng thái chồng tướng.',
       bot: { confirm: (v) => viewFactions(v) <= 2 || v.players[v.me].hp <= 2 },
@@ -111,12 +111,12 @@ export default {
           const non = hand(g, o).filter((id) => !isEquip(g.card(id)));
           const opts = [...(eqs.length ? ['Sử dụng 1 trang bị trên tay'] : []), ...(non.length ? ['Bỏ 1 lá phi trang bị'] : [])];
           if (opts.length) {
-            const i = opts.length > 1 ? await g.choose(o, 'Cứ Thủ: bạn chọn', opts) : 0;
+            const i = opts.length > 1 ? await g.choose(o, 'Chiếm Thủ: bạn chọn', opts) : 0;
             if (opts[i] === 'Sử dụng 1 trang bị trên tay') {
-              const [id] = await g.chooseCards(o, 'Cứ Thủ: chọn trang bị để sử dụng', eqs, 1, 1);
+              const [id] = await g.chooseCards(o, 'Chiếm Thủ: chọn trang bị để sử dụng', eqs, 1, 1);
               await g.equip(o, g.card(id));
             } else {
-              const [id] = await g.chooseCards(o, 'Cứ Thủ: bỏ 1 lá phi trang bị', non, 1, 1);
+              const [id] = await g.chooseCards(o, 'Chiếm Thủ: bỏ 1 lá phi trang bị', non, 1, 1);
               await discardOwn(g, o, [id]);
             }
           }
@@ -127,7 +127,7 @@ export default {
 
     // ---------------- Tuân Úc ----------------
     {
-      id: 'quhu', name: 'Khu Hổ',
+      id: 'quhu', name: 'Vờn Hổ',
       desc: 'Một lần trong giai đoạn ra bài, bạn có thể tiến hành đấu điểm với 1 người có số máu > bạn: nếu bạn thắng: họ gây 1 sát thương '
         + 'cho 1 người trong tầm đánh của họ do bạn chỉ định; nếu bạn không thắng: họ gây 1 sát thương cho bạn.',
       bot: { use: 'always', target: 'enemy' },
@@ -137,11 +137,11 @@ export default {
         validTarget: (g, s, t) => t !== s && g.player(t).hp > g.player(s).hp && hand(g, t).length > 0,
         run: async (g, s, _c, [t]) => {
           g.player(s).flags.quhu = 1;
-          const r = await pindian(g, s, t, 'Khu Hổ');
+          const r = await pindian(g, s, t, 'Vờn Hổ');
           if (!r) return;
           if (r.win) {
             const vic = g.alivePlayers().map((p) => p.seat).filter((x) => x !== t && g.distance(t, x) <= g.attackRange(t));
-            const [x] = await g.chooseTargets(s, `Khu Hổ: chọn người để ${name(g, t)} gây 1 sát thương`, vic, 1, 1, 'enemy');
+            const [x] = await g.chooseTargets(s, `Vờn Hổ: chọn người để ${name(g, t)} gây 1 sát thương`, vic, 1, 1, 'enemy');
             if (x !== undefined) await g.damage({ source: t, target: x, amount: 1, card: null, cancelled: false });
           } else {
             await g.damage({ source: t, target: s, amount: 1, card: null, cancelled: false });
@@ -177,21 +177,21 @@ export default {
       ],
     },
     {
-      id: 'fangzhu', name: 'Phóng Trục',
+      id: 'fangzhu', name: 'Lưu Đày',
       desc: 'Sau khi bạn nhận sát thương, bạn có thể lệnh 1 người khác lựa chọn 1 mục: 1. Họ rút X lá, sau đó thay đổi trạng thái chồng tướng; '
         + '2. Họ bỏ X lá, sau đó mất 1 máu (X là số máu đã mất của bạn).',
       triggers: [
         on('damaged', (g, ctx, o) => ctx.target === o && others(g, o).length > 0, async (g, _ctx, o) => {
-          const [t] = await g.chooseTargets(o, 'Phóng Trục: chọn 1 người khác', others(g, o), 1, 1, 'enemy');
+          const [t] = await g.chooseTargets(o, 'Lưu Đày: chọn 1 người khác', others(g, o), 1, 1, 'enemy');
           if (t === undefined) return;
           const x = lostHp(g, o);
           const opts = [`Rút ${x} lá rồi thay đổi trạng thái chồng tướng`, ...(x > 0 && allCards(g, t).length >= x ? [`Bỏ ${x} lá rồi mất 1 máu`] : [])];
-          const i = opts.length > 1 ? await g.choose(t, `Phóng Trục của ${name(g, o)}: bạn chọn`, opts) : 0;
+          const i = opts.length > 1 ? await g.choose(t, `Lưu Đày của ${name(g, o)}: bạn chọn`, opts) : 0;
           if (i === 0) {
             await g.draw(t, x);
             g.turnOver(t);
           } else {
-            const ids = await chooseOwn(g, t, `Phóng Trục: bỏ ${x} lá`, x, x);
+            const ids = await chooseOwn(g, t, `Lưu Đày: bỏ ${x} lá`, x, x);
             await discardOwn(g, t, ids ?? []);
             await g.loseHp(t, 1);
           }
@@ -201,7 +201,7 @@ export default {
 
     // ---------------- Nhạc Tiến ----------------
     {
-      id: 'xiaoguo', name: 'Kiêu Quả',
+      id: 'xiaoguo', name: 'Dũng Mãnh',
       desc: 'Khi bắt đầu giai đoạn kết thúc của 1 người khác, bạn có thể bỏ 1 lá cơ bản, lệnh họ chọn 1 mục: '
         + '1. Họ bỏ 1 trang bị và lệnh bạn rút 1 lá; 2. Bạn gây 1 sát thương cho họ.',
       bot: { confirm: (v, h) => !h.isAlly(v.currentSeat) },
@@ -210,11 +210,11 @@ export default {
           && hand(g, o).some((id) => isBasic(g.card(id))),
           async (g, ctx, o) => {
             const basics = hand(g, o).filter((id) => isBasic(g.card(id)));
-            const [id] = await g.chooseCards(o, 'Kiêu Quả: bỏ 1 lá cơ bản', basics, 1, 1);
+            const [id] = await g.chooseCards(o, 'Dũng Mãnh: bỏ 1 lá cơ bản', basics, 1, 1);
             await discardOwn(g, o, [id]);
             const t = ctx.seat;
             const eqs = SLOTS.flatMap((s) => g.player(t).equips[s]);
-            const pick = eqs.length ? await g.choose(t, `Kiêu Quả của ${name(g, o)}: bạn chọn`, [`Bỏ 1 trang bị (${name(g, o)} rút 1 lá)`, 'Chịu 1 sát thương']) : 1;
+            const pick = eqs.length ? await g.choose(t, `Dũng Mãnh của ${name(g, o)}: bạn chọn`, [`Bỏ 1 trang bị (${name(g, o)} rút 1 lá)`, 'Chịu 1 sát thương']) : 1;
             if (pick === 0) {
               const [e] = await g.chooseCards(t, 'Bỏ 1 lá trang bị', eqs, 1, 1, true);
               await discardOwn(g, t, [e]);
@@ -320,13 +320,13 @@ export default {
 
     // ---------------- Lý Điển ----------------
     {
-      id: 'xunxun', name: 'Tuần Tuần',
+      id: 'xunxun', name: 'Tuân Tuân',
       desc: 'Khi bắt đầu giai đoạn rút bài, bạn có thể xem 4 lá trên đầu chồng bài rút, sau đó đặt 2 lá trong số đó lên đầu chồng bài rút, '
         + 'còn lại đặt xuống đáy chồng bài rút.',
       triggers: [
         on('phaseStart', (g, ctx, o) => ctx.seat === o && ctx.phase === 'draw' && g.state.drawPile.length >= 4, async (g, _ctx, o) => {
           const top = g.state.drawPile.slice(-4).reverse();
-          const keep = await g.chooseCards(o, 'Tuần Tuần: chọn 2 lá đặt lên đầu chồng bài', top, 2, 2, true);
+          const keep = await g.chooseCards(o, 'Tuân Tuân: chọn 2 lá đặt lên đầu chồng bài', top, 2, 2, true);
           moveToBottom(g, top.filter((id) => !keep.includes(id)));
           // đặt 2 lá đã chọn lên trên cùng (lá chọn trước nằm trên cùng)
           const pile = g.state.drawPile;
@@ -386,16 +386,16 @@ export default {
 
     // ---------------- Vu Cấm ----------------
     {
-      id: 'jieyue', name: 'Tiết Việt',
+      id: 'jieyue', name: 'Tiết Viện',
       desc: 'Khi bắt đầu giai đoạn chuẩn bị, bạn có thể giao 1 lá trên tay cho 1 người không phải thế lực Ngụy, sau đó yêu cầu họ chấp hành 1 [Quân Lệnh]: '
         + 'nếu họ chấp hành, bạn rút 1 lá; nếu không, giai đoạn rút bài lượt này, bạn rút thêm 3 lá.',
       triggers: [
         on('phaseStart', (g, ctx, o) => ctx.seat === o && ctx.phase === 'start' && hand(g, o).length > 0
           && others(g, o, (s) => g.shownKingdom(s) !== 'wei').length > 0,
           async (g, _ctx, o) => {
-            const [t] = await g.chooseTargets(o, 'Tiết Việt: chọn người nhận bài', others(g, o, (s) => g.shownKingdom(s) !== 'wei'), 1, 1, 'enemy');
+            const [t] = await g.chooseTargets(o, 'Tiết Viện: chọn người nhận bài', others(g, o, (s) => g.shownKingdom(s) !== 'wei'), 1, 1, 'enemy');
             if (t === undefined) return;
-            const [id] = await g.chooseCards(o, `Tiết Việt: giao 1 lá cho ${name(g, t)}`, [...hand(g, o)], 1, 1);
+            const [id] = await g.chooseCards(o, `Tiết Viện: giao 1 lá cho ${name(g, t)}`, [...hand(g, o)], 1, 1);
             await give(g, o, t, [id]);
             const order = await drawOrder(g, o);
             if (await askOrder(g, o, t, order)) await g.draw(o, 1);
@@ -456,9 +456,9 @@ export default {
       ],
     },
 
-    // ---------------- Biện Hoàng Hậu ----------------
+    // ---------------- Biện Phu Nhân ----------------
     {
-      id: 'wanwei', name: 'Vãn Nguy',
+      id: 'wanwei', name: 'Văn Ngụy',
       desc: 'Khi bài của bạn bị người khác chỉ định để thu lấy hoặc bỏ, bạn có thể đổi thành tự chọn lá của bạn. '
         + '(Đơn giản hóa: áp dụng khi người khác chọn 1 lá của bạn bằng Quá Hà Sách Kiều, Thuận Thủ Khiên Dương, Hàn Băng Kiếm và các kỹ năng dùng cách chọn bài chung của engine.)',
       redirectPick: async (g, o, chooser, includeJudge) => {
@@ -469,11 +469,11 @@ export default {
         if (ids.length < 2) return null;
         const slot = g.hero(o)[w];
         const ok = await g.ask({ type: 'confirm', seat: o, skill: 'wanwei', reveal: !slot.revealed,
-          prompt: `${slot.revealed ? '' : 'Lật Biện Hoàng Hậu để '}Vãn Nguy: tự chọn lá bị ${name(g, chooser)} lấy/bỏ?` });
+          prompt: `${slot.revealed ? '' : 'Lật Biện Phu Nhân để '}Văn Ngụy: tự chọn lá bị ${name(g, chooser)} lấy/bỏ?` });
         if (ok.kind !== 'yes' || !g.player(o).alive) return null;
         if (!slot.revealed) await g.reveal(o, w);
-        g.say(`${name(g, o)} kích hoạt Vãn Nguy.`);
-        const [id] = await g.chooseCards(o, 'Vãn Nguy: chọn lá của bạn', ids, 1, 1);
+        g.say(`${name(g, o)} kích hoạt Văn Ngụy.`);
+        const [id] = await g.chooseCards(o, 'Văn Ngụy: chọn lá của bạn', ids, 1, 1);
         return { id, from: zoneOf(g, o, id) };
       },
     },
@@ -500,7 +500,7 @@ export default {
 
     // ---------------- Tào Chân ----------------
     {
-      id: 'sidi', name: 'Ti Địch',
+      id: 'sidi', name: 'Ty Địch',
       desc: 'Sau khi người cùng thế lực với bạn nhận sát thương, nếu họ có bài và số loại [Ngự] của bạn < 3, bạn có thể phát động kỹ năng, '
         + 'họ có thể đặt 1 lá của họ lên tướng của bạn, gọi là [Ngự] (không thể chọn lá cùng loại với những [Ngự] đã có). '
         + 'Sau khi bắt đầu lượt của người thế lực khác bạn, bạn có thể đưa tối đa 3 [Ngự] vào chồng bài bỏ, đưa ra số lựa chọn khác nhau tương ứng với mỗi [Ngự]: '
@@ -515,7 +515,7 @@ export default {
             const t = ctx.target;
             const have = yuTypes(g, o);
             const ids = allCards(g, t).filter((id) => !have.has(typeOf(g.card(id))));
-            const [id] = await g.chooseCards(t, `Ti Địch: đặt 1 lá lên tướng của ${name(g, o)} làm [Ngự]? (có thể bỏ qua)`, ids, t === o ? 1 : 0, 1);
+            const [id] = await g.chooseCards(t, `Ty Địch: đặt 1 lá lên tướng của ${name(g, o)} làm [Ngự]? (có thể bỏ qua)`, ids, t === o ? 1 : 0, 1);
             if (id === undefined) return;
             await g.moveCards([id], zoneOf(g, t, id), { kind: 'special', seat: o }, 'sidi');
             g.say(`${name(g, t)} đặt ${label(g, id)} lên tướng của ${name(g, o)} làm Ngự.`);
@@ -523,7 +523,7 @@ export default {
         on('turnStart', (g, ctx, o) => ctx.seat !== o && g.isDifferentFaction(ctx.seat, o) && g.player(o).special.length > 0,
           async (g, ctx, o) => {
             const t = ctx.seat;
-            const ids = await g.chooseCards(o, `Ti Địch: đưa tối đa 3 Ngự vào chồng bài bỏ (kiềm chế ${name(g, t)})`, [...g.player(o).special], 1, Math.min(3, g.player(o).special.length), true);
+            const ids = await g.chooseCards(o, `Ty Địch: đưa tối đa 3 Ngự vào chồng bài bỏ (kiềm chế ${name(g, t)})`, [...g.player(o).special], 1, Math.min(3, g.player(o).special.length), true);
             if (!ids.length) return;
             const types = [...new Set(ids.map((id) => typeOf(g.card(id))))];
             await g.moveCards(ids, { kind: 'special', seat: o }, { kind: 'discard' }, 'sidi');
@@ -533,12 +533,12 @@ export default {
                 .filter((x) => x !== 'heal' || g.alivePlayers().some((p) => p.seat !== t && (p.seat === o || g.isSameFaction(p.seat, o)) && p.hp < p.maxHp));
               if (!avail.length) break;
               const LABEL = { ban: 'Cấm một loại bài trong lượt', skill: 'Vô hiệu 1 kỹ năng trong lượt', heal: 'Họ chọn 1 người cùng thế lực với bạn hồi 1 máu' };
-              const i = avail.length > 1 ? await g.choose(o, `Ti Địch (${k + 1}/${ids.length}): chọn hiệu quả`, avail.map((x) => LABEL[x])) : 0;
+              const i = avail.length > 1 ? await g.choose(o, `Ty Địch (${k + 1}/${ids.length}): chọn hiệu quả`, avail.map((x) => LABEL[x])) : 0;
               const pick = avail[i];
               left.splice(left.indexOf(pick), 1);
               if (pick === 'ban') {
                 const TL = { basic: 'Cơ bản', trick: 'Công cụ', equip: 'Trang bị' };
-                const ti = types.length > 1 ? await g.choose(o, 'Ti Địch: cấm loại bài nào', types.map((x) => TL[x])) : 0;
+                const ti = types.length > 1 ? await g.choose(o, 'Ty Địch: cấm loại bài nào', types.map((x) => TL[x])) : 0;
                 const ty = types[ti];
                 const f = g.player(t).flags;
                 f[`turn_banType_${ty}`] = 1;
@@ -546,12 +546,12 @@ export default {
                 g.say(`${name(g, t)} lượt này không thể sử dụng bài loại ${TL[ty]}.`);
               } else if (pick === 'skill') {
                 const sk = sidiSkills(g, t);
-                const si = sk.length > 1 ? await g.choose(o, `Ti Địch: vô hiệu kỹ năng nào của ${name(g, t)}`, sk.map((x) => g.skillName(x))) : 0;
+                const si = sk.length > 1 ? await g.choose(o, `Ty Địch: vô hiệu kỹ năng nào của ${name(g, t)}`, sk.map((x) => g.skillName(x))) : 0;
                 g.player(t).flags[`turn_noSkill_${sk[si]}`] = 1;
                 g.say(`Kỹ năng ${g.skillName(sk[si])} của ${name(g, t)} bị vô hiệu trong lượt này.`);
               } else {
                 const cands = g.alivePlayers().map((p) => p.seat).filter((s) => s !== t && (s === o || g.isSameFaction(s, o)) && g.player(s).hp < g.player(s).maxHp);
-                const [x] = await g.chooseTargets(t, `Ti Địch: chọn 1 người cùng thế lực với ${name(g, o)} để hồi 1 máu`, cands, 1, 1);
+                const [x] = await g.chooseTargets(t, `Ty Địch: chọn 1 người cùng thế lực với ${name(g, o)} để hồi 1 máu`, cands, 1, 1);
                 if (x !== undefined) await g.recover(x, 1, o);
               }
             }
@@ -645,7 +645,7 @@ export default {
 
     // ---------------- Hoa Hâm ----------------
     {
-      id: 'wanggui', name: 'Vọng Quy',
+      id: 'wanggui', name: 'Vong Quy',
       desc: 'Một lần trong lượt của mỗi người, sau khi bạn gây hoặc nhận sát thương và bạn đã mở tướng này, nếu tướng còn lại của bạn: '
         + 'chưa mở: bạn có thể gây 1 sát thương cho người thế lực xác định khác bạn; đã mở: bạn có thể lệnh những người cùng thế lực rút 1 lá.',
       triggers: [
@@ -659,7 +659,7 @@ export default {
             for (const s of sameFactionSeats(g, o)) await g.draw(s, 1);
           } else {
             const cands = others(g, o, (s) => g.isDifferentFaction(s, o));
-            const [t] = await g.chooseTargets(o, 'Vọng Quy: gây 1 sát thương cho người thế lực xác định khác bạn', cands, 0, 1, 'enemy');
+            const [t] = await g.chooseTargets(o, 'Vong Quy: gây 1 sát thương cho người thế lực xác định khác bạn', cands, 0, 1, 'enemy');
             if (t !== undefined) await g.damage({ source: o, target: t, amount: 1, card: null, cancelled: false });
           }
         }),

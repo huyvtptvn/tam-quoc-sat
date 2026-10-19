@@ -180,8 +180,8 @@ export const ACTION_SPECS: Record<string, ActionSpec> = {
   say: { desc: 'Ghi một dòng vào nhật ký. Có thể chèn biểu thức trong ngoặc nhọn: "{self.name} bốc {amount} lá".', params: { text: { type: 'text', required: true, desc: 'Nội dung' } } },
   stop: { desc: 'Dừng, không chạy các hành động phía sau.', params: {} },
   // ----- Cơ chế mở rộng (giai đoạn 7) -----
-  turnOver: { desc: 'Lật úp tướng của một người: họ bỏ qua lượt kế tiếp rồi lật lại (Cứ Thủ, Phóng Trục). Gọi lần nữa khi đang úp thì lật lại ngay.', params: { who: who() } },
-  extraTurn: { desc: 'Cho một người thêm một lượt ngay sau lượt hiện tại (Phóng Quyền).', params: { who: who() } },
+  turnOver: { desc: 'Lật úp tướng của một người: họ bỏ qua lượt kế tiếp rồi lật lại (Chiếm Thủ, Lưu Đày). Gọi lần nữa khi đang úp thì lật lại ngay.', params: { who: who() } },
+  extraTurn: { desc: 'Cho một người thêm một lượt ngay sau lượt hiện tại (Ủy Quyền).', params: { who: who() } },
   useAs: {
     desc: 'Coi như dùng một lá bài mà không cần lá thật (Thần Tốc: coi như dùng Sát). Sát ảo không bị giới hạn khoảng cách và không tính vào số lần Sát.',
     params: {

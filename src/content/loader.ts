@@ -180,10 +180,11 @@ export async function prepareContent(dir: string, overrides: Record<string, stri
     const g = {
       id: data.id,
       name: data.name ?? prev?.name ?? data.id,
-      kingdom: (data.kingdom ?? prev?.kingdom ?? 'wei') as Kingdom,
+      kingdom: (data.kingdoms?.[0] ?? data.kingdom ?? prev?.kingdom ?? 'wei') as Kingdom,
+      kingdoms: (data.kingdoms ?? prev?.kingdoms) as Kingdom[] | undefined,
       halfHp: data.halfHp ?? prev?.halfHp ?? 4,
       skills: data.skills ?? prev?.skills ?? [],
-      disabled: data.disabled ?? false,
+      disabled: data.disabled ?? prev?.disabled ?? false,
       female: data.gender === undefined ? prev?.female : data.gender === 'female',
       lord: data.lord === undefined ? prev?.lord : !!data.lord,
     };
@@ -243,7 +244,7 @@ export async function prepareContent(dir: string, overrides: Record<string, stri
     GENERALS.length = 0;
     DISABLED_GENERALS.length = 0;
     for (const g of merged.values()) {
-      const plain = { id: g.id, name: g.name, kingdom: g.kingdom, halfHp: g.halfHp, skills: g.skills, ...(g.female ? { female: true } : {}), ...(g.lord ? { lord: true } : {}) };
+      const plain = { id: g.id, name: g.name, kingdom: g.kingdom, halfHp: g.halfHp, skills: g.skills, ...(g.female ? { female: true } : {}), ...(g.lord ? { lord: true } : {}), ...(g.kingdoms && g.kingdoms.length > 1 ? { kingdoms: g.kingdoms } : {}) };
       (g.disabled ? DISABLED_GENERALS : GENERALS).push(plain);
     }
     reindexGenerals();

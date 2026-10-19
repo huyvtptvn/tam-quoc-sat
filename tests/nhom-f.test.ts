@@ -31,7 +31,7 @@ test('Thần Tốc: bỏ qua giai đoạn bỏ bài, mất 1 máu, coi như dùn
   assert.equal(game.player(1).hp, hp1 - 1);
 });
 
-test('Cứ Thủ: chỉ 2 thế lực -> bốc 2 lá, không bị lật úp', async () => {
+test('Chiếm Thủ: chỉ 2 thế lực -> bốc 2 lá, không bị lật úp', async () => {
   const { game, ctrls } = makeHG([['caoren', 'xuchu'], ['liubei', 'zhangfei']]);
   await game.setup();
   await revealAll(game, 0, 1);
@@ -43,7 +43,7 @@ test('Cứ Thủ: chỉ 2 thế lực -> bốc 2 lá, không bị lật úp', as
   assert.equal(handSize(game, 0), before + 1, 'bốc 2, rồi dùng trang bị hoặc bỏ 1 lá');
 });
 
-test('Phóng Trục: người bị chọn có thể bỏ X lá rồi mất 1 máu', async () => {
+test('Lưu Đày: người bị chọn có thể bỏ X lá rồi mất 1 máu', async () => {
   const { game, ctrls } = makeHG([['caopi', 'xuchu'], ['liubei', 'zhangfei']]);
   await game.setup();
   await revealAll(game, 0, 1);
@@ -56,7 +56,7 @@ test('Phóng Trục: người bị chọn có thể bỏ X lá rồi mất 1 má
   assert.ok(!game.player(1).faceDown);
 });
 
-test('Kiêu Quả: người bị chọn bỏ 1 trang bị thì Nhạc Tiến rút 1 lá', async () => {
+test('Dũng Mãnh: người bị chọn bỏ 1 trang bị thì Nhạc Tiến rút 1 lá', async () => {
   const { game, ctrls } = makeHG([['yuejin', 'xuchu'], ['liubei', 'zhangfei']]);
   await game.setup();
   await revealAll(game, 0, 1);
@@ -110,7 +110,7 @@ test('Hoành Giang: cuối lượt rút X lá (X = số lần đã phát động
   assert.equal(handSize(game, 1), h1 + 2);
 });
 
-test('Vãn Nguy: khi bị Quá Hà Sách Kiều chọn bài, Biện Hoàng Hậu tự chọn lá', async () => {
+test('Văn Ngụy: khi bị Quá Hà Sách Kiều chọn bài, Biện Phu Nhân tự chọn lá', async () => {
   const { game, ctrls } = makeHG([['liubei', 'zhangfei'], ['bianhuanghou', 'xuchu']]);
   await game.setup();
   await revealAll(game, 0, 1);
@@ -121,7 +121,7 @@ test('Vãn Nguy: khi bị Quá Hà Sách Kiều chọn bài, Biện Hoàng Hậu
   game.state.phase = 'play';
   const r = await game.useCard(0, gh, [1]);
   assert.equal(r.ok, true);
-  assert.ok(game.state.discardPile.includes(mine), 'lá do Biện Hoàng Hậu chọn bị bỏ');
+  assert.ok(game.state.discardPile.includes(mine), 'lá do Biện Phu Nhân chọn bị bỏ');
 });
 
 test('Vũ Khố: chỉ người thế lực xác định khác dùng trang bị mới tăng dấu; Diệt Ngô chuyển hóa lá rồi rút 1', async () => {
@@ -468,7 +468,7 @@ test('Vấn Kế: người khác thế lực giao lá thì Lưu Kỳ giao lại 
   assert.equal(handSize(game, 1), h1);
 });
 
-test('Ti Địch: người cùng thế lực bị thương đặt Ngự; đầu lượt người khác thế lực bỏ Ngự để cấm loại bài', async () => {
+test('Ty Địch: người cùng thế lực bị thương đặt Ngự; đầu lượt người khác thế lực bỏ Ngự để cấm loại bài', async () => {
   const { game, ctrls } = makeHG([['caozhen', 'xuchu'], ['liubei', 'zhangfei']]);
   await game.setup();
   await revealAll(game, 0, 1);

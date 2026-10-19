@@ -188,7 +188,7 @@ input.field:focus { border-color: var(--rim); outline: none; }
 .seat .tags { display: flex; gap: 4px; flex-wrap: wrap; font-size: 11.5px; }
 .tag { padding: 0 .45em; border-radius: 3px; background: rgba(197,152,82,.16); white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 .tag.k-wei { background: #2f4f86; } .tag.k-shu { background: #8f2b21; } .tag.k-wu { background: #2e6a46; }
-.tag.k-qun { background: #6e6553; } .tag.k-careerist { background: #5c3b78; }
+.tag.k-qun { background: #6e6553; } .tag.k-careerist, .tag.k-ye { background: #5c3b78; }
 .tag.chain { background: rgba(130, 140, 160, .35); }
 .tag.facedown { background: rgba(224, 83, 63, .45); }
 .handcount {

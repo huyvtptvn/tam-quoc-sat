@@ -28,7 +28,7 @@ export default {
       trickNoDistance: () => true,
     },
 
-    // ---------------- Ngọa Long ----------------
+    // ---------------- Khổng Minh (Ngọa Long) ----------------
     {
       id: 'bazhen', name: 'Bát Trận',
       desc: 'Tỏa định kỹ: nếu vùng trang bị của bạn không có phòng cụ, bạn xem như có [Bát Quái Trận].',
@@ -88,7 +88,7 @@ export default {
       ],
     },
     {
-      id: 'fangquan', name: 'Phóng Quyền',
+      id: 'fangquan', name: 'Ủy Quyền',
       desc: 'Khi tiến vào giai đoạn ra bài, bạn có thể bỏ qua giai đoạn này; ▶ Khi kết thúc lượt này, bạn có thể bỏ 1 lá bài trên tay, lệnh 1 người có 1 lượt sau lượt này.',
       bot: { confirm: false },
       triggers: [
@@ -100,9 +100,9 @@ export default {
         on('turnEnd', (g, ctx, o) => ctx.seat === o && g.player(o).flags.fangquan === 1 && hand(g, o).length > 0 && others(g, o).length > 0,
           async (g, _ctx, o) => {
             g.player(o).flags.fangquan = 0;
-            const [t] = await g.chooseTargets(o, 'Phóng Quyền: chọn người được thêm một lượt', others(g, o), 1, 1, 'ally');
+            const [t] = await g.chooseTargets(o, 'Ủy Quyền: chọn người được thêm một lượt', others(g, o), 1, 1, 'ally');
             if (t === undefined) return;
-            const [id] = await g.chooseCards(o, 'Phóng Quyền: bỏ 1 lá trên tay', [...hand(g, o)], 1, 1);
+            const [id] = await g.chooseCards(o, 'Ủy Quyền: bỏ 1 lá trên tay', [...hand(g, o)], 1, 1);
             await discardOwn(g, o, [id]);
             g.grantExtraTurn(t);
           }),
@@ -477,7 +477,7 @@ export default {
       ],
     },
 
-    // ---------------- Mã Tốc ----------------
+    // ---------------- Mã Tắc ----------------
     {
       id: 'sanyao', name: 'Tán Dao',
       desc: 'Một lần trong giai đoạn ra bài, bạn có thể bỏ 1 lá và chọn 1 người nhiều máu nhất, bạn gây 1 sát thương cho họ.',

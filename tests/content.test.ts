@@ -1,7 +1,7 @@
 // Test ngôn ngữ kỹ năng JSON và bộ nạp nội dung.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { CARD_INFO, isRed } from '../src/core/cards.js';
@@ -24,6 +24,22 @@ function contentDir(files: Record<string, unknown>): string {
 }
 
 const playSteps = (steps: Response[]) => () => steps.shift() ?? ({ kind: 'endPlay' } as Response);
+
+/**
+ * Kỹ năng JSON mẫu (content/skills/vi-du.json) không còn gắn vào tướng đang bật: nạp thư mục tạm gồm file kỹ năng mẫu
+ * và các tướng thử (id riêng) để kiểm tra ngôn ngữ JSON.
+ */
+function demoDir(): string {
+  return contentDir({
+    'skills/vi-du.json': readFileSync('content/skills/vi-du.json', 'utf8'),
+    'generals/mau.json': [
+      { id: 'mau_tran_cung', name: 'Trần Cung (mẫu)', kingdom: 'qun', halfHp: 3, skills: ['doc_ke', 'tran_tinh'] },
+      { id: 'mau_muu_si', name: 'Mưu Sĩ (mẫu)', kingdom: 'shu', halfHp: 3, skills: ['muu_dinh', 'an_cu'] },
+      { id: 'mau_kiem_khach', name: 'Kiếm Khách (mẫu)', kingdom: 'wei', halfHp: 4, skills: ['kiem_khach'] },
+      { id: 'mau_tuong_ngo', name: 'Tướng Ngô (mẫu)', kingdom: 'wu', halfHp: 4, skills: ['phan_hoi', 'kien_thu'] },
+    ],
+  });
+}
 
 // ============================================================ Biểu thức
 
@@ -48,14 +64,22 @@ test('biểu thức: số học, so sánh, logic, thuộc tính, hàm', () => {
 test('nội dung mẫu nạp được, không lỗi', async () => {
   const r = await loadContent('content');
   assert.deepEqual(r.errors, []);
-  assert.ok(r.applied!.skills.includes('phan_hoi'));
-  assert.ok(GENERALS.some((g) => g.id === 'chen_gong'));
-  assert.equal(getGeneral('xuchu').halfHp, 5, 'chỉnh tướng có sẵn');
+  assert.ok(r.applied!.skills.includes('phan_hoi'), 'kỹ năng JSON mẫu vẫn được biên dịch');
+  assert.ok(r.applied!.skills.includes('lianhuan') && r.applied!.skills.includes('tianyi'));
+  assert.ok(GENERALS.some((g) => g.id === 'pang_tong'));
+  assert.deepEqual(getGeneral('taishi_ci').skills, ['tianyi']);
+  // Tướng không có trong file lua: tắt (kể cả tướng có sẵn trong engine)
+  assert.ok(r.applied!.disabledGenerals.includes('chen_gong') && r.applied!.disabledGenerals.includes('liubiao'));
+  assert.equal(GENERALS.some((g) => g.id === 'chen_gong' || g.id === 'liubiao'), false);
+  // Không tướng đang bật nào dùng kỹ năng mẫu
+  const demo = new Set(['phan_hoi', 'kien_thu', 'doc_ke', 'an_cu', 'tran_tinh', 'muu_dinh', 'kiem_khach', 'tich_luong']);
+  assert.equal(GENERALS.some((g) => g.skills.some((s) => demo.has(s))), false);
+  assert.equal(getGeneral('xuchu').halfHp, 4);
 });
 
 test('Phản Hồi (kích hoạt): chịu sát thương thì bốc số lá bằng số sát thương', async () => {
-  await loadContent('content');
-  const { game, ctrls } = makeHG([['caocao', 'xuchu'], ['taishi_ci', 'sunquan']]);
+  await loadContent(demoDir());
+  const { game, ctrls } = makeHG([['caocao', 'xuchu'], ['mau_tuong_ngo', 'sunquan']]);
   ctrls[1].set('confirm', onlySkill('phan_hoi'));
   await game.damage({ source: 0, target: 1, amount: 2, card: null, cancelled: false });
   assert.equal(game.player(1).hand.length, 2);
@@ -63,8 +87,8 @@ test('Phản Hồi (kích hoạt): chịu sát thương thì bốc số lá bằ
 });
 
 test('Kiên Thủ (sửa sự kiện, tỏa định): ít máu thì sát thương lớn hơn 1 giảm 1', async () => {
-  await loadContent('content');
-  const { game } = makeHG([['caocao', 'xuchu'], ['taishi_ci', 'sunquan']]);
+  await loadContent(demoDir());
+  const { game } = makeHG([['caocao', 'xuchu'], ['mau_tuong_ngo', 'sunquan']]);
   await game.reveal(1, 'main');
   game.player(1).hp = 2;
   await game.damage({ source: 0, target: 1, amount: 2, card: null, cancelled: false });
@@ -72,8 +96,8 @@ test('Kiên Thủ (sửa sự kiện, tỏa định): ít máu thì sát thươn
 });
 
 test('Độc Kế (phán định + lựa chọn + giới hạn mỗi lượt)', async () => {
-  await loadContent('content');
-  const { game, ctrls } = makeHG([['chen_gong', 'lvbu'], ['caocao', 'xuchu']]);
+  await loadContent(demoDir());
+  const { game, ctrls } = makeHG([['mau_tran_cung', 'lvbu'], ['caocao', 'xuchu']]);
   ctrls[0].set('confirm', onlySkill('doc_ke'));
   ctrls[1].set('choose', () => ({ kind: 'choice', index: 1 })); // chọn mất 1 máu
   await give(game, 1, 'tao');
@@ -92,8 +116,8 @@ test('Độc Kế (phán định + lựa chọn + giới hạn mỗi lượt)', 
 });
 
 test('Trần Tình (chủ động): bỏ 1 lá đỏ gây sát thương; lá đen bị từ chối; mỗi lượt 1 lần', async () => {
-  await loadContent('content');
-  const { game, ctrls } = makeHG([['chen_gong', 'lvbu'], ['caocao', 'xuchu']]);
+  await loadContent(demoDir());
+  const { game, ctrls } = makeHG([['mau_tran_cung', 'lvbu'], ['caocao', 'xuchu']]);
   const red = game.state.drawPile.find((id) => isRed(game.card(id)))!;
   const black = game.state.drawPile.find((id) => !isRed(game.card(id)))!;
   await game.moveCards([red, black], { kind: 'draw' }, { kind: 'hand', seat: 0 }, 'test');
@@ -110,8 +134,8 @@ test('Trần Tình (chủ động): bỏ 1 lá đỏ gây sát thương; lá đe
 });
 
 test('Mưu Định (chủ động): bỏ 2 lá bốc 3 lá', async () => {
-  await loadContent('content');
-  const { game, ctrls } = makeHG([['pang_tong', 'liubei'], ['caocao', 'xuchu']]);
+  await loadContent(demoDir());
+  const { game, ctrls } = makeHG([['mau_muu_si', 'liubei'], ['caocao', 'xuchu']]);
   const [a, b] = await give(game, 0, 'sha', 'sha');
   game.bus.on('drawPhase', (ctx) => { if (ctx.seat === 0) ctx.count = 0; });
   game.player(0).maxHp = game.player(0).hp = 10;
@@ -121,8 +145,8 @@ test('Mưu Định (chủ động): bỏ 2 lá bốc 3 lá', async () => {
 });
 
 test('An Cư: cuối lượt hết bài thì hồi 1 máu', async () => {
-  await loadContent('content');
-  const { game } = makeHG([['pang_tong', 'liubei'], ['caocao', 'xuchu']]);
+  await loadContent(demoDir());
+  const { game } = makeHG([['mau_muu_si', 'liubei'], ['caocao', 'xuchu']]);
   await game.reveal(0, 'main');
   game.player(0).hp = 1;
   game.bus.on('drawPhase', (ctx) => { if (ctx.seat === 0) ctx.count = 0; });
@@ -131,8 +155,8 @@ test('An Cư: cuối lượt hết bài thì hồi 1 máu', async () => {
 });
 
 test('Kiếm Khách (bị động): tầm đánh +1, Sát 2 lần, lá Chuồn dùng như Sát', async () => {
-  await loadContent('content');
-  const { game } = makeHG([['xu_huang', 'caocao'], ['zhangfei', 'zhaoyun'], ['lvmeng', 'luxun'], ['lvbu', 'jiaxu'], ['guojia', 'simayi']]);
+  await loadContent(demoDir());
+  const { game } = makeHG([['mau_kiem_khach', 'caocao'], ['zhangfei', 'zhaoyun'], ['lvmeng', 'luxun'], ['lvbu', 'jiaxu'], ['guojia', 'simayi']]);
   await game.reveal(0, 'main');
   assert.equal(game.attackRange(0), 2);
   assert.equal(game.slashLimit(0), 2);
@@ -231,7 +255,8 @@ test('nạp thư mục rỗng thì mọi thứ trở về như gốc (không đ�
   await loadContent(contentDir({}));
   assert.equal(SKILLS.phan_hoi, undefined);
   assert.equal('binh_phap' in CARD_INFO, false);
-  assert.equal(GENERALS.some((g) => g.id === 'chen_gong'), false);
+  assert.equal(GENERALS.some((g) => g.id === 'pang_tong'), false);
+  assert.ok(GENERALS.some((g) => g.id === 'liubiao'), 'tướng có sẵn bị tắt bởi nội dung được bật lại');
   assert.equal(getGeneral('xuchu').halfHp, 4);
 });
 

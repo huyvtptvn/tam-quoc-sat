@@ -77,8 +77,11 @@ const api = async (path: string, init: RequestInit & { admin?: boolean } = {}) =
 
 test('nội dung mẫu được nạp khi khởi động: tướng và kỹ năng mới có trong danh mục', async () => {
   const { body } = await api('/api/catalog', { admin: false });
-  assert.ok(body.generals.some((g: { id: string }) => g.id === 'chen_gong'));
-  assert.equal(body.skills.phan_hoi.name, 'Phản Hồi');
+  assert.ok(body.generals.some((g: { id: string }) => g.id === 'pang_tong'));
+  assert.equal(body.skills.lianhuan.name, 'Liên Hoàn');
+  assert.equal(body.skills.phan_hoi.name, 'Phản Hồi', 'kỹ năng JSON mẫu vẫn có trong danh mục');
+  assert.ok(body.disabledGenerals.some((g: { id: string }) => g.id === 'chen_gong'), 'tướng không có trong file lua bị tắt');
+  assert.equal(body.generals.some((g: { id: string }) => g.id === 'chen_gong'), false);
   assert.ok(body.cards.binh_phap);
   assert.ok(body.dsl.events.damaged && body.dsl.actions.draw, 'danh mục DSL cho trang quản trị');
 });
@@ -240,10 +243,10 @@ test('nội dung mới chỉ áp dụng khi các ván đang chơi kết thúc', 
 });
 
 test('API quản trị: mô phỏng chạy trong tiến trình riêng và trả về thống kê', async () => {
-  const r = await api('/api/admin/simulate', { method: 'POST', body: JSON.stringify({ games: 6, players: 4, focus: 'chen_gong' }) });
+  const r = await api('/api/admin/simulate', { method: 'POST', body: JSON.stringify({ games: 6, players: 4, focus: 'pang_tong' }) });
   assert.equal(r.body.ok, true, JSON.stringify(r.body.errors ?? r.body));
   assert.equal(r.body.games + r.body.crashes.length, 6);
-  assert.ok(r.body.generals.find((g: { id: string }) => g.id === 'chen_gong').picked >= 5);
+  assert.ok(r.body.generals.find((g: { id: string }) => g.id === 'pang_tong').picked >= 5);
 });
 
 test('ảnh: tải lên PNG cho lá bài, xuất hiện trong danh mục và tải về được; chặn file không phải ảnh và tên sai', async () => {

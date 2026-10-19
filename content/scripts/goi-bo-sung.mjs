@@ -1,6 +1,6 @@
 // ============================================================
 // Gói bổ sung (nhóm A): Mã Lương, Đặng Chi, Bành Dạng, Ngô Cảnh, Chu Di, Viên Thuật,
-// Tả Từ (bản mới), Nam Hoa Lão Tiên (+ các kỹ năng Thiên Thư của Kinh Hợp), Lữ Linh Khởi, Nễ Hành, Himiko.
+// Tả Từ, Nam Hoa Lão Tiên (+ các kỹ năng Thiên Thư của Kinh Hợp), Lữ Linh Khởi, Nễ Hành, Himiko.
 // Mô tả chuẩn: content/import/qsgs-viet.json.
 // ============================================================
 import {
@@ -493,28 +493,28 @@ export default {
       ],
     },
     {
-      id: 'yongsi', name: 'Dung Tứ',
+      id: 'yongsi', name: 'Dong Tứ',
       desc: 'Tỏa định kỹ: Nếu không có [Ngọc Tỷ] trong vùng trang bị của tất cả mọi người, bạn xem như có [Ngọc Tỷ] '
         + '(thế lực của bạn là đại thế lực duy nhất; giai đoạn bốc bài bốc thêm 1 lá; đầu giai đoạn ra bài coi như dùng 1 lá Tri Bỉ Tri Kỷ). '
         + 'Sau khi bạn trở thành mục tiêu của lá [Tri Bỉ Tri Kỷ], bạn mở ra tất cả bài trên tay.',
       virtualTreasure: (g) => (noJade(g) ? 'yuxi' : null),
       triggers: [
         on('drawPhase', (g, ctx, o) => ctx.seat === o && noJade(g), (g, ctx, o) => {
-          ctx.count += 1; g.say(`Dung Tứ (Ngọc Tỷ): ${name(g, o)} bốc thêm 1 lá.`);
+          ctx.count += 1; g.say(`Dong Tứ (Ngọc Tỷ): ${name(g, o)} bốc thêm 1 lá.`);
         }, { compulsory: true }),
         on('phaseStart', (g, ctx, o) => ctx.seat === o && ctx.phase === 'play' && noJade(g) && g.targetsAs(o, 'zhiji').length > 0,
           async (g, _ctx, o) => {
-            const [t] = await g.chooseTargets(o, 'Dung Tứ (Ngọc Tỷ): coi như dùng Tri Bỉ Tri Kỷ — chọn mục tiêu', g.targetsAs(o, 'zhiji'), 1, 1, 'enemy');
-            if (t !== undefined) await g.useCardAs(o, 'zhiji', [t], [], { label: 'Dung Tứ' });
+            const [t] = await g.chooseTargets(o, 'Dong Tứ (Ngọc Tỷ): coi như dùng Tri Bỉ Tri Kỷ — chọn mục tiêu', g.targetsAs(o, 'zhiji'), 1, 1, 'enemy');
+            if (t !== undefined) await g.useCardAs(o, 'zhiji', [t], [], { label: 'Dong Tứ' });
           }, { compulsory: true }),
         on('trickTargeted', (_g, ctx, o) => ctx.target === o && ctx.name === 'zhiji', (g, _ctx, o) => {
           const h = hand(g, o);
-          g.say(`Dung Tứ: ${name(g, o)} mở bài trên tay: ${h.length ? h.map((id) => label(g, id)).join(', ') : '(không có)'}.`);
+          g.say(`Dong Tứ: ${name(g, o)} mở bài trên tay: ${h.length ? h.map((id) => label(g, id)).join(', ') : '(không có)'}.`);
         }, { compulsory: true }),
       ],
     },
 
-    // ================= Tả Từ (bản mới) =================
+    // ================= Tả Từ =================
     {
       id: 'yigui', name: 'Dịch Quỷ',
       desc: '• Sau khi bạn mở tướng này lần đầu tiên, bạn nhận 2 lá từ chồng bài tướng đặt lên tướng này, gọi là [Hồn]. '

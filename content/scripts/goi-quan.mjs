@@ -294,7 +294,7 @@ export default {
 
     // ---------------- Đổng Trác ----------------
     {
-      id: 'hengzheng', name: 'Hoành Chinh',
+      id: 'hengzheng', name: 'Hoàng Chinh',
       desc: 'Khi bắt đầu giai đoạn rút bài, nếu số máu của bạn là 1 hoặc không có bài trên tay, bạn có thể không rút bài, thu lấy từ mỗi người khác 1 lá trong vùng chơi.',
       triggers: [
         on('drawPhase', (g, ctx, o) => ctx.seat === o && ctx.count > 0 && (g.player(o).hp === 1 || hand(g, o).length === 0)
@@ -302,7 +302,7 @@ export default {
           async (g, ctx, o) => {
             ctx.count = 0;
             for (const s of g.aliveSeatsFrom(o)) {
-              if (s !== o && allCards(g, s, true).length) await takeFrom(g, o, s, `Hoành Chinh: lấy 1 lá của ${name(g, s)}`, { judge: true });
+              if (s !== o && allCards(g, s, true).length) await takeFrom(g, o, s, `Hoàng Chinh: lấy 1 lá của ${name(g, s)}`, { judge: true });
             }
           }),
       ],
@@ -369,7 +369,7 @@ export default {
 
     // ---------------- Hà Thái Hậu ----------------
     {
-      id: 'zhendu', name: 'Trậm Độc',
+      id: 'zhendu', name: 'Độc Tửu',
       desc: 'Khi bắt đầu giai đoạn ra bài của người khác, bạn có thể bỏ 1 lá bài trên tay, nếu họ thỏa mãn điều kiện sử dụng [Tửu], thực hiện lần lượt: '
         + 'họ xem như sử dụng [Tửu]; bạn gây 1 sát thương cho họ.',
       bot: { confirm: (v, h) => !h.isAlly(v.currentSeat) && v.players[v.currentSeat].hp <= 2 },
@@ -377,7 +377,7 @@ export default {
         on('phaseStart', (g, ctx, o) => ctx.seat !== o && ctx.phase === 'play' && hand(g, o).length > 0 && g.player(ctx.seat).alive
           && !g.player(ctx.seat).flags.jiuUsed,
           async (g, ctx, o) => {
-            const [id] = await g.chooseCards(o, 'Trậm Độc: bỏ 1 lá trên tay', [...hand(g, o)], 1, 1);
+            const [id] = await g.chooseCards(o, 'Độc Tửu: bỏ 1 lá trên tay', [...hand(g, o)], 1, 1);
             await discardOwn(g, o, [id]);
             const p = g.player(ctx.seat);
             p.flags.jiuUsed = 1;
@@ -399,7 +399,7 @@ export default {
       ],
     },
 
-    // ---------------- Lý Thôi & Quách Dĩ ----------------
+    // ---------------- Lý Giác & Quách Tỷ ----------------
     {
       id: 'xiongsuan', name: 'Hung Toán',
       desc: 'Hạn định kỹ: giai đoạn ra bài, bạn có thể bỏ 1 lá bài trên tay và chọn 1 người cùng thế lực, thực hiện lần lượt: bạn gây 1 sát thương cho họ; '
@@ -484,7 +484,7 @@ export default {
       ],
     },
 
-    // ---------------- Trương Nhậm ----------------
+    // ---------------- Trương Nhiệm ----------------
     {
       id: 'chuanxin', name: 'Xuyên Tâm',
       desc: 'Giai đoạn ra bài của bạn, khi bạn gây sát thương cho mục tiêu của [Sát] hoặc [Quyết Đấu], nếu họ có thế lực xác định khác với bạn '
@@ -641,7 +641,7 @@ export default {
 
     // ---------------- Hoàng Tổ ----------------
     {
-      id: 'xishe', name: 'Tập Xạ',
+      id: 'xishe', name: 'Vãn Cung',
       desc: 'Khi bắt đầu giai đoạn chuẩn bị của người khác, bạn có thể bỏ 1 lá trong vùng trang bị và xem như sử dụng 1 [Sát] với họ, nếu số máu của họ nhỏ hơn '
         + 'của bạn, bạn lệnh cho [Sát] này không thể hưởng ứng; bạn có thể lặp lại quá trình này. Khi kết thúc lượt này, nếu trong lượt người trận vong và nguồn '
         + 'là [Sát] từ kỹ năng này của bạn, bạn có thể đổi phó tướng, tướng sau khi đổi được úp xuống.',
@@ -653,13 +653,13 @@ export default {
             const t = ctx.seat;
             for (let i = 0; i < 6; i++) {
               if (!g.player(o).alive || !g.player(t).alive || !equipsOf(g, o).length || g.state.finished) break;
-              if (i > 0 && (await g.choose(o, `Tập Xạ: tiếp tục bỏ 1 trang bị để Sát ${name(g, t)}?`, ['Không', 'Có'])) !== 1) break;
-              const [id] = await g.chooseCards(o, 'Tập Xạ: bỏ 1 trang bị', equipsOf(g, o), 1, 1, true);
+              if (i > 0 && (await g.choose(o, `Vãn Cung: tiếp tục bỏ 1 trang bị để Sát ${name(g, t)}?`, ['Không', 'Có'])) !== 1) break;
+              const [id] = await g.chooseCards(o, 'Vãn Cung: bỏ 1 trang bị', equipsOf(g, o), 1, 1, true);
               await discardOwn(g, o, [id]);
               if (!g.player(o).alive || !g.player(t).alive) break;
               store(g)[`xishe:${o}`] = { target: t, noDodge: g.player(t).hp < g.player(o).hp };
               try {
-                await g.useCardAs(o, 'sha', [t], [], { label: 'Tập Xạ' });
+                await g.useCardAs(o, 'sha', [t], [], { label: 'Vãn Cung' });
               } finally {
                 delete store(g)[`xishe:${o}`];
               }
@@ -717,7 +717,7 @@ export default {
       ],
     },
     {
-      id: 'tunjiang', name: 'Đồn Giang',
+      id: 'tunjiang', name: 'Truân Giang',
       desc: 'Khi bắt đầu giai đoạn kết thúc, nếu bạn trong giai đoạn ra bài đã sử dụng ít nhất 1 lá và không chỉ định người khác làm mục tiêu, '
         + 'bạn có thể rút X lá (X là số thế lực trên bàn chơi).',
       triggers: [

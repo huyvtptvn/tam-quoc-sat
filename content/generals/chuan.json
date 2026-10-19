@@ -1,0 +1,26 @@
+[
+  {
+    "_ghiChu": "Tướng tiêu chuẩn theo bản Việt hóa QSanguosha-Hegemony (content/import/qsgs-viet.json). Kỹ năng trong content/scripts/goi-chuan.mjs.",
+    "id": "pang_tong",
+    "name": "Bàng Thống",
+    "kingdom": "shu",
+    "halfHp": 3,
+    "skills": ["lianhuan", "niepan"],
+    "pairs": ["wolong"]
+  },
+  {
+    "id": "xu_huang",
+    "name": "Từ Hoảng",
+    "kingdom": "wei",
+    "halfHp": 4,
+    "skills": ["duanliang"]
+  },
+  {
+    "id": "taishi_ci",
+    "name": "Thái Sử Từ",
+    "kingdom": "wu",
+    "halfHp": 4,
+    "skills": ["tianyi"],
+    "pairs": ["sunce"]
+  }
+]
