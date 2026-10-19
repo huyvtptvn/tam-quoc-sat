@@ -21,6 +21,7 @@ import { SKILLS } from '../hegemony/skills.js';
 import { AccountStore } from './accounts.js';
 import { RANKS } from './elo.js';
 import { ContentManager } from './content-manager.js';
+import { SKIN_MIME, SkinStore, skinCoverage } from './skins.js';
 import { IMAGE_MIME, ImageStore, MAX_IMAGE_BYTES } from './images.js';
 import type { ClientMsg } from './protocol.js';
 import { Lobby, type PlayerSession } from './rooms.js';
@@ -98,6 +99,8 @@ export async function startServer(opts: ServerOptions = {}) {
   const adminToken = opts.adminToken ?? process.env.ADMIN_TOKEN ?? randomBytes(9).toString('base64url');
 
   const images = new ImageStore(join(contentDir, 'images'));
+  const skins = new SkinStore(join(contentDir, 'images', 'hero-skin'), join(contentDir, 'import', 'qsgs-viet.json'));
+  let skinsVersion = -1;
   const lobby = new Lobby();
   lobby.botDelayMs = opts.botDelayMs ?? Number(process.env.BOT_DELAY_MS ?? 700);
   const dataDir = resolve(opts.dataDir ?? process.env.DATA_DIR ?? join(ROOT, 'data'));
@@ -133,6 +136,19 @@ export async function startServer(opts: ServerOptions = {}) {
         return res.end(readFileSync(full));
       }
       if (path === '/api/rooms') return json(res, 200, lobby.roomList());
+      // Skin tướng (ảnh + lồng tiếng) từ content/images/hero-skin
+      if (path === '/api/skins') {
+        const v = content.summary?.version ?? 0;
+        if (v !== skinsVersion) { skins.invalidate(); skinsVersion = v; }
+        const index = skins.index();
+        return json(res, 200, { skins: index, coverage: skinCoverage(index) });
+      }
+      if (path.startsWith('/skins/')) {
+        const full = skins.resolve(decodeURIComponent(path.slice('/skins/'.length)));
+        if (!full) return json(res, 404, { error: 'Không có file này' });
+        res.writeHead(200, { 'content-type': SKIN_MIME[extname(full).toLowerCase()], 'cache-control': 'public, max-age=604800', 'x-content-type-options': 'nosniff' });
+        return res.end(readFileSync(full));
+      }
 
       // ---------- Tài khoản, xếp hạng ----------
       const authOf = () => String(req.headers['x-account-token'] ?? '');

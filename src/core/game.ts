@@ -62,7 +62,9 @@ export type StatEvent =
   | { kind: 'turnedOver'; seat: number; faceDown: boolean; by: number | null }
   | { kind: 'nullified'; by: number; user: number; target: number; trick: CardName; cancelled: boolean }
   | { kind: 'delayedHit'; seat: number; name: CardName; cardId: number }
-  | { kind: 'lured'; seat: number; by: number | null };
+  | { kind: 'lured'; seat: number; by: number | null }
+  /** Một kỹ năng của tướng `generalId` vừa được dùng/kích hoạt (để phát lồng tiếng). */
+  | { kind: 'skillUsed'; seat: number; skill: string; generalId: string };
 
 export interface GameResult {
   winner: string | null;

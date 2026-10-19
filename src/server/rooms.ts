@@ -211,6 +211,15 @@ export class Room {
       { seed: Date.now(), candidates, deck: buildDeckById(this.deck), mode: this.mode, mulligan: this.mulligan, lordConvert: this.lord, onLog: (line) => this.queueLog(line) },
     );
     this.scorer = attachScoring(this.game);
+    // Lồng tiếng: báo client khi kỹ năng được dùng / có người tử trận
+    const g0 = this.game;
+    g0.statListeners.push((e) => {
+      if (e.kind === 'skillUsed') this.broadcast({ t: 'sfx', kind: 'skill', seat: e.seat, general: e.generalId, skill: e.skill });
+    });
+    g0.bus.on('death', ({ seat }) => {
+      const h = g0.heroes[seat];
+      if (h) this.broadcast({ t: 'sfx', kind: 'death', seat, general: h.main.generalId });
+    }, 1000);
     this.owners = this.seats.map((s) => ({ accountId: s.kind === 'human' ? s.session.accountId : null, bot: s.kind === 'bot' }));
     this.status = 'playing';
     this.sendRoomState();

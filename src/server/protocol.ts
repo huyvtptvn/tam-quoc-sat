@@ -66,5 +66,7 @@ export type ServerMsg =
       /** Ván đã lưu: mã ván, có tính xếp hạng không, Elo trước/sau từng ghế (null = khách/bot). */
       match?: { id: string; ranked: boolean; ratings: { before: number | null; after: number | null }[] } }
   | { t: 'chat'; from: string; text: string }
+  /** Âm thanh: lồng tiếng kỹ năng của tướng, hoặc câu nói khi tử trận. Client tự chọn file theo skin đang dùng. */
+  | { t: 'sfx'; kind: 'skill' | 'death'; seat: number; general: string; skill?: string }
   | { t: 'notice'; text: string }
   | { t: 'error'; message: string };

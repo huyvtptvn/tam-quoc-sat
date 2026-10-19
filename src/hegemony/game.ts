@@ -1005,6 +1005,7 @@ export class HegemonyGame extends Game {
             if (!e.slot.revealed) await this.reveal(seat, e.which);
           }
           this.say(`${this.player(seat).name} kích hoạt ${e.skill.name}.`);
+          if (e.slot.generalId) this.stat({ kind: 'skillUsed', seat, skill: e.skill.id, generalId: e.slot.generalId });
           await this.asActor(seat, async () => { await trig.run(this, ctx, seat); });
         }
       }
@@ -1165,6 +1166,7 @@ export class HegemonyGame extends Game {
       if (e) {
         if (!e.slot.revealed) await this.reveal(seat, e.which);
         this.say(`${name} dùng ${e.skill.name}.`);
+        if (e.slot.generalId) this.stat({ kind: 'skillUsed', seat, skill: e.skill.id, generalId: e.slot.generalId });
       }
     }
     if (as === 'sha' && mode === 'use') {
@@ -1265,6 +1267,7 @@ export class HegemonyGame extends Game {
 
     if (!e.slot.revealed) await this.reveal(seat, e.which);
     this.say(`${p.name} dùng ${e.skill.name}.`);
+    if (e.slot.generalId) this.stat({ kind: 'skillUsed', seat, skill: e.skill.id, generalId: e.slot.generalId });
     await this.asActor(seat, () => a.run(this, seat, res.cardIds, res.targets));
     return null;
   }

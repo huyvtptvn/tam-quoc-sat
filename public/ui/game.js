@@ -60,7 +60,10 @@
 
   // ---------- Kết nối ----------
   async function connect() {
-    if (!C.catalog.generals.length) { C.setCatalog(await (await fetch('/api/catalog')).json()); fillDecks(); }
+    if (!C.catalog.generals.length) {
+      C.setCatalog(await (await fetch('/api/catalog')).json()); fillDecks();
+      try { C.setSkins((await (await fetch('/api/skins')).json()).skins); } catch { /* không có skin: dùng chân dung vẽ sẵn */ }
+    }
     ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`);
     ws.onopen = () => sendHello();
     ws.onclose = () => {
@@ -124,6 +127,7 @@
         break;
       case 'gameOver': pending = null; renderGame(); showGameOver(m.result, m.scores, m.match); refreshAccount(); break;
       case 'chat': addChat(m.from, m.text); break;
+      case 'sfx': playSfx(m); break;
       case 'notice': toast(m.text); addLog(`ℹ ${m.text}`); break;
       case 'error': toast(m.message); break;
     }
@@ -783,8 +787,13 @@
       const kLabel = kingdomsOf(id).map((k) => C.KINGDOM[k]?.label ?? k).join('/');
       const note = isDual(id) ? ' · chỉ làm phó tướng' : kingdomOf(id) === 'ye' ? ' · tướng tím, chỉ làm chủ tướng' : '';
       const sk = g.skills.map((x) => `<div class="sk"><b>${esc(C.catalog.skills[x]?.name ?? x)}</b> ${esc(C.catalog.skills[x]?.desc ?? '')}</div>`).join('');
+      const skinList = C.skinsOf(id);
+      const cur = C.currentSkin(id);
+      const skinCtl = skinList.length > 1
+        ? `<span class="skin-ctl"><span class="skin-btn" data-skin="${esc(id)}" data-dir="-1" role="button" title="Skin trước">‹</span><span class="skin-nm">${esc(cur.name)} (${skinList.indexOf(cur) + 1}/${skinList.length})</span><span class="skin-btn" data-skin="${esc(id)}" data-dir="1" role="button" title="Skin sau">›</span></span>`
+        : '';
       return `<button type="button" class="gen-opt ${role ? 'sel' : ''} ${off ? 'off' : ''}" data-id="${esc(id)}" ${off ? 'disabled' : ''}>
-        ${C.portraitHTML(id)}
+        <span class="gen-face">${C.portraitHTML(id)}${skinCtl}</span>
         <div class="info"><b class="nm">${esc(g.name)}</b><span class="muted">${esc(kLabel)} · ${g.halfHp} âm dương ngư${note}</span>${role ? `<br><span class="role">${role}</span>` : ''}${sk}</div>
       </button>`;
     };
@@ -813,6 +822,9 @@
       </div>`);
       const pick = document.querySelector('.gen-pick');
       if (pick) pick.scrollTop = prevScroll;
+      document.querySelectorAll('.skin-btn').forEach((b) => {
+        b.onclick = (ev) => { ev.stopPropagation(); C.cycleSkin(b.dataset.skin, Number(b.dataset.dir)); draw(); };
+      });
       document.querySelectorAll('.gen-opt').forEach((b) => {
         b.onclick = () => {
           const id = b.dataset.id;
@@ -1007,6 +1019,31 @@
       else if ((r?.type === 'respond' || r?.type === 'save') && sel.cards.length === 1) answer({ kind: 'card', cardId: sel.cards[0] });
     }
   });
+
+  // ---------- Âm thanh: lồng tiếng kỹ năng / tử trận theo skin đang chọn ----------
+  let soundOn = store.get('tqs_sound') !== 'off';
+  let lastVoice = null;
+  function renderSound() {
+    const b = $('btnSound');
+    if (b) { b.textContent = soundOn ? '🔊 Tiếng' : '🔇 Tắt tiếng'; b.title = soundOn ? 'Bấm để tắt lồng tiếng' : 'Bấm để bật lồng tiếng'; }
+  }
+  function playSfx(m) {
+    if (!soundOn) return;
+    const skin = C.currentSkin(m.general);
+    if (!skin) return;
+    const list = m.kind === 'death' ? (skin.death ? [skin.death] : []) : skin.voices[m.skill] || [];
+    if (!list.length) return;
+    try {
+      if (lastVoice) lastVoice.pause();
+      lastVoice = new Audio(list[Math.floor(Math.random() * list.length)]);
+      lastVoice.volume = 0.8;
+      lastVoice.play().catch(() => { /* trình duyệt chặn tự phát khi chưa bấm gì */ });
+    } catch { /* bỏ qua */ }
+  }
+  if ($('btnSound')) {
+    renderSound();
+    $('btnSound').onclick = () => { soundOn = !soundOn; store.set('tqs_sound', soundOn ? 'on' : 'off'); renderSound(); if (!soundOn && lastVoice) lastVoice.pause(); };
+  }
 
   // ---------- Tài khoản ----------
   function renderAccount() {

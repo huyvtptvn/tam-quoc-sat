@@ -95,6 +95,37 @@
     generalById = new Map([...(c.disabledGenerals || []).map((g) => [g.id, { ...g, disabled: true }]), ...(c.generals || []).map((g) => [g.id, g])]);
   }
 
+  // ---------- Skin tướng (ảnh + lồng tiếng, từ /api/skins) ----------
+  // Mỗi người tự chọn skin cho từng tướng; lựa chọn lưu trên trình duyệt (chỉ đổi cách BẠN nhìn thấy tướng đó).
+  let skins = {};
+  const skinStore = {
+    get(id) { try { return localStorage.getItem(`tqs_skin_${id}`); } catch { return null; } },
+    set(id, v) { try { localStorage.setItem(`tqs_skin_${id}`, v); } catch { /* trình duyệt chặn lưu trữ */ } },
+  };
+  function setSkins(index) { skins = index || {}; }
+  const skinsOf = (id) => skins[id] || [];
+  /** Skin đang dùng cho tướng `id` (null nếu tướng không có skin). */
+  function currentSkin(id) {
+    const list = skinsOf(id);
+    if (!list.length) return null;
+    const pref = skinStore.get(id);
+    return list.find((x) => x.key === pref) || list[0];
+  }
+  /** Đổi skin của tướng `id` sang skin trước/sau. Trả về skin mới. */
+  function cycleSkin(id, dir) {
+    const list = skinsOf(id);
+    if (!list.length) return null;
+    const cur = list.indexOf(currentSkin(id));
+    const next = list[(cur + dir + list.length) % list.length];
+    skinStore.set(id, next.key);
+    return next;
+  }
+  /** Ảnh của tướng: skin đã chọn > ảnh tải lên trong content/images/generals > skin đầu tiên. */
+  function generalImage(id) {
+    const chosen = skinStore.get(id) && currentSkin(id);
+    return (chosen && chosen.image) || catalog.images.generals[id] || currentSkin(id)?.image || null;
+  }
+
   const info = (name) => catalog.cards[name] || { label: name, type: 'basic' };
 
   function cardLabel(c) {
@@ -161,14 +192,14 @@
   function portraitHTML(id, opts = {}) {
     if (!id) {
       // Ảnh "tố tướng" (content/images/generals/sujiang.png) nếu có, dùng cho tướng đang úp.
-      const back = catalog.images.generals.sujiang;
+      const back = catalog.images.generals.sujiang || currentSkin('sujiang')?.image;
       return back
         ? `<div class="portrait hidden-gen has-img ${opts.cls || ''}"><img class="art-img" src="${esc(back)}" alt="" draggable="false"></div>`
         : `<div class="portrait hidden-gen ${opts.cls || ''}"><span class="q">?</span></div>`;
     }
     const g = generalById.get(id) || { name: id, kingdom: 'qun', halfHp: 0 };
     const k = KINGDOM[g.kingdom] || KINGDOM.qun;
-    const img = catalog.images.generals[id];
+    const img = generalImage(id);
     const face = img
       ? `<img class="art-img" src="${esc(img)}" alt="" loading="lazy" draggable="false">`
       : `<span class="wm">${k.glyph}</span><span class="vname">${esc(g.name)}</span>`;
@@ -192,6 +223,7 @@
     SUIT, SUIT_NAME, RANK, TYPE_LABEL, SLOT_LABEL, KINGDOM, esc, isRed,
     setCatalog, info, cardLabel, cardDesc, kindLine, glyphOf, cardHTML, backHTML, portraitHTML, generalTitle,
     general: (id) => generalById.get(id),
+    setSkins, skinsOf, currentSkin, cycleSkin, generalImage,
     get catalog() { return catalog; },
   };
 })();

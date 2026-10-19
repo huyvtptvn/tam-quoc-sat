@@ -70,6 +70,16 @@ npm test
 
 ---
 
+## Skin tướng và lồng tiếng (từ QSanguosha)
+
+- Thư mục `content/images/hero-skin/<id tướng QSGS>/<số skin>/` (chép nguyên từ `hero-skin` của QSanguosha):
+  `full.png` là ảnh tướng, `<kỹ năng><n>.ogg` là lồng tiếng kỹ năng, `death.ogg` là câu nói khi tử trận, `zh_CN.lua` chứa tên skin.
+- Server tự đọc (`src/server/skins.ts`), đổi id tướng/kỹ năng QSGS sang id trong game qua `content/import/qsgs-viet.json`,
+  phục vụ ở `/api/skins` và `/skins/...`. Hiện 125/179 tướng có skin (1050 skin).
+- Trong game: ảnh tướng dùng skin; màn chọn tướng có nút ‹ › để đổi skin (lưu trên trình duyệt, chỉ đổi cách BẠN nhìn thấy).
+  Khi ai đó dùng kỹ năng hoặc tử trận, game phát lồng tiếng của skin bạn chọn cho tướng đó. Nút "🔊 Tiếng" trên thanh trên cùng để tắt/bật.
+- Ảnh tải lên ở `content/images/generals/<id>.png` (trang Hình ảnh) vẫn được dùng nếu bạn chưa chọn skin nào cho tướng đó.
+
 ## Giai đoạn 14: Theo đúng file lua, tướng 2 thế lực, tướng tím
 
 - **Kỹ năng và tên tướng theo file lua bạn gửi** (`content/import/qsgs-viet.json`): làm lại Bàng Thống, Từ Hoảng, Thái Sử Từ
