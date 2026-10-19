@@ -1,0 +1,56 @@
+[
+  {
+    "_ghiChu": "Cẩm nang mới. desc = mô tả hiện trên lá; glyph (tùy chọn) = 1–2 chữ in giữa mặt bài khi chưa có ảnh. Biến dùng được: self/user (người dùng), target (mục tiêu), card.",
+    "id": "binh_phap",
+    "label": "Binh Pháp",
+    "desc": "Bỏ 1 lá trong khu vực của một người khác có bài, rồi bạn bốc 1 lá.",
+    "type": "trick",
+    "targeting": "one",
+    "filter": "t != self and t.cards > 0",
+    "harmful": true,
+    "actions": [
+      { "do": "discardCard", "from": "target", "by": "self" },
+      { "do": "draw", "who": "self", "count": "1" }
+    ]
+  },
+  {
+    "_ghiChu": "Cẩm nang đánh lan: mọi người (targeting all). Ai có dưới 3 lá trên tay thì bốc 1 lá.",
+    "id": "chan_te",
+    "label": "Chẩn Tế",
+    "desc": "Mọi người: ai có dưới 3 lá trên tay thì bốc 1 lá.",
+    "type": "trick",
+    "targeting": "all",
+    "harmful": false,
+    "actions": [
+      { "do": "draw", "who": "target", "count": "1", "if": "target.hand < 3" }
+    ]
+  },
+  {
+    "_ghiChu": "Cẩm nang trì hoãn: đặt vào khu vực phán định; ở giai đoạn phán định, nếu 'success' đúng thì chạy actions (target = người bị phán định).",
+    "id": "hoa_hoan",
+    "label": "Hỏa Hoạn",
+    "desc": "Đặt lên một người khác. Phán định: Cơ thì người đó chịu 1 sát thương lửa.",
+    "glyph": "火",
+    "type": "delayed",
+    "filter": "t != self",
+    "success": "judge.suit == 'heart'",
+    "actions": [ { "do": "damage", "who": "target", "count": "1", "source": "null", "nature": "fire" } ]
+  },
+  {
+    "_ghiChu": "Vũ khí mới có kỹ năng: kỹ năng có hiệu lực khi đang lắp.",
+    "id": "luu_tinh",
+    "label": "Lưu Tinh Tiễn",
+    "desc": "Khi Sát của bạn bị né, có thể bỏ ngẫu nhiên 1 lá trên tay mục tiêu.",
+    "type": "equip",
+    "slot": "weapon",
+    "range": 3,
+    "skill": {
+      "desc": "Khi Sát của bạn bị né, bạn có thể bỏ ngẫu nhiên 1 lá trên tay mục tiêu.",
+      "type": "trigger",
+      "event": "slashDodged",
+      "role": "source",
+      "if": "target.hand > 0",
+      "actions": [ { "do": "discardRandom", "from": "target", "count": "1" } ]
+    }
+  }
+]

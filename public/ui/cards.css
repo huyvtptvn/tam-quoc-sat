@@ -1,0 +1,243 @@
+/* ============================================================
+   Lá bài, mặt sau, chân dung tướng. Dùng chung cho game và trang quản trị.
+   Kích thước điều khiển bằng biến --cw (chiều rộng lá bài) và --pw (chiều rộng chân dung).
+   ============================================================ */
+:root {
+  --paper: #eadfc4;
+  --paper-2: #d9c8a3;
+  --sumi: #221b13;
+  --cinnabar: #a8281d;
+  --jade: #2e6b59;
+  --indigo: #2d3c60;
+  --bronze: #a57b3d;
+  --lacquer: #561613;
+  --font-ui: "TQS Serif", "Noto Serif", "Noto Serif Display", Georgia, "Times New Roman", serif;
+  --font-brush: "TQS Brush", "Ma Shan Zheng", "Zhi Mang Xing", "STKaiti", "KaiTi", "Kaiti SC", serif;
+}
+
+/* ---------- Lá bài ---------- */
+.card {
+  --cw: 96px;
+  --wash: rgba(168, 40, 29, .16);
+  position: relative;
+  flex: none;
+  width: var(--cw);
+  aspect-ratio: 5 / 7;
+  font-size: calc(var(--cw) * .13);
+  border-radius: .5em;
+  background:
+    radial-gradient(120% 80% at 30% 15%, rgba(255, 250, 235, .55), transparent 60%),
+    radial-gradient(90% 70% at 80% 95%, rgba(120, 85, 40, .18), transparent 70%),
+    linear-gradient(160deg, var(--paper), var(--paper-2));
+  color: var(--sumi);
+  border: 1px solid #6a5130;
+  box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 .25em .6em rgba(0,0,0,.35);
+  overflow: hidden;
+  user-select: none;
+  font-family: var(--font-ui);
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: .25em;
+  border: 1px solid rgba(90, 62, 28, .45);
+  border-radius: .32em;
+  pointer-events: none;
+  z-index: 2;
+}
+.card.t-trick   { --wash: rgba(46, 107, 89, .2); }
+.card.t-delayed { --wash: rgba(45, 60, 96, .22); }
+.card.t-equip   { --wash: rgba(165, 123, 61, .26); }
+.card.n-fire    { --wash: rgba(214, 98, 24, .3); }
+.card.n-thunder { --wash: rgba(96, 62, 160, .26); }
+
+.card .art {
+  position: absolute;
+  inset: 1.55em .45em 2.45em .45em;
+  display: grid;
+  place-items: center;
+  border-radius: .25em;
+  background: radial-gradient(closest-side, var(--wash), transparent 100%);
+}
+.card.has-img .art { background: #3a2c1c; overflow: hidden; inset: 1.55em .45em 2.45em .45em; }
+.card .art-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card .glyph {
+  font-family: var(--font-brush);
+  line-height: 1;
+  color: var(--sumi);
+  opacity: .9;
+  text-shadow: 0 0 .04em rgba(0,0,0,.3);
+}
+.card .glyph.g1 { font-size: 4.2em; }
+.card .glyph.g2 { font-size: 2.35em; writing-mode: vertical-rl; letter-spacing: .02em; }
+.card.red .glyph { color: #5a1610; }
+
+/* Triện góc: chất + điểm. Đỏ = son, đen = mực. */
+.card .seal {
+  position: absolute;
+  top: .42em;
+  left: .42em;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 1.45em;
+  padding: .12em .14em .1em;
+  border-radius: .16em;
+  background: var(--cinnabar);
+  color: #f6e9d2;
+  line-height: 1;
+  box-shadow: 0 0 0 .07em rgba(246, 233, 210, .5) inset;
+  transform: rotate(-4deg);
+}
+.card.black .seal { background: var(--sumi); }
+.card .seal .r { font-weight: 700; font-size: .95em; }
+.card .seal .s { font-size: .82em; margin-top: .05em; }
+
+.card .plate {
+  position: absolute;
+  left: .35em; right: .35em; bottom: .4em;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.12;
+  text-align: center;
+}
+.card .plate .nm { font-weight: 700; font-size: .86em; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card .plate .kd { font-size: .58em; color: #6b5636; white-space: nowrap; }
+.card .as {
+  position: absolute;
+  top: .45em; right: .4em;
+  z-index: 3;
+  font-size: .55em;
+  padding: .12em .4em;
+  border-radius: 1em;
+  background: var(--bronze);
+  color: #fff8e8;
+}
+
+/* Mặt sau */
+.card.back {
+  background:
+    repeating-linear-gradient(45deg, rgba(197, 152, 82, .18) 0 1px, transparent 1px 9px),
+    repeating-linear-gradient(-45deg, rgba(197, 152, 82, .18) 0 1px, transparent 1px 9px),
+    radial-gradient(circle at 50% 45%, #7a2119, var(--lacquer) 70%);
+  border-color: #2e0b09;
+  display: grid;
+  place-items: center;
+}
+.card.back::before { border-color: rgba(197, 152, 82, .55); }
+.card.back .art-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.card.back .back-seal {
+  font-family: var(--font-brush);
+  font-size: 1.9em;
+  color: #e8c98e;
+  width: 2.2em; height: 2.2em;
+  display: grid; place-items: center;
+  border: .08em solid #c59852;
+  border-radius: 50%;
+  writing-mode: vertical-rl;
+  line-height: 1;
+}
+
+/* ---------- Chân dung tướng ---------- */
+.portrait {
+  --pw: 84px;
+  --k: #6b6458;
+  position: relative;
+  flex: none;
+  width: var(--pw);
+  aspect-ratio: 3 / 4;
+  font-size: calc(var(--pw) * .14);
+  border-radius: .35em;
+  overflow: hidden;
+  background:
+    radial-gradient(110% 70% at 50% 0%, rgba(255,255,255,.18), transparent 60%),
+    linear-gradient(170deg, var(--k), color-mix(in srgb, var(--k) 55%, #000));
+  border: 1px solid rgba(0,0,0,.6);
+  box-shadow: 0 0 0 1px rgba(232, 201, 142, .35) inset;
+  color: #f4e8cf;
+  font-family: var(--font-ui);
+  user-select: none;
+}
+.portrait.k-wei { --k: #2f4f86; }
+.portrait.k-shu { --k: #8f2b21; }
+.portrait.k-wu  { --k: #2e6a46; }
+.portrait.k-qun { --k: #6e6553; }
+.portrait.k-careerist { --k: #5c3b78; }
+.portrait .art-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
+.portrait .wm {
+  position: absolute;
+  right: -.1em; bottom: -.25em;
+  font-family: var(--font-brush);
+  font-size: 4.4em;
+  line-height: 1;
+  color: rgba(0,0,0,.22);
+}
+.portrait .vname {
+  position: absolute;
+  top: .5em; right: .45em;
+  writing-mode: vertical-rl;
+  font-weight: 700;
+  font-size: 1.3em;
+  letter-spacing: .06em;
+  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+  max-height: calc(100% - 1em);
+}
+.portrait .kbadge {
+  position: absolute;
+  top: .3em; left: .3em;
+  width: 1.45em; height: 1.45em;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--k) 70%, #000);
+  border: 1px solid rgba(232, 201, 142, .7);
+  font-family: var(--font-brush);
+  font-size: 1em;
+  line-height: 1;
+}
+.portrait .ntag {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: .55em .2em .2em;
+  text-align: center;
+  font-weight: 700;
+  font-size: .8em;
+  background: linear-gradient(transparent, rgba(0,0,0,.75));
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.portrait .down-tag {
+  position: absolute;
+  top: 2em; left: .3em;
+  z-index: 2;
+  font-size: .62em;
+  padding: .05em .4em;
+  border-radius: .2em;
+  background: rgba(20, 14, 8, .78);
+  border: 1px solid rgba(232, 201, 142, .6);
+}
+.portrait.face-down::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(45deg, rgba(20,14,8,.28) 0 2px, transparent 2px 7px);
+  pointer-events: none;
+}
+.portrait.hidden-gen {
+  background:
+    repeating-linear-gradient(45deg, rgba(197, 152, 82, .16) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(-45deg, rgba(197, 152, 82, .16) 0 1px, transparent 1px 8px),
+    radial-gradient(circle at 50% 40%, #6e1d16, var(--lacquer) 75%);
+  display: grid;
+  place-items: center;
+}
+.portrait.hidden-gen .q { font-family: var(--font-brush); font-size: 2.6em; color: #e0bf86; opacity: .8; }
+
+/* Tướng đã bị loại khỏi ván */
+.portrait.removed { filter: grayscale(1) brightness(.55); }
+.portrait .removed-tag {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-12deg);
+  padding: .1em .45em; border: 2px solid #c74431; color: #f2a596; font-weight: 700; font-size: .78em;
+  background: rgba(20, 8, 6, .75); white-space: nowrap; z-index: 3;
+}

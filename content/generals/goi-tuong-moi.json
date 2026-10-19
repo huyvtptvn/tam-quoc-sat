@@ -1,0 +1,920 @@
+[
+  {
+    "_ghiChu": "Tướng từ gói tham khảo. Tướng đã có kỹ năng thì đang BẬT. Tướng còn \"disabled\": true là chưa đủ kỹ năng — xem \"_lyDo\". Kỹ năng viết bằng JavaScript trong content/scripts/goi-*.mjs."
+  },
+  {
+    "id": "xiahouyuan",
+    "name": "Hạ Hầu Uyên",
+    "kingdom": "wei",
+    "halfHp": 4,
+    "skills": [
+      "shensu"
+    ],
+    "_kyNangGoc": "Thần Tốc 神速 (shensu)"
+  },
+  {
+    "id": "zhanghe",
+    "name": "Trương Cáp",
+    "kingdom": "wei",
+    "halfHp": 4,
+    "skills": [
+      "qiaobian"
+    ],
+    "_kyNangGoc": "Xảo Biến 巧变 (qiaobian)"
+  },
+  {
+    "id": "caoren",
+    "name": "Tào Nhân",
+    "kingdom": "wei",
+    "halfHp": 4,
+    "skills": [
+      "jushou"
+    ],
+    "_kyNangGoc": "Cứ Thủ 据守 (jushou)"
+  },
+  {
+    "id": "xunyu",
+    "name": "Tuân Úc",
+    "kingdom": "wei",
+    "halfHp": 3,
+    "skills": [
+      "quhu",
+      "jieming"
+    ],
+    "_kyNangGoc": "Khu Hổ 驱虎 (quhu), Tiết Mệnh 节命 (jieming)"
+  },
+  {
+    "id": "caopi",
+    "name": "Tào Phi",
+    "kingdom": "wei",
+    "halfHp": 3,
+    "skills": [
+      "xingshang",
+      "fangzhu"
+    ],
+    "_kyNangGoc": "Hành Thương 行殇 (xingshang), Phóng Trục 放逐 (fangzhu)"
+  },
+  {
+    "id": "yuejin",
+    "name": "Nhạc Tiến",
+    "kingdom": "wei",
+    "halfHp": 4,
+    "skills": [
+      "xiaoguo"
+    ],
+    "_kyNangGoc": "Kiêu Quả 骁果 (xiaoguo)"
+  },
+  {
+    "id": "dengai",
+    "name": "Đặng Ngải",
+    "kingdom": "wei",
+    "halfHp": 4,
+    "skills": [
+      "tuntian",
+      "jixi",
+      "ziliang"
+    ],
+    "_kyNangGoc": "Đồn Điền 屯田 (tuntian), Cấp Tập 急袭 (jixi), Tư Lương 资粮 (ziliang)"
+  },
+  {
+    "id": "caohong",
+    "name": "Tào Hồng",
+    "kingdom": "wei",
+    "halfHp": 4,
+    "skills": [
+      "huyuan",
+      "heyi"
+    ],
+    "_kyNangGoc": "Hộ Viện 护援 (huyuan)"
+  },
+  {
+    "id": "lidian",
+    "name": "Lý Điển",
+    "kingdom": "wei",
+    "halfHp": 3,
+    "skills": [
+      "xunxun",
+      "wangxi"
+    ],
+    "_kyNangGoc": "Tuân Tuân 恂恂 (xunxun), Vong Khích 忘隙 (wangxi)"
+  },
+  {
+    "id": "zangba",
+    "name": "Tang Bá",
+    "kingdom": "wei",
+    "halfHp": 4,
+    "skills": [
+      "hengjiang"
+    ],
+    "_kyNangGoc": "Hoành Giang 横江 (hengjiang)"
+  },
+  {
+    "id": "yujin",
+    "name": "Vu Cấm",
+    "kingdom": "wei",
+    "halfHp": 4,
+    "skills": [
+      "jieyue"
+    ],
+    "_kyNangGoc": "Tiết Việt 节钺 (jieyue)"
+  },
+  {
+    "id": "xunyou",
+    "name": "Tuân Du",
+    "kingdom": "wei",
+    "halfHp": 3,
+    "skills": [
+      "qice",
+      "zhiyu"
+    ],
+    "_kyNangGoc": "Kỳ Sách 奇策 (qice), Trí Ngu 智愚 (zhiyu)"
+  },
+  {
+    "id": "bianhuanghou",
+    "name": "Biện Hoàng Hậu",
+    "kingdom": "wei",
+    "halfHp": 3,
+    "skills": [
+      "wanwei",
+      "yuejian"
+    ],
+    "_kyNangGoc": "Vãn Nguy 挽危 (wanwei), Ước Kiệm 约俭 (yuejian)"
+  },
+  {
+    "id": "caozhen",
+    "name": "Tào Chân",
+    "kingdom": "wei",
+    "halfHp": 4,
+    "skills": [
+      "sidi"
+    ],
+    "_kyNangGoc": "Ti Địch 司敌 (sidi)"
+  },
+  {
+    "id": "zhangchunhua",
+    "name": "Trương Xuân Hoa",
+    "kingdom": "wei",
+    "halfHp": 3,
+    "skills": [
+      "shangshi",
+      "guojue"
+    ],
+    "_kyNangGoc": "Thương Thệ 伤逝 (shangshi), (tên file 'guojue' — có thể là Tuyệt Tình 绝情) ? (guojue)"
+  },
+  {
+    "id": "jianggan",
+    "name": "Tưởng Cán",
+    "kingdom": "wei",
+    "halfHp": 3,
+    "skills": [
+      "weicheng",
+      "daoshu"
+    ],
+    "_kyNangGoc": "Ngụy Thành 伪诚 (weicheng), Đạo Thư 盗书 (daoshu)"
+  },
+  {
+    "id": "huaxin",
+    "name": "Hoa Hâm",
+    "kingdom": "wei",
+    "halfHp": 3,
+    "skills": [
+      "wanggui",
+      "xibing"
+    ],
+    "_kyNangGoc": "Vọng Quy 望归 (wanggui), Tức Binh 息兵 (xibing)"
+  },
+  {
+    "id": "duyu",
+    "name": "Đỗ Dự",
+    "kingdom": "wei",
+    "halfHp": 4,
+    "skills": [
+      "wuku",
+      "miewu"
+    ],
+    "_kyNangGoc": "Vũ Khố 武库 (wuku), Diệt Ngô 灭吴 (miewu)"
+  },
+  {
+    "id": "huangyueying",
+    "name": "Hoàng Nguyệt Anh",
+    "kingdom": "shu",
+    "halfHp": 3,
+    "skills": [
+      "jizhi",
+      "qicai"
+    ],
+    "_kyNangGoc": "Tập Trí 集智 (jizhi)"
+  },
+  {
+    "id": "wolong",
+    "name": "Ngọa Long",
+    "kingdom": "shu",
+    "halfHp": 3,
+    "skills": [
+      "bazhen",
+      "huoji",
+      "kanpo"
+    ],
+    "_kyNangGoc": "Bát Trận 八阵 (bazhen), Hỏa Kế 火计 (huoji), Khán Phá 看破 (kanpo)"
+  },
+  {
+    "id": "weiyan",
+    "name": "Ngụy Diên",
+    "kingdom": "shu",
+    "halfHp": 4,
+    "skills": [
+      "kuanggu"
+    ],
+    "_kyNangGoc": "Cuồng Cốt 狂骨 (kuanggu)"
+  },
+  {
+    "id": "liushan",
+    "name": "Lưu Thiện",
+    "kingdom": "shu",
+    "halfHp": 3,
+    "skills": [
+      "xiangle",
+      "fangquan"
+    ],
+    "_kyNangGoc": "Hưởng Lạc 享乐 (xiangle), Phóng Quyền 放权 (fangquan)"
+  },
+  {
+    "id": "menghuo",
+    "name": "Mạnh Hoạch",
+    "kingdom": "shu",
+    "halfHp": 4,
+    "skills": [
+      "huoshou",
+      "zaiqi"
+    ],
+    "_kyNangGoc": "Họa Thủ 祸首 (huoshou), Tái Khởi 再起 (zaiqi)"
+  },
+  {
+    "id": "zhurong",
+    "name": "Chúc Dung",
+    "kingdom": "shu",
+    "halfHp": 4,
+    "skills": [
+      "juxiang",
+      "lieren"
+    ],
+    "_kyNangGoc": "Cự Tượng 巨象 (juxiang), Liệt Nhận 烈刃 (lieren)"
+  },
+  {
+    "id": "ganfuren",
+    "name": "Cam phu nhân",
+    "kingdom": "shu",
+    "halfHp": 3,
+    "skills": [
+      "shushen",
+      "shenzhi"
+    ],
+    "_kyNangGoc": "Thục Thận 淑慎 (shushen), Thần Trí 神智 (shenzhi)"
+  },
+  {
+    "id": "jiangwanfeiyi",
+    "name": "Tưởng Uyển & Phí Y",
+    "kingdom": "shu",
+    "halfHp": 3,
+    "skills": [
+      "shengxi",
+      "shoucheng"
+    ],
+    "_kyNangGoc": "Sinh Tức 生息 (shengxi), Thủ Thành 守成 (shoucheng)"
+  },
+  {
+    "id": "mifuren",
+    "name": "My phu nhân",
+    "kingdom": "shu",
+    "halfHp": 3,
+    "skills": [
+      "guixiu",
+      "cunsi"
+    ],
+    "_kyNangGoc": "Khuê Tú 闺秀 (guixiu), Tồn Tự 存嗣 (cunsi), Dũng Quyết 勇决 (yongjue)"
+  },
+  {
+    "id": "madai",
+    "name": "Mã Đại",
+    "kingdom": "shu",
+    "halfHp": 4,
+    "skills": [
+      "qianxi",
+      "mathuat"
+    ],
+    "_kyNangGoc": "Tiềm Tập 潜袭 (qianxi)"
+  },
+  {
+    "id": "fazheng",
+    "name": "Pháp Chính",
+    "kingdom": "shu",
+    "halfHp": 3,
+    "skills": [
+      "enyuan",
+      "xuanhuo"
+    ],
+    "_kyNangGoc": "Ân Oán 恩怨 (enyuan), Huyễn Hoặc 眩惑 (xuanhuo)"
+  },
+  {
+    "id": "wangping",
+    "name": "Vương Bình",
+    "kingdom": "shu",
+    "halfHp": 4,
+    "skills": [
+      "jianglve"
+    ],
+    "_kyNangGoc": "Tướng Lược 将略 (jianglve)"
+  },
+  {
+    "id": "maliang",
+    "name": "Mã Lương",
+    "kingdom": "shu",
+    "halfHp": 3,
+    "skills": [
+      "mumeng",
+      "naman"
+    ],
+    "_kyNangGoc": "Mục Minh (?) 穆盟 (mumeng), Nạp Man 纳蛮 (naman)"
+  },
+  {
+    "id": "dengzhi",
+    "name": "Đặng Chi",
+    "kingdom": "shu",
+    "halfHp": 3,
+    "skills": [
+      "jianliang",
+      "weimeng"
+    ],
+    "_kyNangGoc": "(gói không có file âm thanh kỹ năng)"
+  },
+  {
+    "id": "xushu",
+    "name": "Từ Thứ",
+    "kingdom": "shu",
+    "halfHp": 4,
+    "skills": [
+      "qiance",
+      "jujian"
+    ]
+  },
+  {
+    "id": "masu",
+    "name": "Mã Tốc",
+    "kingdom": "shu",
+    "halfHp": 3,
+    "skills": [
+      "sanyao",
+      "zhiman"
+    ],
+    "_kyNangGoc": "Tán Dao 散谣 (sanyao), Chế Man 制蛮 (zhiman)"
+  },
+  {
+    "id": "shamoke",
+    "name": "Sa Ma Kha",
+    "kingdom": "shu",
+    "halfHp": 4,
+    "skills": [
+      "jili"
+    ],
+    "_kyNangGoc": "Tật Lê 蒺藜 (jili)"
+  },
+  {
+    "id": "xiahouba",
+    "name": "Hạ Hầu Bá",
+    "kingdom": "shu",
+    "halfHp": 4,
+    "skills": [
+      "baolie"
+    ],
+    "_kyNangGoc": "Báo Liệt 豹烈 (baolie)"
+  },
+  {
+    "id": "pengyang",
+    "name": "Bành Dạng",
+    "kingdom": "shu",
+    "halfHp": 3,
+    "skills": [
+      "tongling",
+      "jinxian"
+    ],
+    "_kyNangGoc": "(gói không có file âm thanh kỹ năng)"
+  },
+  {
+    "id": "ganning",
+    "name": "Cam Ninh",
+    "kingdom": "wu",
+    "halfHp": 4,
+    "skills": [
+      "qixi"
+    ],
+    "_kyNangGoc": "Kỳ Tập 奇袭 (qixi)"
+  },
+  {
+    "id": "daqiao",
+    "name": "Đại Kiều",
+    "kingdom": "wu",
+    "halfHp": 3,
+    "skills": [
+      "guose",
+      "liuli"
+    ],
+    "_kyNangGoc": "Quốc Sắc 国色 (guose), Lưu Ly 流离 (liuli)"
+  },
+  {
+    "id": "sunshangxiang",
+    "name": "Tôn Thượng Hương",
+    "kingdom": "wu",
+    "halfHp": 3,
+    "skills": [
+      "jieyin",
+      "xiaoji"
+    ],
+    "_kyNangGoc": "Kết Nhân 结姻 (jieyin), Kiêu Cơ 枭姬 (xiaoji)"
+  },
+  {
+    "id": "sunjian",
+    "name": "Tôn Kiên",
+    "kingdom": "wu",
+    "halfHp": 5,
+    "skills": [
+      "yinghun_sunjian"
+    ],
+    "_kyNangGoc": "Anh Hồn 英魂 (yinghun_sunjian)"
+  },
+  {
+    "id": "xiaoqiao",
+    "name": "Tiểu Kiều",
+    "kingdom": "wu",
+    "halfHp": 3,
+    "skills": [
+      "tianxiang",
+      "hongyan"
+    ],
+    "_kyNangGoc": "Thiên Hương 天香 (tianxiang)"
+  },
+  {
+    "id": "lusu",
+    "name": "Lỗ Túc",
+    "kingdom": "wu",
+    "halfHp": 3,
+    "skills": [
+      "haoshi",
+      "dimeng"
+    ],
+    "_kyNangGoc": "Hảo Thí 好施 (haoshi), Đế Minh 缔盟 (dimeng)"
+  },
+  {
+    "id": "erzhang",
+    "name": "Nhị Trương (Trương Chiêu & Trương Hoành)",
+    "kingdom": "wu",
+    "halfHp": 3,
+    "skills": [
+      "zhijian",
+      "guzheng"
+    ],
+    "_kyNangGoc": "Trực Gián 直谏 (zhijian), Cố Chính 固政 (guzheng)"
+  },
+  {
+    "id": "chenwudongxi",
+    "name": "Trần Vũ & Đổng Tập",
+    "kingdom": "wu",
+    "halfHp": 4,
+    "skills": [
+      "duanxie",
+      "fenming"
+    ],
+    "_kyNangGoc": "Đoạn Tiết 断绁 (duanxie), Phấn Mệnh 奋命 (fenming)"
+  },
+  {
+    "id": "lingtong",
+    "name": "Lăng Thống",
+    "kingdom": "wu",
+    "halfHp": 4,
+    "skills": [
+      "xuanlve",
+      "yongjin"
+    ],
+    "_kyNangGoc": "Toàn Lược 旋略 (xuanlve), Dũng Tiến 勇进 (yongjin)"
+  },
+  {
+    "id": "lvfan",
+    "name": "Lã Phạm",
+    "kingdom": "wu",
+    "halfHp": 3,
+    "skills": [
+      "diaodu",
+      "diancai"
+    ],
+    "_kyNangGoc": "Điều Độ 调度 (diaodu), Điển Tài 典财 (diancai)"
+  },
+  {
+    "id": "xusheng",
+    "name": "Từ Thịnh",
+    "kingdom": "wu",
+    "halfHp": 4,
+    "skills": [
+      "yicheng"
+    ],
+    "_kyNangGoc": "Nghi Thành 疑城 (yicheng)"
+  },
+  {
+    "id": "jiangqin",
+    "name": "Tưởng Khâm",
+    "kingdom": "wu",
+    "halfHp": 4,
+    "skills": [
+      "shangyi",
+      "niaoxiang"
+    ],
+    "_kyNangGoc": "Thượng Nghĩa 尚义 (shangyi), Điểu Tường 鸟翔 (niaoxiang)"
+  },
+  {
+    "id": "wuguotai",
+    "name": "Ngô Quốc Thái",
+    "kingdom": "wu",
+    "halfHp": 3,
+    "skills": [
+      "ganlu",
+      "buyi"
+    ],
+    "_kyNangGoc": "Cam Lộ 甘露 (ganlu), Bổ Ích 补益 (buyi)"
+  },
+  {
+    "id": "lukang",
+    "name": "Lục Kháng",
+    "kingdom": "wu",
+    "halfHp": 3,
+    "skills": [
+      "keshou",
+      "zhuwei"
+    ],
+    "_kyNangGoc": "Khắc Thủ 克守 (keshou), Trúc Vi 筑围 (zhuwei)"
+  },
+  {
+    "id": "zhugeke",
+    "name": "Gia Cát Khác",
+    "kingdom": "wu",
+    "halfHp": 3,
+    "skills": [
+      "aocai",
+      "duwu"
+    ],
+    "_kyNangGoc": "Ngạo Tài 傲才 (aocai), Độc Vũ 黩武 (duwu)"
+  },
+  {
+    "id": "luyusheng",
+    "name": "Lục Úc Sinh",
+    "kingdom": "wu",
+    "halfHp": 3,
+    "skills": [
+      "zhente",
+      "zhiwei"
+    ],
+    "_kyNangGoc": "Trinh Đặc 贞特 (zhente), Chí Vi 至微 (zhiwei)"
+  },
+  {
+    "id": "panjun",
+    "name": "Phan Tuấn",
+    "kingdom": "wu",
+    "halfHp": 3,
+    "skills": [
+      "congcha",
+      "gongqing"
+    ],
+    "_kyNangGoc": "Thông Sát 聪察 (congcha), Công Thanh 公清 (gongqing)"
+  },
+  {
+    "id": "wujing",
+    "name": "Ngô Cảnh",
+    "kingdom": "wu",
+    "halfHp": 4,
+    "skills": [
+      "diaogui",
+      "fengyang"
+    ],
+    "_kyNangGoc": "(gói không có file âm thanh kỹ năng)"
+  },
+  {
+    "id": "sufei",
+    "name": "Tô Phi",
+    "kingdom": "wu",
+    "halfHp": 4,
+    "skills": [
+      "lianpian"
+    ],
+    "_kyNangGoc": "Liên Phiên 联翩 (lianpian)"
+  },
+  {
+    "id": "lingcao",
+    "name": "Lăng Thao",
+    "kingdom": "wu",
+    "halfHp": 4,
+    "skills": [
+      "dujin"
+    ],
+    "_kyNangGoc": "Độc Tiến 独进 (dujin)"
+  },
+  {
+    "id": "zhouyi",
+    "name": "Chu Di",
+    "kingdom": "wu",
+    "halfHp": 3,
+    "skills": [
+      "zhukou_zy",
+      "duannian",
+      "lianyou"
+    ],
+    "_kyNangGoc": "Trục Khấu 逐寇 (zhukou), Đoạn Niệm 断念 (duannian)"
+  },
+  {
+    "id": "mifangfushiren",
+    "name": "My Phương & Phó Sĩ Nhân",
+    "kingdom": "wu",
+    "halfHp": 4,
+    "skills": [
+      "fengshix"
+    ],
+    "_kyNangGoc": "Phong Thế 锋势 (fengshix)"
+  },
+  {
+    "id": "yuanshao",
+    "name": "Viên Thiệu",
+    "kingdom": "qun",
+    "halfHp": 4,
+    "skills": [
+      "luanji"
+    ],
+    "_kyNangGoc": "Loạn Kích 乱击 (luanji)"
+  },
+  {
+    "id": "yanliangwenchou",
+    "name": "Nhan Lương & Văn Xú",
+    "kingdom": "qun",
+    "halfHp": 4,
+    "skills": [
+      "shuangxiong"
+    ],
+    "_kyNangGoc": "Song Hùng 双雄 (shuangxiong)"
+  },
+  {
+    "id": "caiwenji",
+    "name": "Thái Văn Cơ",
+    "kingdom": "qun",
+    "halfHp": 3,
+    "skills": [
+      "beige",
+      "duanchang"
+    ],
+    "_kyNangGoc": "Bi Ca 悲歌 (beige), Đoạn Trường 断肠 (duanchang)"
+  },
+  {
+    "id": "mateng",
+    "name": "Mã Đằng",
+    "kingdom": "qun",
+    "halfHp": 4,
+    "skills": [
+      "xiongyi",
+      "mathuat"
+    ],
+    "_kyNangGoc": "Hùng Dị 雄异 (xiongyi)"
+  },
+  {
+    "id": "kongrong",
+    "name": "Khổng Dung",
+    "kingdom": "qun",
+    "halfHp": 3,
+    "skills": [
+      "mingshi",
+      "lirang"
+    ],
+    "_kyNangGoc": "Danh Sĩ 名士 (mingshi), Lễ Nhượng 礼让 (lirang)"
+  },
+  {
+    "id": "jiling",
+    "name": "Kỷ Linh",
+    "kingdom": "qun",
+    "halfHp": 4,
+    "skills": [
+      "shuangren"
+    ],
+    "_kyNangGoc": "Song Nhận 双刃 (shuangren)"
+  },
+  {
+    "id": "tianfeng",
+    "name": "Điền Phong",
+    "kingdom": "qun",
+    "halfHp": 3,
+    "skills": [
+      "sijian",
+      "suishi"
+    ],
+    "_kyNangGoc": "Tử Gián 死谏 (sijian), Tùy Thế 随势 (suishi)"
+  },
+  {
+    "id": "panfeng",
+    "name": "Phan Phụng",
+    "kingdom": "qun",
+    "halfHp": 4,
+    "skills": [
+      "kuangfu"
+    ],
+    "_kyNangGoc": "Cuồng Phủ 狂斧 (kuangfu)"
+  },
+  {
+    "id": "zoushi",
+    "name": "Trâu thị",
+    "kingdom": "qun",
+    "halfHp": 3,
+    "skills": [
+      "huoshui",
+      "qingcheng"
+    ],
+    "_kyNangGoc": "Họa Thủy 祸水 (huoshui), Khuynh Thành 倾城 (qingcheng)"
+  },
+  {
+    "id": "dongzhuo",
+    "name": "Đổng Trác",
+    "kingdom": "qun",
+    "halfHp": 5,
+    "skills": [
+      "hengzheng",
+      "baoling"
+    ],
+    "_kyNangGoc": "Hoành Chinh 横征 (hengzheng), Bạo Lăng 暴凌 (baoling), Băng Hoại 崩坏 (benghuai)"
+  },
+  {
+    "id": "zhangxiu",
+    "name": "Trương Tú",
+    "kingdom": "qun",
+    "halfHp": 4,
+    "skills": [
+      "fudi",
+      "congjian"
+    ],
+    "_kyNangGoc": "Phụ Địch 附敌 (fudi), Tòng Gián 从谏 (congjian)"
+  },
+  {
+    "id": "hetaihou",
+    "name": "Hà Thái Hậu",
+    "kingdom": "qun",
+    "halfHp": 3,
+    "skills": [
+      "zhendu",
+      "qiluan"
+    ],
+    "_kyNangGoc": "Trậm Độc 鸩毒 (zhendu), Thích Loạn 戚乱 (qiluan)"
+  },
+  {
+    "id": "yuanshu",
+    "name": "Viên Thuật",
+    "kingdom": "qun",
+    "halfHp": 4,
+    "skills": [
+      "weidi",
+      "yongsi"
+    ],
+    "_kyNangGoc": "Dung Tứ 庸肆 (yongsi), Ngụy Đế 伪帝 (weidi)"
+  },
+  {
+    "id": "lijueguosi",
+    "name": "Lý Thôi & Quách Dĩ",
+    "kingdom": "qun",
+    "halfHp": 4,
+    "skills": [
+      "xiongsuan"
+    ],
+    "_kyNangGoc": "Hung Toán 凶算 (xiongsuan)"
+  },
+  {
+    "id": "zuoci",
+    "name": "Tả Từ",
+    "kingdom": "qun",
+    "halfHp": 3,
+    "skills": [],
+    "disabled": true,
+    "_kyNangGoc": "Hóa Thân 化身 (huashen), Tân Sinh 新生 (xinsheng)",
+    "_lyDo": "Bản Hóa Thân / Tân Sinh không có mô tả trong qsgs-viet.json; dùng bản mới \"new_zuoci\" (Dịch Quỷ / Cấp Hồn, cùng cơ chế [Hồn]) đã được bật thay thế."
+  },
+  {
+    "id": "new_zuoci",
+    "name": "Tả Từ (bản mới)",
+    "kingdom": "qun",
+    "halfHp": 3,
+    "skills": [
+      "yigui",
+      "jihun"
+    ],
+    "_kyNangGoc": "Dịch Quỷ 役鬼 (yigui), Cấp Hồn 汲魂 (jihun)"
+  },
+  {
+    "id": "yuji",
+    "name": "Vu Cát",
+    "kingdom": "qun",
+    "halfHp": 3,
+    "skills": [
+      "qianhuan"
+    ],
+    "_kyNangGoc": "Thiên Huyễn 千幻 (qianhuan)"
+  },
+  {
+    "id": "zhangren",
+    "name": "Trương Nhậm",
+    "kingdom": "qun",
+    "halfHp": 4,
+    "skills": [
+      "chuanxin",
+      "fengshi"
+    ],
+    "_kyNangGoc": "Xuyên Tâm 穿心 (chuanxin), Phong Thỉ 锋矢 (fengshi)"
+  },
+  {
+    "id": "xunchen",
+    "name": "Tuân Kham",
+    "kingdom": "qun",
+    "halfHp": 3,
+    "skills": [
+      "fenglve",
+      "anyong"
+    ],
+    "_kyNangGoc": "Phong Lược 锋略 (fenglve), Ám Dũng 暗涌 (anyong)"
+  },
+  {
+    "id": "xuyou",
+    "name": "Hứa Du",
+    "kingdom": "qun",
+    "halfHp": 3,
+    "skills": [
+      "chenglve",
+      "shicai"
+    ],
+    "_kyNangGoc": "Thành Lược 成略 (chenglve), Thị Tài 恃才 (shicai)"
+  },
+  {
+    "id": "huangzu",
+    "name": "Hoàng Tổ",
+    "kingdom": "qun",
+    "halfHp": 4,
+    "skills": [
+      "xishe"
+    ],
+    "_kyNangGoc": "Tập Xạ 袭射 (xishe)"
+  },
+  {
+    "id": "liuqi",
+    "name": "Lưu Kỳ",
+    "kingdom": "qun",
+    "halfHp": 3,
+    "skills": [
+      "wenji",
+      "tunjiang"
+    ],
+    "_kyNangGoc": "Vấn Kế 问计 (wenji), Đồn Giang 屯江 (tunjiang)"
+  },
+  {
+    "id": "nanhualaoxian",
+    "name": "Nam Hoa lão tiên",
+    "kingdom": "qun",
+    "halfHp": 3,
+    "skills": [
+      "gongxiu",
+      "jinghe"
+    ],
+    "_kyNangGoc": "Cộng Tu 共修 (gongxiu), Kinh Hợp 经合 (jinghe)"
+  },
+  {
+    "id": "lvlingqi",
+    "name": "Lã Linh Khởi",
+    "kingdom": "qun",
+    "halfHp": 4,
+    "skills": [
+      "guowu",
+      "zhuangrong",
+      "shenwei"
+    ],
+    "_kyNangGoc": "Quốc Vũ 帼舞 (guowu), Trang Nhung 妆戎 (zhuangrong), Thần Uy 神威 (shenwei), Vô Song 无双 (wushuang_lvlingqi)",
+    "gender": "female"
+  },
+  {
+    "id": "miheng",
+    "name": "Nễ Hành",
+    "kingdom": "qun",
+    "halfHp": 3,
+    "skills": [
+      "kuangcai",
+      "shejian"
+    ],
+    "_kyNangGoc": "Cuồng Tài 狂才 (kuangcai), Thiệt Kiếm 舌剑 (shejian)"
+  },
+  {
+    "id": "beimihu",
+    "name": "Ti Di Hô (Himiko)",
+    "kingdom": "qun",
+    "halfHp": 3,
+    "skills": [
+      "guishu",
+      "yuanyu"
+    ],
+    "_kyNangGoc": "Quỷ Thuật 鬼术 (guishu), Viễn Vực 远域 (yuanyu)",
+    "gender": "female"
+  }
+]

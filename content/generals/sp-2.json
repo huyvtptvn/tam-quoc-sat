@@ -1,0 +1,17 @@
+[
+ {
+  "_ghiChu": "Tướng SP (nhóm C2). Kỹ năng viết bằng JavaScript trong content/scripts/goi-sp-2.mjs. Thế lực / số âm dương ngư theo bản Quốc Chiến (ước lượng)."
+ },
+ { "id": "zhangyi", "name": "Trương Dực", "kingdom": "shu", "halfHp": 4, "skills": ["kangrui"] },
+ { "id": "chengpu", "name": "Trình Phổ", "kingdom": "wu", "halfHp": 4, "skills": ["huxun", "yuancong"] },
+ { "id": "chengyu", "name": "Trình Dục", "kingdom": "wei", "halfHp": 3, "skills": ["shefu", "benyu"] },
+ { "id": "xiahoushang", "name": "Hạ Hầu Thượng", "kingdom": "wei", "halfHp": 4, "skills": ["tanfeng"] },
+ { "id": "guyong", "name": "Cố Ung", "kingdom": "wu", "halfHp": 3, "skills": ["lifu", "yanzhong"] },
+ { "id": "liyan", "name": "Lý Nghiêm", "kingdom": "shu", "halfHp": 4, "skills": ["jinwu", "zhuke", "quanjia"] },
+ { "id": "maxiumatie", "name": "Mã Hưu & Mã Thiết", "kingdom": "qun", "halfHp": 4, "skills": ["mashu_maxiumatie", "kenshang"] },
+ { "id": "caoang", "name": "Tào Ngang", "kingdom": "wei", "halfHp": 4, "skills": ["xiaolian", "kangkai"] },
+ { "id": "zhuhuan", "name": "Chu Hoàn", "kingdom": "wu", "halfHp": 4, "skills": ["jutian"] },
+ { "id": "chendeng", "name": "Trần Đăng", "kingdom": "qun", "halfHp": 3, "skills": ["haokui", "xushi"] },
+ { "id": "shitao", "name": "Thạch Thao", "kingdom": "qun", "halfHp": 4, "skills": ["jiange", "qianxue", "zhuhu"] },
+ { "id": "sunhuan", "name": "Tôn Hoàn", "kingdom": "wu", "halfHp": 4, "skills": ["nizhan"] }
+]

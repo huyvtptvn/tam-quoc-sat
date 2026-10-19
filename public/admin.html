@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%225%22 fill=%22%23a8281d%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%23f6e9d2%22 font-family=%22serif%22%3ES%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tam Quốc Sát – Quản trị nội dung</title>
+<link rel="stylesheet" href="/ui/fonts.css">
+<link rel="stylesheet" href="/ui/cards.css">
+<style>
+  :root { --bg:#f4f2ee; --panel:#fff; --ink:#22201c; --muted:#76706a; --line:#e0dbd2; --accent:#8a2a2a; --ok:#2d6a37; --warn:#9a6400; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.45 system-ui, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:10px 16px; background:#22201c; color:#f4f2ee; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size:16px; margin:0; font-weight:600; }
+  header .muted { color:#bdb5aa; }
+  .wrap { display:grid; grid-template-columns:240px minmax(0,1fr) 380px; gap:12px; padding:12px 16px; }
+  @media (max-width: 1100px) { .wrap { grid-template-columns:1fr; } }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px; margin-bottom:12px; }
+  .panel h2 { font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:0 0 8px; }
+  button { font:inherit; padding:6px 10px; border-radius:6px; border:1px solid var(--line); background:#fff; cursor:pointer; margin:2px 2px 2px 0; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+  button.danger { color:var(--accent); }
+  input, select { font:inherit; padding:5px 8px; border:1px solid var(--line); border-radius:6px; }
+  textarea { width:100%; min-height:460px; font:13px/1.5 ui-monospace, Consolas, monospace; padding:10px; border:1px solid var(--line); border-radius:6px; tab-size:2; resize:vertical; }
+  .file { padding:4px 6px; border-radius:4px; cursor:pointer; font-family:ui-monospace, monospace; font-size:12.5px; word-break:break-all; }
+  .file:hover { background:#f2ede4; }
+  .file.sel { background:#f3e3d3; font-weight:600; }
+  .msg { white-space:pre-wrap; font-family:ui-monospace, monospace; font-size:12.5px; padding:6px 8px; border-radius:4px; margin:4px 0; }
+  .msg.err { background:#fbeaea; color:#7a1f1f; }
+  .msg.warn { background:#fdf3e1; color:#6e4a00; }
+  .msg.ok { background:#e9f4ea; color:#1f4d27; }
+  .tabs button.on { background:#22201c; color:#fff; border-color:#22201c; }
+  .help { max-height:70vh; overflow:auto; font-size:13px; }
+  .help dt { font-family:ui-monospace, monospace; font-weight:600; margin-top:8px; }
+  .help dd { margin:2px 0 0 0; color:#4a453f; }
+  .help .vars { font-size:12px; color:var(--muted); }
+  code { font-family:ui-monospace, monospace; background:#f2ede4; padding:0 4px; border-radius:3px; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  td, th { border-bottom:1px solid var(--line); padding:4px 6px; text-align:left; }
+  tr.content td { background:#fbf4e8; }
+  .muted { color:var(--muted); }
+  /* Hình ảnh */
+  .img-wrap { padding:0 16px 16px; }
+  .img-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; margin-top:10px; }
+  .img-item { display:flex; flex-direction:column; align-items:center; gap:6px; padding:10px 8px; border:1px solid var(--line); border-radius:8px; background:#faf8f4; }
+  .img-item.has { border-color:#c9a46a; background:#fbf4e8; }
+  .img-item .card { --cw: 104px; }
+  .img-item .portrait { --pw: 96px; }
+  .img-item .key { font-family:ui-monospace, monospace; font-size:12px; color:var(--muted); word-break:break-all; text-align:center; }
+  .img-item .acts { display:flex; gap:4px; }
+  .img-item .acts button, .img-item .acts label { font-size:12.5px; padding:4px 8px; }
+  .img-item label.up { border:1px solid var(--line); border-radius:6px; background:#fff; cursor:pointer; }
+  .img-item label.up input { display:none; }
+  .drop-hint { border:2px dashed transparent; }
+  .img-item.drag { border-color:var(--accent); border-style:dashed; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quản trị nội dung</h1>
+  <span id="status" class="muted"></span>
+  <span style="flex:1"></span>
+  <input id="token" type="password" placeholder="Mã quản trị (ADMIN_TOKEN)" style="width:220px">
+  <button id="btnLogin" class="primary">Đăng nhập</button>
+  <a href="/" style="color:#f4f2ee">Trang chính</a> <a href="/game.html" style="color:#f4f2ee">Vào chơi ↗</a>
+</header>
+
+<div class="wrap">
+  <div>
+    <div class="panel">
+      <h2>File nội dung</h2>
+      <div id="files" class="muted">Đăng nhập để xem.</div>
+      <div style="margin-top:10px">
+        <select id="tpl">
+          <option value="">+ Tạo file mới từ mẫu…</option>
+          <option value="trigger">Kỹ năng kích hoạt (KHI … THÌ …)</option>
+          <option value="active">Kỹ năng chủ động (bấm dùng)</option>
+          <option value="passive">Kỹ năng bị động (luôn có hiệu lực)</option>
+          <option value="general">Tướng mới</option>
+          <option value="trick">Lá cẩm nang mới</option>
+          <option value="equip">Trang bị mới</option>
+        </select>
+      </div>
+      <button id="btnReload" style="margin-top:8px">↻ Nạp lại từ đĩa</button>
+    </div>
+  </div>
+
+  <div>
+    <div class="panel">
+      <h2>Soạn thảo · <span id="curFile" class="muted">chưa chọn file</span></h2>
+      <div style="margin-bottom:6px">
+        <input id="path" placeholder="skills/ten-file.json" style="width:280px">
+        <button id="btnCheck">Kiểm tra</button>
+        <button id="btnSave" class="primary">Lưu & áp dụng</button>
+        <button id="btnDelete" class="danger">Xóa file</button>
+      </div>
+      <textarea id="editor" spellcheck="false" placeholder="Chọn một file bên trái, hoặc tạo file mới từ mẫu."></textarea>
+      <div id="result"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Mô phỏng (bot đấu bot)</h2>
+      <div>
+        Số ván <input id="simGames" type="number" value="100" min="1" max="1000" style="width:80px">
+        Số người <select id="simPlayers"><option>4</option><option>5</option><option selected>6</option><option>7</option><option>8</option></select>
+        Thử tướng <select id="simFocus"><option value="">(chia ngẫu nhiên)</option></select>
+        <button id="btnSim" class="primary">Chạy mô phỏng</button>
+      </div>
+      <div class="muted" style="margin:4px 0">Mô phỏng chạy với nội dung đã LƯU trên đĩa, trong tiến trình riêng (không ảnh hưởng người đang chơi). "Thử tướng" = ghế 0 luôn cầm tướng đó.</div>
+      <div id="sim"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="panel">
+      <h2>Tra cứu</h2>
+      <div class="tabs" id="helpTabs">
+        <button data-tab="events" class="on">Sự kiện</button><button data-tab="actions">Hành động</button><button data-tab="vars">Biến & hàm</button><button data-tab="list">Tướng & kỹ năng</button>
+      </div>
+      <div id="help" class="help"></div>
+      <div class="muted" style="margin-top:8px">Hướng dẫn đầy đủ: file <code>content/HUONG-DAN-KY-NANG.md</code> (<a href="/docs.html" target="_blank">mở</a>)</div>
+    </div>
+  </div>
+</div>
+
+<div class="img-wrap" id="hinh-anh">
+  <div class="panel">
+    <h2>Hình ảnh lá bài & tướng</h2>
+    <div class="muted">Bấm <b>Tải ảnh</b> hoặc kéo-thả file ảnh vào ô. PNG / JPG / WEBP / GIF, tối đa 3 MB. Lá bài nên tỉ lệ 5:7 (ví dụ 500×700) — chỉ là phần tranh, khung và chữ do game tự vẽ. Tướng nên tỉ lệ 3:4. Ảnh lưu ở <code>content/images/</code>; người chơi tải lại trang là thấy. Chỉ dùng ảnh bạn có quyền sử dụng.</div>
+    <div class="tabs" id="imgTabs" style="margin-top:8px">
+      <button data-img="cards" class="on">Lá bài</button><button data-img="generals">Tướng</button><button data-img="back">Mặt sau</button>
+      <label style="margin-left:12px" class="muted"><input type="checkbox" id="imgOnlyMissing"> chỉ hiện mục chưa có ảnh</label>
+    </div>
+    <div id="imgMsg"></div>
+    <div id="imgGrid" class="img-grid"></div>
+  </div>
+</div>
+
+<script src="/ui/cards.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+// Trang chính (do trình khởi động mở) có thể gửi mã qua #admin=... -> lưu lại rồi xóa khỏi thanh địa chỉ.
+const hashToken = new URLSearchParams(location.hash.slice(1)).get('admin');
+if (hashToken) { store.set('tqs_admin', hashToken); history.replaceState(null, '', location.pathname); }
+let token = store.get('tqs_admin') || '', catalog = null, current = null;
+$('token').value = token;
+
+const TEMPLATES = {
+  trigger: { path: 'skills/ky-nang-moi.json', text: [{
+    id: 'ten_ky_nang', name: 'Tên Kỹ Năng', desc: 'Sau khi bạn chịu sát thương, nếu bạn còn không quá 2 máu, bạn có thể bốc 2 lá.',
+    type: 'trigger', event: 'damaged', role: 'target', if: 'self.hp <= 2', optional: true, limit: { perTurn: 1 },
+    actions: [{ do: 'draw', who: 'self', count: '2' }],
+  }] },
+  active: { path: 'skills/chu-dong-moi.json', text: [{
+    id: 'ten_chu_dong', name: 'Tên Kỹ Năng', desc: 'Mỗi lượt một lần, bạn có thể bỏ 1 lá để một người khác mất 1 máu.',
+    type: 'active', cards: { min: 1, max: 1 }, target: { filter: 't != self' }, cost: 'discard', limit: { perTurn: 1 },
+    bot: { use: 'always', target: 'enemy' }, actions: [{ do: 'loseHp', who: 'target', count: '1' }],
+  }] },
+  passive: { path: 'skills/bi-dong-moi.json', text: [{
+    id: 'ten_bi_dong', name: 'Tên Kỹ Năng', desc: 'Tỏa định. Tầm đánh của bạn +1. Khi bạn đã mất máu, giới hạn bài trên tay +2.',
+    type: 'passive', attackRange: '1', handLimit: 'self.lostHp > 0 ? 2 : 0',
+  }] },
+  general: { path: 'generals/tuong-moi.json', text: [{ id: 'ten_tuong', name: 'Tên Tướng', kingdom: 'shu', halfHp: 4, skills: ['ten_ky_nang'], pairs: [] }] },
+  trick: { path: 'cards/cam-nang-moi.json', text: [{
+    id: 'ten_cam_nang', label: 'Tên Cẩm Nang', type: 'trick', targeting: 'one', filter: 't != self', harmful: true,
+    actions: [{ do: 'damage', who: 'target', count: '1', source: 'self' }],
+  }] },
+  equip: { path: 'cards/trang-bi-moi.json', text: [{
+    id: 'ten_trang_bi', label: 'Tên Trang Bị', type: 'equip', slot: 'weapon', range: 2,
+    skill: { desc: 'Sau khi Sát của bạn gây sát thương, bạn bốc 1 lá.', type: 'trigger', event: 'damaged', role: 'source', if: "byCard == 'sha'", actions: [{ do: 'draw' }] },
+  }] },
+};
+
+async function api(path, opts = {}) {
+  const res = await fetch(path, { ...opts, headers: { 'x-admin-token': token, ...(opts.headers || {}) } });
+  const body = await res.json().catch(() => ({}));
+  if (res.status === 401) { showResult({ ok: false, errors: ['Sai mã quản trị'] }); throw new Error('401'); }
+  return body;
+}
+
+async function refreshStatus() {
+  const s = await (await fetch('/api/status')).json();
+  $('status').textContent = `Nội dung phiên bản ${s.contentVersion}${s.pendingContent ? ' · có thay đổi đang chờ (sẽ áp dụng khi các ván kết thúc)' : ''} · ${s.activeGames} ván đang chơi`;
+}
+
+async function loadCatalog() {
+  catalog = await (await fetch('/api/catalog')).json();
+  $('simFocus').innerHTML = '<option value="">(chia ngẫu nhiên)</option>' + catalog.generals.map((g) => `<option value="${g.id}">${esc(g.name)} (${esc(g.kingdomLabel)})${catalog.skills[g.skills[0]]?.origin === 'content' ? ' ★' : ''}</option>`).join('');
+  showHelp(document.querySelector('#helpTabs .on').dataset.tab);
+  renderImages();
+  if (location.hash === '#hinh-anh' && !loadCatalog.scrolled) { loadCatalog.scrolled = true; $('hinh-anh').scrollIntoView(); }
+}
+
+async function loadFiles() {
+  const r = await api('/api/admin/files');
+  $('files').innerHTML = r.files.map((f) => `<div class="file ${f === current ? 'sel' : ''}" data-f="${esc(f)}">${esc(f)}</div>`).join('') || '<span class="muted">(trống)</span>';
+  document.querySelectorAll('.file').forEach((el) => el.onclick = () => openFile(el.dataset.f));
+}
+
+async function openFile(f) {
+  const r = await api(`/api/admin/file?path=${encodeURIComponent(f)}`);
+  current = f;
+  $('path').value = f;
+  $('curFile').textContent = f;
+  $('editor').value = r.text;
+  $('result').innerHTML = '';
+  loadFiles();
+}
+
+function showResult(r) {
+  const parts = [];
+  if (r.status === 'applied') parts.push(`<div class="msg ok">✓ Đã lưu và áp dụng (phiên bản ${r.summary?.version ?? ''}). Ván mới sẽ dùng nội dung này.</div>`);
+  else if (r.status === 'pending') parts.push('<div class="msg ok">✓ Đã lưu. Nội dung sẽ được áp dụng khi các ván đang chơi kết thúc.</div>');
+  else if (r.ok && !r.status) parts.push('<div class="msg ok">✓ Không có lỗi.</div>');
+  for (const e of r.errors || []) parts.push(`<div class="msg err">✗ ${esc(e)}</div>`);
+  for (const w of r.warnings || []) parts.push(`<div class="msg warn">! ${esc(w)}</div>`);
+  $('result').innerHTML = parts.join('');
+}
+
+$('btnLogin').onclick = async () => {
+  token = $('token').value.trim(); store.set('tqs_admin', token);
+  try { await loadFiles(); showResult({ ok: true }); $('result').innerHTML = '<div class="msg ok">✓ Đã đăng nhập.</div>'; } catch {}
+};
+$('btnCheck').onclick = async () => showResult(await api('/api/admin/validate', { method: 'POST', body: JSON.stringify({ path: $('path').value, text: $('editor').value }) }));
+$('btnSave').onclick = async () => {
+  const p = $('path').value.trim();
+  if (!p) return showResult({ ok: false, errors: ['Nhập đường dẫn file, ví dụ skills/ten-file.json'] });
+  const r = await api(`/api/admin/file?path=${encodeURIComponent(p)}`, { method: 'PUT', body: $('editor').value });
+  showResult(r);
+  if (r.ok) { current = p; await loadFiles(); await loadCatalog(); refreshStatus(); }
+};
+$('btnDelete').onclick = async () => {
+  const p = $('path').value.trim();
+  if (!p || !confirm(`Xóa file ${p}?`)) return;
+  const r = await api(`/api/admin/file?path=${encodeURIComponent(p)}`, { method: 'DELETE' });
+  showResult(r);
+  if (r.ok) { current = null; $('editor').value = ''; await loadFiles(); await loadCatalog(); refreshStatus(); }
+};
+$('btnReload').onclick = async () => { showResult(await api('/api/admin/reload', { method: 'POST' })); await loadCatalog(); refreshStatus(); };
+$('tpl').onchange = (e) => {
+  const t = TEMPLATES[e.target.value];
+  if (!t) return;
+  current = null; $('path').value = t.path; $('curFile').textContent = `${t.path} (mới, chưa lưu)`;
+  $('editor').value = JSON.stringify(t.text, null, 2);
+  e.target.value = '';
+  $('result').innerHTML = '<div class="msg warn">! Đây là mẫu. Đổi "id", "name" rồi bấm Kiểm tra / Lưu.</div>';
+};
+$('editor').addEventListener('keydown', (e) => {
+  if (e.key === 'Tab') { e.preventDefault(); const t = e.target; const s = t.selectionStart; t.setRangeText('  ', s, t.selectionEnd, 'end'); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); $('btnSave').click(); }
+});
+
+$('btnSim').onclick = async () => {
+  $('sim').innerHTML = '<div class="muted">Đang chạy… (100 ván mất khoảng vài giây)</div>';
+  try {
+    const r = await api('/api/admin/simulate', { method: 'POST', body: JSON.stringify({ games: Number($('simGames').value), players: Number($('simPlayers').value), focus: $('simFocus').value }) });
+    if (r.error) throw new Error(r.error);
+    const k = Object.entries(r.kingdoms).map(([n, v]) => `${n} <b>${(100 * v / Math.max(1, r.games)).toFixed(0)}%</b>`).join(' · ');
+    const crashes = r.crashes.length ? `<div class="msg err">✗ ${r.crashes.length} ván bị lỗi. Ván đầu (seed ${r.crashes[0].seed}):\n${esc(r.crashes[0].error)}</div>` : '';
+    const errs = (r.errors || []).map((e) => `<div class="msg err">✗ ${esc(e)}</div>`).join('');
+    const rows = r.generals.filter((g) => g.picked > 0).map((g) => `<tr class="${g.content ? 'content' : ''}"><td>${esc(g.name)}${g.content ? ' ★' : ''}</td><td>${esc(g.kingdom)}</td><td>${g.picked}</td><td>${(100 * g.winRate).toFixed(0)}%</td></tr>`).join('');
+    $('sim').innerHTML = `${errs}${crashes}<div class="msg ${r.ok ? 'ok' : 'err'}">${r.games} ván · ${r.avgTurns?.toFixed(1)} lượt/ván · hòa ${r.draws} · ${r.msPerGame?.toFixed(0)} ms/ván</div>
+      <div>Tỉ lệ thắng theo thế lực: ${k}</div>
+      <table style="margin-top:6px"><thead><tr><th>Tướng (★ = trong content/)</th><th>Thế lực</th><th>Số lần</th><th>Thắng</th></tr></thead><tbody>${rows}</tbody></table>`;
+  } catch (e) {
+    $('sim').innerHTML = `<div class="msg err">✗ ${esc(e.message)}</div>`;
+  }
+};
+
+function showHelp(tab) {
+  document.querySelectorAll('#helpTabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
+  const d = catalog?.dsl;
+  if (!d) return;
+  let h = '';
+  if (tab === 'events') {
+    h = '<p class="muted">Dùng trong kỹ năng <code>"type": "trigger"</code> ở trường <code>"event"</code>.</p><dl>' + Object.entries(d.events).map(([k, v]) =>
+      `<dt>${k}</dt><dd>${esc(v.desc)}<div class="vars">Biến: ${Object.entries(v.vars).map(([n, ds]) => `<code>${n}</code> ${esc(ds)}`).join(' · ')}${v.mods.length ? `<br>Sửa sự kiện được: ${v.mods.map((m) => `<code>${m}</code>`).join(' ')}` : ''}</div></dd>`).join('') + '</dl>';
+  } else if (tab === 'actions') {
+    h = '<p class="muted">Mỗi hành động: <code>{ "do": "tên", ...tham số, "if": "điều kiện (tùy chọn)" }</code></p><dl>' + Object.entries(d.actions).map(([k, v]) =>
+      `<dt>${k}${v.mod ? ' <span class="muted">(sửa sự kiện)</span>' : ''}</dt><dd>${esc(v.desc)}<div class="vars">${Object.entries(v.params).map(([n, p]) => `<code>${n}</code>${p.required ? '*' : ''}: ${esc(p.desc)}`).join('<br>') || '(không có tham số)'}</div></dd>`).join('') + '</dl>';
+  } else if (tab === 'vars') {
+    h = `<p>Biến luôn có:</p><dl>${Object.entries(d.globals).map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
+      <p>Thuộc tính người chơi (ví dụ <code>target.hp</code>, <code>self.hand</code>):</p><dl>${Object.entries(d.playerProps).map(([k, v]) => `<dt>.${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
+      <p>Hàm: ${d.functions.map((f) => `<code>${f}()</code>`).join(' ')}</p>
+      <p>Toán tử: <code>+ - * / %</code> · <code>== != &gt; &lt; &gt;= &lt;=</code> · <code>and or not</code> · chuỗi trong nháy đơn <code>'red'</code></p>`;
+  } else {
+    h = '<dl>' + catalog.generals.map((g) => `<dt>${esc(g.id)}</dt><dd>${esc(g.name)} · ${esc(g.kingdomLabel)} · ${g.halfHp} cá<div class="vars">${g.skills.map((s) => `<code>${s}</code> ${esc(catalog.skills[s]?.name)}`).join(' · ')}</div></dd>`).join('') + '</dl>';
+  }
+  $('help').innerHTML = h;
+}
+document.querySelectorAll('#helpTabs button').forEach((b) => b.onclick = () => showHelp(b.dataset.tab));
+
+loadCatalog(); refreshStatus(); setInterval(refreshStatus, 5000);
+if (token) loadFiles().catch(() => {});
+
+// ---------- Hình ảnh ----------
+let imgTab = 'cards';
+function imgItems() {
+  if (imgTab === 'generals') return [
+    ...catalog.generals.map((g) => ({ kind: 'generals', key: g.id, title: g.name, html: TQSCards.portraitHTML(g.id, { nameTag: true }) })),
+    ...(catalog.disabledGenerals || []).map((g) => ({ kind: 'generals', key: g.id, title: `${g.name} (đang tắt)`, html: TQSCards.portraitHTML(g.id, { nameTag: true }) })),
+  ];
+  if (imgTab === 'back') return [
+    { kind: 'cards', key: 'back', title: 'Mặt sau lá bài', html: TQSCards.backHTML() },
+    { kind: 'generals', key: 'sujiang', title: 'Tướng đang úp', html: TQSCards.portraitHTML(null) },
+  ];
+  const out = [];
+  for (const [name, info] of Object.entries(catalog.cards)) {
+    const red = name.length % 2 === 0;
+    const base = { id: 0, name, suit: red ? 'heart' : 'spade', rank: 1 + (name.length % 13), type: info.type };
+    out.push({ kind: 'cards', key: name, title: info.label, html: TQSCards.cardHTML(base) });
+    if (name === 'sha') {
+      out.push({ kind: 'cards', key: 'sha_fire', title: 'Hỏa Sát (không bắt buộc)', html: TQSCards.cardHTML({ ...base, suit: 'diamond', nature: 'fire' }) });
+      out.push({ kind: 'cards', key: 'sha_thunder', title: 'Lôi Sát (không bắt buộc)', html: TQSCards.cardHTML({ ...base, suit: 'club', nature: 'thunder' }) });
+    }
+  }
+  return out;
+}
+function renderImages() {
+  if (!catalog) return;
+  TQSCards.setCatalog(catalog);
+  const only = $('imgOnlyMissing').checked;
+  const items = imgItems().filter((it) => !only || !catalog.images[it.kind][it.key]);
+  $('imgGrid').innerHTML = items.map((it) => {
+    const has = !!catalog.images[it.kind][it.key];
+    return `<div class="img-item ${has ? 'has' : ''}" data-kind="${it.kind}" data-key="${esc(it.key)}">
+      ${it.html}
+      <div><b>${esc(it.title)}</b></div>
+      <div class="key">${it.kind}/${esc(it.key)}</div>
+      <div class="acts">
+        <label class="up">Tải ảnh<input type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label>
+        ${has ? '<button type="button" class="danger" data-del>Xóa ảnh</button>' : ''}
+      </div>
+    </div>`;
+  }).join('') || '<div class="muted">Tất cả đã có ảnh.</div>';
+  document.querySelectorAll('.img-item').forEach((el) => {
+    const { kind, key } = el.dataset;
+    el.querySelector('input[type=file]').onchange = (e) => e.target.files[0] && uploadImage(kind, key, e.target.files[0]);
+    const del = el.querySelector('[data-del]');
+    if (del) del.onclick = () => deleteImage(kind, key);
+    el.ondragover = (e) => { e.preventDefault(); el.classList.add('drag'); };
+    el.ondragleave = () => el.classList.remove('drag');
+    el.ondrop = (e) => { e.preventDefault(); el.classList.remove('drag'); const f = e.dataTransfer.files[0]; if (f) uploadImage(kind, key, f); };
+  });
+}
+async function uploadImage(kind, key, file) {
+  const msg = (cls, text) => { $('imgMsg').innerHTML = `<div class="msg ${cls}">${esc(text)}</div>`; };
+  if (!token) return msg('err', 'Đăng nhập bằng mã quản trị trước khi tải ảnh.');
+  if (file.size > 3 * 1024 * 1024) return msg('err', `${file.name}: ảnh quá lớn (tối đa 3 MB)`);
+  const res = await fetch(`/api/admin/image?kind=${kind}&key=${encodeURIComponent(key)}`, { method: 'PUT', headers: { 'x-admin-token': token }, body: file });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) return msg('err', `Tải ảnh ${kind}/${key}: ${res.status === 401 ? 'sai mã quản trị' : body.error || res.status}`);
+  msg('ok', `✓ Đã lưu ảnh ${kind}/${key}.`);
+  await loadCatalog();
+}
+async function deleteImage(kind, key) {
+  if (!confirm(`Xóa ảnh ${kind}/${key}?`)) return;
+  await api(`/api/admin/image?kind=${kind}&key=${encodeURIComponent(key)}`, { method: 'DELETE' });
+  await loadCatalog();
+}
+document.querySelectorAll('#imgTabs button').forEach((b) => b.onclick = () => {
+  document.querySelectorAll('#imgTabs button').forEach((x) => x.classList.toggle('on', x === b));
+  imgTab = b.dataset.img; renderImages();
+});
+$('imgOnlyMissing').onchange = renderImages;
+</script>
+</body>
+</html>

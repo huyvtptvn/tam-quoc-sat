@@ -1,0 +1,159 @@
+[
+ {
+  "_ghiChu": "Gói Hán (HanPackage.lua) + Lãng Khách (LangKhach.lua). Engine chưa có thế lực Hán nên tướng Hán xếp vào Quần (qun). Số âm dương ngư (halfHp) là ước lượng. Kỹ năng trong content/scripts/goi-han.mjs. Bỏ qua han_fuwan (không có kỹ năng)."
+ },
+ {
+  "id": "liuxie",
+  "name": "Lưu Hiệp",
+  "kingdom": "qun",
+  "halfHp": 3,
+  "skills": [
+   "tianming",
+   "mizhao"
+  ],
+  "_theLucGoc": "Hán"
+ },
+ {
+  "id": "liubian",
+  "name": "Lưu Biện",
+  "kingdom": "qun",
+  "halfHp": 3,
+  "skills": [
+   "shiyuan",
+   "dushi"
+  ],
+  "_theLucGoc": "Hán"
+ },
+ {
+  "id": "zhangrang",
+  "name": "Trương Nhượng",
+  "kingdom": "qun",
+  "halfHp": 3,
+  "skills": [
+   "taoluan"
+  ],
+  "_theLucGoc": "Hán"
+ },
+ {
+  "id": "hejin",
+  "name": "Hà Tiến",
+  "kingdom": "qun",
+  "halfHp": 4,
+  "skills": [
+   "mouzhu",
+   "yanhuo"
+  ],
+  "_theLucGoc": "Hán"
+ },
+ {
+  "id": "wangyun",
+  "name": "Vương Doãn",
+  "kingdom": "qun",
+  "halfHp": 3,
+  "skills": [
+   "lianji",
+   "dingzhu"
+  ],
+  "_theLucGoc": "Hán"
+ },
+ {
+  "id": "wangrong",
+  "name": "Vương Vinh",
+  "kingdom": "qun",
+  "halfHp": 3,
+  "skills": [
+   "minsi",
+   "wucong"
+  ],
+  "gender": "female",
+  "_theLucGoc": "Hán"
+ },
+ {
+  "id": "fuhuanghou",
+  "name": "Phục Hoàng Hậu",
+  "kingdom": "qun",
+  "halfHp": 3,
+  "skills": [
+   "zhuikong",
+   "qiuyuan"
+  ],
+  "gender": "female",
+  "_theLucGoc": "Hán"
+ },
+ {
+  "id": "dongcheng",
+  "name": "Đổng Thừa",
+  "kingdom": "qun",
+  "halfHp": 4,
+  "skills": [
+   "chengzhao"
+  ],
+  "_theLucGoc": "Hán"
+ },
+ {
+  "id": "tangji",
+  "name": "Đường Cơ",
+  "kingdom": "qun",
+  "halfHp": 3,
+  "skills": [
+   "aiwu",
+   "juebie"
+  ],
+  "gender": "female",
+  "_theLucGoc": "Hán"
+ },
+ {
+  "id": "caiyong",
+  "name": "Thái Ung",
+  "kingdom": "qun",
+  "halfHp": 3,
+  "skills": [
+   "zhudian",
+   "botong"
+  ],
+  "_theLucGoc": "Hán"
+ },
+ {
+  "id": "huangfusong",
+  "name": "Hoàng Phủ Tung",
+  "kingdom": "qun",
+  "halfHp": 4,
+  "skills": [
+   "dingluan",
+   "shiji"
+  ],
+  "_theLucGoc": "Hán"
+ },
+ {
+  "id": "liuhong",
+  "name": "Lưu Hoành",
+  "kingdom": "qun",
+  "halfHp": 4,
+  "skills": [
+   "yujue"
+  ],
+  "_theLucGoc": "Hán"
+ },
+ {
+  "id": "wuding",
+  "name": "Vô Định",
+  "kingdom": "ye",
+  "halfHp": 4,
+  "skills": [
+   "bianhua"
+  ]
+ },
+ {
+  "id": "zhaoshizhen",
+  "name": "Triệu Thị Trinh",
+  "kingdom": "ye",
+  "halfHp": 4,
+  "skills": [
+   "baixiang",
+   "powang",
+   "shengweijiang"
+  ],
+  "gender": "female",
+  "_ghiChu": "Bà Vương là chủ tướng kỹ giảm 0.5 máu gốc: đã trừ 1 cá vào halfHp (5 -> 4). Tử Vi Thần nhận được từ Sinh Vi Tướng."
+ }
+]

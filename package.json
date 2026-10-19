@@ -1,0 +1,27 @@
+{
+  "name": "tqs-engine",
+  "version": "0.6.0",
+  "description": "Engine Tam Quốc Sát - Giai đoạn 6: giao diện bàn chơi + hình ảnh lá bài",
+  "type": "module",
+  "scripts": {
+    "test": "tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "play": "tsx src/cli/play.ts",
+    "sim": "tsx src/cli/simulate.ts",
+    "play:qc": "tsx src/cli/play-qc.ts",
+    "sim:qc": "tsx src/cli/simulate-qc.ts",
+    "server": "tsx src/server/server.ts",
+    "dev": "tsx watch src/server/server.ts",
+    "content:check": "tsx src/content/check.ts",
+    "start": "node launcher/start.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.18.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "dependencies": {
+    "ws": "^8.22.0"
+  }
+}

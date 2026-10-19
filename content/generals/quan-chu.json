@@ -1,0 +1,41 @@
+[
+ {
+  "_ghiChu": "Tướng quân chủ (君主) — nhóm E, giai đoạn 12. Không được chia khi chọn tướng: người chọn tướng thường tương ứng làm chủ tướng được hỏi có đổi thành quân chủ không (phòng chơi bật tùy chọn \"Quân chủ\"). Quân chủ lật chủ tướng ngay đầu lượt đầu tiên. Kỹ năng viết trong src/hegemony/skills.ts (phần QUÂN CHỦ), vì các lá cờ quân chủ (Thiên Binh, Ngũ Tử Lương Tướng Đạo, Duyên Giang Phong Hỏa Đồ) là kỹ năng chung của mọi người."
+ },
+ {
+  "id": "lord_liubei",
+  "name": "Lưu Bị - Quân",
+  "kingdom": "shu",
+  "halfHp": 4,
+  "lord": true,
+  "skills": ["zhangwu", "shouyue", "jizhao"],
+  "_kyNangGoc": "Quân Long Hoành Thục Hán — Chương Vũ, Thụ Việt (Ngũ Hổ Tướng Đại Kỳ), Kích Chiếu"
+ },
+ {
+  "id": "lord_zhangjiao",
+  "name": "Trương Giác - Quân",
+  "kingdom": "qun",
+  "halfHp": 4,
+  "lord": true,
+  "skills": ["wuxin", "hongfa", "wendao"],
+  "_kyNangGoc": "Thời Đại Đích Tiên Khu — Ngộ Tâm, Hoằng Pháp (Hoàng Cân Thiên Bình Phủ), Vấn Đạo"
+ },
+ {
+  "id": "lord_caocao",
+  "name": "Tào Tháo - Quân",
+  "kingdom": "wei",
+  "halfHp": 4,
+  "lord": true,
+  "skills": ["jianan", "huibian", "zongyu"],
+  "_kyNangGoc": "Phụng Vũ Cửu Tiêu — Kiến Anh (Ngũ Tử Lương Tướng Đạo), Huy Tiên, Tổng Ngự"
+ },
+ {
+  "id": "lord_sunquan",
+  "name": "Tôn Quyền - Quân",
+  "kingdom": "wu",
+  "halfHp": 4,
+  "lord": true,
+  "skills": ["jiahe", "lianzi", "jubao"],
+  "_kyNangGoc": "Hổ Cư Giang Đông — Gia Hỏa (Duyên Giang Phong Hỏa Đồ), Liễm Tư, Tư Bảo"
+ }
+]

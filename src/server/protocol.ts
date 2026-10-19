@@ -1,0 +1,70 @@
+// ============================================================
+// Giao thức WebSocket giữa client và server (JSON).
+// Client gửi ClientMsg, server gửi ServerMsg. Trường "t" là loại tin nhắn.
+// ============================================================
+import type { GameResult } from '../core/game.js';
+import type { Request, Response } from '../core/types.js';
+import type { PlayerView } from '../core/view.js';
+import type { ScoreBoard } from '../hegemony/scoring.js';
+import type { PublicProfile } from './accounts.js';
+
+export type ClientMsg =
+  /** Mở đầu kết nối. Gửi lại token cũ để kết nối lại đúng người chơi sau khi rớt mạng. */
+  | { t: 'hello'; name: string; token?: string;
+      /** Mã đăng nhập tài khoản (từ /api/account/login). null = đăng xuất, chơi như khách. */ auth?: string | null }
+  | { t: 'listRooms' }
+  | { t: 'createRoom'; name?: string; seats?: number; timeoutSec?: number; /** id bộ bài: quocchien | quantranh | ungbien */ deck?: string;
+      /** Chế độ chọn tướng: normal | free | chaos */ mode?: string; /** Cho đổi bài khởi đầu (mặc định có) */ mulligan?: boolean;
+      /** Cho đổi chủ tướng thành quân chủ (mặc định có) */ lord?: boolean }
+  | { t: 'joinRoom'; roomId: string }
+  | { t: 'leaveRoom' }
+  | { t: 'addBot' }
+  | { t: 'removeBot' }
+  | { t: 'start' }
+  /** Trả lời một câu hỏi của engine (reqId lấy từ tin nhắn 'request'). */
+  | { t: 'answer'; reqId: number; response: Response }
+  | { t: 'chat'; text: string };
+
+export interface SeatInfo {
+  index: number;
+  kind: 'human' | 'bot';
+  name: string;
+  connected: boolean;
+  /** Tên đăng nhập nếu người chơi có tài khoản. */
+  username?: string;
+}
+
+export interface RoomInfo {
+  id: string;
+  name: string;
+  host: string;
+  status: 'waiting' | 'playing' | 'finished';
+  maxSeats: number;
+  timeoutSec: number;
+  /** Bộ bài của phòng (id và tên hiển thị). */
+  deck: string;
+  deckLabel: string;
+  mode: string;
+  modeLabel: string;
+  mulligan: boolean;
+  /** Cho đổi chủ tướng thành quân chủ (Lưu Bị, Trương Giác, Tào Tháo, Tôn Quyền - Quân). */
+  lord: boolean;
+  seats: SeatInfo[];
+}
+
+export type ServerMsg =
+  | { t: 'welcome'; playerId: string; token: string; name: string; contentVersion: number; account?: PublicProfile | null }
+  | { t: 'rooms'; rooms: RoomInfo[] }
+  | { t: 'room'; room: RoomInfo | null; yourSeat: number | null }
+  /** Engine hỏi bạn. Trả lời bằng 'answer' với cùng reqId trước khi hết giờ (hết giờ thì bot trả lời thay). */
+  | { t: 'request'; reqId: number; request: Request; view: PlayerView; timeoutMs: number }
+  /** Câu hỏi đã hết giờ hoặc không còn hiệu lực. */
+  | { t: 'requestClosed'; reqId: number; reason: 'timeout' | 'answered' }
+  /** Trạng thái bàn chơi mới nhất từ góc nhìn của bạn + các dòng nhật ký mới. */
+  | { t: 'state'; view: PlayerView; log: string[] }
+  | { t: 'gameOver'; result: GameResult; scores?: ScoreBoard;
+      /** Ván đã lưu: mã ván, có tính xếp hạng không, Elo trước/sau từng ghế (null = khách/bot). */
+      match?: { id: string; ranked: boolean; ratings: { before: number | null; after: number | null }[] } }
+  | { t: 'chat'; from: string; text: string }
+  | { t: 'notice'; text: string }
+  | { t: 'error'; message: string };

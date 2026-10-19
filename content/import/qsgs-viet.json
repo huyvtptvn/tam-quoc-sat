@@ -1,0 +1,4637 @@
+{
+ "generals": [
+  {
+   "id": "dengai",
+   "name": "Đặng Ngải",
+   "title": "Kiểu Nhiên Đích Tráng Sĩ",
+   "pkg": "Trận",
+   "file": "FormationPackage.lua",
+   "skills": [
+    {
+     "id": "tuntian",
+     "name": "Đồn Điền",
+     "desc": "• Sau khi bạn mất đi bài ngoài lượt, bạn có thể tiến hành phán xét, nếu kết quả phán xét không phải là chất CƠ, bạn có thể đặt kết quả phán xét này từ chồng bài bỏ lên tướng này, gọi là [Điền].\n• Khoảng cách từ bạn tới người khác -X (X là số [Điền] bạn có)."
+    },
+    {
+     "id": "jixi",
+     "name": "Cấp Tập",
+     "desc": "Chủ tướng kỹ, Giảm 0.5 máu gốc: Bạn có thể chuyển hóa sử dụng [Điền] thành [Thuận Thủ Khiên Dương]."
+    },
+    {
+     "id": "ziliang",
+     "name": "Tư Lương",
+     "desc": "Phó tướng kỹ: Sau khi 1 người cùng thế lực với bạn nhận sát thương, bạn có thể giao cho họ 1 [Điền]."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "dengai"
+  },
+  {
+   "id": "caohong",
+   "name": "Tào Hồng",
+   "title": "Ngụy Chi Phúc Tướng",
+   "pkg": "Trận",
+   "file": "FormationPackage.lua",
+   "skills": [
+    {
+     "id": "huyuan",
+     "name": "Hộ Viện",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, bạn có thể chọn 1 mục:\n1. Giao 1 lá phi trang bị cho 1 người;\n2. Đặt 1 lá trang bị vào vùng trang bị của 1 người, sau đó bạn có thể bỏ 1 lá trên bàn chơi."
+    },
+    {
+     "id": "heyi",
+     "name": "Hạc Dực",
+     "desc": "Trận pháp kỹ: Quan hệ đội hình: Nếu bạn có trong quan hệ đội hình, người cùng đội hình với bạn nhận kỹ năng »Phi Ảnh«."
+    },
+    {
+     "id": "feiying",
+     "name": "Phi Ảnh",
+     "desc": "Tỏa định kỹ: Khoảng cách từ người khác đến bạn +1."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "caohong"
+  },
+  {
+   "id": "jiangwei",
+   "name": "Khương Duy",
+   "title": "Long Đích Y Bát",
+   "pkg": "Trận",
+   "file": "FormationPackage.lua",
+   "skills": [
+    {
+     "id": "tiaoxin",
+     "name": "Khiêu Hấn",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể lệnh 1 người có tầm đánh tới bạn chọn 1 mục:\n1. Họ sử dụng [Sát] với bạn;\n2. Lệnh bạn bỏ 1 lá của họ."
+    },
+    {
+     "id": "yizhi",
+     "name": "Di Chí",
+     "desc": "Phó tướng kỹ, Giảm 0.5 máu gốc: Nếu Chủ tướng của bạn:\n* Có »Quan Tinh«: Số lá được xem luôn là 5;\n* Không có »Quan Tinh«: Bạn nhận »Quan Tinh«."
+    },
+    {
+     "id": "tianfu",
+     "name": "Thiên Phúc",
+     "desc": "Chủ tướng kỹ, Trận pháp kỹ: Quan hệ đội hình: Trong lượt của người có trong quan hệ đội hình, bạn nhận kỹ năng »Khán Phá«."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "jiangwei"
+  },
+  {
+   "id": "jiangwanfeiyi",
+   "name": "Tưởng Uyển & Phí Y",
+   "title": "Xã Tắc Cổ Quăng",
+   "pkg": "Trận",
+   "file": "FormationPackage.lua",
+   "skills": [
+    {
+     "id": "shengxi",
+     "name": "Sinh Tức",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, nếu trong lượt này bạn không gây sát thương, bạn có thể rút 2 lá."
+    },
+    {
+     "id": "shoucheng",
+     "name": "Thủ Thành",
+     "desc": "Sau khi người cùng thế lực với bạn mất đi lá cuối cùng trên tay họ nếu ở ngoài lượt của họ, bạn có thể lệnh họ rút 1 lá."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "jiangwanfeiyi"
+  },
+  {
+   "id": "jiangqin",
+   "name": "Tưởng Khâm",
+   "title": "Kỳ Hề Chi Khí",
+   "pkg": "Trận",
+   "file": "FormationPackage.lua",
+   "skills": [
+    {
+     "id": "shangyi",
+     "name": "Thượng Nghĩa",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể lệnh cho 1 người khác xem bài trên tay của bạn, sau đó bạn lựa chọn 1 mục:\n1. Bạn xem bài trên tay họ và bỏ 1 lá màu Đen trong đó.\n2. Bạn xem tất cả tướng ẩn của họ."
+    },
+    {
+     "id": "niaoxiang",
+     "name": "Điểu Tường",
+     "desc": "Trận pháp kỹ: Quan hệ vây công:\n• Sau khi bạn xác định mục tiêu của [Sát], ứng với mỗi mục tiêu, nếu mục tiêu đó là người bên cạnh bạn và họ không nằm trong quan hệ đội hình, lệnh họ cần sử dụng 2 [Thiểm] để triệt tiêu [Sát] này.\n• Nếu bạn là người vây công, sau khi người vây công xác định mục tiêu của lá [Sát], ứng với mỗi mục tiêu, nếu mục tiêu này là người bị vây công, lệnh họ cần sử dụng 2 [Thiểm] để triệt tiêu [Sát] này."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "jiangqin"
+  },
+  {
+   "id": "xusheng",
+   "name": "Từ Thịnh",
+   "title": "Giang Đông Đích Thiết Bích",
+   "pkg": "Trận",
+   "file": "FormationPackage.lua",
+   "skills": [
+    {
+     "id": "yicheng",
+     "name": "Nghi Thành",
+     "desc": "Sau khi người cùng đội hình với bạn xác định mục tiêu của [Sát] hoặc trở thành mục tiêu của [Sát], họ có thể rút 1 lá, sau đó bỏ 1 lá."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "xusheng"
+  },
+  {
+   "id": "yuji",
+   "name": "Vu Cát",
+   "title": "Hồn Nhiễu Tả Hữu",
+   "pkg": "Trận",
+   "file": "FormationPackage.lua",
+   "skills": [
+    {
+     "id": "qianhuan",
+     "name": "Thiên Huyễn",
+     "desc": "• Sau khi 1 người cùng thế lực nhận sát thương, bạn có thể đem 1 lá của bạn đặt lên tướng này, gọi là [Huyễn] (Không thể đặt lá trùng chất với những [Huyễn] đã có).\n• Khi 1 người cùng thế lực trở thành mục tiêu duy nhất của lá cơ bản/công cụ phổ thông, bạn có thể đưa 1 [Huyễn] vào chồng bài bỏ, hủy bỏ mục tiêu này.\n• Khi có lá tiến vào vùng phán xét của người cùng thế lực với bạn, bạn có thể đưa 1 [Huyễn] vào chồng bài bỏ, đưa lá đó vào chồng bài bỏ."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "yuji"
+  },
+  {
+   "id": "hetaihou",
+   "name": "Hà Thái Hậu",
+   "title": "Lộng Quyền Chi Xà Hạt",
+   "pkg": "Trận",
+   "file": "FormationPackage.lua",
+   "skills": [
+    {
+     "id": "zhendu",
+     "name": "Độc Tửu",
+     "desc": "Khi bắt đầu giai đoạn ra bài của người khác, bạn có thể bỏ 1 lá bài trên tay, nếu họ thỏa mãn điều kiện sử dụng [Tửu], thực hiện lần lượt:\n- Họ xem như sử dụng [Tửu];\n- Bạn gây 1 sát thương cho họ."
+    },
+    {
+     "id": "qiluan",
+     "name": "Thích Loạn",
+     "desc": "Khi kết thúc lượt của 1 người, nếu trong lượt này bạn đã giết người, bạn có thể rút 3 lá."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "hetaihou"
+  },
+  {
+   "id": "lord_liubei",
+   "name": "Lưu Bị - Quân",
+   "title": "Long Hoành Thục Hán",
+   "pkg": "Trận",
+   "file": "FormationPackage.lua",
+   "skills": [
+    {
+     "id": "zhangwu",
+     "name": "Chương Vũ",
+     "desc": "Tỏa định kỹ:\n• Khi [Phi Long Đoạt Phượng] tiến vào chồng bài bỏ hoặc vùng trang bị của người khác, bạn thu lấy nó.\n• Khi bạn mất đi [Phi Long Đoạt Phượng] không vì sử dụng, bạn mở nó ra, đặt vào đáy chồng bài rút và bạn rút 2 lá."
+    },
+    {
+     "id": "shouyue",
+     "name": "Thụ Việt",
+     "desc": "Quân chủ kỹ, Tỏa định kỹ: Bạn có »Ngũ Hổ Tướng Đại Kỳ«.\n\n»<b>Ngũ Hổ Tướng Đại Kỳ</b>«:\nNgười thuộc thế lực Thục thay đổi các kỹ năng sau:\n* »Võ Thánh«: Thay đổi mô tả: Loại bỏ chữ \"Đỏ\".\n* »Bào Hao«: Bổ sung mô tả: • Sau khi bạn xác định mục tiêu của lá [Sát], ứng với mỗi mục tiêu, bạn lệnh [Sát] này Bỏ qua phòng cụ của họ.\n* »Long Đảm«: Bổ sung mô tả: • Khi bạn sử dụng hoặc đánh ra [Sát] hoặc [Thiểm] bởi phát động »Long Đảm«, bạn rút 1 lá.\n* »Liệt Cung«: Bổ sung mô tả: • Tầm đánh của bạn +1.\n* »Thiết Kỵ«: Thay đổi mô tả: \"1 tướng đã mở\" sửa thành \"tất cả tướng đã mở\"."
+    },
+    {
+     "id": "jizhao",
+     "name": "Kích Chiếu",
+     "desc": "Hạn định kỹ: Khi bạn trong trạng thái hấp hối, bạn có thể phát động kỹ năng này, thực hiện lần lượt:\n- Bạn bổ sung bài trên tay đến giới hạn máu;\n- Bạn hồi máu đến 2;\n- Bạn mất kỹ năng »Thụ Việt« và nhận kỹ năng »Nhân Đức«."
+    }
+   ],
+   "status": "quân chủ (chưa hỗ trợ)"
+  },
+  {
+   "id": "liuxie",
+   "name": "Lưu Hiệp",
+   "title": "U Cung Tự Long",
+   "pkg": "Hán",
+   "file": "HanPackage.lua",
+   "skills": [
+    {
+     "id": "tianming",
+     "name": "Thiên Mệnh",
+     "desc": "Sau khi bạn trở thành mục tiêu của [Sát], bạn có thể phát động kỹ năng này, thực hiện lần lượt:\n- Bạn bỏ 2 lá trên tay;\n- Bạn rút 2 lá."
+    },
+    {
+     "id": "mizhao",
+     "name": "Mật Chiếu",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể giao X lá cho 1 người khác (X là số thế lực khác bạn trên bàn);\n▷ Bạn lệnh họ đấu điểm với 1 người khác, người thắng xem như sử dụng 1 [Sát] với người thua."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "liubian",
+   "name": "Lưu Biện",
+   "title": "Hán Cung Sở Ca",
+   "pkg": "Hán",
+   "file": "HanPackage.lua",
+   "skills": [
+    {
+     "id": "shiyuan",
+     "name": "Thi Oán",
+     "desc": "Một lần trong lượt của mỗi người, sau khi bạn trở thành mục tiêu của bài do người khác sử dụng, nếu số máu của họ so với bạn:\n* Lớn hơn: Bạn có thể rút 2 lá;\n* Ngược lại: Bạn có thể rút 1 lá."
+    },
+    {
+     "id": "dushi",
+     "name": "Độc Thệ",
+     "desc": "Tỏa định kỹ:\n• Người khác không thể sử dụng [Đào] với bạn.\n• Khi bạn trận vong do người khác gay sát thương, họ nhận kỹ năng này."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "zhangrang",
+   "name": "Trương Nhượng",
+   "title": "Thiết Hạnh Tuyệt Nhân",
+   "pkg": "Hán",
+   "file": "HanPackage.lua",
+   "skills": [
+    {
+     "id": "taoluan",
+     "name": "Thao Loạn",
+     "desc": "Khi bạn cần sử dụng 1 lá cơ bản/công cụ phổ thông, bạn có thể mở tướng này, xem như sử dụng lá đó;\n▶ Khi kết thúc lượt này, nếu bạn đã mở tất cả tướng, bạn chọn tối đa 3 người khác đã trở thành mục tiêu của lá đó và có bài trên tay, thực hiện lần lượt:\n- Bạn lệnh họ mở 1 lá trên tay và giao cho bạn;\n- Trong số những lá đã mở, nếu số lá màu Đỏ > màu Đen, bạn úp tướng này."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "hejin",
+   "name": "Hà Tiến",
+   "title": "Phanh Miếu Tế Đường",
+   "pkg": "Hán",
+   "file": "HanPackage.lua",
+   "skills": [
+    {
+     "id": "mouzhu",
+     "name": "Mưu Tru",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể lựa chọn những người khác có số máu bằng bạn hoặc ở khoảng cách 1 của bạn, thực hiện lần lượt:\n- Họ giao 1 lá trên tay cho bạn;\n- Nếu số lá trên tay họ < bạn, họ có thể xem như sử dụng 1 [Sát] hoặc [Quyết Đấu] với bạn."
+    },
+    {
+     "id": "yanhuo",
+     "name": "Diên Họa",
+     "desc": "Khi bạn trận vong, bạn có thể chọn 1 mục:\n1. Bạn bỏ X lá của nguồn sát thương;\n2. Bạn bỏ 1 lá của tối đa X người;\n(X là số lá trên tay bạn)."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "wangyun",
+   "name": "Vương Doãn",
+   "title": "Kế Tùy Sao Xuất",
+   "pkg": "Hán",
+   "file": "HanPackage.lua",
+   "skills": [
+    {
+     "id": "lianji",
+     "name": "Liên Kế",
+     "desc": "Giai đoạn ra bài, bạn có thể giao 1 lá trên tay cho 1 người khác chưa nhận bài từ kỹ năng này;\n▶ Khi tính toán sát thương tiếp theo họ phải nhận trong lượt này, sát thương này +1."
+    },
+    {
+     "id": "dingzhu",
+     "name": "Định Trứ",
+     "desc": "Khi kết thúc giai đoạn ra bài, bạn có thể chọn 1 người khác đã nhận bài trong lượt này, họ xem như sử dụng 1 [Quyết Đấu]."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "wangrong",
+   "name": "Vương Vinh",
+   "title": "Thần Niết Hiệp Huy",
+   "pkg": "Hán",
+   "file": "HanPackage.lua",
+   "skills": [
+    {
+     "id": "minsi",
+     "name": "Mẫn Tư",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể bỏ đi số lá tùy ý có tổng điểm bằng 13, sau đó lật ra số lá gấp đôi từ chồng bài rút, bạn thu lấy những lá đó;\n▶ Những lá CƠ bạn đã thu bằng kỹ năng này trong lượt này không tính vào giới hạn trữ bài trên tay."
+    },
+    {
+     "id": "wucong",
+     "name": "Vũ Tụng",
+     "desc": "Khi bạn trận vong, bạn có thể lệnh 1 người khác có cùng thế lực với bạn nhận »Mẫn Tư«."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "fuhuanghou",
+   "name": "Phục Hoàng Hậu",
+   "title": "Cô Trú Nhất Trịch",
+   "pkg": "Hán",
+   "file": "HanPackage.lua",
+   "skills": [
+    {
+     "id": "zhuikong",
+     "name": "Chúy Khủng",
+     "desc": "Khi bắt đầu giai đoạn chuẩn bị của người khác, nếu bạn đang bị thương, bạn có thể đấu điểm với họ:\n* Nếu bạn thắng: Chặn tất cả sát thương họ gây ra trong lượt này;\n* Nếu bạn không thắng: Họ có thể xem như sử dụng 1 [Sát] với bạn."
+    },
+    {
+     "id": "qiuyuan",
+     "name": "Cầu Viện",
+     "desc": "Khi bạn trở thành mục tiêu của [Sát], bạn có thể lệnh 1 người khác ngoài người sử dụng chọn 1 mục:\n1. Họ giao cho bạn 1 lá [Thiểm];\n2. Họ trở thành mục tiêu của [Sát] này."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "han_fuwan",
+   "name": "Phục Hoàn",
+   "title": "Trầm Nghị Đích Quốc Trượng",
+   "pkg": "Hán",
+   "file": "HanPackage.lua",
+   "skills": [],
+   "status": "chưa có"
+  },
+  {
+   "id": "dongcheng",
+   "name": "Đổng Thừa",
+   "title": "Ưu Thích Đích Quốc Cửu",
+   "pkg": "Hán",
+   "file": "HanPackage.lua",
+   "skills": [
+    {
+     "id": "chengzhao",
+     "name": "Thừa Chiếu",
+     "desc": "Khi bắt đầu giai đoạn kết thúc của 1 người, nếu lượt này bạn đã nhận từ 2 lá trở lên, bạn có thể đấu điểm với 1 người trong tầm đánh của bạn, người thắng xem như sử dụng 1 [Sát] bỏ qua phòng cụ với người thua."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "tangji",
+   "name": "Đường Cơ",
+   "title": "Lộ Dị Quỳnh Độc",
+   "pkg": "Hán",
+   "file": "HanPackage.lua",
+   "skills": [
+    {
+     "id": "aiwu",
+     "name": "Ai Vũ",
+     "desc": "Một lần trong lượt của mỗi người, sau khi người khác nhận sát thương, bạn có thể bỏ từ 1 đến 3 lá, thực hiện lần lượt:\n- Họ có thể bỏ từ 1 đến 3 lá;\n- Nếu tổng số lá đã bỏ bởi kỹ năng này ≥ 3, bạn và họ hồi 1 máu."
+    },
+    {
+     "id": "juebie",
+     "name": "Quyết Biệt",
+     "desc": "Khi người khác có cùng thế lực với bạn trận vong, họ có thể giao tất cả bài của họ cho bạn."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "caiyong",
+   "name": "Thái Ung",
+   "title": "Trực Tình Phi Bạch",
+   "pkg": "Hán",
+   "file": "HanPackage.lua",
+   "skills": [
+    {
+     "id": "zhudian",
+     "name": "Chú Điển",
+     "desc": "Sau khi bạn trở thành mục tiêu của lá Đen do người khác sử dụng, bạn có thể Trùng Chú 1 lá của bạn;\n▷ Nếu lá bạn rút có màu Đen và khác chất với lá được sử dụng, bạn có thể mở lá đó và rút 1 lá."
+    },
+    {
+     "id": "botong",
+     "name": "Bác Thông",
+     "desc": "Bạn có thể chuyển hóa sử dụng 4 lá khác chất thành 1 lá cơ bản;\n▶ Sau khi lá này kết toán xong, bạn có thể đem những lá này tùy ý giao cho những người khác."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "huangfusong",
+   "name": "Hoàng Phủ Tung",
+   "title": "Chí Định Tuyết Sương",
+   "pkg": "Hán",
+   "file": "HanPackage.lua",
+   "skills": [
+    {
+     "id": "dingluan",
+     "name": "Định Loạn",
+     "desc": "Một lần trong lượt của mỗi người, khi phán xét của 1 người ở khoảng cách ≤ số lá trên tay bạn có hiệu lực, nếu kết quả phán xét có chất BÍCH, bạn có thể chặn lần phán xét này;\n▷ Bạn có thể xem như sử dụng 1 [Sát Hỏa] với họ."
+    },
+    {
+     "id": "shiji",
+     "name": "Thế Kích",
+     "desc": "Khi bạn gây sát thương thuộc tính cho người khác, nếu số lá trên tay bạn không phải nhiều nhất, bạn có thể phát động kỹ năng này, thực hiện lần lượt:\n- Bạn xem bài trên tay họ và bạn có thể bỏ tối đa 2 lá Đỏ trong đó;\n- Bạn rút số lá tương đương với số lá đã bỏ."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "liuhong",
+   "name": "Lưu Hoành",
+   "title": "Phong Hỏa Hán Thiên",
+   "pkg": "Hán",
+   "file": "HanPackage.lua",
+   "skills": [
+    {
+     "id": "yujue",
+     "name": "Dục Tước",
+     "desc": "Khi bắt đầu giai đoạn ra bài của người khác, nếu tổng số kỹ năng ghi trên những lá tướng đã mở của họ > bạn, bạn có thể bỏ 1 lá, yêu cầu họ chấp hành 1 [Quân Lệnh];\n▶ Nếu họ chấp hành, sau khi họ gây sát thương trong lượt sau của họ, họ rút 2 lá;\n▷ Nếu họ không chấp hành:\n* Nếu họ đã mở tất cả tướng, bạn úp 1 tướng của họ và họ không thể mở tướng đó trong lượt này;\n* Nếu họ có tướng úp, bạn lệnh họ thay đổi trạng thái chồng tướng."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "jg_liubei",
+   "name": "Liệt Đế Huyền Đức",
+   "title": "Thục Hán Anh Hồn",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgjizhen",
+     "name": "Khích Trận",
+     "desc": "Tỏa định kỹ: Khi bắt đầu giai đoạn kết thúc, bạn lệnh tất cả người Thục đã bị thương rút 1 lá."
+    },
+    {
+     "id": "jglingfeng",
+     "name": "Linh Phong",
+     "desc": "Khi bắt đầu giai đoạn rút bài, bạn có thể không rút bài, mở 2 lá trên đầu chồng bài rút rồi thu lấy; nếu 2 lá khác màu, lệnh 1 người Ngụy mất 1 máu."
+    },
+    {
+     "id": "jgqinzhen",
+     "name": "Thân Trận",
+     "desc": "Tỏa định kỹ: Khi người Thục bắt đầu giai đoạn ra bài, bạn lệnh giới hạn sử dụng [Sát] của họ +1 trong giai đoạn này."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_zhuge",
+   "name": "Thiên Hầu Khổng Minh",
+   "title": "Thục Hán Anh Hồn",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgbiantian",
+     "name": "Biến Thiên",
+     "desc": "Khi bắt đầu giai đoạn chuẩn bị, bạn có thể tiến hành phán xét, nếu kết quả phát xét có:\n* Màu Đỏ: Cho đến khi bắt đầu lượt tiếp theo của bạn, khi người Ngụy tính toán sát thương Hỏa phải nhận, sát thương này +1;\n* Chất BÍCH: Cho đến khi bắt đầu lượt tiếp theo của bạn, khi người Thục nhận sát thương Lôi, bạn chặn sát thương này."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_yueying",
+   "name": "Công Thần Nguyệt Ánh",
+   "title": "Thục Hán Anh Hồn",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jggongshen",
+     "name": "Công Thần",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, bạn có thể chọn 1 mục:\n1. Lệnh Khí Giới Thục hồi 1 máu; 2. Gây 1 sát thương Hỏa cho Khí Giới Ngụy."
+    },
+    {
+     "id": "jgzhinang",
+     "name": "Trí Nang",
+     "desc": "Khi bắt đầu giai đoạn chuẩn bị, bạn có thể mở 5 lá trên đầu chồng bài rút, sau đó bạn có thể giao tất cả lá phi cơ bản trong số đó cho 1 người Thục."
+    },
+    {
+     "id": "jgjingmiao",
+     "name": "Tinh Diệu",
+     "desc": "Tỏa định kỹ: Sau khi kết toán xong [Vô Giải Khả Kích] do người Ngụy sử dụng, lệnh họ mất 1 máu."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_pangtong",
+   "name": "Dục Hỏa Sĩ Nguyên",
+   "title": "Thục Hán Anh Hồn",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgyuhuo",
+     "name": "jgyuhuo",
+     "desc": "Tỏa định kỹ: Khi bạn nhận sát thương Hỏa, chặn sát thương này."
+    },
+    {
+     "id": "jgqiwu",
+     "name": "Thê Ngô",
+     "desc": "Khi bạn sử dụng/đánh ra lá TÉP, có thể lệnh 1 người Thục hồi 1 máu."
+    },
+    {
+     "id": "jgtianyu",
+     "name": "Thiên Ngục",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, bạn có thể đưa tất cả người Ngụy vào trạng thái xích."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_qinglong_machine",
+   "name": "Vân Bình Thanh Long",
+   "title": "Thủ Thành Khí Giới",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgjiguan",
+     "name": "jgjiguan",
+     "desc": "Tỏa định kỹ: Khi bạn trở thành mục tiêu của [Lạc Bất Tư Thục], hủy bỏ mục tiêu đối với bạn."
+    },
+    {
+     "id": "jgmojian",
+     "name": "Ma Tiễn",
+     "desc": "Tỏa định kỹ: Khi bắt đầu giai đoạn ra bài, bạn xem như sử dụng 1 [Vạn Tiễn Tề Phát] với tất cả người Ngụy."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_baihu_machine",
+   "name": "Cơ Lôi Bạch Hổ",
+   "title": "Thủ Thành Khí Giới",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgzhenwei",
+     "name": "Trấn Vệ",
+     "desc": "Tỏa định kỹ: Khoảng cách từ người Ngụy đến người Thục +1"
+    },
+    {
+     "id": "jgbenlei",
+     "name": "Bôn Lôi",
+     "desc": "Khi bắt đầu giai đoạn chuẩn bị, bạn có thể gây 2 sát thương Lôi cho Khí Giới Ngụy."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_zhuque_machine",
+   "name": "Sỉ Vũ Chu Tước",
+   "title": "Thủ Thành Khí Giới",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgtianyun",
+     "name": "Thiên Vẫn",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, bạn có thể mất 1 máu, chọn 1 người Ngụy, thực hiện lần lượt:\n- Bạn gây 2 sát thương Hỏa cho họ;\n- Bạn bỏ tất cả bài trong vùng trang bị của họ."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_xuanwu_machine",
+   "name": "Linh Giáp Huyền Vũ",
+   "title": "Thủ Thành Khí Giới",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgyizhong",
+     "name": "Nghị Trọng",
+     "desc": "Tỏa định kỹ: Nếu vùng trang bị của bạn không có phòng cụ, [Sát] Đen không có hiệu quả với bạn."
+    },
+    {
+     "id": "jglingyu",
+     "name": "Linh Dũ",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, bạn có thể thay đổi trạng thái chồng tướng, sau đó lệnh tất cả người Thục khác đã bị thương hồi 1 máu."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_caozhen",
+   "name": "Giai Nhân Tử Đam",
+   "title": "Ngụy Võ Anh Hồn",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgchiying",
+     "name": "Trì Doanh",
+     "desc": "Tỏa định kỹ: Khi người Ngụy nhận sát thương, nếu sát thương này > 1, sát thương này trở thành 1."
+    },
+    {
+     "id": "jgjingfan",
+     "name": "Kinh Phàm",
+     "desc": "Tỏa định kỹ: Khoảng cách từ người Ngụy đến người Thục -1."
+    },
+    {
+     "id": "jgzhenxi",
+     "name": "Trấn Tây",
+     "desc": "Tỏa định kỹ: Sau khi người Ngụy nhận sát thương, tăng thêm 1 lá rút ở giai đoạn rút bài tiếp theo của bạn."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_xiahou",
+   "name": "Tuyệt Trần Diệu Tài",
+   "title": "Ngụy Võ Anh Hồn",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgchuanyun",
+     "name": "Xuyên Vân",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, bạn có thể gây 1 sát thương cho người khác có số máu ≥ bạn."
+    },
+    {
+     "id": "jgleili",
+     "name": "Lôi Lệ",
+     "desc": "Sau khi bạn gây sát thương do sử dụng [Sát], bạn có thể gây 1 sát thương Lôi cho 1 người Thục ngoài họ."
+    },
+    {
+     "id": "jgfengxing",
+     "name": "Phong Hành",
+     "desc": "Khi bắt đầu giai đoạn chuẩn bị, bạn có thể chọn 1 người Thục, xem như bạn sử dụng 1 [Sát] với họ."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_sima",
+   "name": "Đoạn Ngục Trọng Đạt",
+   "title": "Ngụy Võ Anh Hồn",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgkonghun",
+     "name": "Khống Hồn",
+     "desc": "Khi bắt đầu giai đoạn ra bài, nếu số máu đã mất của bạn ≥ số người thế lực Thục, bạn có thể gây 1 sát thương Lôi cho tất cả người Thục, sau đó bạn hồi X máu (X là số người đã nhận sát thương này)."
+    },
+    {
+     "id": "jgfanshi",
+     "name": "Phản Phệ",
+     "desc": "Tỏa định kỹ: Khi bắt đầu giai đoạn kết thúc, bạn mất 1 máu."
+    },
+    {
+     "id": "jgxuanlei",
+     "name": "Huyền Lôi",
+     "desc": "Tỏa định kỹ: Khi bắt đầu giai đoạn chuẩn bị, bạn gây 1 sát thương Lôi cho tất cả người Thục có bài trong vùng phán xét."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_zhanghe",
+   "name": "Xảo Khôi Tuấn Nghệ",
+   "title": "Ngụy Võ Anh Hồn",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jghuodi",
+     "name": "Hoặc Địch",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, nếu có người Ngụy đang trong trạng thái chồng tướng, bạn có thể lệnh 1 người Thục thay đổi trạng thái chồng tướng."
+    },
+    {
+     "id": "jgjueji",
+     "name": "Tuyệt Cấp",
+     "desc": "Tỏa định kỹ: Giai đoạn rút bài của người Thục, nếu họ đã bị thương, lệnh họ rút ít đi 1 lá."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_bian_machine",
+   "name": "Phước Địa Bệ Ngạn",
+   "title": "Công Thành Khí Giới",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgdidong",
+     "name": "Địa Động",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, bạn có thể lệnh 1 người Thục thay đổi trạng thái chồng tướng."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_suanni_machine",
+   "name": "Thực hỏa Toan Nghê",
+   "title": "Công Thành Khí Giới",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jglianyu",
+     "name": "Luyện Ngục",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, bạn có thể gây 1 sát thương Hỏa cho tất cả người Thục."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_chiwen_machine",
+   "name": "Thôn Thiên Si Vẫn",
+   "title": "Công Thành Khí Giới",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgtanshi",
+     "name": "Tham Thực",
+     "desc": "Tỏa định kỹ: Khi bắt đầu giai đoạn kết thúc, bạn bỏ 1 lá trên tay."
+    },
+    {
+     "id": "jgtunshi",
+     "name": "Thôn Phệ",
+     "desc": "Tỏa định kỹ: Khi bắt đầu giai đoạn chuẩn bị, bạn gây 1 sát thương cho tất cả người Thục có số bài trên tay > của bạn."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_yazi_machine",
+   "name": "Liệt Thạch Nhai Xế",
+   "title": "Công Thành Khí Giới",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgnailuo",
+     "name": "Nại Lạc",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, bạn có thể đặt chồng tướng;\n▷ Bạn lệnh tất cả người Thục bỏ tất cả bài trong vùng trang bị của họ."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_guanyu",
+   "name": "Dực Hán Vân Trường",
+   "title": "Thục Hán Anh Hồn",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgxiaorui",
+     "name": "Kiêu Nhuệ",
+     "desc": "Tỏa định kỹ: Khi người Thục gây sát thương bằng [Sát] trong giai đoạn ra bài của họ, bạn lệnh họ tăng 1 giới hạn sử dụng [Sát] trong giai đoạn này."
+    },
+    {
+     "id": "jghuchen",
+     "name": "Hổ Thần",
+     "desc": "Tỏa định kỹ:\n• Khi bạn giết 1 người Ngụy, bạn nhận 1 [Hổ Thần].\n• Giai đoạn rút bài, bạn rút +X lá (X là số [Hổ Thần]"
+    },
+    {
+     "id": "jgtianjiang",
+     "name": "Thiên Tướng",
+     "desc": "Tỏa định kỹ: Khi người Thục gây sát thương bằng [Sát] lần đầu trong lượt này, bạn lệnh họ rút 1 lá."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_zhaoyun",
+   "name": "Bồ Nguy Tử Long",
+   "title": "Thục Hán Anh Hồn",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgfengjian",
+     "name": "Phong Giam",
+     "desc": "Tỏa định kỹ: Sau khi bạn gây sát thương cho người khác, bạn lệnh họ không thể sử dụng bài với bạn cho đến sau khi kết thúc lượt của họ."
+    },
+    {
+     "id": "jgkeding",
+     "name": "Khắc Định",
+     "desc": "Sau khi bạn chỉ định 1 mục tiêu duy nhất cho [Sát] hoặc công cụ phổ thông, bạn có thể bỏ ít nhất 1 lá trên tay và lệnh số người tương ứng với số lá bỏ cũng trở thành mục tiêu của lá này."
+    },
+    {
+     "id": "jglongwei",
+     "name": "Long Uy",
+     "desc": "Tỏa định kỹ: Khi người Thục trong trạng thái hấp hối, nếu giới hạn máu của bạn > 1, bạn có thể giảm 1 giới hạn máu, lệnh họ hồi đến 1 máu."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_xiahoudun",
+   "name": "Khô Mục Nguyên Nhượng",
+   "title": "Ngụy Võ Anh Hồn",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgbashi",
+     "name": "Bạt Thi",
+     "desc": "Khi bạn trở thành mục tiêu của [Sát] hoặc công cụ phổ thông do người khác sử dụng, nếu bạn đang không trong trạng thái chồng tướng, bạn có thể thay đổi trạng thái chồng tướng, sau đó hủy bỏ mục tiêu đối với bạn."
+    },
+    {
+     "id": "jgdanjing",
+     "name": "Đạm Tinh",
+     "desc": "Khi người Ngụy tiến vào trạng thái hấp hối, nếu số máu của bạn > 1, bạn có thể mất 1 máu, bạn xem như sử dụng [Đào] với người hấp hối."
+    },
+    {
+     "id": "jgtongjun",
+     "name": "Thống Quân",
+     "desc": "Tỏa định kỹ: Tầm đánh của Khí Giới Ngụy +1"
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "jg_zhangliao",
+   "name": "Bách Kế Văn Viễn",
+   "title": "Ngụy Võ Anh Hồn",
+   "pkg": "Thủ Vệ Kiếm Các",
+   "file": "JiangeDefensePackage.lua",
+   "skills": [
+    {
+     "id": "jgjiaoxie",
+     "name": "Chước Giới",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chọn 1 đến 2 Khí giới Thục có bài, lệnh họ giao cho bạn 1 lá."
+    },
+    {
+     "id": "jgshuailing",
+     "name": "Soái Lệnh",
+     "desc": "Tỏa định kỹ: Khi bắt đầu giai đoạn rút bài của người Ngụy, lệnh họ tiến hành phán xét, nếu kết quả có màu Đen, họ thu lấy kết quả phán xét."
+    }
+   ],
+   "status": "chế độ riêng"
+  },
+  {
+   "id": "wuding",
+   "name": "Vô Định",
+   "title": "Biến Hình Giả",
+   "pkg": "QSGS Việt Nam (Lãng Khách)",
+   "file": "LangKhach.lua",
+   "skills": [
+    {
+     "id": "bianhua",
+     "name": "Biến Hóa",
+     "desc": "Tỏa định kỹ:\n• Sau khi mở tướng này lần đầu, bạn chọn 1 mục:\n1. Bạn chọn 1 tướng đã mở trên bàn của người khác: Tướng này nhận giới tính, châu liên bích hợp và kỹ năng gốc ngoại trừ Quân chủ kỹ của tướng đã chọn;\n2. Giới tính của tướng này là vô tính, bạn tăng 1 giới hạn máu, hồi 1 máu, nhận 1 tiêu ký [Dã tâm gia].\n• Sau khi bắt đầu lượt, nếu tướng này đã mở và không có kỹ năng khác, bạn đổi phó tướng (Bỏ qua giới hạn đổi phó tướng)."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "zhaoshizhen",
+   "name": "Triệu Thị Trinh",
+   "title": "Nhụy Kiều Tướng Quân",
+   "pkg": "QSGS Việt Nam (Lãng Khách)",
+   "file": "LangKhach.lua",
+   "skills": [
+    {
+     "id": "baixiang",
+     "name": "Bạch Tượng",
+     "desc": "Tỏa định kỹ:\n• [Nam Man Nhập Xâm] không có hiệu quả với bạn.\n• Nếu bạn không có Ngựa trong vùng trang bị, khoảng cách từ người khác đến bạn +1, tầm đánh của bạn +1."
+    },
+    {
+     "id": "powang",
+     "name": "Bà Vương",
+     "desc": "Chủ tướng kỹ, Giảm 0.5 máu gốc: Một lần trong giai đoạn ra bài, bạn có thể chuyển hóa sử dụng 1 lá có điểm A/Q/K thành [Nam Man Nhập Xâm] với tất cả người khác thuộc 1 thế lực;\n▶ Khi bạn gây sát thương bởi [Nam Man Nhập Xâm] này, nếu mục tiêu có lá trong vùng trang bị, bạn có thể chặn sát thương này, sau đó bạn bỏ tất cả lá trong vùng trang bị của mục tiêu."
+    },
+    {
+     "id": "shengweijiang",
+     "name": "Sinh Vi Tướng",
+     "desc": "Sau khi bạn giải quyết hấp hối, nếu số máu của bạn ≤0, bạn có thể phát động kỹ năng này, thực hiện lần lượt:\n- Bạn hồi máu đến tối đa và bổ xung bài trên tay tới giới hạn máu;\n- Lệnh người đang trong giai đoạn ra bài kết thúc giai đoạn này;\n- Bạn mất kỹ năng này, nhận kỹ năng »Tử Vi Thần«."
+    },
+    {
+     "id": "siweishen",
+     "name": "Tử Vi Thần",
+     "desc": "• Một lần trong ván đấu, khi người cùng thế lực với bạn gây sát thương, bạn có thể lệnh sát thương này +1.\n• Tỏa định kỹ: Sau khi bạn kết thúc lượt, bạn trận vong."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "mengda",
+   "name": "Mạnh Đạt",
+   "title": "Đãi Quân Phản Phúc",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "qiuan",
+     "name": "Cầu An",
+     "desc": "Khi bạn nhận sát thương, nếu bạn không có [Hàm], bạn có thể đem lá gây sát thương cho bạn đặt lên tướng này, gọi là [Hàm], sau đó chặn sát thương này."
+    },
+    {
+     "id": "liangfan",
+     "name": "Lượng Phản",
+     "desc": "Tỏa định kỹ: Khi bắt đầu giai đoạn chuẩn bị, nếu bạn có [Hàm], bạn mất 1 máu, sau đó thu lấy tất cả [Hàm];\n▶ Trong lượt này, sau khi bạn gây sát thương cho 1 người do sử dụng [Hàm], bạn có thể thu lấy 1 lá của họ."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "tangzi",
+   "name": "Đường Tư",
+   "title": "Đắc Thì Thức Phong",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "xingzhao",
+     "name": "Hưng Thạo",
+     "desc": "Tỏa định kỹ: Dựa theo số thế lực trên bàn chơi có người bị thương:\n* 1+: Bạn có kỹ năng »Tuân Tuân«.\n* 2+: Sau khi bạn nhận sát thương, nếu số bài trên tay bạn và nguồn sát thương khác nhau, người ít bài trên tay hơn rút 1 lá.\n* 3+: Khi bắt đầu giai đoạn bỏ bài, giới hạn trữ bài của bạn +4.\n* 4+: Khi bạn mất bài trong vùng trang bị, bạn rút 1 lá."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "zhanglu",
+   "name": "Trương Lỗ",
+   "title": "Chính Khoan Giáo Huệ",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "bushi",
+     "name": "Bố Thí",
+     "desc": "• Khi kết thúc lượt, bạn nhận X [Nghĩa Xá] (X là số máu của bạn).\n• Khi bắt đầu giai đoạn chuẩn bị của người khác, nếu bạn có [Nghĩa Xá], bạn có thể giao 1 lá cho họ, sau đó bạn bỏ 1 [Nghĩa Xá] và rút 2 lá.\n• Khi bắt đầu giai đoạn chuẩn bị, bạn bỏ X lá (X là số người còn sống trừ số máu của bạn và trừ 2), sau đó bỏ tất cả [Nghĩa Xá]."
+    },
+    {
+     "id": "midao",
+     "name": "Mễ Đạo",
+     "desc": "• Khi bắt đầu giai đoạn kết thúc, nếu không có [Mễ], bạn có thể rút 2 lá, sau đó bạn đặt 2 lá lên tướng này, gọi là [Mễ].\n• Khi phán xét của 1 người có hiệu lực, bạn có thể đánh ra 1 [Mễ] để thay đổi kết quả phán xét, sau đó thu lấy lá phán xét ban đầu."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "mifangfushiren",
+   "name": "Mi Phương & Phó Sĩ Nhân",
+   "title": "Trục Giá Nghênh Trần",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "fengshix",
+     "name": "Phong Thế",
+     "desc": "• Sau khi bài bạn sử dụng xác định 1 mục tiêu duy nhất, nếu số bài trên tay họ < bạn, bạn có thể bỏ 1 lá của bạn và họ, lệnh sát thương từ lá này +1.\n• Sau khi bạn trở thành mục tiêu duy nhất của bài do người khác sử dụng, nếu số lá trên tay bạn < họ, họ có thể lệnh bạn bỏ 1 lá của bạn và họ, lệnh sát thương từ lá này +1."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "mifangfushiren"
+  },
+  {
+   "id": "liuqi",
+   "name": "Lưu Kỳ",
+   "title": "Cư Ngoại Nhi An",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "wenji",
+     "name": "Vấn Kế",
+     "desc": "Khi bắt đầu giai đoạn ra bài, bạn có thể lệnh 1 người khác giao cho bạn 1 lá ngửa mặt:\n* Nếu họ cùng thế lực với bạn hoặc không có thế lực, lượt này bạn sử dụng lá này không giới hạn khoảng cách và số lần và không thể hưởng ứng;\n* Nếu họ thế lực xác định khác bạn, bạn giao cho họ 1 lá bài khác ngửa mặt."
+    },
+    {
+     "id": "tunjiang",
+     "name": "Truân Giang",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, nếu bạn trong giai đoạn ra bài đã sử dụng ít nhất 1 lá và không chỉ định người khác làm mục tiêu, bạn có thể rút X lá (X là số thế lực trên bàn chơi)."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "liuqi"
+  },
+  {
+   "id": "shixie",
+   "name": "Sĩ Nhiếp",
+   "title": "Bách Việt Linh Y",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "biluan",
+     "name": "Tị Loạn",
+     "desc": "Tỏa định kỹ: Khoảng cách từ người khác tới bạn +X (X là số lá trong vùng trang bị của bạn)."
+    },
+    {
+     "id": "lixia",
+     "name": "Lễ Hạ",
+     "desc": "Tỏa định kỹ: Khi bắt đầu giai đoạn chuẩn bị của người thế lực khác bạn, nếu bạn không ở trong tầm đánh của họ, bạn lệnh họ chọn 1 mục:\n1. Lệnh bạn rút 1 lá;\n2. Bỏ 1 lá trong vùng trang bị của bạn, sau đó họ mất 1 máu."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "zhonghui",
+   "name": "Chung Hội",
+   "title": "Kiệt Ngạo Đích Dã Tâm Gia",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "quanji",
+     "name": "Quyền Kế",
+     "desc": "• Một lần trong lượt của mỗi người ứng với mỗi thời điểm, sau khi bạn gây hoặc nhận sát thương, bạn có thể rút 1 lá, sau đó đặt ngửa 1 lá lên tướng này, gọi là [Quyền].\n• Giới hạn trữ bài của bạn +X (X là số [Quyền])."
+    },
+    {
+     "id": "paiyi",
+     "name": "Bài Dị",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể đưa 1 [Quyền] vào chồng bài bỏ và chọn 1 người, họ rút X lá (X là số [Quyền] bạn có, tối đa 7);\n▷ Nếu số bài trên tay họ > bạn, bạn gây 1 sát thương cho họ."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "dongzhao",
+   "name": "Đổng Chiêu",
+   "title": "Di Tôn Dị Đỉnh",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "quanjin",
+     "name": "Khuyến Tiến",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể giao 1 lá trên tay cho người từng nhận sát thương trong giai đoạn này và lệnh họ chấp hành 1 [Quân Lệnh]:\n* Nếu họ chấp hành, bạn rút 1 lá;\n* Nếu họ không chấp hành và bạn không phải người có nhiều bài trên tay nhất, bạn bổ sung bài trên tay đến khi bằng người có nhiều bài trên tay nhất, tối đa 5 lá."
+    },
+    {
+     "id": "zaoyun",
+     "name": "Tạc Vận",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chọn 1 người thế lực xác định với bạn và khoảng cách từ bạn đến họ lớn hơn 1 và bỏ X lá bài trên tay (X là khoảng cách từ bạn đến họ -1), lệnh khoảng cách từ bạn đến họ là 1 trong lượt này, sau đó bạn gây 1 sát thương cho họ."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "xushu",
+   "name": "Từ Thứ",
+   "title": "Nan Vi Hoàn Thần",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "qiance",
+     "name": "Khiêm Sách",
+     "desc": "Sau khi người cùng thế lực với bạn xác định mục tiêu của lá công cụ, họ có thể lệnh những mục tiêu thuộc Đại thế lực không thể hướng ứng với lá này."
+    },
+    {
+     "id": "jujian",
+     "name": "Cử Tiến",
+     "desc": "Phó tướng kỹ, Giảm 0.5 máu gốc: Khi 1 người cùng thế lực với bạn tiến vào trạng thái hấp hối, bạn có thể lệnh họ hồi đến 1 máu, sau đó bạn đổi Phó tướng."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "xushu"
+  },
+  {
+   "id": "wujing",
+   "name": "Ngô Cảnh",
+   "title": "Hàn Mã Lưu Kim",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "diaogui",
+     "name": "Điều Quy",
+     "desc": "Một lần trong giai đoạn ra bài, có thể sử dụng 1 lá trang bị như [Điệu Hổ Ly Sơn];\n▷ Nếu thế lực của bạn có sự thay đổi về đội hình do phát động kỹ năng này, bạn rút X lá (X là số người của đội hình đông nhất trong những quan hệ đội hình ở thế lực của bạn có sự thay đổi)."
+    },
+    {
+     "id": "fengyang",
+     "name": "Phong Dương",
+     "desc": "Trận pháp kỹ: Quan hệ đội hình: Người thế lực xác định khác bạn không thể thu lấy hoặc bỏ trang bị của người cùng đội hình với bạn."
+    }
+   ],
+   "status": "có, đang tắt",
+   "ours": "wujing"
+  },
+  {
+   "id": "yanbaihu",
+   "name": "Nghiêm Bạch Hổ",
+   "title": "Sài Nha Lạc Giản",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "zhidao",
+     "name": "Trĩ Đạo",
+     "desc": "Tỏa định kỹ: Khi bắt đầu giai đoạn ra bài, bạn chọn 1 người khác, trong lượt này:\n* Khoảng cách từ bạn đến họ là 1;\n* Bạn không thể chỉ định người khác ngoại trừ họ làm mục tiêu sử dụng bài;\n▶ Sau khi bạn gây sát thương cho họ lần đầu tiên trong giai đoạn này, bạn thu lấy 1 lá trong vùng chơi của họ."
+    },
+    {
+     "id": "jilix",
+     "name": "Ký Li",
+     "desc": "Tỏa định kỹ:\n• Sau khi kết toán xong lá cơ bản Đỏ hoặc công cụ phổ thông Đỏ, nếu bạn là mục tiêu duy nhất của lá này, bạn lệnh cho người sử dụng xem như sử dụng lá cùng tên với lá đó với bạn (không giới hạn khoảng cách, số lần sử dụng);\n• Khi bạn nhận sát thương lần thứ 2 trong cùng 1 giai đoạn, bạn chặn sát thương và loại bỏ tướng này."
+    },
+    {
+     "id": "imperialedictattach",
+     "name": "Đặt bài trên tay",
+     "desc": "Một lần trong giai đoạn ra bài của người có cùng thế lực với bạn, nếu họ thuộc tiểu thế lực, có thể đặt tối đa 2 lá trên tay lên tướng của bạn; nếu không thuộc tiểu thế lực, họ có thể đặt 1 lá trên tay lên tướng của bạn, gọi là [Chiếu]."
+    },
+    {
+     "id": "imperialedicttrick",
+     "name": "Nhận bài công cụ",
+     "desc": "Một lần trong giai đoạn ra bài, nếu có 4 lá [Chiếu] không cùng chất, bạn có thể đưa tất cả [Chiếu] vào chồng bài bỏ, rút ngẫu nhiêu 1 lá công cụ thế lực."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "simazhao",
+   "name": "Tư Mã Chiêu",
+   "title": "Trào Phong Khai Thiên",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "suzhi",
+     "name": "Túc Trí",
+     "desc": "Tỏa định kỹ:\n• Giới hạn ba lần trong lượt của bạn đối với các mục sau:\n* Khi bạn gây sát thương cho mục tiêu của [Sát] hoặc [Quyết Đấu], bạn lệnh số sát thương +1;\n* Khi bạn sử dụng công cụ phi chuyển hóa, bạn rút 1 lá;\n* Sau khi bài của người khác tiến vào chồng bài bỏ do bỏ đi, bạn thu lấy 1 lá của họ.\n• Nếu chưa phát động »Túc Trí« 3 lần trong lượt:\n* Bạn có thể sử dụng công cụ phi chuyển hóa không giới hạn khoảng cách;\n* Khi bạn kết thúc lượt, bạn nhận kỹ năng »Phản Quỹ« đến khi bắt đầu lượt tiếp theo của bạn."
+    },
+    {
+     "id": "zhaoxin",
+     "name": "Chiêu Tâm",
+     "desc": "Sau khi bạn nhận sát thương, bạn có thể mở tất cả bài trên tay, sau đó hoán đổi bài trên tay với 1 người khác có số lá trên tay ≤ bạn."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "xuyou",
+   "name": "Hứa Du",
+   "title": "Tất Phương Kiểu Dực",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "chenglve",
+     "name": "Thành Lược",
+     "desc": "Sau khi kết toán bài do 1 người cùng thế lực với bạn sử dụng, nếu số mục tiêu > 1, bạn có thể lệnh họ rút 1 lá;\n▷ Nếu bạn đã nhận sát thương từ lá này, bạn có thể lệnh 1 người cùng thế lực với bạn không có tướng úp và không có tiêu ký nào nhận được 1 tiêu ký [Âm Dương Ngư]."
+    },
+    {
+     "id": "shicai",
+     "name": "Thị Tài",
+     "desc": "Tỏa định kỹ: Sau khi bạn nhận sát thương, nếu số sát thương là:\n* 1: Bạn rút 1 lá;\n* 2+: Bạn bỏ 2 lá."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "xuyou"
+  },
+  {
+   "id": "xiahouba",
+   "name": "Hạ Hầu Bá",
+   "title": "Cức Đồ Tráng Chí",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "baolie",
+     "name": "Báo Liệt",
+     "desc": "Tỏa định kỹ:\n• Khi bắt đầu giai đoạn ra bài, lệnh những người thế lực xác định khác bạn có tầm đánh đến bạn sử dụng [Sát] với bạn, nếu không, bạn bỏ 1 lá của họ.\n• Bạn sử dụng [Sát] với người có máu ≥ bạn không giới hạn khoảng cách và số lần."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "xiahouba"
+  },
+  {
+   "id": "zhugeke",
+   "name": "Gia Cát Khác",
+   "title": "Hưng Gia Xích Tộc",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "aocai",
+     "name": "Ngạo Tài",
+     "desc": "Ngoài lượt của bạn, khi bạn cần sử dụng/đánh ra bài cơ bản, bạn có thể xem hai lá trên đầu chồng bài, bạn có thể sử dụng/đánh ra lá cơ bản có tên tương ứng trong đó."
+    },
+    {
+     "id": "duwu",
+     "name": "Độc Võ",
+     "desc": "Hạn định kỹ: Giai đoạn ra bài, bạn có thể phát động kỹ năng này, thực hiện lần lượt:\n- Bạn chọn 1 [Quân Lệnh], yêu cầu tất cả người thế lực khác bạn chấp hành [Quân Lệnh] này; nếu họ không chấp hành, bạn gây 1 sát thương cho họ và rút một lá;\n- Nếu trong những người còn sống có người đã tiến vào trạng thái hấp hối trong quá trình trên, bạn mất 1 máu."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zhugeke"
+  },
+  {
+   "id": "sunchen",
+   "name": "Tôn Lâm",
+   "title": "Thực Tủy Đích Triêu Đường Khách",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "shilu",
+     "name": "Thị Lực",
+     "desc": "• Sau khi có người trận vong, nếu họ có tướng, bạn có thể đặt tất cả tướng của họ lên tướng này, gọi là [Lục];\n▷ Nếu họ bị bạn giết, bạn nhận 2 lá từ chồng bài tướng đặt lên tướng này, gọi là [Lục].\n• Khi bắt đầu giai đoạn chuẩn bị, nếu bạn có [Lục], bạn có thể bỏ tối đa X lá (X là số [Lục]), sau đó rút số lá tương ứng."
+    },
+    {
+     "id": "xiongnve",
+     "name": "Hung Ngược",
+     "desc": "• Khi bắt đầu giai đoạn ra bài, bạn có thể bỏ 1 [Lục], chọn 1 mục có hiệu quả trong lượt này:\n1. Khi bạn gây sát thương cho người cùng thế lực với [Lục] đã bỏ, sát thương này +1;\n2. Khi bạn gây sát thương cho người cùng thế lực với [Lục] đã bỏ, thu lấy 1 lá của họ;\n3. Bạn sử dụng bài với mục tiêu cùng thế lực với [Lục] đã bỏ không giới hạn số lần.\n• Khi kết thúc giai đoạn ra bài, bạn có thể bỏ 2 [Lục], đến khi bắt đầu lượt tiếp theo của bạn, khi bạn tính toán sát thương phải nhận từ người khác, sát thương này -1. "
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "panjun",
+   "name": "Phan Tuấn",
+   "title": "Quan Nhân Vu Vy",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "congcha",
+     "name": "Quan Vy",
+     "desc": "• Khi bắt đầu giai đoạn chuẩn bị, bạn có thể chọn 1 người không có thế lực;\n▶ Cho đến khi bắt đầu lượt tiếp theo của bạn, khi họ mở tướng và trở thành có thế lực, nếu của họ và bạn:\n* Cùng thế lực: Bạn và họ rút 2 lá;\n* Khác thế lực: Họ mất 1 máu.\n• Giai đoạn rút bài, nếu không có người không có thế lực, bạn có thể lệnh số lá rút +2."
+    },
+    {
+     "id": "gongqing",
+     "name": "Công Thanh",
+     "desc": "Tỏa định kỹ:\n• Khi bạn tính toán sát thương phải nhận, nếu tầm đánh của nguồn sát thương lớn hơn 3, sát thương này +1;\n• Khi bạn nhận sát thương, nếu tầm đánh của nguồn sát thương nhỏ hơn 3 và sát thương lớn hơn 1, sát thương này trở thành 1."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "panjun"
+  },
+  {
+   "id": "wenqin",
+   "name": "Văn Khâm",
+   "title": "Dương Châu Thích Sử",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "jinfa",
+     "name": "Căng Phạt",
+     "desc": "Một lần trong giai đoạn ra bài, có thể bỏ 1 lá và chọn 1 người khác có bài, họ chọn 1 mục:\n1. Lệnh bạn lấy 1 lá của họ;\n2. Họ giao 1 lá trang bị cho bạn, nếu bạn nhận được lá ♠ và lá đó còn trên tay bạn, xem như họ sử dụng 1 [Sát] với bạn."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "huangzu",
+   "name": "Hoàng Tổ",
+   "title": "Giang Hạ Phúc Tâm",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "xishe",
+     "name": "Vãn Cung",
+     "desc": "• Khi bắt đầu giai đoạn chuẩn bị của người khác, bạn có thể bỏ 1 lá trong vùng trang bị và xem như sử dụng 1 [Sát] với họ, nếu số máu của họ nhỏ hơn của bạn, bạn lệnh cho [Sát] này không thể hưởng ứng; bạn có thể lặp lại quá trình này.\n• Khi kết thúc lượt này, nếu trong lượt người trận vong và nguồn là [Sát] từ kỹ năng này của bạn, bạn có thể đổi phó tướng, tướng sau khi đổi được úp xuống."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "huangzu"
+  },
+  {
+   "id": "gongsunyuan",
+   "name": "Công Tôn Uyên",
+   "title": "Giáo Đồ Huyền Hải",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "huaiyi",
+     "name": "Hoài Dị",
+     "desc": "• Một lần trong giai đoạn ra bài, bạn có thể mở toàn bộ bài trên tay, nếu có đủ 2 màu, bạn thực hiện lần lượt:\n- Bạn chọn 1 màu và bỏ những lá trên tay có màu này;\n- Bạn chọn tối đa X người có bài, thu lấy 1 lá của họ (X là số lá bạn vừa bỏ), nếu lá được thu lấy là trang bị thì đặt lá đó lên tướng này thay vì thu lấy, gọi là [Dị].\n• Bạn có thể sử dụng hoặc đánh ra [Dị] như bài trên tay."
+    },
+    {
+     "id": "zisui",
+     "name": "Tứ Tuy",
+     "desc": "Tỏa định kỹ:\n• Giai đoạn rút bài, nếu có [Dị], bạn rút thêm X lá (X là số [Dị]).\n• Khi bắt đầu giai đoạn kết thúc, nếu số [Dị] > giới hạn máu của bạn, bạn trận vong."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "pengyang",
+   "name": "Bành Dạng",
+   "title": "Giang Dương Thái Thú",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "tongling",
+     "name": "Thông Linh",
+     "desc": "Một lần trong giai đoạn ra bài, sau khi bạn gây sát thương cho 1 người thế lực xác định khác bạn (A), bạn có thể chọn 1 người cùng thế lực với bạn (B), B có thể sử dụng 1 lá có bao gồm A là mục tiêu;\n* Nếu lá này gấy sát thương, bạn và B rút 2 lá;\n* Nếu lá này không gây sát thương, bạn lệnh A thu lấy lá bạn đã sử dụng để gây sát thương cho A."
+    },
+    {
+     "id": "jinxian",
+     "name": "Cận Hãm",
+     "desc": "Sau khi bạn mở tướng này, bạn lệnh tất cả người ở khoảng cách ≤1 thực hiện: Nếu họ đã:\n* Mở tất cả tướng: Họ úp 1 tướng\n* Có tướng úp: Họ bỏ 2 lá."
+    }
+   ],
+   "status": "có, đang tắt",
+   "ours": "pengyang"
+  },
+  {
+   "id": "sufei",
+   "name": "Tô Phi",
+   "title": "Hùng Mãnh Dật Tài",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "lianpian",
+     "name": "Liên Phiên",
+     "desc": "Khi bắt đầu giai đoạn kết thúc của 1 người, nếu trong lượt này tổng số lá tiến vào chồng bài bỏ do bạn chỉ định bỏ đi > số máu của bạn, nếu lượt này là lượt của:\n* Bạn: Bạn có thể lệnh 1 người cùng thế lực với bạn bổ sung bài trên tay đến giới hạn máu của họ;\n* Người khác: Họ có thể chọn bỏ 1 lá của bạn hoặc lệnh bạn hồi 1 máu."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "sufei"
+  },
+  {
+   "id": "liuba",
+   "name": "Lưu Ba",
+   "title": "Sắc Hành Chỉnh Thân",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "tongdu",
+     "name": "Trù Độ",
+     "desc": "Khi bắt đầu giai đoạn kết thúc của người cùng thế lực với bạn, họ có thể rút X lá (X là số bài họ đã bỏ trong giai đoạn bỏ bài ở lượt này, tối đa 3)."
+    },
+    {
+     "id": "qingyin",
+     "name": "Quy Ẩn",
+     "desc": "Hạn định kỹ: Giai đoạn ra bài, bạn có thể phát động kỹ năng này, thực hiện lần lượt:\n- Lệnh tất cả người cùng thế lực với bạn hồi đầy máu;\n- Bạn loại bỏ tướng này."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "zhuling",
+   "name": "Chu Linh",
+   "title": "Kiên Thành Túc Tướng",
+   "pkg": "Bất Thần",
+   "file": "LordEXPackage.lua",
+   "skills": [
+    {
+     "id": "juejue",
+     "name": "Trấn Vệ",
+     "desc": "• Khi bắt đầu giai đoạn bỏ bài, bạn có thể mất 1 máu; Nếu làm vậy, khi kết thúc giai đoạn này, nếu trong giai đoạn này bạn có bỏ bài, bạn lệnh tất cả người khác chọn 1 mục:\n1. Họ đưa X lá trên tay vào chồng bài bỏ (X là số lá bạn đã bỏ trong giai đoạn này);\n2. Bạn gây 1 sát thương cho họ.\n• Khi bạn giết người cùng thế lực với bạn, bạn bỏ qua chấp hành thưởng phạt."
+    },
+    {
+     "id": "fangyuan",
+     "name": "Ngư Lân",
+     "desc": "Trận pháp kỹ: Quan hệ vây công:\n• Nếu bạn là người vây công, giới hạn trữ bài của người vây công +1, giới hạn trữ bài của người bị vây công -1.\n• Khi bắt đầu giai đoạn kết thúc, nếu bạn là người bị vây công trong quan hệ vây công, bạn xem như sử dụng [Sát] với 1 người vây công"
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "duyu",
+   "name": "Đỗ Dự",
+   "title": "Văn Thành Võ Đức",
+   "pkg": "Mobile",
+   "file": "MOLPackage.lua",
+   "skills": [
+    {
+     "id": "wuku",
+     "name": "Vũ Khố",
+     "desc": "Tỏa định kỹ: Khi 1 người thế lực xác định khác bạn sử dụng 1 trang bị, bạn tăng 1 [Võ Khố] (Tối đa 2)."
+    },
+    {
+     "id": "miewu",
+     "name": "Diệt Ngô",
+     "desc": "Một lần trong lượt của mỗi người, khi bạn cần sử dụng/đánh ra 1 lá cơ bản/công cụ, bạn có thể giảm 1 [Võ Khố] để chuyển hóa sử dụng/đánh ra 1 lá thành 1 lá cơ bản/công cụ đó, sau đó bạn rút 1 lá."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "duyu"
+  },
+  {
+   "id": "lifeng",
+   "name": "Lý Phong",
+   "title": "Kế Phụ Tận Sự",
+   "pkg": "Mobile",
+   "file": "MOLPackage.lua",
+   "skills": [
+    {
+     "id": "tunchu",
+     "name": "Truân Trữ",
+     "desc": "Giai đoạn rút bài, bạn có thể rút thêm 2 lá;\n▷ Bạn không thể sử dụng [Sát] trong lượt này;\n▶ Khi kết thúc giai đoạn rút bài, bạn đặt từ 1 đến 2 lá trên tay lên tướng này, gọi là [Lương]."
+    },
+    {
+     "id": "shuliang",
+     "name": "Thâu Lương",
+     "desc": "Khi bắt đầu giai đoạn kết thúc của 1 người cùng thế lực với bạn, nếu khoảng cách từ bạn đến họ ≤ số [Lương], bạn có thể đưa 1 [Lương] vào chồng bài bỏ, lệnh họ rút 2 lá."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "lingcao",
+   "name": "Lăng Tháo",
+   "title": "Kích Lưu Dũng Tiến",
+   "pkg": "Mobile",
+   "file": "MOLPackage.lua",
+   "skills": [
+    {
+     "id": "dujin",
+     "name": "Độc Tiến",
+     "desc": "• Sau khi bạn mở tướng này lần đầu, nếu không có người nào khác có cùng thế lực với bạn (bao gồm cả người đã trận vong), bạn nhận 1 tiêu ký [Tiên Khu].\n• Giai đoạn rút bài, bạn có thể rút thêm X lá (X là 1 nửa số lá trong vùng trang bị của bạn, làm tròn lên)."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "lingcao"
+  },
+  {
+   "id": "huaxin",
+   "name": "Hoa Hâm",
+   "title": "Uyên Thanh Ngọc Khiết",
+   "pkg": "Tung Hoành Bãi Hạp",
+   "file": "ManoeuvrePackage.lua",
+   "skills": [
+    {
+     "id": "wanggui",
+     "name": "Vong Quy",
+     "desc": "Một lần trong lượt của mỗi người, sau khi bạn gây hoặc nhận sát thương và bạn đã mở tướng này, nếu tướng còn lại của bạn:\n* Chưa mở: Bạn có thể gây 1 sát thương cho người thế lực xác định khác bạn;\n* Đã mở: Bạn có thể lệnh những người cùng thế lực rút 1 lá."
+    },
+    {
+     "id": "xibing",
+     "name": "Tức Binh",
+     "desc": "Sau khi 1 người khác lần đầu trong giai đoạn ra bài của họ xác định 1 mục tiêu duy nhất của lá [Sát] Đen hoặc công cụ phổ thông Đen, bạn có thể phát động kỹ năng này, thực hiện lần lượt:\n- Nếu số lá trên tay họ < số máu của họ, bạn lệnh họ bổ sung bài trên tay đến số máu của họ và không thể tiếp tục sử dụng bài trên tay trong lượt này;\n- Nếu bạn và họ đã mở tất cả tướng, bạn có thể úp 1 tướng của bạn và họ, trong lượt này không thể mở lại tướng đó."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "huaxin"
+  },
+  {
+   "id": "luyusheng",
+   "name": "Lục Úc Sinh",
+   "title": "Nghĩa Cô",
+   "pkg": "Tung Hoành Bãi Hạp",
+   "file": "ManoeuvrePackage.lua",
+   "skills": [
+    {
+     "id": "zhente",
+     "name": "Trinh Đặc",
+     "desc": "Một lần trong lượt của mỗi người, sau khi trở thành mục tiêu của lá cơ bản Đen hoặc công cụ phổ thông Đen do người khác sử dụng, có thể lệnh cho họ chọn 1 mục:\n1. Lượt này họ không thể sử dụng bài Đen;\n2. Lá này không có hiệu quả với bạn."
+    },
+    {
+     "id": "zhiwei",
+     "name": "Chi Vi",
+     "desc": "Sau khi bạn mở tướng này, bạn có thể chọn 1 người khác, đến khi tướng này bị úp hoặc loại bỏ:\n▶ Sau khi họ gây sát thương, bạn rút 1 lá;\n▶ Sau khi họ nhận sát thương, bạn bỏ 1 lá ngẫu nhiên trên tay;\n▶ Khi kết thúc giai đoạn bỏ bài, bạn lệnh họ thu lấy tất cả bài bỏ trong giai đoạn này của bạn;\n▶ Khi họ trận vong, nếu bạn đã mở tất cả tướng, bạn úp tướng này."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "luyusheng"
+  },
+  {
+   "id": "zongyux",
+   "name": "Tông Dự",
+   "title": "Cửu Uẩn Hồng Lư",
+   "pkg": "Tung Hoành Bãi Hạp",
+   "file": "ManoeuvrePackage.lua",
+   "skills": [
+    {
+     "id": "qiao",
+     "name": "Khí Ngạo",
+     "desc": "Hai lần trong giai đoạn ra bài của mỗi người, sau khi bạn trở thành mục tiêu của bài do người thế lực khác bạn sử dụng, bạn có thể bỏ 1 lá của họ, sau đó bạn bỏ 1 lá."
+    },
+    {
+     "id": "chengshang",
+     "name": "Thừa Thưởng",
+     "desc": "Một lần trong giai đoạn ra bài, sau khi bài do bạn sử dụng kết toán xong, nếu lá này thỏa mãn những điều sau:\n* Số lá được đem sử dụng là 1;\n* Lá này có chỉ định người thế lực khác làm mục tiêu;\n* Lá này không gây sát thương;\n▷ Bạn có thể thu lấy những lá có cùng chất và điểm với lá đó trong chồng bài rút;\n▷ Nếu bạn không thu được bài sau khi phát động kỹ năng này, bạn thêm 1 lần phát động kỹ năng này trong giai đoạn này."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "miheng",
+   "name": "Nễ Hành",
+   "title": "Cuồng Ngạo Kì Nhân",
+   "pkg": "Tung Hoành Bãi Hạp",
+   "file": "ManoeuvrePackage.lua",
+   "skills": [
+    {
+     "id": "kuangcai",
+     "name": "Cuồng Tài",
+     "desc": "Tỏa định kỹ:\n• Bài bạn sử dụng trong lượt không bị giới hạn khoảng cách và số lần sử dụng;\n• Khi bắt đầu giai đoạn bỏ bài, nếu trong lượt này:\n* Bạn có sử dụng bài và không gây sát thương: Giới hạn trữ bài của bạn trở về sau -1;\n* Bạn không sử dụng bài: Giới hạn trữ bài của bạn trở về sau +1."
+    },
+    {
+     "id": "shejian",
+     "name": "Thiệt Kiếm",
+     "desc": "Sau khi bạn trở thành mục tiêu duy nhất của bài do người khác sử dụng, nếu không có ai đang giải quyết hấp hối, bạn có thể bỏ tất cả bài trên tay (tối thiếu 1), sau đó chọn 1 mục:\n1. Bạn bỏ X lá của người sử dụng bài (X là số lá bạn đã bỏ);\n2. Bạn gây 1 sát thương cho người sử dụng bài."
+    }
+   ],
+   "status": "có, đang tắt",
+   "ours": "miheng"
+  },
+  {
+   "id": "fengxi",
+   "name": "Phùng Hy",
+   "title": "Đông Ngô Tô Võ",
+   "pkg": "Tung Hoành Bãi Hạp",
+   "file": "ManoeuvrePackage.lua",
+   "skills": [
+    {
+     "id": "yusui",
+     "name": "Ngọc Toái",
+     "desc": "Một lần trong lượt của mỗi người, sau khi bạn trở thành mục tiêu của bài Đen do người thế lực xác định khác bạn sử dụng, bạn có thể mất 1 máu, sau đó lựa chọn 1 mục:\n1. Bạn lệnh họ bỏ X lá trên tay (X là giới hạn máu của họ);\n2. Bạn lệnh họ mất máu đến khi bằng với số máu của bạn."
+    },
+    {
+     "id": "boyan",
+     "name": "Bác Ngôn",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chọn 1 người khác, thực hiện lần lượt:\n- Họ bổ sung bài trên tay đến giới hạn máu của họ;\n- Trong lượt này họ không thể sử dụng hoặc đánh ra bài trên tay của họ;\n▷ Tung Hoành: Bạn có thể lệnh họ nhận kỹ năng »Bác Ngôn (Tung Hoành)« (Bỏ qua dòng đầu và hiệu ứng Tung Hoành) cho đến sau khi kết thúc lượt chơi tiếp theo của họ."
+    },
+    {
+     "id": "boyanzongheng",
+     "name": "Bác Ngôn",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chọn 1 người khác, lệnh họ trong lượt này không thể sử dụng hoặc đánh ra bài trên tay của họ."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "dengzhi",
+   "name": "Đặng Chi",
+   "title": "Tuyệt Cảnh Ngoại Giao Gia",
+   "pkg": "Tung Hoành Bãi Hạp",
+   "file": "ManoeuvrePackage.lua",
+   "skills": [
+    {
+     "id": "jianliang",
+     "name": "Giản Lượng",
+     "desc": "Đầu giai đoạn rút bài, nếu bạn là người có ít bài trên tay nhất, bạn có thể lệnh người cùng thế lực bạn lần lượt rút 1 lá."
+    },
+    {
+     "id": "weimeng",
+     "name": "Ngụy Minh",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chọn 1 người khác có bài trên tay, bạn thu lấy tối đa X lá trên tay của họ (X là số máu của bạn), sau đó bạn giao lượng bài tương đương cho họ;\n▷ Tung Hoành: Bạn có thể lệnh họ nhận kỹ năng »Ngụy Minh (Tung Hoành)« (Thay mô tả \"X\" thành \"1\" và bỏ qua hiệu ứng Tung Hoành) cho đến sau khi kết thúc lượt tiếp theo của họ."
+    },
+    {
+     "id": "weimengzongheng",
+     "name": "Ngụy Minh",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chọn 1 người khác có bài trên tay, bạn thu lấy 1 lá trên tay của họ, sau đó giao 1 lá cho họ."
+    }
+   ],
+   "status": "có, đang tắt",
+   "ours": "dengzhi"
+  },
+  {
+   "id": "xunchen",
+   "name": "Tuân Kham",
+   "title": "Tam Công Mưu Chủ",
+   "pkg": "Tung Hoành Bãi Hạp",
+   "file": "ManoeuvrePackage.lua",
+   "skills": [
+    {
+     "id": "fenglve",
+     "name": "Phong Lược",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể đấu điểm với 1 người khác:\n* Nếu bạn thắng, họ giao 2 lá trong vùng chơi của họ cho bạn;\n* Nếu bạn thua, bạn giao 1 lá cho họ;\n▷ Tung Hoành: Bạn có thể lệnh họ nhận kỹ năng »Phong Lược (Tung Hoành)« (Thay mô tả \"2\" thành \"1\" và bỏ qua hiệu ứng Tung Hoành) cho đến sau khi kết thúc lượt tiếp theo của họ."
+    },
+    {
+     "id": "anyong",
+     "name": "Ám Dũng",
+     "desc": "Một lần trong lượt của mỗi người, khi 1 người cùng thế lực với bạn gây sát thương cho 1 người khác ngoài họ, có thể lệnh cho sát thương này gấp đôi; sau đó, nếu người nhận sát thương đã:\n* Mở tất cả tướng: Bạn tự mất 1 máu và mất kỹ năng này;\n* Mở 1 tướng và không phải tất cả: Bạn bỏ 2 lá trên tay."
+    },
+    {
+     "id": "fenglvezongheng",
+     "name": "Phong Lược",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể đấu điểm với 1 người khác. Nếu thắng, họ giao 1 lá trong vùng chơi của họ cho bạn; nếu thua, bạn giao 1 lá cho họ."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "xunchen"
+  },
+  {
+   "id": "yanghu",
+   "name": "Dương Hỗ",
+   "title": "Chế Hoành Đồng Quỹ",
+   "pkg": "Tung Hoành Bãi Hạp",
+   "file": "ManoeuvrePackage.lua",
+   "skills": [
+    {
+     "id": "deshao",
+     "name": "Đức Thiệu",
+     "desc": "X lần trong lượt của mỗi người (X là số máu của bạn), sau khi bạn trở thành mục tiêu duy nhất của bài Đen do người khác sử dụng, nếu họ đã mở số tướng ≤ hơn bạn, bạn có thể bỏ 1 lá của họ."
+    },
+    {
+     "id": "mingfa",
+     "name": "Minh Phạt",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chọn 1 người khác thế lực;\n▶ Khi kết thúc lượt tiếp theo của họ, nếu số lá trên tay họ so với bạn:\n* Ít hơn: Bạn gây 1 sát thương cho họ và thu lấy 1 lá trên tay họ;\n* Nhiều hơn: Bạn bổ sung bài trên tay đến khi bằng họ, tối đa rút thêm 5 lá."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "lidian",
+   "name": "Lý Điển",
+   "title": "Thâm Minh Đại Nghĩa",
+   "pkg": "Thế",
+   "file": "MomentumPackage.lua",
+   "skills": [
+    {
+     "id": "xunxun",
+     "name": "Tuân Tuân",
+     "desc": "Khi bắt đầu giai đoạn rút bài, bạn có thể xem 4 lá trên đầu chồng bài rút, sau đó đặt 2 lá trong số đó lên đầu chồng bài rút, còn lại đặt xuống đáy chồng bài rút."
+    },
+    {
+     "id": "wangxi",
+     "name": "Vong Khích",
+     "desc": "Sau khi bạn gây/nhận sát thương cho/từ người khác, ứng với mỗi sát thương, bạn có thể lệnh bạn và họ rút 1 lá."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "lidian"
+  },
+  {
+   "id": "zangba",
+   "name": "Tang Bá",
+   "title": "Tiết Độ Thanh Từ",
+   "pkg": "Thế",
+   "file": "MomentumPackage.lua",
+   "skills": [
+    {
+     "id": "hengjiang",
+     "name": "Hoành Giang",
+     "desc": "Sau khi bạn nhận sát thương, ứng với mỗi sát thương, nếu giới hạn trữ bài của người đang có lượt > 0, bạn có thể lệnh người đang có lượt giảm 1 giới hạn trữ bài;\n▶ Khi kết thúc lượt này, nếu ở giai đoạn bỏ bài, họ không bỏ lá nào, bạn rút X lá bài (X là số lần bạn đã phát động kỹ năng này trong lượt này)."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zangba"
+  },
+  {
+   "id": "madai",
+   "name": "Mã Đại",
+   "title": "Lâm Nguy Thụ Mệnh",
+   "pkg": "Thế",
+   "file": "MomentumPackage.lua",
+   "skills": [
+    {
+     "id": "qianxi",
+     "name": "Tiềm Tập",
+     "desc": "Khi bắt đầu giai đoạn chuẩn bị, bạn có thể rút 1 lá, sau đó bỏ 1 lá và chọn 1 người khác ở khoảng cách 1;\n▶ Trong lượt này, họ không thể sử dụng/đánh ra lá trên tay cùng màu với lá bạn đã bỏ."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "madai"
+  },
+  {
+   "id": "mifuren",
+   "name": "My Phu Nhân",
+   "title": "Loạn Thế Trầm Hương",
+   "pkg": "Thế",
+   "file": "MomentumPackage.lua",
+   "skills": [
+    {
+     "id": "guixiu",
+     "name": "Khuê Tú",
+     "desc": "• Sau khi mở tướng này, bạn có thể rút 2 lá.\n• Sau khi tướng này bị loại bỏ, bạn có thể hồi 1 máu."
+    },
+    {
+     "id": "cunsi",
+     "name": "Tồn Tự",
+     "desc": "Giai đoạn ra bài, nếu bạn đã mở tướng này, bạn có thể chọn 1 người, thực hiện lần lượt:\n- Bạn loại bỏ tướng này;\n- Họ nhận kỹ năng »Dũng Quyết«;\n- Nếu họ không phải bạn, họ rút 2 lá bài."
+    },
+    {
+     "id": "yongjue",
+     "name": "Dũng Quyết",
+     "desc": "Sau khi kết toán xong [Sát] do người cùng thế lực với bạn sử dụng trong giai đoạn ra bài của họ, nếu lá này là lá đầu tiên họ sử dụng trong giai đoạn này, bạn có thể lệnh họ thu lấy lá [Sát] này."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "mifuren"
+  },
+  {
+   "id": "sunce",
+   "name": "Tôn Sách",
+   "title": "Giang Đông Đích Tiểu Bá Vương",
+   "pkg": "Thế",
+   "file": "MomentumPackage.lua",
+   "skills": [
+    {
+     "id": "jiang",
+     "name": "Hùng Dũng",
+     "desc": "Sau khi bạn xác định hoặc trở thành mục tiêu của [Sát] Đỏ hoặc [Quyết đấu], bạn có thể rút 1 lá."
+    },
+    {
+     "id": "yingyang",
+     "name": "Ưng Dương",
+     "desc": "Sau khi mở lá đấu điểm của bạn, bạn có thể lệnh lá này +3 hoặc -3 điểm trong lần đấu điểm này (Lớn nhất là K, nhỏ nhất là A)."
+    },
+    {
+     "id": "hunshang",
+     "name": "Hồn Thương",
+     "desc": "Phó tướng kỹ, Giảm 0.5 máu gốc: Khi bắt đầu giai đoạn chuẩn bị, nếu số máu của bạn là 1, trong lượt này, bạn có kỹ năng »Anh Tư« và »Anh Hồn«."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "sunce"
+  },
+  {
+   "id": "chenwudongxi",
+   "name": "Trấn Vũ & Đổng Tập",
+   "title": "Tráng Hoài Kích Liệt",
+   "pkg": "Thế",
+   "file": "MomentumPackage.lua",
+   "skills": [
+    {
+     "id": "duanxie",
+     "name": "Đoạn Tiết",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể lệnh X người không trong trạng thái xích nhận trạng thái xích (X là số máu đã mất của bạn, tối thiểu 1), sau đó bạn nhận trạng thái xích."
+    },
+    {
+     "id": "fenming",
+     "name": "Phấn Mệnh",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, nếu bạn trong trạng thái xích, bạn có thể bỏ đi 1 lá của những người trong trạng thái xích."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "chenwudongxi"
+  },
+  {
+   "id": "dongzhuo",
+   "name": "Đổng Trác",
+   "title": "Ma Vương",
+   "pkg": "Thế",
+   "file": "MomentumPackage.lua",
+   "skills": [
+    {
+     "id": "hengzheng",
+     "name": "Hoàng Chinh",
+     "desc": "Khi bắt đầu giai đoạn rút bài, nếu số máu của bạn là 1 hoặc không có bài trên tay, bạn có thể không rút bài, thu lấy từ mỗi người khác 1 lá trong vùng chơi."
+    },
+    {
+     "id": "baoling",
+     "name": "Bạo Lăng",
+     "desc": "Chủ tướng kỹ, Tỏa định kỹ: Khi bạn kết thúc giai đoạn ra bài, nếu bạn đã mở tướng này và có phó tướng, bạn thực hiện lần lượt:\n- Bạn loại bỏ phó tướng;\n- Bạn tăng giới hạn máu thêm 3, hồi 3 máu;\n- Bạn mất kỹ năng này và nhận kỹ năng »Băng Hoại«"
+    },
+    {
+     "id": "benghuai",
+     "name": "Băng Hoại",
+     "desc": "Tỏa định kỹ: Khi bắt đầu giai đoạn kết thúc, nếu bạn không phải là người có số máu thấp nhất, bạn chọn mất 1 máu hoặc giảm 1 giới hạn máu."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "dongzhuo"
+  },
+  {
+   "id": "zhangren",
+   "name": "Trương Nhiệm",
+   "title": "Tác Mệnh Thần Xạ",
+   "pkg": "Thế",
+   "file": "MomentumPackage.lua",
+   "skills": [
+    {
+     "id": "chuanxin",
+     "name": "Xuyên Tâm",
+     "desc": "Giai đoạn ra bài của bạn, khi bạn gây sát thương cho mục tiêu của [Sát] hoặc [Quyết Đấu], nếu họ có thế lực xác định khác với bạn (bạn có thể mở tướng này để xác định thế lực) và có Phó tướng, bạn có thể chặn sát thương này, lệnh mục tiêu chọn 1 mục:\n1. Nếu họ có trang bị, họ bỏ toàn bộ bài trong vùng Trang Bị và mất 1 máu.\n2. Họ loại bỏ Phó tướng."
+    },
+    {
+     "id": "fengshi",
+     "name": "Phong Thỉ",
+     "desc": "Trận pháp kỹ: Quan hệ vây công: Nếu bạn là người vây công, sau khi người vây công xác định mục tiêu của lá [Sát], ứng với mỗi mục tiêu, nếu mục tiêu này là người bị vây công, bạn lệnh họ bỏ 1 lá trong vùng trang bị."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zhangren"
+  },
+  {
+   "id": "lord_zhangjiao",
+   "name": "Trương Giác - Quân",
+   "title": "Thời Đại Đích Tiên Khu",
+   "pkg": "Thế",
+   "file": "MomentumPackage.lua",
+   "skills": [
+    {
+     "id": "wuxin",
+     "name": "Ngộ Tâm",
+     "desc": "Khi bắt đầu giai đoạn rút bài, có thể xem X lá đầu chồng bài rút và sắp xếp tùy ý những lá này lên đầu chồng bài rút (X là số người cùng thế lực với bạn)."
+    },
+    {
+     "id": "hongfa",
+     "name": "Hoằng Pháp",
+     "desc": "Quân chủ kỹ, Tỏa định kỹ: Bạn có »Hoàng Cân Thiên Bình Phủ«.\n\n»<b>Hoàng Cân Thiên Bình Phủ</b>«:\n• Khi bắt đầu giai đoạn chuẩn bị, nếu bạn không có [Thiên Binh], bạn lấy X lá đầu chồng bài rút đặt ngửa lên tướng này, gọi là [Thiên Binh] (X là số người cùng thế lực với bạn).\n• Khi bạn tính toán số người cùng thế lực với bạn, +1 với mỗi [Thiên Binh].\n• Khi bạn mất máu, bạn có thể đưa 1 [Thiên Binh] vào chồng bài bỏ, chặn việc mất máu.\n• Người thế lực Quần có thể chuyển hóa sử dụng/đánh ra [Thiên Binh] thành [Sát]."
+    },
+    {
+     "id": "huangjinsymbol",
+     "name": "Hoàng Cân Thiên Bình Phủ",
+     "desc": "• Khi bắt đầu giai đoạn chuẩn bị, nếu bạn không có [Thiên Binh], bạn lấy X lá đầu chồng bài rút đặt ngửa lên tướng này, gọi là [Thiên Binh] (X là số người cùng thế lực với bạn).\n• Khi bạn tính toán số người cùng thế lực với bạn, +1 với mỗi [Thiên Binh].\n• Khi bạn mất máu, bạn có thể đưa 1 [Thiên Binh] vào chồng bài bỏ, chặn việc mất máu.\n• Người thế lực Quần có thể chuyển hóa sử dụng/đánh ra [Thiên Binh] thành [Sát]."
+    },
+    {
+     "id": "wendao",
+     "name": "Vấn Đạo",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể bỏ 1 lá Đỏ ngoại trừ [Thái Bình Yêu Thuật] và thu lấy [Thái Bình Yêu Thuật] trong chồng bài bỏ hoặc trên bàn chơi."
+    }
+   ],
+   "status": "quân chủ (chưa hỗ trợ)"
+  },
+  {
+   "id": "jianggan",
+   "name": "Tưởng Cán",
+   "title": "Phong Đích Huyền Tín",
+   "pkg": "Thập Chu Niên",
+   "file": "NewSGSPackage.lua",
+   "skills": [
+    {
+     "id": "weicheng",
+     "name": "Ngụy Thành",
+     "desc": "Khi bài trên tay bạn chuyển đến tay người khác, nếu bài trên tay bạn ít hơn số máu hiện tại, bạn có thể rút 1 lá."
+    },
+    {
+     "id": "daoshu",
+     "name": "Đạo Thư",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chọn 1 chất và 1 người có bài trên tay, thu lấy 1 lá bài trên tay người đó và so sánh với chất bài đã đoán:\n* Trùng: Bạn gây 1 sát thương cho họ và tăng thêm 1 lần sử dụng kỹ năng trong giai đoạn này;\n* Không trùng: Bạn giao 1 lá bài trên tay có chất khác với lá bạn nhận cho họ, nếu không thể, mở toàn bộ bài trên tay."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "jianggan"
+  },
+  {
+   "id": "yangwan",
+   "name": "Dương Uyển",
+   "title": "Dung Mạt Chi Ly",
+   "pkg": "Thập Chu Niên",
+   "file": "NewSGSPackage.lua",
+   "skills": [
+    {
+     "id": "youyan",
+     "name": "Dụ Ngôn",
+     "desc": "Một lần trong lượt của bạn, sau khi bài của bạn tiến vào chồng bài bỏ do bỏ bài, bạn có thể lật ra 4 lá trên đầu chồng bài và thu lấy những lá khác chất với những lá bạn đã bỏ trong lần này."
+    },
+    {
+     "id": "zhuihuan",
+     "name": "Truy Hoàn",
+     "desc": "Khi bạn kết thúc lượt, bạn có thể chọn tối đa 2 người, lệnh mỗi người nhận 1 [Truy Hoàn] khác nhau đến khi bắt đầu lượt tiếp theo của bạn (Không ai được biết loại [Truy Hoàn] đã nhận);\n▶ Sau khi họ nhận sát thương, họ bỏ đi [Truy Hoàn], nếu [Truy Hoàn] đã bỏ là:\n* [Sát thương]: Họ gây 1 sát thương cho nguồn sát thương;\n* [Bỏ bài]: Nguồn sát thương bỏ 2 lá trên tay."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "zhouyi",
+   "name": "Chu Di",
+   "title": "Điện Tinh Vũ Đại",
+   "pkg": "Thập Chu Niên",
+   "file": "NewSGSPackage.lua",
+   "skills": [
+    {
+     "id": "zhukou",
+     "name": "Trục Khấu",
+     "desc": "Trong lượt của mỗi người, sau khi bạn gây sát thương lần đầu tiên trong giai đoạn ra bài của họ, bạn có thể rút X lá (X là số lá bạn đã sử dụng trong lượt này, tối đa 5)."
+    },
+    {
+     "id": "duannian",
+     "name": "Đoạn Niệm",
+     "desc": "Khi kết thúc giai đoạn ra bài, nếu bạn có bài trên tay, bạn có thể bỏ tất cả bài trên tay, sau đó bổ sung bài đến giới hạn máu."
+    },
+    {
+     "id": "lianyou",
+     "name": "Liên Hựu",
+     "desc": "Khi bạn trận vong, bạn có thể lệnh cho 1 người khác nhận kỹ năng »Hưng Hỏa«"
+    },
+    {
+     "id": "xinghuo",
+     "name": "Hưng Hỏa",
+     "desc": "Tỏa định kỹ: Khi bạn gây sát thương Hỏa, sát thương này +1."
+    }
+   ],
+   "status": "có, đang tắt",
+   "ours": "zhouyi"
+  },
+  {
+   "id": "lvlingqi",
+   "name": "Lữ Linh Khởi",
+   "title": "Vô Song Hao Cơ",
+   "pkg": "Thập Chu Niên",
+   "file": "NewSGSPackage.lua",
+   "skills": [
+    {
+     "id": "guowu",
+     "name": "Quắc Vũ",
+     "desc": "Khi bắt đầu giai đoạn ra bài, bạn có thể mở tất cả bài trên tay, căn cứ vào số loại bài bạn có mà bạn nhận hiệu quả tương ứng:\n* 1+: Bạn thu lấy 1 lá [Sát] ngẫu nhiên từ chồng bài bỏ;\n* 2+: Trong giai đoạn này, bạn sử dụng bài không giới hạn khoảng cách;\n* 3+: Một lần trong giai đoạn này, sau khi bạn chỉ định mục tiêu của [Sát], bạn có thể chỉ định thêm tối đa 2 mục tiêu."
+    },
+    {
+     "id": "zhuangrong",
+     "name": "Trang Nhung",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể bỏ 1 lá công cụ, bạn nhận kỹ năng »Vô Song« trong giai đoạn này."
+    },
+    {
+     "id": "shenwei",
+     "name": "Thần Uy",
+     "desc": "Chủ tướng kỹ, Tỏa định kỹ, Giảm 0.5 máu gốc:\n• Giới hạn trữ bài trên tay bạn +2;\n• Giai đoạn rút bài, nếu bạn là người có số máu lớn nhất, số lá bạn rút +2."
+    }
+   ],
+   "status": "có, đang tắt",
+   "ours": "lvlingqi"
+  },
+  {
+   "id": "nanhualaoxian",
+   "name": "Nam Hoa Lão Tiên",
+   "title": "Tiên Nhân Chỉ Lộ",
+   "pkg": "Thập Chu Niên",
+   "file": "NewSGSPackage.lua",
+   "skills": [
+    {
+     "id": "gongxiu",
+     "name": "Cộng Tu",
+     "desc": "Giai đoạn rút bài, bạn có thể rút ít đi 1 lá, sau đó lựa chọn tối đa X người (X là giới hạn máu của bạn), bạn chọn 1 mục:\n1. Họ rút 1 lá;\n2. Họ bỏ 1 lá;\n▷ Không thể liên tiếp lựa chọn cùng 1 mục."
+    },
+    {
+     "id": "jinghe",
+     "name": "Kinh Hợp",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể mở tối đa X lá trên tay (X là giới hạn máu của bạn) và chọn số người tương đương có tướng đã mở; bạn mở ra ngẫu nhiên số kỹ năng bằng số người đã chọn, mỗi người có thể chọn và nhận 1 kỹ năng trong đó đến khi bắt đầu lượt tiếp theo của bạn."
+    },
+    {
+     "id": "leiji_tianshu",
+     "name": "Lôi Kích",
+     "desc": "Khi bạn sử dụng/đánh ra [Thiểm], bạn có thể lệnh 1 người khác tiến hành phán xét, nếu kết quả phán xét có chất BÍCH, bạn gây 2 sát thương Lôi cho họ."
+    },
+    {
+     "id": "yinbing",
+     "name": "Âm Binh",
+     "desc": "Tỏa định kỹ:\n• Khi bắt đầu kết toán hiệu quả của [Sát], sửa hiệu quả thành mục tiêu mất X máu (X là số sát thương).\n• Sau khi người khác mất máu, bạn rút 1 lá."
+    },
+    {
+     "id": "huoqi",
+     "name": "Hoạt Khí",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể bỏ 1 lá và chọn 1 người có ít máu nhất, lệnh họ hồi 1 máu và rút 1 lá."
+    },
+    {
+     "id": "guizhu",
+     "name": "Quỷ trợ",
+     "desc": "Một lần trong lượt của mỗi người, khi 1 người tiến vào trạng thái hấp hối, bạn có thể rút 2 lá."
+    },
+    {
+     "id": "xianshou",
+     "name": "Tiên Thụ",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chọn 1 người:\n* Nếu họ đã bị thương, họ rút 1 lá;\n* Nếu không, họ rút 2 lá."
+    },
+    {
+     "id": "lundao",
+     "name": "Luận Đạo",
+     "desc": "Sau khi nhận sát thương, nếu số bài trên tay nguồn sát thương so với bạn:\n* Nhiều hơn: Bạn có thể bỏ 1 lá của họ;\n* Ít hơn: Bạn có thể rút 1 lá."
+    },
+    {
+     "id": "guanyue",
+     "name": "Quan Nguyệt",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, bạn có thể xem 2 lá trên đầu chồng bài rút, thu lấy 1 lá trong số đó."
+    },
+    {
+     "id": "yanzheng",
+     "name": "Ngôn Chính",
+     "desc": "Khi bắt đầu giai đoạn chuẩn bị, nếu số bài trên tay bạn > 1, bạn có thể giữ lại 1 lá và bỏ đi số lá còn lại và chọn tối đa X người (X là số lá đã bỏ), bạn gây 1 sát thương cho họ."
+    }
+   ],
+   "status": "có, đang tắt",
+   "ours": "nanhualaoxian"
+  },
+  {
+   "id": "beimihu",
+   "name": "Himiko",
+   "title": "Yamatai Đích Nữ Vương",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "guishu",
+     "name": "Quỷ Thuật",
+     "desc": "Bạn có thể chuyển hóa sử dụng 1 lá BÍCH trên tay thành [Tri Bỉ Tri Kỷ]/[Viễn Giao Cận Công];\n▷ Bạn cần sử dụng xen kẽ 2 lá trên theo cách này trong cùng 1 lượt."
+    },
+    {
+     "id": "yuanyu",
+     "name": "Viễn Vực",
+     "desc": "Tỏa định kỹ: Khi bạn tính toán sát thương phải nhận, nếu bạn không thuộc tầm đánh của nguồn sát thương, sát thương này -1."
+    }
+   ],
+   "status": "có, đang tắt",
+   "ours": "beimihu"
+  },
+  {
+   "id": "caozhen",
+   "name": "Tào Chân",
+   "title": "Vạn Tải Bất San",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "sidi",
+     "name": "Ty Địch",
+     "desc": "• Sau khi người cùng thế lực với bạn nhận sát thương, nếu họ có bài và số loại [Ngự] của bạn < 3, bạn có thể phát động kỹ năng, họ có thể đặt 1 lá của họ lên tướng của bạn, gọi là [Ngự] (Không thể chọn lá cùng loại với những [Ngự] đã có).\n• Sau khi bắt đầu lượt của người thế lực khác bạn, bạn có thể đưa tối đa 3 [Ngự] vào chồng bài bỏ, đưa ra số lựa chọn khác nhau tương ứng với mỗi [Ngự]:\n1. Bạn chọn 1 loại bài có cùng loại với 1 trong số [Ngự] vừa bỏ, họ không thể sử dụng loại bài này trong lượt này;\n2. Bạn chọn 1 kỹ năng của tướng đã mở của họ, vô hiệu kỹ năng đó trong lượt này;\n3. Bạn lệnh họ chọn 1 người khác có cùng thế lực với bạn, người này hồi 1 màu."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "caozhen"
+  },
+  {
+   "id": "liaohua",
+   "name": "Liêu Hóa",
+   "title": "Lịch Tận Thương Tang",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "dangxian",
+     "name": "Đương Tiên",
+     "desc": "Tỏa định kỹ:\n• Sau khi bạn mở tướng này lần đầu tiên, bạn nhận 1 tiêu ký [Tiên Khu].\n• Sau khi bắt đầu lượt, bạn nhận 1 giai đoạn ra bài."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "zhugejin",
+   "name": "Gia Cát Cẩn",
+   "title": "Liên Minh Đích Duy Hệ Giả",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "huanshi",
+     "name": "Hoãn Thích",
+     "desc": "Khi phán xét của người cùng thế lực với bạn có hiệu lực, bạn có thể đánh ra 1 lá để thay thế kết quả phán xét đó."
+    },
+    {
+     "id": "hongyuan",
+     "name": "Hoằng Viện",
+     "desc": "•Khi bạn rút bài vì hiệu quả của »Hợp Tung«, bạn có thể lệnh 1 người khác có cùng thế lực với bạn rút bài thay bạn.\n• Một lần trong giai đoạn ra bài, bạn có thể mở 1 lá trên tay, lá đó khi ở trên tay bạn trong giai đoạn này xem như có ký hiệu »Hợp Tung«."
+    },
+    {
+     "id": "mingzhe",
+     "name": "Minh Triết",
+     "desc": "Ngoài lượt của bạn:\n• Khi bạn sử dụng/đánh ra lá Đỏ, bạn có thể rút 1 lá.\n• Khi bạn mất đi bài trong vùng trang bị, nếu trong đó có lá Đỏ, bạn có thể rút 1 lá"
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "quancong",
+   "name": "Toàn Tông",
+   "title": "Mộ Thế Diệu Tộc",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "qinzhong",
+     "name": "Thân Trùng",
+     "desc": "Phó tướng kỹ: Sau khi bắt đầu lượt, bạn có thể hoán đổi phó tướng của bạn với 1 người cùng thế lực với bạn."
+    },
+    {
+     "id": "zhaofu",
+     "name": "Chiêu Phụ",
+     "desc": "• Khi bắt đầu giai đoạn ra bài, nếu tổng số [Thưởng] của tất cả người khác < 3, bạn có thể bỏ 1 lá và chọn 1 người khác, họ tăng 1 [Thưởng].\n• Sau khi lá cơ bản/công cụ phổ thông do người có [Thưởng] sử dụng kết toán xong, bạn có thể lệnh họ giảm 1 [Thưởng], xem như bạn sử dụng lá đó."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "guohuai",
+   "name": "Quách Hoài",
+   "title": "Thùy Vấn Tần Ung",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "jingce",
+     "name": "Tinh Sách",
+     "desc": "Giai đoạn ra bài, sau khi lá thứ X do bạn sử dụng kết toán xong (X là số máu hiện tại của bạn), nếu không có ai đang giải quyết hấp hối, bạn có thể yêu cầu 1 người thế lực xác định khác bạn chấp hành 1 [Quân Lệnh], nếu họ không chấp hành, bạn rút 2 lá."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "yangxiu",
+   "name": "Dương Tu",
+   "title": "Thị Tài Phóng Khoáng",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "danlao",
+     "name": "Đạm Lạc",
+     "desc": "Sau khi bạn trở thành mục tiêu của lá công cụ, nếu số mục tiêu của lá này > 1, bạn có thể rút 1 lá, sau đó lệnh lá này không có hiệu quả với bạn."
+    },
+    {
+     "id": "jilei",
+     "name": "Kê Lặc",
+     "desc": "Sau khi bạn nhận sát thương, nếu sát thương này có nguồn, bạn có thể chọn 1 loại bài, lệnh nguồn sát thương trong lượt này không thể sử dụng, đánh ra hoặc bỏ lá trên tay thuộc loại bài này."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "zumao",
+   "name": "Tổ Mậu",
+   "title": "Bích Huyết Nhiễm Xích Trách",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "yinbingx",
+     "name": "Dẫn Binh",
+     "desc": "• Khi bắt đầu giai đoạn kết thúc, bạn có thể đặt tùy ý lá phi cơ bản lên tướng này, gọi là [Trách].\n• Sau khi bạn nhận sát thương từ [Sát] hoặc [Quyết Đấu], bạn bỏ 1 [Trách]."
+    },
+    {
+     "id": "juedi",
+     "name": "Tuyệt Địa",
+     "desc": "Tỏa định kỹ:\n• Thần lực luôn ở bên bạn.\n• Khi bắt đầu giai đoạn chuẩn bị, nếu bạn có [Trách], bạn chọn 1 mục:\n1. Bỏ tất cả lá [Trách], bổ sung bài trên tay tới giới hạn máu;\n2. Giao tất cả [Trách] cho 1 người khác có số máu ≤ bạn, lệnh họ hồi 1 máu và rút bài bằng số [Trách] bạn đã giao."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "fuwan",
+   "name": "Phục Hoàn",
+   "title": "Trầm Nghị Đích Quốc Trượng",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "moukui",
+     "name": "Mưu Hội",
+     "desc": "Sau khi bạn xác định mục tiêu của [Sát], ứng với mỗi mục tiêu, bạn có thể chọn 1 mục:\n1. Rút 1 lá;\n2. Bỏ 1 lá của mục tiêu của [Sát] này;\n▶ Sau khi [Sát] này bị triệt tiêu bởi [Thiểm] của mục tiêu, họ bỏ 1 lá của bạn."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "chendao",
+   "name": "Trần Đáo",
+   "title": "Bạch Nhị Đốc",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "wanglie",
+     "name": "Vãng Liệt",
+     "desc": "• Lá đầu tiên bạn sử dụng trong giai đoạn ra bài không giới hạn khoảng cách.\n• Giai đoạn ra bài, khi bạn sử dụng [Sát] hoặc công cụ phổ thông, bạn có thể lệnh cho tất cả mọi người không được hưởng ứng với lá này; nếu làm vậy, bạn không thể sử dụng bài trong giai đoạn này."
+    },
+    {
+     "id": "dizai",
+     "name": "Địa Tải",
+     "desc": "Trận pháp kỹ: Quan hệ vây công: Nếu bạn là người vây công, khi người vây công gây sát thương cho mục tiêu bị vây công của lá [Sát], người vây công còn lại có thể bỏ 1 lá để lệnh sát thương này +1."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "tianyu",
+   "name": "Điền Dự",
+   "title": "Quy Lược Minh Luyện",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "zhenxi",
+     "name": "Chấn Tập",
+     "desc": "Sau khi bạn xác định mục tiêu của [Sát], ứng với mỗi mục tiêu, bạn có thể chọn 1 mục:\n1. Bạn bỏ 1 lá của họ;\n2. Bạn chuyển hóa sử dụng 1 lá TÉP phi công cụ thành [Binh Lương Thốn Đoạn] hoặc 1 lá RÔ phi công cụ thành [Lạc Bất Tư Thục] không giới hạn khoảng cách với họ;\n▷ Nếu bạn đã mở 2 tướng và họ có tướng đang úp, bạn có thể chấp hành cả 2 mục với thứ tự tùy ý."
+    },
+    {
+     "id": "jiansu",
+     "name": "Kiệm Tố",
+     "desc": "Phó tướng kỹ, Giảm 0.5 máu gốc:\n• Khi bạn nhận bài ngoài lượt, bạn có thể gọi những lá này trên tay bạn là [Kim] chừng nào lá đó còn trên tay bạn, [Kim] luôn công khai với những người khác.\n• Khi bắt đầu giai đoạn ra bài, bạn có thể bỏ đi tùy ý [Kim], sau đó chọn 1 người đã bị thương có số máu ≤ số [Kim] đã bỏ, lệnh họ hồi 1 máu."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "maliang",
+   "name": "Mã Lương",
+   "title": "Bạch Mi Lệnh Sĩ",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "mumeng",
+     "name": "Mục Minh",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chuyển hóa sử dụng 1 lá CƠ trên tay thành [Viễn Giao Cận Công]/[Lục Lực Đồng Tâm]"
+    },
+    {
+     "id": "naman",
+     "name": "Nạp Man",
+     "desc": "Khi người khác sử dụng bài Đen có chỉ định nhiều mục tiêu, bạn có thể tiến hành phán xét, nếu kết quả phát xét không phải BÍCH, bạn chọn 1 mục:\n1. Lệnh 1 người khác trở thành mục tiêu của bài (Không bị giới hạn khoảng cách);\n2. Hủy bỏ mục tiêu đối với 1 mục tiêu của lá đó."
+    }
+   ],
+   "status": "có, đang tắt",
+   "ours": "maliang"
+  },
+  {
+   "id": "huaxiong",
+   "name": "Hoa Hùng",
+   "title": "Ma Tướng",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "yaowu",
+     "name": "Diệu Võ",
+     "desc": "Hạn định kỹ: Sau khi bạn gây sát thương, nếu tướng này đang úp mặt, bạn có thể phát động kỹ năng này: Bạn tăng 2 giới hạn máu, hồi 2 máu;\n▶ Sau khi bạn trận vong, tất cả người cùng thế lực với bạn mất 1 máu."
+    },
+    {
+     "id": "shiyong",
+     "name": "Thị Dũng",
+     "desc": "Tỏa định kỹ: Khi bạn tính toán sát thương phải nhận từ lá bài:\n* Nếu bạn chưa phát động »Diệu Võ« và lá gây ra sát thương không phải màu Đỏ, bạn rút 1 lá;\n* Nếu bạn đã phát động »Diệu Võ« và lá gây sát thương không phải màu Đen, nguồn sát thương rút 1 lá."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "zhangchunhua",
+   "name": "Trương Xuân Hoa",
+   "title": "Lãnh Huyết Hoàng Hậu",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "guojue",
+     "name": "Quả Quyết",
+     "desc": "• Sau khi bạn mở tướng này lần đầu tiên, bạn gây 1 sát thương cho 1 người khác.\n• Khi 1 người khác tiến vào trạng thái hấp hối do bạn gây sát thương, bạn có thể bỏ 1 lá của họ."
+    },
+    {
+     "id": "shangshi",
+     "name": "Thương Thệ",
+     "desc": "Sau khi bạn nhận sát thương, bạn có thể chọn bỏ 1 lá hoặc giao X lá trên tay bạn cho 1 người khác; nếu làm vậy, bạn rút X lá (X lá số máu bạn đã mất)."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zhangchunhua"
+  },
+  {
+   "id": "liufuren",
+   "name": "Lưu Phu Nhân",
+   "title": "Khốc Đố Đích Hải Đường",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "zhuidu",
+     "name": "Truy Đố",
+     "desc": "Một lần trong giai đoạn ra bài, khi bạn gây sát thương, bạn có thể lệnh người nhận sát thương chọn 1 mục:\n1. Sát thương này +1;\n2. Nếu họ có lá trong vùng trang bị, bỏ đi tất cả bài trong vùng trang bị;\n▷ Nếu họ có giới tính nữ, bạn có thể bỏ 1 lá, lệnh họ thực hiện cả 2 mục."
+    },
+    {
+     "id": "shigong",
+     "name": "Kỳ Cung",
+     "desc": "Hạn định kỹ: Ngoài lượt của bạn, khi bạn tiến vào trạng thái hấp hối, bạn có thể loại bỏ Phó tướng của bạn, sau đó lệnh người đang có lượt chọn 1 mục:\n1. Họ nhận 1 kỹ năng không phân loại từ lá tướng mà bạn vừa loại bỏ, lệnh bạn hồi đầy máu;\n2. Lệnh bạn hồi đến 1 máu."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "yijibo",
+   "name": "Y Tịch",
+   "title": "Kiến lễ vu thế",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "dingke",
+     "name": "Định Khoa",
+     "desc": "Một lần trong lượt của mỗi người, sau khi 1 người cùng thế lực với bạn mất bài ngoài lượt không vì sử dụng/đánh ra, bạn có thể chọn 1 mục:\n1. Giao 1 lá trên tay cho họ;\n2. Lệnh người đang có lượt bỏ 1 lá trên tay;\n▷ Nếu số [Âm dương ngư] của bạn nhỏ hơn giới hạn máu, bạn thu lấy 1 tiêu ký [Âm dương ngư]."
+    },
+    {
+     "id": "jiyuan",
+     "name": "Cấp Viện",
+     "desc": "Khi có người tiến vào trạng thái hấp hối hoặc sau khi có người được bạn giao bài do phát động »Định Khoa«, bạn có thể lệnh họ rút 1 lá."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "zhangyi",
+   "name": "Trương Dực",
+   "title": "Tranh Hổ",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "kangrui",
+     "name": "Kháng Nhuệ",
+     "desc": "Một lần trong giai đoạn ra bài của 1 người cùng thế lực với bạn, khi họ sử dụng bài có chỉ định 1 người khác làm mục tiêu duy nhất, bạn có thể hủy bỏ mục tiêu của lá đó, lệnh họ chọn 1 mục:\n1. Bổ sung bài trên tay đến X lá (X là số máu của họ), giai đoạn này, họ không thể chỉ định người ngoài họ làm mục tiêu của bài;\n2. Nếu không có người trong trạng thái hấp hối, lệnh mục tiêu ban đầu của lá đó xem như sử dụng [Quyết đấu] với họ, số sát thương của [Quyết đấu] này +1."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "chengpu",
+   "name": "Trình Phổ",
+   "title": "Hổ Thủ",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "huxun",
+     "name": "Hổ Huân",
+     "desc": "Khi 1 người kết thúc lượt, nếu trong lượt này có người tiến vào trạng thái hấp hối do bạn gây sát thương, bạn có thể chọn 1 mục:\n1. Nếu bạn không phải người duy nhất có giới hạn máu cao nhất, bạn tăng 1 giới hạn máu và hồi 1 máu;\n2. Bạn có thể di chuyển 1 lá trên bàn chơi."
+    },
+    {
+     "id": "yuancong",
+     "name": "Nguyên Tòng",
+     "desc": "Khi kết thúc giai đoạn ra bài của 1 người cùng thế lực với bạn, nếu trong giai đoạn này họ không gây sát thương, họ có thể giao 1 lá cho bạn, sau đó bạn có thể sử dụng 1 lá trên tay."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "chengyu",
+   "name": "Trình Dục",
+   "title": "Thái Sơn Phụng Nhật",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "shefu",
+     "name": "Phục Binh",
+     "desc": "• Một lần trong giai đoạn ra bài, bạn có thể đặt 1 lá trên tay lên tướng của bạn, gọi là [Phục Binh].\n• Khi 1 người khác sử dụng bài trên tay, bạn có thể đưa 1 [Phục Binh] có cùng tên với lá đó vào chồng bài bỏ, hủy bỏ hoàn toàn lá đó.\n• Khi bắt đầu giai đoạn chuẩn bị, nếu số [Phục Binh] > 2, bạn đưa số [Phục Binh] vào chồng bài bỏ đến khi còn 2."
+    },
+    {
+     "id": "benyu",
+     "name": "Bí Dục",
+     "desc": "Sau khi bạn nhận sát thương:\n* Nếu bài trên tay bạn ít hơn nguồn sát thương, bạn chọn 1 mục:\n1. Bổ sung bài trên tay đến khi bằng với họ, tối đa 5 lá;\n2. Lệnh họ bỏ đi bài trên tay đến khi bằng bạn, tối đa bỏ 5 lá.\n* Nếu bài trên tay bạn nhiều hơn nguồn sát thương, bạn có thể bỏ số bài trên tay bằng số bài trên tay họ +1, sau đó gây 1 sát thương cho họ."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "xiahoushang",
+   "name": "Hạ Hầu Thượng",
+   "title": "Ngụy Dận Tiền Khu",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "tanfeng",
+     "name": "Tham Phong",
+     "desc": "Khi bắt đầu giai đoạn chuẩn bị, bạn có thể bỏ 1 lá trong vùng chơi của 1 người thế lực khác bạn;\n▷ Họ có thể chọn nhận 1 sát thương Hỏa từ bạn để lệnh bạn bỏ qua 1 giai đoạn trong lượt này, ngoại trừ giai đoạn chuẩn bị."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "guyong",
+   "name": "Cố Ung",
+   "title": "Miếu Đường Đích Ngọc Khách",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "lifu",
+     "name": "Lễ Phụ",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chọn 1 người, lệnh họ bỏ 2 lá, sau đó bạn xem lá trên đầu chồng bài rút và giao cho họ."
+    },
+    {
+     "id": "yanzhong",
+     "name": "Ngôn Trung",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, bạn có thể chọn 1 chất và chọn 1 người khác có bài trên tay, bạn bỏ 1 lá trên tay họ; nếu chất của lá đã bỏ và chất đã đoán:\n* Khác chất: bạn bỏ 1 lá;\n* Cùng chất và chất đó là:\nCƠ: Bạn hồi 1 máu;\nRÔ: Bạn rút 1 lá, loại bỏ trạng thái xích;\nTÉP: Họ giao 1 lá cho bạn;\nBÍCH: Họ mất 1 máu."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "liyan",
+   "name": "Lý Nghiêm",
+   "title": "Long Lý Toàn Vân",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "jinwu",
+     "name": "Căng Võ",
+     "desc": "Khi bắt đầu giai đoạn ra bài, bạn có thể yêu cầu bạn chấp hành 1 quân lệnh:\n* Nếu chấp hành, bạn xem như sử dụng 1 [Sát];\n* Nếu không chấp hành, bạn kết thúc giai đoạn này."
+    },
+    {
+     "id": "zhuke",
+     "name": "Trúc Khoa",
+     "desc": "Chủ tướng kỹ, Giảm 0.5 máu gốc:\n• Sau khi bạn chọn chấp hành quân lệnh, bạn có thể chọn lại quân lệnh để chấp hành.\n• Khi bạn nhận trạng thái xích hoặc trạng thái chồng tướng, bạn có thể lệnh 1 người cùng thế lực với bạn hồi 1 máu."
+    },
+    {
+     "id": "quanjia",
+     "name": "Khuyến Giá",
+     "desc": "Phó tướng kỹ: Sau khi bạn mở tướng này lần đầu tiên, bạn phát động kỹ năng này, thực hiện lần lượt:\n- Triệu hoán thế lực, có thể hưởng ứng triệu hoán này mà không trở thành dã tâm;\n- Người cùng thế lực với bạn rút 1 lá\n- Người có kỹ năng »Nhân Đức« nhận kỹ năng »Chương Vũ« và »Thụ Việt«"
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "maxiumatie",
+   "name": "Mã Hưu & Mã Thiết",
+   "title": "Tru Gian Nghĩa Tồn",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "kenshang",
+     "name": "Khẩn Thương",
+     "desc": "Bạn có thể chuyển hóa sử dụng tùy ý số lá của bạn thành [Sát] (ít nhất 1 lá);\n▶ Sau khi bạn chỉ định mục tiêu cho [Sát] này, bạn có thể lệnh tất cả người khác ở ngoài tầm đánh của bạn trở thành mục tiêu của [Sát] này (không giới hạn khoảng cách), hủy bỏ tất cả mục tiêu trong tầm đánh của bạn;\n▶ Sau khi lá [Sát] này kết toán, nếu số lá bạn đã đem sử dụng > X, bạn rút X lá; Ngược lại, bạn mất »Mã Thuật« hoặc »Khẩn Thương« (X là tổng số sát thương mà [Sát] này đã gây ra)."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "caoang",
+   "name": "Tào Ngang",
+   "title": "Hiếu Chiến Sinh Tử",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "xiaolian",
+     "name": "Hiếu Liêm",
+     "desc": "• Sau khi mở tướng này lần đầu, bạn có thể di chuyển 1 trang bị trên bàn chơi; sau đó, bạn có thể lặp lại quá trình này thêm 1 lần.\n• Sau khi tướng này bị loại bỏ, người cùng thế lực với bạn rút 1 lá."
+    },
+    {
+     "id": "kangkai",
+     "name": "Khảng Khái",
+     "desc": "Sau khi 1 người cùng thế lực với bạn trở thành mục tiêu của [Sát], bạn có thể loại bỏ tướng này, thực hiện lần lượt:\n- Chọn 1 người, lệnh họ nhận kỹ năng »Phi Ảnh«;\n- Nếu người đó không phải là bạn, người đó hồi 1 máu và thoát trạng thái xích."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "zhuhuan",
+   "name": "Chu Hoàn",
+   "title": "Khí Cao Hộ Tiền",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "jutian",
+     "name": "Cự Thiên",
+     "desc": "Một lần trong lượt của mỗi người đối với mỗi mục lựa chọn, sau khi bạn gây sát thương cho người khác, bạn có thể chọn 1 mục:\n1. Bạn chọn 1 người cùng thế lực với người đã nhận sát thương, lệnh họ bỏ bài trên tay đến khi bằng với số máu của họ, tối đa bỏ 5 lá;\n2. Bạn chọn 1 người cùng thế lực với bạn, lệnh họ bổ sung bài trên tay đến giới hạn máu của họ."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "chendeng",
+   "name": "Trần Đăng",
+   "title": "Hồ Hải Hào Khí",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "haokui",
+     "name": "Hào Khôi",
+     "desc": "Khi bắt đầu giai đoạn ra bài, bạn có thể rút 2 lá;\n▶ Khi có bài tiến vào chồng bài bỏ trong giai đoạn bỏ bài lượt này, bạn đem những lá này giao cho 1 người thế lực xác định khác bạn, ưu tiên theo thứ tự sau:\n* Người thuộc đại thế lực;\n* Người có số máu lớn nhất trong số những người thế lực xác định khác bạn;\n▶ Khi kết thúc lượt này, nếu bạn không giao bài cho người khác bởi kỹ năng này, bạn thực hiện lần lượt:\n- Nếu bạn đã mở tất cả tướng, bạn có thể úp tướng này;\n- Bạn có thể chọn 1 người cùng thế lực với bạn, họ có thể đổi Phó tướng."
+    },
+    {
+     "id": "xushi",
+     "name": "Hư Thực",
+     "desc": "Khi bạn trở thành mục tiêu duy nhất của bài do người khác sử dụng, nếu tướng này đang úp, bạn có thể hủy bỏ mục tiêu đối với bạn;\n▷ Bạn lệnh họ bỏ 1 lá."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "shitao",
+   "name": "Thạch Thao",
+   "title": "Đồng Tiến Cộng Thoái",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "jiange",
+     "name": "Kiếm Ca",
+     "desc": "Bạn có thể chuyển hóa sử dụng/đánh ra lá phi cơ bản thành [Sát]."
+    },
+    {
+     "id": "qianxue",
+     "name": "Tiềm Học",
+     "desc": "Chủ tướng kỹ, Giảm 0.5 máu gốc: Khi 1 người kết thúc lượt, bạn có thể thu lấy tối đa X lá trong những lá đã tiến vào chồng bài bỏ trong lượt này (X là số vùng của bạn mà đã mất đi lá cuối cùng trong lượt này);\n▶ Bạn cần ưu tiên thu lấy những lá phi cơ bản trước;\n▶ Bạn không thể thu lấy [Hiệp Thiên Tử Dĩ Lệnh Chư Hầu]."
+    },
+    {
+     "id": "zhuhu",
+     "name": "Trục Cốc",
+     "desc": "Tỏa định kỹ: Sau khi người cùng thế lực với bạn đổi Phó tướng hoặc trận vong, nếu vị trí của tướng này là:\n- Chủ tướng và tướng còn lại của bạn là tướng đơn thế lực: Bạn hoán đổi Chủ tướng và Phó tướng\n- Phó tướng: Bạn thoát khỏi trạng thái xích;\n▶ Bạn đổi Phó tướng."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "sunhuan",
+   "name": "Tôn Hoàn",
+   "title": "Tông Thất Nhan Uyên",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "nizhan",
+     "name": "Nghịch Trảm",
+     "desc": "Khi kết thúc lượt của người khác, nếu bạn đã triệt tiêu lá bài do họ sử dụng trong lượt này hoặc bạn đã mất đi lá cuối cùng trên tay, bạn có thể chọn 1 mục:\n1. Bạn thu lấy 1 lá của họ;\n2. Bạn xem như sử dụng 1 [Sát] Bỏ qua phòng cụ với họ;"
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "gongsunzan",
+   "name": "Công Tôn Toản",
+   "title": "Bạch Mã Tướng Quân",
+   "pkg": "SP / SP-Tiêu Trừ",
+   "file": "Overseas.lua",
+   "skills": [
+    {
+     "id": "qushi",
+     "name": "Khu Thỉ",
+     "desc": "Tỏa định kỹ: Giai đoạn ra bài của bạn, sau khi lá [Sát] do bạn sử dụng kết toán xong, nếu [Sát] này đã bị triệt tiêu, bạn lệnh giới hạn sử dụng [Sát] và số mục tiêu của [Sát] do bạn sử dụng trong giai đoạn này +1."
+    },
+    {
+     "id": "yanxing",
+     "name": "Nhạn Hàng",
+     "desc": "Trận pháp kỹ: Quan hệ đội hình: Nếu bạn có trong quan hệ đội hình, khoảng cách từ người cùng đội hình với bạn đến người khác -X (X là số người khác có cùng đội hình với bạn)."
+    },
+    {
+     "id": "yicong",
+     "name": "Nghĩa Tòng",
+     "desc": "Chủ tướng kỹ, Giảm 0.5 máu gốc: Sau khi lá [Sát] do người khác có cùng thế lực với bạn sử dụng kết toán xong, nếu [Sát] này đã bị triệt tiêu, họ có thể lệnh bạn thu lấy [Sát] này."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "gongsunzan"
+  },
+  {
+   "id": "cuiyanmaojie",
+   "name": "Thôi Diễm & Mao Giới",
+   "title": "Nhật Xuất Nguyệt Thịnh",
+   "pkg": "Quyền",
+   "file": "PowerPackage.lua",
+   "skills": [
+    {
+     "id": "zhengbi",
+     "name": "Chinh Tịch",
+     "desc": "Khi bắt đầu giai đoạn ra bài, bạn có thể chọn 1 mục:\n1. Chọn 1 người khác không có thế lực, bạn sử dụng bài với họ không giới hạn khoảng cách và số lần đến sau khi kết thúc lượt này hoặc sau khi họ lật tướng;\n2. Chọn 1 người khác đã có thế lực, bạn giao cho họ 1 lá cơ bản, lệnh họ giao cho bạn 2 lá cơ bản hoặc 1 lá phi cơ bản."
+    },
+    {
+     "id": "fengying",
+     "name": "Phụng Nghênh",
+     "desc": "Hạn định kỹ: Bạn có thể chuyển hóa sử dụng tất cả bài trên tay thành [Hiệp Thiên Tử Dĩ Lệnh Chư Hầu] (Bỏ qua yêu cầu Đại thế lực);\n▶ Khi bạn sử dụng [Hiệp Thiên Tử Dĩ Lệnh Chư Hầu] này, bạn lệnh tất cả người cùng thế lực với bổ sung bài trên tay đến giới hạn máu."
+    }
+   ],
+   "status": "chưa có"
+  },
+  {
+   "id": "yujin",
+   "name": "Vu Cấm",
+   "title": "Thảo Bạo Kiên Lũy",
+   "pkg": "Quyền",
+   "file": "PowerPackage.lua",
+   "skills": [
+    {
+     "id": "jieyue",
+     "name": "Tiết Viện",
+     "desc": "Khi bắt đầu giai đoạn chuẩn bị, bạn có thể giao 1 lá trên tay cho 1 người không phải thế lực Ngụy, sau đó yêu cầu họ chấp hành 1 [Quân Lệnh]:\n* Nếu họ chấp hành, bạn rút 1 lá;\n* Nếu không, giai đoạn rút bài lượt này, bạn rút thêm 3 lá."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "yujin"
+  },
+  {
+   "id": "wangping",
+   "name": "Vương Bình",
+   "title": "Kiện Bế Kiếm Môn",
+   "pkg": "Quyền",
+   "file": "PowerPackage.lua",
+   "skills": [
+    {
+     "id": "jianglve",
+     "name": "Tướng Lược",
+     "desc": "Hạn định kỹ: Giai đoạn ra bài, bạn có thể phát động kỹ năng này, thực hiện lần lượt:\n- Bạn chọn 1 [Quân Lệnh], yêu cầu tất cả người khác có cùng thế lực với bạn chấp hành [Quân Lệnh] này;\n- Bạn và những người đã chọn chấp hành [Quân Lệnh] tăng 1 giới hạn máu, hồi 1 máu;\n- Bạn rút X lá (X là số người đã hồi máu từ kỹ năng này)."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "wangping"
+  },
+  {
+   "id": "fazheng",
+   "name": "Pháp Chính",
+   "title": "Thục Hán Đích Phụ Dực",
+   "pkg": "Quyền",
+   "file": "PowerPackage.lua",
+   "skills": [
+    {
+     "id": "enyuan",
+     "name": "Ân Oán",
+     "desc": "Tỏa định kỹ:\n• Sau khi bạn trở thành mục tiêu của [Đào] do người chơi khác sử dụng, họ rút 1 lá.\n• Sau khi bạn nhận sát thương, nguồn gây sát thương chọn giao 1 lá trên tay cho bạn hoặc mất 1 máu."
+    },
+    {
+     "id": "xuanhuo",
+     "name": "Huyễn Hoặc",
+     "desc": "Một lần trong giai đoạn ra bài của người khác có cùng thế lực với bạn, họ có thể giao cho bạn 1 lá trên tay, sau đó họ có thể bỏ 1 lá và lựa chọn nhận 1 trong các kỹ năng sau mà chưa có trên bàn cho đến hết lượt hoặc tướng có kỹ năng tương ứng được mở: »Võ Thánh«, »Bào Hao«, »Long Đảm«, »Thiết Kỵ«, »Liệt Cung«, »Cuồng Cốt«."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "fazheng"
+  },
+  {
+   "id": "wuguotai",
+   "name": "Ngô Quốc Thái",
+   "title": "Vũ Liệt Hoàng Hậu",
+   "pkg": "Quyền",
+   "file": "PowerPackage.lua",
+   "skills": [
+    {
+     "id": "ganlu",
+     "name": "Cam Lộ",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chọn 2 người có số bài trong vùng trang bị không cùng bằng 0 và số chênh lệch ≤ số máu bạn đã mất, hoán đổi bài trong vùng trang bị của 2 người này."
+    },
+    {
+     "id": "buyi",
+     "name": "Bổ Ích",
+     "desc": "Một lần trong lượt của mỗi người, sau khi người cùng thế lực với bạn thoát khỏi trạng thái hấp hối, bạn có thể yêu cầu nguồn sát thương chấp hành 1 [Quân Lệnh], nếu họ không chấp hành, người vừa thoát khỏi trạng thái hấp hối hồi 1 máu."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "wuguotai"
+  },
+  {
+   "id": "lukang",
+   "name": "Lục Kháng",
+   "title": "Cô Trú Phù Hạ",
+   "pkg": "Quyền",
+   "file": "PowerPackage.lua",
+   "skills": [
+    {
+     "id": "keshou",
+     "name": "Khắc Thủ",
+     "desc": "Khi bạn tính toán sát thương phải nhận, bạn có thể bỏ 2 lá có cùng màu, lệnh sát thương này -1;\n▷ Nếu không có người khác có cùng thế lực với bạn, bạn tiến hành phán xét, nếu kết quả phán xét có màu Đỏ, bạn rút 1 lá."
+    },
+    {
+     "id": "zhuwei",
+     "name": "Trác Vi",
+     "desc": "Sau khi phán xét của bạn có hiệu lực, nếu kết quả là 1 lá có khả năng gây sát thương cho mục tiêu, bạn có thể thu lấy lá đó;\n▷ Bạn có thể lệnh cho người đang có lượt +1 giới hạn sử dụng [Sát] và +1 giới hạn trữ bài."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "lukang"
+  },
+  {
+   "id": "yuanshu",
+   "name": "Viên Thuật",
+   "title": "Trọng Gia Đế",
+   "pkg": "Quyền",
+   "file": "PowerPackage.lua",
+   "skills": [
+    {
+     "id": "weidi",
+     "name": "Ngụy Đế",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chọn 1 người khác đã nhận bài từ chồng bài rút trong lượt này, yêu cầu họ chấp hành 1 [Quân Lệnh], nếu họ không chấp hành, bạn thu lấy toàn bộ bài trên tay họ, sau đó giao cho họ lượng bài tương đương."
+    },
+    {
+     "id": "yongsi",
+     "name": "Dong Tứ",
+     "desc": "Tỏa định kỹ:\n• Nếu không có [Ngọc Tỷ] trong vùng trang bị của tất cả mọi người, bạn xem như có [Ngọc Tỷ].\n• Sau khi bạn trở thành mục tiêu của lá [Tri Bỉ Tri Kỷ], bạn mở ra tất cả bài trên tay."
+    }
+   ],
+   "status": "có, đang tắt",
+   "ours": "yuanshu"
+  },
+  {
+   "id": "zhangxiu",
+   "name": "Trương Tú",
+   "title": "Bắc Địa Thương Vương",
+   "pkg": "Quyền",
+   "file": "PowerPackage.lua",
+   "skills": [
+    {
+     "id": "fudi",
+     "name": "Phụ Địch",
+     "desc": "Sau khi bạn nhận sát thương, bạn có thể giao cho nguồn sát thương 1 lá bài trên tay;\n▷ Bạn gây 1 sát thương cho 1 người cùng thế lực với nguồn sát thương mà có số máu nhiều nhất trong thế lực đó và ≥ bạn."
+    },
+    {
+     "id": "congjian",
+     "name": "Tòng Gián",
+     "desc": "Tỏa định kỹ: Khi bạn gây sát thương ngoài lượt hoặc khi bạn tính toán sát thương phải nhận trong lượt, sát thương này +1."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zhangxiu"
+  },
+  {
+   "id": "lord_caocao",
+   "name": "Tào Tháo - Quân",
+   "title": "Phụng Vũ Cửu Tiêu",
+   "pkg": "Quyền",
+   "file": "PowerPackage.lua",
+   "skills": [
+    {
+     "id": "jianan",
+     "name": "Kiến Anh",
+     "desc": "Quân chủ kỹ, Tỏa định kỹ: Bạn có »Ngũ Tử Lương Tướng Đạo«.\n\n»<b>Ngũ Tử Lương Tướng Đạo</b>«: Khi bắt đầu giai đoạn chuẩn bị của người thế lực Ngụy, họ có thể bỏ 1 lá, thực hiện lần lượt:\n- Nếu họ đã mở 2 tướng, chọn úp 1 tướng;\n- Họ chọn 1 tướng chưa mở của họ, họ không thể mở tướng đã chọn đến khi bắt đầu lượt tiếp theo của họ;\n- Họ lựa chọn 1 trong các kỹ năng sau mà chưa có trên bàn: »Đột Kích«, »Kiêu Quả«, »Xảo Biến«, »Tiết Việt«, »Đoạn Lương«, họ nhận kỹ năng đó đến khi bắt đầu lượt tiếp theo của họ."
+    },
+    {
+     "id": "elitegeneralflag",
+     "name": "Ngũ Tử Lương Tướng Đạo",
+     "desc": "Khi bắt đầu giai đoạn chuẩn bị của người thế lực Ngụy, họ có thể bỏ 1 lá và chọn 1 tướng chưa mở của họ (nếu họ đã mở 2 tướng thì chọn úp 1 tướng);\n▷ Họ lựa chọn 1 trong các kỹ năng sau mà chưa có trên bàn: »Đột Kích«, »Kiêu Quả«, »Xảo Biến«, »Tiết Việt«, »Đoạn Lương«, họ nhận kỹ năng đó và không thể mở tướng đã chọn đến khi bắt đầu lượt tiếp theo của họ."
+    },
+    {
+     "id": "huibian",
+     "name": "Huy Tiên",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chọn 1 người thế lực Ngụy và 1 người thế lực Ngụy khác đang bị thương, thực hiện lần lượt:\n- Bạn gây 1 sát thương cho người đầu tiên và họ rút 2 lá;\n- Lệnh người còn lại hồi 1 máu."
+    },
+    {
+     "id": "zongyu",
+     "name": "Tổng Ngự",
+     "desc": "• Khi [Lục Long Tham Giá] tiến vào vùng trang bị của người khác, nếu có Ngựa trong vùng trang bị của bạn, bạn có thể hoán đổi tất cả Ngựa trong vùng trang bị của bạn với [Lục Long Tham Giá].\n• Khi bạn sử dụng 1 lá Ngựa, nếu trên bàn hoặc chồng bài bỏ có [Lục Long Tham Giá], bạn có thể đem [Lục Long Tham Giá] đặt vào vùng trang bị của bạn."
+    }
+   ],
+   "status": "quân chủ (chưa hỗ trợ)"
+  },
+  {
+   "id": "sujiang",
+   "name": "Tướng nam",
+   "title": "Tướng nam",
+   "pkg": "Binh Sĩ (tướng trống)",
+   "file": "StandardGeneralPackage.lua",
+   "skills": [],
+   "status": "tướng trống"
+  },
+  {
+   "id": "sujiangf",
+   "name": "Tướng nữ",
+   "title": "Tướng nữ",
+   "pkg": "Binh Sĩ (tướng trống)",
+   "file": "StandardGeneralPackage.lua",
+   "skills": [],
+   "status": "tướng trống"
+  },
+  {
+   "id": "huatuo",
+   "name": "Hoa Đà",
+   "title": "Thần Y",
+   "pkg": "Tiêu chuẩn – Quần",
+   "file": "StandardQunGeneral.lua",
+   "skills": [
+    {
+     "id": "chuli",
+     "name": "Trừ Lệ",
+     "desc": "Một lần trong giai đoạn ra bài, nếu bạn có bài, bạn có thể chọn tối đa 3 người có thế lực khác nhau và có bài, thực hiện lần lượt:\n- Bạn bỏ đi 1 lá của bạn và họ;\n- Lệnh người đã mất đi lá BÍCH bởi kỹ năng này rút 1 lá."
+    },
+    {
+     "id": "jijiu",
+     "name": "Cấp Cứu",
+     "desc": "Ngoài lượt của bạn, bạn có thể chuyển hóa sử dụng bài Đỏ thành [Đào]."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "huatuo"
+  },
+  {
+   "id": "lvbu",
+   "name": "Lữ Bố",
+   "title": "Kích Chỉ Trung Nguyên",
+   "pkg": "Tiêu chuẩn – Quần",
+   "file": "StandardQunGeneral.lua",
+   "skills": [
+    {
+     "id": "wushuang",
+     "name": "Vô Song",
+     "desc": "Tỏa định kỹ:\n• Sau khi bạn xác định mục tiêu của [Sát], ứng với mỗi mục tiêu, bạn lệnh họ cần sử dụng 2 [Thiểm] để triệt tiêu [Sát] này.\n• Sau khi bạn xác định mục tiêu của [Quyết Đấu] ứng với mỗi mục tiêu hoặc sau khi bạn trở thành mục tiêu của [Quyết Đấu], bạn lệnh người cùng bạn [Quyết Đấu] cần đánh ra 2 [Sát] mỗi lần để hưởng ứng.\n• Sau khi bạn lựa chọn mục tiêu cho [Quyết Đấu] phi chuyển hóa, bạn có thể lựa chọn thêm tối đa 2 người để trở thành mục tiêu."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "lvbu"
+  },
+  {
+   "id": "diaochan",
+   "name": "Điêu Thuyền",
+   "title": "Tuyệt Thế Đích Vũ Cơ",
+   "pkg": "Tiêu chuẩn – Quần",
+   "file": "StandardQunGeneral.lua",
+   "skills": [
+    {
+     "id": "lijian",
+     "name": "Ly Gián",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể bỏ 1 lá và lựa chọn 2 người khác có giới tính nam, lệnh người chọn sau xem như sử dụng [Quyết Đấu] với người chọn trước."
+    },
+    {
+     "id": "biyue",
+     "name": "Bế Nguyệt",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, bạn có thể rút 1 lá."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "diaochan"
+  },
+  {
+   "id": "yuanshao",
+   "name": "Viên Thiệu",
+   "title": "Cao Quý Đính Danh Môn",
+   "pkg": "Tiêu chuẩn – Quần",
+   "file": "StandardQunGeneral.lua",
+   "skills": [
+    {
+     "id": "luanji",
+     "name": "Loạn Kích",
+     "desc": "Giai đoạn ra bài, bạn có thể chuyển hóa sử dụng 2 lá trên tay thành [Vạn Tiễn Tề Phát];\n▷ Bạn không thể sử dụng [Vạn Tiễn Tề Phát] bằng cách này với lá thành phần cùng chất với những lá bạn đã sử dụng theo cách này trong lượt này;\n▶ Sau khi người cùng thế lực với bạn đánh ra [Thiểm] để hưởng ứng, họ có thể rút 1 lá."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "yuanshao"
+  },
+  {
+   "id": "yanliangwenchou",
+   "name": "Nhan Lương & Văn Xú",
+   "title": "Hổ Lang Huynh Đệ",
+   "pkg": "Tiêu chuẩn – Quần",
+   "file": "StandardQunGeneral.lua",
+   "skills": [
+    {
+     "id": "shuangxiong",
+     "name": "Song Hùng",
+     "desc": "Giai đoạn rút bài, bạn có thể chọn không rút bài, bạn tiến hành phán xét;\n▶ Sau khi phán xét trên có hiệu lực, bạn thu lấy kết quả phán xét;\n▶ Trong lượt này, bạn có thể chuyển hóa sử dụng bài trên tay khác màu với kết quả phán xét trên thành [Quyết Đấu]."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "yanliangwenchou"
+  },
+  {
+   "id": "jiaxu",
+   "name": "Giả Hủ",
+   "title": "Lãnh Khốc Đích Độc Sĩ",
+   "pkg": "Tiêu chuẩn – Quần",
+   "file": "StandardQunGeneral.lua",
+   "skills": [
+    {
+     "id": "wansha",
+     "name": "Hoàn Sát",
+     "desc": "Tỏa định kỹ: Trong lượt của bạn, khi có người vào trạng thái hấp hối, bạn lệnh người khác không trong trạng thái hấp hối không thể sử dụng [Đào]."
+    },
+    {
+     "id": "weimu",
+     "name": "Duy Mạc",
+     "desc": "Tỏa định kỹ:\n• Khi bạn trở thành mục tiêu của công cụ phổ thông Đen, hủy bỏ mục tiêu đối với bạn.\n• Khi có lá Đen tiến vào vùng phán xét của bạn, đưa lá đó vào chồng bài bỏ."
+    },
+    {
+     "id": "luanwu",
+     "name": "Loạn Vũ",
+     "desc": "Hạn định kỹ: Giai đoạn ra bài, bạn có thể phát động kỹ năng này, lệnh tất cả người khác chọn 1 mục:\n1. Họ sử dụng [Sát] với người có khoảng cách nhỏ nhất;\n2. Họ mất 1 máu."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "jiaxu"
+  },
+  {
+   "id": "pangde",
+   "name": "Bàng Đức",
+   "title": "Nhân Mã Nhất Thể",
+   "pkg": "Tiêu chuẩn – Quần",
+   "file": "StandardQunGeneral.lua",
+   "skills": [
+    {
+     "id": "jianchu",
+     "name": "Kiện Xuất",
+     "desc": "Sau khi bạn xác định mục tiêu của [Sát], ứng với mỗi mục tiêu, bạn có thể bỏ 1 lá của họ, nếu lá bị bỏ đi là:\n* Trang bị: Họ không thể sử dụng [Thiểm] để hưởng ứng;\n* Phi trang bị: Họ thu lấy [Sát] mà bạn sử dụng."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "pangde"
+  },
+  {
+   "id": "zhangjiao",
+   "name": "Trương Giác",
+   "title": "Thiên Công Tướng Quân",
+   "pkg": "Tiêu chuẩn – Quần",
+   "file": "StandardQunGeneral.lua",
+   "skills": [
+    {
+     "id": "leiji",
+     "name": "Lôi Kích",
+     "desc": "Khi bạn sử dụng/đánh ra [Thiểm], bạn có thể lệnh 1 người khác tiến hành phán xét, nếu kết quả phán xét có chất BÍCH, bạn gây 2 sát thương Lôi cho họ."
+    },
+    {
+     "id": "guidao",
+     "name": "Quỷ Đạo",
+     "desc": "Khi phán xét của 1 người có hiệu lực, bạn có thể đánh ra 1 lá Đen để hoán đổi kết quả phán xét đó."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zhangjiao"
+  },
+  {
+   "id": "caiwenji",
+   "name": "Thái Văn Cơ",
+   "title": "Dị Hương Đích Cô Nữ",
+   "pkg": "Tiêu chuẩn – Quần",
+   "file": "StandardQunGeneral.lua",
+   "skills": [
+    {
+     "id": "beige",
+     "name": "Bi ca",
+     "desc": "Sau khi 1 người nhận sát thương từ lá [Sát], bạn có thể bỏ 1 lá, lệnh họ tiến hành phán xét, nếu kết quả phán xét có chất:\n* CƠ: Họ hồi 1 máu;\n* RÔ: Họ rút 2 lá;\n* TÉP: Nguồn sát thương bỏ 2 lá;\n* BÍCH: Nguồn sát thương thay đổi trạng thái chồng tướng."
+    },
+    {
+     "id": "duanchang",
+     "name": "Đoạn Trường",
+     "desc": "Tỏa định kỹ: Khi bạn trận vong do người khác gây sát thương, bạn chọn 1 tướng của họ, lệnh họ mất đi kỹ năng của tướng đó."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "caiwenji"
+  },
+  {
+   "id": "mateng",
+   "name": "Mã Đằng",
+   "title": "Trì Sính Tây Thùy",
+   "pkg": "Tiêu chuẩn – Quần",
+   "file": "StandardQunGeneral.lua",
+   "skills": [
+    {
+     "id": "xiongyi",
+     "name": "Hùng Dị",
+     "desc": "Hạn định kỹ: Giai đoạn ra bài, bạn có thể phát động kỹ năng này, thực hiện lần lượt:\n- Lệnh tất cả người cùng thế lực với bạn rút 3 lá;\n- Nếu thế lực của bạn là một trong những thế lực ít người nhất, bạn hồi 1 máu."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "mateng"
+  },
+  {
+   "id": "kongrong",
+   "name": "Khổng Dung",
+   "title": "Lẫm Nhiên Trọng Nghĩa",
+   "pkg": "Tiêu chuẩn – Quần",
+   "file": "StandardQunGeneral.lua",
+   "skills": [
+    {
+     "id": "mingshi",
+     "name": "Danh Sĩ",
+     "desc": "Tỏa định kỹ: Khi bạn tính toán sát thương phải nhận, nếu nguồn sát thương có tướng chưa mở, lệnh sát thương này -1."
+    },
+    {
+     "id": "lirang",
+     "name": "Lễ Nhượng",
+     "desc": "Khi bài của bạn tiến vào chồng bài bỏ do bỏ bài, bạn có thể giao tùy ý cho những người khác."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "kongrong"
+  },
+  {
+   "id": "jiling",
+   "name": "Kỷ Linh",
+   "title": "Trọng Gia Đích Chủ Tướng",
+   "pkg": "Tiêu chuẩn – Quần",
+   "file": "StandardQunGeneral.lua",
+   "skills": [
+    {
+     "id": "shuangren",
+     "name": "Song Nhận",
+     "desc": "Khi bắt đầu giai đoạn ra bài, bạn có thể đấu điểm với 1 người:\n* Nếu bạn thắng: Bạn xem như sử dụng [Sát] với 1 người cùng thế lực với họ;\n* Nếu bạn không thắng: Bạn không thể chỉ định người khác làm mục tiêu sử dụng bài."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "jiling"
+  },
+  {
+   "id": "tianfeng",
+   "name": "Điền Phong",
+   "title": "Hà Bắc Côi Kiệt",
+   "pkg": "Tiêu chuẩn – Quần",
+   "file": "StandardQunGeneral.lua",
+   "skills": [
+    {
+     "id": "sijian",
+     "name": "Tử Gián",
+     "desc": "Sau khi bạn mất đi lá cuối cùng trên tay, bạn có thể bỏ 1 lá của 1 người khác."
+    },
+    {
+     "id": "suishi",
+     "name": "Tùy Thế",
+     "desc": "Tỏa định kỹ:\n• Khi người khác tiến trạng thái hấp hồi, nếu nguồn sát thương có cùng thế lực với bạn, bạn rút 1 lá.\n• Khi người khác có cùng thế lực với bạn trận vong, bạn mất 1 máu."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "tianfeng"
+  },
+  {
+   "id": "panfeng",
+   "name": "Phan Phụng",
+   "title": "Liên Quân Thượng Tướng",
+   "pkg": "Tiêu chuẩn – Quần",
+   "file": "StandardQunGeneral.lua",
+   "skills": [
+    {
+     "id": "kuangfu",
+     "name": "Cuồng Phủ",
+     "desc": "Một lần trong giai đoạn ra bài, sau khi bạn xác định mục tiêu của [Sát], bạn có thể thu lấy 1 trang bị của 1 trong các mục tiêu;\n▶ Sau khi kết toán xong [Sát] này, nếu [Sát] này không gây sát thương, bạn bỏ 2 lá trên tay."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "panfeng"
+  },
+  {
+   "id": "zoushi",
+   "name": "Trâu Thị",
+   "title": "Hoặc Tâm Chi Mị",
+   "pkg": "Tiêu chuẩn – Quần",
+   "file": "StandardQunGeneral.lua",
+   "skills": [
+    {
+     "id": "huoshui",
+     "name": "Họa Thủy",
+     "desc": "Tỏa định kỹ: Trong lượt của bạn:\n• Người khác không thể mở tướng.\n• Khi bạn sử dụng [Sát] hoặc [Vạn Tiễn Tề Phát], mục tiêu của lá này không thể sử dụng hoặc đánh ra [Thiểm] để hưởng ứng."
+    },
+    {
+     "id": "qingcheng",
+     "name": "Khuynh Thành",
+     "desc": "Giai đoạn ra bài, bạn có thể bỏ 1 lá Đen và chọn 1 người khác đã mở tất cả tướng, bạn úp 1 tướng của họ;\n▷ Nếu lá bạn bỏ là trang bị, bạn có thể chọn 1 người khác đã mở tất cả tướng, bạn úp 1 tướng của họ."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zoushi"
+  },
+  {
+   "id": "liubei",
+   "name": "Lưu Bị",
+   "title": "Loạn Thế Đích Kiêu Hùng",
+   "pkg": "Tiêu chuẩn – Thục",
+   "file": "StandardShuGeneral.lua",
+   "skills": [
+    {
+     "id": "rende",
+     "name": "Nhân Đức",
+     "desc": "Giai đoạn ra bài, bạn có thể đem tùy ý lượng bài trên tay giao cho 1 người khác chưa nhận bài từ kỹ năng này trong giai đoạn này;\n▷ Nếu đây là lần đầu tổng số lá bạn giao bằng kỹ năng này trong giai đoạn này ≥ 2, bạn có thể xem như sử dụng 1 lá cơ bản."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "liubei"
+  },
+  {
+   "id": "guanyu",
+   "name": "Quan Vũ",
+   "title": "Mĩ Nhiêm Công",
+   "pkg": "Tiêu chuẩn – Thục",
+   "file": "StandardShuGeneral.lua",
+   "skills": [
+    {
+     "id": "wusheng",
+     "name": "Võ Thánh",
+     "desc": "• Bạn có thể chuyển hóa sử dụng/đánh ra 1 lá Đỏ thành [Sát].\n• Lá [Sát] RÔ do bạn sử dụng không giới hạn khoảng cách."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "guanyu"
+  },
+  {
+   "id": "zhangfei",
+   "name": "Trương Phi",
+   "title": "Vạn Phu Bất Đương",
+   "pkg": "Tiêu chuẩn – Thục",
+   "file": "StandardShuGeneral.lua",
+   "skills": [
+    {
+     "id": "paoxiao",
+     "name": "Bào Hao",
+     "desc": "Tỏa định kỹ:\n• Bạn sử dụng lá [Sát] không giới hạn số lượng.\n• Khi bạn sử dụng [Sát] thứ 2 trong 1 lượt, bạn rút 1 lá."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zhangfei"
+  },
+  {
+   "id": "zhugeliang",
+   "name": "Gia Cát Lượng",
+   "title": "Trì Mộ Đích Thừa Tướng",
+   "pkg": "Tiêu chuẩn – Thục",
+   "file": "StandardShuGeneral.lua",
+   "skills": [
+    {
+     "id": "guanxing",
+     "name": "Quan Tinh",
+     "desc": "Khi bắt đầu giai đoạn chuẩn bị, bạn có thể xem X lá bài trên đầu chồng bài rút (X là số người còn sống, tối đa 5), sau đó sắp xếp tùy ý những lá này lên đầu hoặc đáy chồng bài rút."
+    },
+    {
+     "id": "kongcheng",
+     "name": "Không Thành",
+     "desc": "Tỏa định kỹ:\n• Khi bạn trở thành mục tiêu của [Sát]/[Quyết Đấu], nếu bạn không có bài trên tay, hủy bỏ mục tiêu đối với bạn.\n• Ngoài lượt của bạn, khi bạn nhận được bài do người khác giao cho, nếu bạn không có bài trên tay, đặt những lá bài này lên trên Tướng này, gọi là [Cầm];\n• Khi bắt đầu giai đoạn rút bài, bạn thu lấy tất cả lá [Cầm]."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zhugeliang"
+  },
+  {
+   "id": "zhaoyun",
+   "name": "Triệu Vân",
+   "title": "Hổ Uy Tướng Quân",
+   "pkg": "Tiêu chuẩn – Thục",
+   "file": "StandardShuGeneral.lua",
+   "skills": [
+    {
+     "id": "longdan",
+     "name": "Long Đảm",
+     "desc": "• Bạn có thể chuyển hóa sử dụng/đánh ra [Thiểm] thành [Sát];\n▶ Sau khi [Sát] này bị triệt tiêu bởi [Thiểm] của mục tiêu, bạn có thể gây 1 sát thương cho 1 người ngoại trừ mục tiêu.\n• Bạn có thể chuyển hóa sử dụng/đánh ra [Sát] thành [Thiểm];\n▶ Sau khi [Thiểm] này triệt tiêu [Sát] của 1 người, bạn có thể hồi 1 máu cho 1 người khác ngoại trừ người sử dụng [Sát]."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zhaoyun"
+  },
+  {
+   "id": "machao",
+   "name": "Mã Siêu",
+   "title": "Nhất Kỵ Đươmg Thiên",
+   "pkg": "Tiêu chuẩn – Thục",
+   "file": "StandardShuGeneral.lua",
+   "skills": [
+    {
+     "id": "mashu",
+     "name": "Mã Thuật",
+     "desc": "Tỏa định kỹ: Khoảng cách từ bạn đến người khác -1."
+    },
+    {
+     "id": "tieqi",
+     "name": "Thiết Kỵ",
+     "desc": "Sau khi bạn xác định mục tiêu của [Sát], ứng với mỗi mục tiêu, bạn có thể tiến hành phán xét, thực hiện lần lượt:\n- Vô hiệu hóa kỹ năng không phải Tỏa định kỹ của 1 tướng đã mở của mục tiêu trong lượt này;\n- Mục tiêu chọn bỏ 1 lá cùng chất với kết quả phán xét hoặc không thể sử dụng [Thiểm] để hưởng ứng [Sát] này."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "machao"
+  },
+  {
+   "id": "huangyueying",
+   "name": "Hoàng Nguyệt Anh",
+   "title": "Quy Ẩn Kiệt Nữ",
+   "pkg": "Tiêu chuẩn – Thục",
+   "file": "StandardShuGeneral.lua",
+   "skills": [
+    {
+     "id": "jizhi",
+     "name": "Tập Trí",
+     "desc": "Khi bạn sử dụng công cụ phổ thông không phải chuyển hóa, bạn có thể rút 1 lá."
+    },
+    {
+     "id": "qicai",
+     "name": "Kỳ Tài",
+     "desc": "Tỏa định kỹ: Công cụ bạn sử dụng không giới hạn khoảng cách."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "huangyueying"
+  },
+  {
+   "id": "huangzhong",
+   "name": "Hoàng Trung",
+   "title": "Lão Đương Ích Tráng",
+   "pkg": "Tiêu chuẩn – Thục",
+   "file": "StandardShuGeneral.lua",
+   "skills": [
+    {
+     "id": "liegong",
+     "name": "Liệt Cung",
+     "desc": "• Lá [Sát] bạn sử dụng không giới hạn khoảng cách với mục tiêu có số bài trên tay ≤ bạn.\n• Sau khi bạn xác định từng mục tiêu của [Sát], nếu số máu của họ ≥ bạn, bạn có thể chọn 1 mục:\n1. Lệnh mục tiêu không thể sử dụng [Thiểm] để hưởng ứng [Sát] này;\n2. Lệnh cho sát thương từ hiệu quả của lá [Sát] này +1 đối với mục tiêu này."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "huangzhong"
+  },
+  {
+   "id": "weiyan",
+   "name": "Ngụy Diên",
+   "title": "Thị Huyết Độc Lang",
+   "pkg": "Tiêu chuẩn – Thục",
+   "file": "StandardShuGeneral.lua",
+   "skills": [
+    {
+     "id": "kuanggu",
+     "name": "Cuồng Cốt",
+     "desc": "Sau khi bạn gây sát thương cho 1 người, nếu khoảng cách từ bạn tới họ ≤1 trước khi máu giảm, ứng với mỗi sát thương, bạn có thể chọn 1 mục:\n1. Hồi 1 máu;\n2. Rút 1 lá."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "weiyan"
+  },
+  {
+   "id": "pangtong",
+   "name": "Bàng Thống",
+   "title": "Phượng Sồ",
+   "pkg": "Tiêu chuẩn – Thục",
+   "file": "StandardShuGeneral.lua",
+   "skills": [
+    {
+     "id": "lianhuan",
+     "name": "Liên Hoàn",
+     "desc": "Giai đoạn ra bài, bạn có thể chuyển hóa sử dụng lá TÉP trên tay thành [Thiết Tác Liên Hoàn] hoặc Trùng Chú lá TÉP trên tay."
+    },
+    {
+     "id": "niepan",
+     "name": "Niết Bàn",
+     "desc": "Hạn định kỹ: Khi bạn trong trạng thái hấp hối, bạn có thể phát động kỹ năng này, thực hiện lần lượt:\n- Bạn bỏ toàn bộ bài trong vùng chơi;\n- Bạn hồi máu đến 3 và rút 3 lá;\n- Bạn loại bỏ trạng thái xích và chồng tướng."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "pang_tong"
+  },
+  {
+   "id": "wolong",
+   "name": "Khổng Minh",
+   "title": "Ngoạ Long",
+   "pkg": "Tiêu chuẩn – Thục",
+   "file": "StandardShuGeneral.lua",
+   "skills": [
+    {
+     "id": "bazhen",
+     "name": "Bát Trận",
+     "desc": "Tỏa định kỹ: Nếu vùng trang bị của bạn không có phòng cụ, bạn xem như có [Bát Quái Trận]."
+    },
+    {
+     "id": "huoji",
+     "name": "Hỏa Kế",
+     "desc": "Bạn có thể chuyển hóa sử dụng lá Đỏ trên tay thành [Hỏa Công]."
+    },
+    {
+     "id": "kanpo",
+     "name": "Khán Phá",
+     "desc": "Bạn có thể chuyển hóa sử dụng lá Đen trên tay thành [Vô Giải Khả Kích]."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "wolong"
+  },
+  {
+   "id": "liushan",
+   "name": "Lưu Thiện",
+   "title": "Vô Vi Chân Mệnh Chủ",
+   "pkg": "Tiêu chuẩn – Thục",
+   "file": "StandardShuGeneral.lua",
+   "skills": [
+    {
+     "id": "xiangle",
+     "name": "Hưởng Lạc",
+     "desc": "Tỏa định kỹ: Sau khi bạn trở thành mục tiêu của [Sát], người sử dụng [Sát] chọn 1 mục:\n1. Họ bỏ 1 lá cơ bản;\n2. Lệnh [Sát] đó không có hiệu quả với bạn."
+    },
+    {
+     "id": "fangquan",
+     "name": "Ủy Quyền",
+     "desc": "Khi tiến vào giai đoạn ra bài, bạn có thể bỏ qua giai đoạn này;\n▶ Khi kết thúc lượt này, bạn có thể bỏ 1 lá bài trên tay, lệnh 1 người có 1 lượt sau lượt này."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "liushan"
+  },
+  {
+   "id": "menghuo",
+   "name": "Mạnh Hoạch",
+   "title": "Nam Man Vương",
+   "pkg": "Tiêu chuẩn – Thục",
+   "file": "StandardShuGeneral.lua",
+   "skills": [
+    {
+     "id": "huoshou",
+     "name": "Họa Thủ",
+     "desc": "Tỏa định kỹ:\n• [Nam Man Nhập Xâm] không có hiệu quả với bạn.\n• Sau khi 1 người khác xác định mục tiêu của [Nam Man Nhập Xâm], bạn trở thành nguồn sát thương của [Nam Man Nhập Xâm] này."
+    },
+    {
+     "id": "zaiqi",
+     "name": "Tái Khởi",
+     "desc": "Khi kết thúc giai đoạn bỏ bài, bạn có thể chọn tối đa X người cùng thế lực (X là số lá Đỏ đã đi vào chồng bài bỏ trong lượt này), họ lựa chọn 1 mục:\n1. Họ rút 1 lá;\n2. Lệnh bạn hồi 1 máu."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "menghuo"
+  },
+  {
+   "id": "zhurong",
+   "name": "Chúc Dung",
+   "title": "Dã Tính Nữ Vương",
+   "pkg": "Tiêu chuẩn – Thục",
+   "file": "StandardShuGeneral.lua",
+   "skills": [
+    {
+     "id": "juxiang",
+     "name": "Cự Tượng",
+     "desc": "Tỏa định kỹ:\n• [Nam Man Nhập Xâm] không có hiệu quả với bạn.\n• Sau khi [Nam Man Nhập Xâm] do người khác sử dụng kết toán xong, bạn thu lấy lá này."
+    },
+    {
+     "id": "lieren",
+     "name": "Liệt Nhận",
+     "desc": "Sau khi bạn gây sát thương cho mục tiêu của [Sát], bạn có thể tiến hành đấu điểm với họ, nếu bạn thắng, bạn thu lấy 1 lá của mục tiêu."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zhurong"
+  },
+  {
+   "id": "ganfuren",
+   "name": "Cam Phu Nhân",
+   "title": "Chiêu Liệt Hoàng Hậu",
+   "pkg": "Tiêu chuẩn – Thục",
+   "file": "StandardShuGeneral.lua",
+   "skills": [
+    {
+     "id": "shushen",
+     "name": "Thục Thận",
+     "desc": "Sau khi bạn hồi máu, ứng với mỗi máu bạn đã hồi, bạn có thể lệnh 1 người khác rút 1 lá."
+    },
+    {
+     "id": "shenzhi",
+     "name": "Thần Trí",
+     "desc": "Khi bắt đầu giai đoạn chuẩn bị, bạn có thể bỏ tất cả bài trên tay, nếu số lá đã bỏ ≥ số máu hiện tại của bạn, bạn hồi 1 máu."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "ganfuren"
+  },
+  {
+   "id": "caocao",
+   "name": "Tào Tháo",
+   "title": "Ngụy Vũ Đế",
+   "pkg": "Tiêu chuẩn – Ngụy",
+   "file": "StandardWeiGeneral.lua",
+   "skills": [
+    {
+     "id": "jianxiong",
+     "name": "Gian Hùng",
+     "desc": "Sau khi bạn nhận sát thương, bạn có thể thu lấy lá gây sát thương cho bạn."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "caocao"
+  },
+  {
+   "id": "simayi",
+   "name": "Tư Mã Ý",
+   "title": "Lang Cố Chi Quỷ",
+   "pkg": "Tiêu chuẩn – Ngụy",
+   "file": "StandardWeiGeneral.lua",
+   "skills": [
+    {
+     "id": "fankui",
+     "name": "Phản Quỹ",
+     "desc": "Sau khi bạn nhận sát thương, bạn có thể thu lấy 1 lá của nguồn sát thương."
+    },
+    {
+     "id": "guicai",
+     "name": "Quỷ Tài",
+     "desc": "Khi phán xét của 1 người có hiệu lực, bạn có thể đánh ra 1 lá để thay thế kết quả phán xét đó."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "simayi"
+  },
+  {
+   "id": "xiahoudun",
+   "name": "Hạ Hầu Đôn",
+   "title": "Hộ Quốc Tông Chủ",
+   "pkg": "Tiêu chuẩn – Ngụy",
+   "file": "StandardWeiGeneral.lua",
+   "skills": [
+    {
+     "id": "ganglie",
+     "name": "Cương Liệt",
+     "desc": "Sau khi bạn nhận sát thương, bạn có thể tiến hành phán xét, nếu màu của kết quả phán xét có màu:\n* Đỏ: Bạn gây 1 sát thương cho nguồn sát thương;\n* Đen: bạn bỏ 1 lá của nguồn sát thương"
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "xiahoudun"
+  },
+  {
+   "id": "zhangliao",
+   "name": "Trương Liêu",
+   "title": "Tiền Tướng Quân",
+   "pkg": "Tiêu chuẩn – Ngụy",
+   "file": "StandardWeiGeneral.lua",
+   "skills": [
+    {
+     "id": "tuxi",
+     "name": "Tập Kích",
+     "desc": "Giai đoạn rút bài, bạn có thể chọn rút bớt X lá và chọn X người khác có bài trên tay, thu lấy 1 lá trên tay của mỗi người."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zhangliao"
+  },
+  {
+   "id": "xuchu",
+   "name": "Hứa Chử",
+   "title": "Hổ Si",
+   "pkg": "Tiêu chuẩn – Ngụy",
+   "file": "StandardWeiGeneral.lua",
+   "skills": [
+    {
+     "id": "luoyi",
+     "name": "Lỏa Y",
+     "desc": "Khi kết thúc giai đoạn rút bài, bạn có thể bỏ 1 lá;\n▶ Trong lượt này, khi bạn gây sát thương cho mục tiêu của [Sát] hoặc [Quyết Đấu], sát thương này +1."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "xuchu"
+  },
+  {
+   "id": "guojia",
+   "name": "Quách Gia",
+   "title": "Tảo Chung Tiên Tri",
+   "pkg": "Tiêu chuẩn – Ngụy",
+   "file": "StandardWeiGeneral.lua",
+   "skills": [
+    {
+     "id": "tiandu",
+     "name": "Thiên Khiển",
+     "desc": "Sau khi phán xét của bạn có hiệu lực, bạn có thể thu lấy kết quả phán xét."
+    },
+    {
+     "id": "yiji",
+     "name": "Di Kế",
+     "desc": "Sau khi bạn nhận sát thương, bạn có thể xem 2 lá bài trên đầu chồng bài rút và giao cho tùy ý người."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "guojia"
+  },
+  {
+   "id": "zhenji",
+   "name": "Chân Cơ",
+   "title": "Bạc Hạnh Đích Mỹ Nhân",
+   "pkg": "Tiêu chuẩn – Ngụy",
+   "file": "StandardWeiGeneral.lua",
+   "skills": [
+    {
+     "id": "luoshen",
+     "name": "Lạc Thần",
+     "desc": "Khi bắt đầu giai đoạn chuẩn bị, bạn có thể phát động kỹ năng này, thực hiện lần lượt:\n- Bạn tiến hành phán Xét, nếu kết quả phán xét có màu Đen, bạn có thể lặp lại quá trình này;\n- Bạn thu lấy tất cả kết quả phán xét có màu Đen."
+    },
+    {
+     "id": "qingguo",
+     "name": "Khuynh Quốc",
+     "desc": "Bạn có thể chuyển hóa sử dụng/đánh ra lá Đen trên tay thành [Thiểm]."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zhenji"
+  },
+  {
+   "id": "xiahouyuan",
+   "name": "Hạ Hầu Uyên",
+   "title": "Tật Hành Đích Liệp Báo",
+   "pkg": "Tiêu chuẩn – Ngụy",
+   "file": "StandardWeiGeneral.lua",
+   "skills": [
+    {
+     "id": "shensu",
+     "name": "Thần Tốc",
+     "desc": "Nếu bạn thỏa mãn điều kiện sử dụng [Sát] (bỏ qua giới hạn khoảng cách), khi bạn tiến vào giai đoạn:\n* Phán xét: Bạn có thể bỏ qua giai đoạn này và giai đoạn rút bài;\n* Ra bài: Bạn có thể bỏ qua giai đoạn này và bỏ 1 lá trang bị;\n* Bỏ bài: Bạn có thể bỏ qua giai đoạn này và mất 1 máu;\n▷ Bạn xem như sử dụng [Sát] không giới hạn khoảng cách."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "xiahouyuan"
+  },
+  {
+   "id": "zhanghe",
+   "name": "Trương Cáp",
+   "title": "Liệu Địch Cơ Tiên",
+   "pkg": "Tiêu chuẩn – Ngụy",
+   "file": "StandardWeiGeneral.lua",
+   "skills": [
+    {
+     "id": "qiaobian",
+     "name": "Xảo Biến",
+     "desc": "Khi tiến vào 1 giai đoạn trong lượt của bạn (Ngoại trừ giai đoạn chuẩn bị và kết thúc), bạn có thể bỏ 1 lá bài trên tay để bỏ qua giai đoạn này; sau đó nếu giai đoạn đã bỏ qua là:\n* Rút bài: Bạn có thể chọn tối đa 2 người có bài trên tay, bạn thu lấy 1 lá trên tay mỗi người;\n* Ra bài: Bạn có thể di chuyển 1 lá trên bàn chơi."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zhanghe"
+  },
+  {
+   "id": "xuhuang",
+   "name": "Từ Hoảng",
+   "title": "Châu Á Phu Chi Phong",
+   "pkg": "Tiêu chuẩn – Ngụy",
+   "file": "StandardWeiGeneral.lua",
+   "skills": [
+    {
+     "id": "duanliang",
+     "name": "Đoạn Lương",
+     "desc": "Bạn có thể chuyển hóa sử dụng lá Đen không phải Công cụ thành [Binh Lương Thốn Đoạn] không giới hạn khoảng cách;\n▷ Nếu khoảng cách giữa bạn và mục tiêu > 2, bạn không thể phát động kỹ năng này trong giai đoạn này."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "xu_huang"
+  },
+  {
+   "id": "caoren",
+   "name": "Tào Nhân",
+   "title": "Đại Tướng Quân",
+   "pkg": "Tiêu chuẩn – Ngụy",
+   "file": "StandardWeiGeneral.lua",
+   "skills": [
+    {
+     "id": "jushou",
+     "name": "Chiếm Thủ",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, bạn có thể rút X lá (X là số thế lực còn sống), thực hiện lần lượt:\n- Bạn sử dụng 1 trang bị trên tay hoặc bỏ 1 lá phi trang bị;\n- Nếu bạn rút > 2 lá, bạn thay đổi trạng thái chồng tướng."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "caoren"
+  },
+  {
+   "id": "dianwei",
+   "name": "Điển Vi",
+   "title": "Cổ Chi Ác Lai",
+   "pkg": "Tiêu chuẩn – Ngụy",
+   "file": "StandardWeiGeneral.lua",
+   "skills": [
+    {
+     "id": "qiangxi",
+     "name": "Cường Kích",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chọn 1 người khác, bạn chọn bỏ 1 Vũ khí hoặc mất 1 máu, bạn gây 1 sát thương cho họ."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "dianwei"
+  },
+  {
+   "id": "xunyu",
+   "name": "Tuân Úc",
+   "title": "Vương Tá Chi Tài",
+   "pkg": "Tiêu chuẩn – Ngụy",
+   "file": "StandardWeiGeneral.lua",
+   "skills": [
+    {
+     "id": "quhu",
+     "name": "Vờn Hổ",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể tiến hành đấu điểm với 1 người có số máu > bạn:\n* Nếu bạn thắng: Họ gây 1 sát thương cho 1 người trong tầm đánh của họ do bạn chỉ định;\n* Nếu bạn không thắng: Họ gây 1 sát thương cho bạn."
+    },
+    {
+     "id": "jieming",
+     "name": "Tiết Mệnh",
+     "desc": "Sau khi bạn nhận sát thương, bạn có thể chọn 1 người, lệnh họ bổ sung bài trên tay đến giới hạn máu (Tối đa 5)."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "xunyu"
+  },
+  {
+   "id": "caopi",
+   "name": "Tào Phi",
+   "title": "Kế Thừa Bá Nghiệp",
+   "pkg": "Tiêu chuẩn – Ngụy",
+   "file": "StandardWeiGeneral.lua",
+   "skills": [
+    {
+     "id": "xingshang",
+     "name": "Hành Thương",
+     "desc": "Khi 1 người khác trận vong, bạn có thể thu lấy tất cả bài của họ."
+    },
+    {
+     "id": "fangzhu",
+     "name": "Lưu Đày",
+     "desc": "Sau khi bạn nhận sát thương, bạn có thể lệnh 1 người khác lựa chọn 1 mục:\n1. Họ rút X lá, sau đó thay đổi trạng thái chồng tướng;\n2. Họ bỏ X lá, sau đó mất 1 máu;\n(X là số máu đã mất của bạn)."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "caopi"
+  },
+  {
+   "id": "yuejin",
+   "name": "Nhạc Tiến",
+   "title": "Kiên Cường Đột Phá",
+   "pkg": "Tiêu chuẩn – Ngụy",
+   "file": "StandardWeiGeneral.lua",
+   "skills": [
+    {
+     "id": "xiaoguo",
+     "name": "Dũng Mãnh",
+     "desc": "Khi bắt đầu giai đoạn kết thúc của 1 người khác, bạn có thể bỏ 1 lá cơ bản, lệnh họ chọn 1 mục:\n1. Họ bỏ 1 trang bị và lệnh bạn rút 1 lá;\n2. Bạn gây 1 sát thương cho họ."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "yuejin"
+  },
+  {
+   "id": "sunquan",
+   "name": "Tôn Quyền",
+   "title": "Niên Khinh Hiền Quân",
+   "pkg": "Tiêu chuẩn – Ngô",
+   "file": "StandardWuGeneral.lua",
+   "skills": [
+    {
+     "id": "zhiheng",
+     "name": "Chế Hành",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể bỏ tối đa X lá (X là giới hạn máu của bạn), bạn rút số lá tương ứng."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "sunquan"
+  },
+  {
+   "id": "ganning",
+   "name": "Cam Ninh",
+   "title": "Cẩm Phàm Du Hiệp",
+   "pkg": "Tiêu chuẩn – Ngô",
+   "file": "StandardWuGeneral.lua",
+   "skills": [
+    {
+     "id": "qixi",
+     "name": "Kỳ Tập",
+     "desc": "Giai đoạn ra bài, bạn có thể chuyển hóa sử dụng lá Đen thành [Quá Hạ Sách Kiều]."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "ganning"
+  },
+  {
+   "id": "lvmeng",
+   "name": "Lữ Mông",
+   "title": "Bạch Y Độ Giang",
+   "pkg": "Tiêu chuẩn – Ngô",
+   "file": "StandardWuGeneral.lua",
+   "skills": [
+    {
+     "id": "keji",
+     "name": "Khắc Kỷ",
+     "desc": "Tỏa định kỹ: Khi bắt đầu giai đoạn bỏ bài, nếu bạn trong giai đoạn ra bài không sử dụng các lá bài khác màu với nhau, giới hạn trữ bài của bạn trong lượt này +4."
+    },
+    {
+     "id": "mouduan",
+     "name": "Mưu Đoạn",
+     "desc": "Khi bắt đầu giai đoạn kết thúc, nếu trong giai đoạn ra bài của lượt này bạn đã sử dụng bài từ 4 chất khác nhau hoặc 3 loại bài khác nhau, bạn có thể di chuyển 1 lá trên bàn chơi."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "lvmeng"
+  },
+  {
+   "id": "huanggai",
+   "name": "Hoàng Cái",
+   "title": "Khinh Thân Vi Quốc",
+   "pkg": "Tiêu chuẩn – Ngô",
+   "file": "StandardWuGeneral.lua",
+   "skills": [
+    {
+     "id": "kurou",
+     "name": "Khổ Nhục",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể bỏ 1 lá, thực hiện lần lượt:\n- Bạn mất 1 máu;\n- Bạn rút 3 lá;\n- Giới hạn sử dụng [Sát] của bạn trong giai đoạn này +1."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "huanggai"
+  },
+  {
+   "id": "zhouyu",
+   "name": "Chu Du",
+   "title": "Đại Đô Đốc",
+   "pkg": "Tiêu chuẩn – Ngô",
+   "file": "StandardWuGeneral.lua",
+   "skills": [
+    {
+     "id": "yingzi",
+     "name": "Anh Tư",
+     "desc": "Tỏa định kỹ:\n• Giai đoạn rút bài, bạn rút thêm 1 lá.\n• Giới hạn trữ bài của bạn bằng với giới hạn máu."
+    },
+    {
+     "id": "fanjian",
+     "name": "Phản Gián",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể mở ra 1 lá bài trên tay và giao cho 1 người khác, bạn lệnh cho họ lựa chọn 1 mục:\n1. Nếu họ có bài trên tay hoặc có lá cùng chất với lá bạn đã mở trong vùng trang bị, họ mở ra tất cả bài trên tay và bỏ đi tất cả lá của họ có cùng chất với lá bạn đã mở ra;\n2. Họ mất 1 máu."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zhouyu"
+  },
+  {
+   "id": "daqiao",
+   "name": "Đại Kiều",
+   "title": "Căng Trì Chi Hoa",
+   "pkg": "Tiêu chuẩn – Ngô",
+   "file": "StandardWuGeneral.lua",
+   "skills": [
+    {
+     "id": "guose",
+     "name": "Quốc Sắc",
+     "desc": "Giai đoạn ra bài, bạn có thể chuyển hóa sử dụng lá RÔ thành [Lạc Bất Tư Thục]"
+    },
+    {
+     "id": "liuli",
+     "name": "Lưu Ly",
+     "desc": "Khi bạn trở thành mục tiêu của [Sát], bạn có thể bỏ đi 1 lá, thay đổi mục tiêu của [Sát] này thành người khác trong tầm đánh của bạn (Không thể là người sử dụng [Sát] và người đã là mục tiêu của [Sát] này)."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "daqiao"
+  },
+  {
+   "id": "luxun",
+   "name": "Lục Tốn",
+   "title": "Kình Thiên Chi Trụ",
+   "pkg": "Tiêu chuẩn – Ngô",
+   "file": "StandardWuGeneral.lua",
+   "skills": [
+    {
+     "id": "qianxun",
+     "name": "Khiêm Tốn",
+     "desc": "Tỏa định kỹ:\n• Khi bạn trở thành mục tiêu của [Thuận Thủ Khiên Dương], hủy bỏ mục tiêu đối với bạn.\n• Khi [Lạc Bất Tư Thục] tiến vào vùng phán xét của bạn, đưa lá đó vào chồng bài bỏ."
+    },
+    {
+     "id": "duoshi",
+     "name": "Độ Thế",
+     "desc": "Bốn lần trong giai đoạn ra bài, bạn có thể chuyển hóa sử dụng bài Đỏ trên tay thành [Dĩ Dật Đãi Lao]."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "luxun"
+  },
+  {
+   "id": "sunshangxiang",
+   "name": "Tôn Thượng Hương",
+   "title": "Cung Yêu Cơ",
+   "pkg": "Tiêu chuẩn – Ngô",
+   "file": "StandardWuGeneral.lua",
+   "skills": [
+    {
+     "id": "jieyin",
+     "name": "Kết Nhân",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể bỏ 2 lá trên tay và chọn 1 người có giới tính nam đang bị thương, bạn và họ hồi 1 máu."
+    },
+    {
+     "id": "xiaoji",
+     "name": "Kiêu Cơ",
+     "desc": "Sau khi bạn mất bài trong vùng trang bị, bạn có thể:\n* Nếu đang là lượt của bạn, bạn rút 1 lá;\n* Nếu không phải lượt của bạn, bạn rút 3 lá."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "sunshangxiang"
+  },
+  {
+   "id": "sunjian",
+   "name": "Tôn Kiên",
+   "title": "Vũ Liệt Đế",
+   "pkg": "Tiêu chuẩn – Ngô",
+   "file": "StandardWuGeneral.lua",
+   "skills": [
+    {
+     "id": "yinghun",
+     "name": "Anh Hồn",
+     "desc": "Khi bắt đầu giai đoạn chuẩn bị, bạn có thể chọn 1 người khác và chọn 1 mục:\n1. Lệnh họ rút X lá sau đó bỏ 1 lá;\n2. Lệnh họ rút 1 lá sau đó bỏ X lá (X là số máu bạn đã mất)."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "sunjian"
+  },
+  {
+   "id": "xiaoqiao",
+   "name": "Tiểu Kiều",
+   "title": "Kiều Tình Chi Hoa",
+   "pkg": "Tiêu chuẩn – Ngô",
+   "file": "StandardWuGeneral.lua",
+   "skills": [
+    {
+     "id": "hongyan",
+     "name": "Hồng Nhan",
+     "desc": "Toả định kỹ:\n• Lá BÍCH của bạn và kết quả phán xét BÍCH của bạn xem như CƠ;\n• Nếu bạn có lá CƠ trong vùng trang bị, giới hạn trữ bài của bạn +1"
+    },
+    {
+     "id": "tianxiang",
+     "name": "Thiên Hương",
+     "desc": "Hai lần trong lượt của mỗi người, khi bạn nhận sát thương, bạn có thể bỏ 1 lá CƠ trên tay và lựa chọn 1 người khác, bạn chặn sát thương này, sau đó bạn chọn 1 mục mà chưa chọn trong lượt này:\n1. Nếu sát thương này có nguồn, bạn lệnh nguồn sát thương gây 1 sát thương cho họ, sau đó họ rút X lá (X là số máu họ đã mất, tối đa 5);\n2. Lệnh họ mất 1 máu, sau đó họ thu lấy lá bạn vừa bỏ."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "xiaoqiao"
+  },
+  {
+   "id": "taishici",
+   "name": "Thái Sử Từ",
+   "title": "Đốc Liệt Chi Sĩ",
+   "pkg": "Tiêu chuẩn – Ngô",
+   "file": "StandardWuGeneral.lua",
+   "skills": [
+    {
+     "id": "tianyi",
+     "name": "Thiên Nghĩa",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể đấu điểm với 1 người:\n* Nếu bạn thắng: Trong lượt này, bạn sử dụng [Sát] không giới hạn khoảng cách; giới hạn sử dụng [Sát] và số mục tiêu của [Sát] +1;\n* Nếu bạn không thắng: Bạn không thể sử dụng [Sát] trong lượt này."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "taishi_ci"
+  },
+  {
+   "id": "zhoutai",
+   "name": "Chu Thái",
+   "title": "Lịch Chiến Chi Khu",
+   "pkg": "Tiêu chuẩn – Ngô",
+   "file": "StandardWuGeneral.lua",
+   "skills": [
+    {
+     "id": "buqu",
+     "name": "Bất Khuất",
+     "desc": "Tỏa định kỹ: Khi bạn trong trạng thái hấp hối, bạn mở 1 lá trên đầu chồng bài rút và đặt lên tướng này, gọi là [Sang], nếu [Sang] mới đặt so với những [Sang] khác:\n* Khác điểm: Bạn hồi máu đến 1;\n* Cùng điểm: Bạn đưa [Sang] này vào chồng bài bỏ."
+    },
+    {
+     "id": "fenji",
+     "name": "Phấn Kích",
+     "desc": "Khi bắt đầu giai đoạn kết thúc của 1 người, nếu họ không có bài trên tay, bạn có thể lệnh cho họ rút 2 lá, sau đó bạn mất 1 máu."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "zhoutai"
+  },
+  {
+   "id": "lusu",
+   "name": "Lỗ Túc",
+   "title": "Độc Đoạn Đích Ngoại Giao Gia",
+   "pkg": "Tiêu chuẩn – Ngô",
+   "file": "StandardWuGeneral.lua",
+   "skills": [
+    {
+     "id": "haoshi",
+     "name": "Hảo Thi",
+     "desc": "Giai đoạn rút bài, bạn có thể rút thêm 2 lá;\n▶ Sau khi bạn rút bài, nếu số bài trên tay bạn > 5, bạn giao một nửa bài trên tay (làm tròn xuống) cho 1 người khác có số bài trên tay ít nhất."
+    },
+    {
+     "id": "dimeng",
+     "name": "Kết Minh",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chọn 2 người khác và bỏ đi X lá (X là số bài chênh lệch trên tay giữa 2 người), lệnh họ hoán đổi bài trên tay."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "lusu"
+  },
+  {
+   "id": "erzhang",
+   "name": "Trương Chiêu & Trương Hoành",
+   "title": "Kinh Thiên Vĩ Địa",
+   "pkg": "Tiêu chuẩn – Ngô",
+   "file": "StandardWuGeneral.lua",
+   "skills": [
+    {
+     "id": "zhijian",
+     "name": "Trực Gián",
+     "desc": "Giai đoạn ra bài, bạn có thể đặt 1 trang bị trên tay vào vùng trang bị trống tương ứng của người khác, sau đó bạn rút 1 lá."
+    },
+    {
+     "id": "guzheng",
+     "name": "Cổ Chính",
+     "desc": "Khi kết thúc giai đoạn bỏ bài của người khác, bạn có thể giao cho họ 1 lá trong những lá đã bỏ đi trong giai đoạn này;\n▷ Bạn có thể thu lấy những lá còn lại."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "erzhang"
+  },
+  {
+   "id": "dingfeng",
+   "name": "Đinh Phụng",
+   "title": "Thanh Trắc Trọng Thần",
+   "pkg": "Tiêu chuẩn – Ngô",
+   "file": "StandardWuGeneral.lua",
+   "skills": [
+    {
+     "id": "duanbing",
+     "name": "Đoản Binh",
+     "desc": "Sau khi bạn chỉ định mục tiêu cho [Sát], bạn có thể chỉ định thêm 1 mục tiêu ở khoảng cách 1."
+    },
+    {
+     "id": "fenxun",
+     "name": "Phấn Tấn",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể bỏ 1 lá và lựa chọn 1 người khác, khoảng cách từ bạn đến họ là 1 trong lượt này."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "dingfeng"
+  },
+  {
+   "id": "xunyou",
+   "name": "Tuân Du",
+   "title": "Tào Ngụy Văn Mưu Chủ",
+   "pkg": "Biến",
+   "file": "TransformationPackage.lua",
+   "skills": [
+    {
+     "id": "qice",
+     "name": "Kỳ sách",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể chuyển hóa sử dụng tất cả bài trên tay thành 1 lá công cụ phổ thông (Số mục tiêu không vượt quá số lá đem sử dụng);\n▷ Bạn có thể đổi Phó tướng."
+    },
+    {
+     "id": "zhiyu",
+     "name": "Trí Ngu",
+     "desc": "Sau khi bạn nhận sát thương, bạn có thể rút 1 lá và mở tất cả bài trên tay, nếu tất cà đều cùng màu, nguồn sát thương bỏ 1 lá trên tay."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "xunyou"
+  },
+  {
+   "id": "bianhuanghou",
+   "name": "Biện Phu Nhân",
+   "title": "Đính Thế Chi Ung Dung",
+   "pkg": "Biến",
+   "file": "TransformationPackage.lua",
+   "skills": [
+    {
+     "id": "wanwei",
+     "name": "Văn Ngụy",
+     "desc": "Khi bài của bạn bị người khác chỉ định để thu lấy hoặc bỏ, bạn có thể đổi thành tự chọn lá của bạn."
+    },
+    {
+     "id": "yuejian",
+     "name": "Ước Kiệm",
+     "desc": "Tỏa định kỹ: Khi bắt đầu giai đoạn bỏ bài của người cùng thế lực, nếu lượt này họ không sử dụng bài chọn người thế lực khác làm mục tiêu, bạn lệnh giới hạn trữ bài của họ bằng với giới hạn máu."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "bianhuanghou"
+  },
+  {
+   "id": "lijueguosi",
+   "name": "Lý Giác & Quách Tỷ",
+   "title": "Phạm Tộ Khuynh Họa",
+   "pkg": "Biến",
+   "file": "TransformationPackage.lua",
+   "skills": [
+    {
+     "id": "xiongsuan",
+     "name": "Hung Toán",
+     "desc": "Hạn định kỹ: Giai đoạn ra bài, bạn có thể bỏ 1 lá bài trên tay và chọn 1 người cùng thế lực, thực hiện lần lượt:\n- Bạn gây 1 sát thương cho họ;\n- Bạn rút 3 lá;\n- Bạn chọn 1 Hạn định kỹ đã phát động của họ;\n▶ Khi kết thúc lượt này, thêm 1 giới hạn phát động Hạn định kỹ đó."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "lijueguosi"
+  },
+  {
+   "id": "new_zuoci",
+   "name": "Tả Từ",
+   "title": "Quỷ Ảnh Thần Đạo",
+   "pkg": "Biến",
+   "file": "TransformationPackage.lua",
+   "skills": [
+    {
+     "id": "yigui",
+     "name": "Dịch Quỷ",
+     "desc": "• Sau khi bạn mở tướng này lần đầu tiên, bạn nhận 2 lá từ chồng bài tướng đặt lên tướng này, gọi là [Hồn].\n• Khi bạn cần sử dụng lá cơ bản hoặc công cụ phổ thông có mục tiêu, nếu bạn chưa sử dụng lá đó bằng kỹ năng này trong lượt này, bạn có thể bỏ 1 [Hồn], xem như bạn sử dụng lá đó;\n▷ Bạn không thể chỉ định người thế lực gốc khác với [Hồn] làm mục tiêu của lá này."
+    },
+    {
+     "id": "jihun",
+     "name": "Cấp Hồn",
+     "desc": "Sau khi bạn nhận sát thương hoặc sau khi 1 người thế lực xác định khác với bạn thoát khỏi trạng thái hấp hối, bạn có thể nhận 1 lá từ chồng bài tướng đặt lên tướng này, gọi là [Hồn]."
+    }
+   ],
+   "status": "có, đang tắt",
+   "ours": "new_zuoci"
+  },
+  {
+   "id": "shamoke",
+   "name": "Sa Ma Kha",
+   "title": "Ngũ Kê Man Vương",
+   "pkg": "Biến",
+   "file": "TransformationPackage.lua",
+   "skills": [
+    {
+     "id": "jili",
+     "name": "Tật Lê",
+     "desc": "Khi bạn sử dụng/đánh ra bài, nếu lá này là lá thứ X mà bạn sử dụng/đánh ra trong lượt này, bạn có thể rút X lá (X là tầm đánh của bạn)."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "shamoke"
+  },
+  {
+   "id": "masu",
+   "name": "Mã Tắc",
+   "title": "Duy Ác Kình Mưu",
+   "pkg": "Biến",
+   "file": "TransformationPackage.lua",
+   "skills": [
+    {
+     "id": "sanyao",
+     "name": "Tán Dao",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể bỏ 1 lá và chọn 1 người nhiều máu nhất, bạn gây 1 sát thương cho họ."
+    },
+    {
+     "id": "zhiman",
+     "name": "Chế Man",
+     "desc": "Khi bạn gây sát thương cho người khác, bạn có thể chặn sát thương này lại, thực hiện lần lượt:\n- Bạn thu lấy 1 lá trong vùng trang bị hoặc phán xét của họ;\n- Nếu họ cùng thế lực với bạn, bạn có thể lệnh họ đổi Phó tướng."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "masu"
+  },
+  {
+   "id": "lingtong",
+   "name": "Lăng Thống",
+   "title": "Hào Tình Liệt Đảm",
+   "pkg": "Biến",
+   "file": "TransformationPackage.lua",
+   "skills": [
+    {
+     "id": "xuanlue",
+     "name": "Toàn Lược",
+     "desc": "Sau khi bạn mất bài trong vùng trang bị, bạn có thể bỏ 1 lá của người khác."
+    },
+    {
+     "id": "yongjin",
+     "name": "Dũng Tiến",
+     "desc": "Hạn định kỹ: Giai đoạn ra bài, bạn có thể phát động kỹ năng này: Tối đa 3 lần, bạn có thể di chuyển 1 trang bị trên bàn chơi."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "lingtong"
+  },
+  {
+   "id": "lvfan",
+   "name": "Lữ Phạm",
+   "title": "Trung Đốc Lượng Trực",
+   "pkg": "Biến",
+   "file": "TransformationPackage.lua",
+   "skills": [
+    {
+     "id": "diaodu",
+     "name": "Điều Độ",
+     "desc": "• Khi 1 người cùng thế lực với bạn sử dụng trang bị, họ có thể rút 1 lá.\n• Đầu giai đoạn ra bài, bạn có thể thu lấy 1 lá trong vùng trang bị của 1 người cùng thế lực, sau đó, nếu người bị thu lấy là:\n * Bạn: Bạn giao lá đó cho 1 người khác;\n * Không phải bạn: Bạn có thể giao lá đó cho 1 người khác ngoại trừ họ."
+    },
+    {
+     "id": "diancai",
+     "name": "Điển Tài",
+     "desc": "Khi kết thúc giai đoạn ra bài của người khác, nếu bạn đã mất ít nhất X lá trong giai đoạn này (X là số máu của bạn, tối thiểu 1), bạn có thể bổ sung bài trên tay tới giới hạn máu;\n▷ Bạn có thể đổi Phó tướng."
+    }
+   ],
+   "status": "có, đang bật",
+   "ours": "lvfan"
+  },
+  {
+   "id": "lord_sunquan",
+   "name": "Tôn Quyền - Quân",
+   "title": "Hổ Cư Giang Đông",
+   "pkg": "Biến",
+   "file": "TransformationPackage.lua",
+   "skills": [
+    {
+     "id": "jiahe",
+     "name": "Gia Hỏa",
+     "desc": "Quân chủ kỹ, Tỏa định kỹ: Bạn có »Duyên Giang Phong Hỏa Đồ«.\n\n»<b>Duyên Giang Phong Hỏa Đồ</b>«:\n• Một lần trong giai đoạn ra bài của mỗi người thế lực Ngô, họ có thể đặt 1 trang bị lên »Duyên Giang Phong Hỏa Đồ«, gọi là [Phong Hỏa].\n• Khi bắt đầu giai đoạn chuẩn bị của người thế lực Ngô, họ có thể nhận 1 kỹ năng tùy theo số [Phong Hỏa]:\n* 1+: »Anh Tư«;\n* 2+: »Hảo Thi«;\n* 3+: »Thiệp Liệp«;\n* 4+: »Độ Thế«;\n▷ Nếu có 5 [Phong Hỏa] trở lên, họ có thể nhận thêm 1 kỹ năng khác.\n• Tỏa định kỹ: Sau khi bạn nhận sát thương từ lá bài, đưa 1 [Phong Hỏa] vào chồng bài bỏ."
+    },
+    {
+     "id": "lianzi",
+     "name": "Liễm Tư",
+     "desc": "Một lần trong giai đoạn ra bài, bạn có thể bỏ 1 lá trên tay, sau đó lật ra X lá trên đầu chồng bài rút (X là số [Phong Hỏa] cộng với số lá trong vùng trang bị của những người thế lực Ngô), bạn thu lấy những lá cùng loại với lá bạn bỏ;\n▷ Nếu trong 1 lần bạn thu lấy > 3 lá, bạn mất kỹ năng này và nhận kỹ năng »Chế Hành«."
+    },
+    {
+     "id": "jubao",
+     "name": "Tư Bảo",
+     "desc": "Tỏa định kỹ:\n• Người khác không thể thu lấy bảo vật trong khu trang bị của bạn.\n• Khi bắt đầu giai đoạn kết thúc, nếu trên bàn chơi hoặc chồng bài bỏ có [Định Lan Dạ Minh Châu], bạn rút 1 lá, sau đó thu lấy 1 lá của người đang trang bị [Định Lan Dạ Minh Châu]."
+    },
+    {
+     "id": "flamemap",
+     "name": "Duyên Giang Phong Hỏa Đồ",
+     "desc": "• Một lần trong giai đoạn ra bài của mỗi người thế lực Ngô, họ có thể đặt 1 trang bị lên »Duyên Giang Phong Hỏa Đồ«, gọi là [Phong Hỏa].\n• Khi bắt đầu giai đoạn chuẩn bị của người thế lực Ngô, họ có thể nhận 1 kỹ năng tùy theo số [Phong Hỏa]:\n* 1+: »Anh Tư«;\n* 2+: »Hảo Thi«;\n* 3+: »Thiệp Liệp«;\n* 4+: »Độ Thế«;\n▷ Nếu có 5 [Phong Hỏa] trở lên, họ có thể nhận thêm 1 kỹ năng khác.\n• Tỏa định kỹ: Sau khi bạn nhận sát thương từ lá bài, đưa 1 [Phong Hỏa] vào chồng bài bỏ."
+    },
+    {
+     "id": "shelie",
+     "name": "Thiệp Liệp",
+     "desc": "Khi bắt đầu giai đoạn rút bài, bạn có thể không rút bài, đổi thành lật ra 5 lá trên đầu chồng bài rút, thu lấy trong đó mỗi chất 1 lá."
+    }
+   ],
+   "status": "quân chủ (chưa hỗ trợ)"
+  }
+ ],
+ "cards": [
+  {
+   "id": "DragonPhoenix",
+   "name": "Phi Long Đoạt Phượng",
+   "kind": "Trang bị",
+   "sub": "Vũ khí",
+   "pkg": "Trận",
+   "desc": "Bài Trang bị - Vũ khí\n\nTầm đánh: 2\nKỹ năng:\n• Sau khi bạn xác định mục tiêu của [Sát], ứng với mỗi mục tiêu, bạn có thể lệnh họ bỏ 1 lá.\n2. Khi mục tiêu của [Sát] do bạn sử dụng tiến vào trạng thái hấp hối bởi hiệu quả của [Sát] này, bạn có thể thu lấy 1 lá trên tay họ."
+  },
+  {
+   "id": "shit",
+   "name": "Thỉ",
+   "kind": "Cơ bản",
+   "sub": "",
+   "pkg": "Hoan Lạc",
+   "desc": "Bài cơ bản\n\n<b>Thời điểm</b>: Giai đoạn ra bài\n<b>Mục tiêu</b>: Bạn\n<b>Hiệu quả</b>: Không có\n\n<b>Hiệu ứng thêm</b>: Trong lượt của bạn, khi lá này từ tay của bạn tiến vào chồng bài bỏ hoặc bàn chơi, nếu chất của lá này là:\n* BÍCH: Mất 1 máu;\n* TÉP: Bạn nhận 1 sát thương Lôi;\n* RÔ: Bạn nhận 1 sát thương;\n* CƠ: Bạn nhận 1 sát thương Hỏa."
+  },
+  {
+   "id": "deluge",
+   "name": "Hồng Thủy",
+   "kind": "Công cụ trì hoãn",
+   "sub": "",
+   "pkg": "Hoan Lạc",
+   "desc": "Bài công cụ thời gian\n\nSử dụng: Trong giai đoạn ra bài.\nMục tiêu: Bạn.\nHiệu quả: Giai đoạn phán xét của mục tiêu, tiến hành phán xét, nếu kết quả phán xét có điểm là A hoặc K, mục tiêu ngẫu nhiên mở ra số bài bằng số người còn sống, theo vòng bắt đầu từ người tiếp theo với mục tiêu, mỗi người lần lượt nhận 1 lá từ số bài này, sau đó bỏ lá này\nNếu không, lá [Hồng Thủy] chuyển sang mục tiêu tiếp theo."
+  },
+  {
+   "id": "typhoon",
+   "name": "Đài Phong",
+   "kind": "Công cụ trì hoãn",
+   "sub": "",
+   "pkg": "Hoan Lạc",
+   "desc": "Bài công cụ thời gian\n\nSử dụng: Trong giai đoạn ra bài.\nMục tiêu: Bạn.\nHiệu quả: Giai đoạn phán xét của mục tiêu, tiến hành phán xét, nếu kết quả phán xét từ 2~9 RÔ, những người có khoảng cách 1 với mục tiêu bỏ 6 lá trên tay, sau đó bỏ lá này. Nếu không, lá [Đài Phong] chuyển sang mục tiêu tiếp theo."
+  },
+  {
+   "id": "earthquake",
+   "name": "Địa Chấn",
+   "kind": "Công cụ trì hoãn",
+   "sub": "",
+   "pkg": "Hoan Lạc",
+   "desc": "Bài công cụ thời gian\n\nSử dụng: Trong giai đoạn ra bài.\nMục tiêu: Bạn.\nHiệu quả: Giai đoạn phán xét của mục tiêu, tiến hành phán xét, nếu kết quả phán xét từ 2~9 TÉP, những người trong khoảng cách 1 với mục tiêu (bỏ qua hiệu ứng từ ngựa +1) bỏ tất cả trang bị, sau đó bỏ lá này. Nếu không, lá [Địa Chấn] chuyển sang mục tiêu tiếp theo."
+  },
+  {
+   "id": "volcano",
+   "name": "Hỏa Sơn",
+   "kind": "Công cụ trì hoãn",
+   "sub": "",
+   "pkg": "Hoan Lạc",
+   "desc": "Bài công cụ thời gian\n\nSử dụng: Trong giai đoạn ra bài.\nMục tiêu: Bạn.\nHiệu quả: Giai đoạn phán xét của mục tiêu, tiến hành phán xét, nếu kết quả phán xét từ 2~9 CƠ, mục tiêu nhận 2 sát thương Hỏa, những người trong khoảng cách 1 với mục tiêu (bỏ qua hiệu ứng từ ngựa +1) nhận 1 sát thương Hỏa, sau đó bỏ lá này. Nếu không, lá [Hỏa Sơn] chuyển sang mục tiêu tiếp theo."
+  },
+  {
+   "id": "mudslide",
+   "name": "Nễ Thạch Lưu",
+   "kind": "Công cụ trì hoãn",
+   "sub": "",
+   "pkg": "Hoan Lạc",
+   "desc": "Bài công cụ thời gian\n\nSử dụng: Trong giai đoạn ra bài.\nMục tiêu: Bạn.\nHiệu quả: Giai đoạn phán xét của mục tiêu, tiến hành phán xét, nếu kết quả phán xét có màu Đen và điểm là A, K, 4, 7, bắt đầu từ mục tiêu, bỏ nhiều bài từ vùng trang bị nhất có thể, người không có trang bị nhận 1 sát thương, hiệu quả dừng lại khi có 4 trang bị được bỏ đi, sau đó bỏ lá này\nNếu không, lá [Nễ Thạch Lưu] chuyển sang mục tiêu tiếp theo."
+  },
+  {
+   "id": "monkey",
+   "name": "Hầu Tử",
+   "kind": "Trang bị",
+   "sub": "Chiến Mã",
+   "pkg": "Hoan Lạc",
+   "desc": "Bài trang bị - Chiến Mã\n\nKỹ năng:\nKhi người khác sử dụng [Đào], bạn có thể bỏ [Hầu Tử], loại bỏ mục tiêu của lá [Đào] này và thu lấy lá đó.\nTỏa định kỹ, khoảng cách từ bạn đến người khác -1."
+  },
+  {
+   "id": "yx_sword",
+   "name": "Dương Tu Kiếm",
+   "kind": "Trang bị",
+   "sub": "Vũ khí",
+   "pkg": "Hoan Lạc",
+   "desc": "Bài trang bị - Vũ khí\n\nTầm đánh: 4\nKỹ năng: Khi lá [Sát] của bạn tạo gây thương, bạn có thể lệnh 1 người khác trong tầm đánh của bạn trở thành nguồn sát thương, sau đó bạn giao [Dương Tu Kiếm] cho họ."
+  },
+  {
+   "id": "military_order",
+   "name": "Quân Lệnh Trạng",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "QSGS Việt Nam (Lãng Khách)",
+   "desc": "Bài công cụ\n\nMục tiêu: Bạn\nTác dụng:\n• Bạn rút bài bằng số người của thế lực có nhiều người nhất ngoại trừ thế lực của bạn.\n• Bạn chọn 1 lá bài/kỹ năng không có thời điểm và bị giới hạn số lần trong giai đoạn ra bài, trong giai đoạn này bạn được sử dụng/phát động thêm 1 lần đối với lá bài/kỹ năng đó.\n• Sau khi bạn giết người trong giai đoạn này, bạn kết thúc giai đoạn ra bài, giới hạn trữ bài của bạn trở thành giới hạn máu.\n• Sau khi kết thúc lượt này, nếu bạn không giết người sau khi lá này có hiệu quả, bạn <b>trận vong</b>.\n• [Quân Lệnh Trạng] không có hiệu quả khi không sử dụng trực tiếp lá này."
+  },
+  {
+   "id": "ImperialEdict",
+   "name": "Chiếu Thư",
+   "kind": "Trang bị",
+   "sub": "Bảo vật",
+   "pkg": "Bất Thần",
+   "desc": "Bài Trang bị - Bảo vật\n\n<b>Kỹ năng</b>:\n• Sau khi sử dụng lá này, bạn đặt lá này vào vùng tướng của bạn.\n\n• Một lần trong giai đoạn ra bài của người có cùng thế lực với bạn, nếu họ thuộc tiểu thế lực, có thể đặt tối đa 2 lá trên tay lên tướng của bạn; nếu không thuộc tiểu thế lực, họ có thể đặt 1 lá trên tay lên tướng của bạn, gọi là [Chiếu].\n• Một lần trong giai đoạn ra bài, nếu có 4 [Chiếu] không cùng chất, bạn có thể đưa tất cả [Chiếu] vào chồng bài bỏ, rút ngẫu nhiêu 1 lá công cụ thế lực.\n"
+  },
+  {
+   "id": "rule_the_world",
+   "name": "Hiệu Lệnh Thiên Hạ",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bất Thần",
+   "desc": "Bài công cụ - Ngụy\n\nMục tiêu: Một người không phải ít máu nhất\nHiệu quả: Ngoại trừ mục tiêu, mỗi người có thể lựa chọn 1 mục:\n1. Bỏ 1 lá trên tay và xem như sử dụng [Sát] không giới hạn khoảng cách với mục tiêu (Người thế lực Ngụy không cần bỏ bài);\n2. Bỏ 1 lá của mục tiêu (Người thế lực Ngụy thu lấy lá đó thay vì bỏ)."
+  },
+  {
+   "id": "conquering",
+   "name": "Khắc Phục Trung Nguyên",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bất Thần",
+   "desc": "Bài công cụ - Thục\n\nMục tiêu: Tùy ý\nHiệu quả: Mục tiêu lựa chọn 1 mục:\n1. Xem như sử dụng [Sát] (Sát thương từ [Sát] này +1 nếu do người thế lực Thục sử dụng);\nRút 1 lá (Người thế lực Thục đổi thành rút 2 lá)."
+  },
+  {
+   "id": "consolidate_country",
+   "name": "Cố Quốc An Bang",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bất Thần",
+   "desc": "Bài công cụ - Ngô\n\nMục tiêu: Bạn\nHiệu quả: Mục tiêu rút 8 lá sau đó bỏ ít nhất 6 lá trên tay, nếu bạn thuộc thế lực Ngô, có thể giao tùy ý tối đa 6 lá trong số những lá bỏ cho những người khác thuộc thế lực Ngô, mỗi người tối đa 2 lá."
+  },
+  {
+   "id": "chaos",
+   "name": "Văn Hòa Loạn Võ",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bất Thần",
+   "desc": "Bài công cụ - Quần\n\nMục tiêu: Tất cả\nHiệu quả: Mục tiêu mở bài trên tay, sau đó bạn chọn 1 mục:\n1. Lệnh họ bỏ 2 lá khác loại trên tay;\n2. Bỏ 1 lá trên tay họ;\nNgười thế lực Quần sau khi chấp hành lựa chọn của bạn, nếu họ không có bài trên tay, họ bổ sung bài trên tay tới máu hiện tại."
+  },
+  {
+   "id": "PeaceSpell",
+   "name": "Thái Bình Yêu Thuật",
+   "kind": "Trang bị",
+   "sub": "Phòng cụ",
+   "pkg": "Thế",
+   "desc": "Bài trang bị - Phòng cụ\n\nKỹ năng: Tỏa định kỹ:\n\n• Khi bạn nhận sát thương có thuộc tính, bạn chặn sát thương này.\n\n• Giới hạn trữ bài của bạn +X (X là số người cùng thế lực với bạn).\n\n• Khi bạn mất đi [Thái Bình Yêu Thuật] từ vùng trang bị, bạn rút 2 lá, sau đó nếu máu của bạn > 1, bạn mất 1 máu.\n"
+  },
+  {
+   "id": "SixDragons",
+   "name": "Lục Long Tham Giá",
+   "kind": "Trang bị",
+   "sub": "Ngựa đặc biệt",
+   "pkg": "Quyền",
+   "desc": "Bài Trang Bị - Ngựa đặc biệt\n\nKỹ năng: Tỏa định kỹ:\n• Khoảng cách từ bạn đến người khác -1.\n• Khoảng cách từ người khác đến bạn +1.\n• Sau khi [Lục Long Tham Giá] tiến vào vùng trang bị của bạn, bạn bỏ đi tất cả Ngựa khác.\n• Lá Ngựa khác không thể tiến vào vùng trang bị của bạn.\n"
+  },
+  {
+   "id": "slash",
+   "name": "Sát",
+   "kind": "Cơ bản",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài cơ bản\n\n<b>Giới hạn</b>: Một lần trong giai đoạn ra bài đối với tất cả loại [Sát]\n<b>Lựa chọn</b>: 1 người trong tầm đánh.\n<b>Mục tiêu</b>: Người đã chọn\n<b>Hiệu quả</b>: Gây 1 sát thương cho mục tiêu."
+  },
+  {
+   "id": "fire_slash",
+   "name": "Sát Hỏa",
+   "kind": "Cơ bản",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài cơ bản\n\n<b>Giới hạn</b>: Một lần trong giai đoạn ra bài đối với tất cả loại [Sát]\n<b>Lựa chọn</b>: 1 người trong tầm đánh.\n<b>Mục tiêu</b>: Người đã chọn\n<b>Hiệu quả</b>: Gây 1 sát thương Hỏa cho mục tiêu."
+  },
+  {
+   "id": "thunder_slash",
+   "name": "Sát Lôi",
+   "kind": "Cơ bản",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài cơ bản\n\n<b>Giới hạn</b>: Một lần trong giai đoạn ra bài đối với tất cả loại [Sát]\n<b>Lựa chọn</b>: 1 người trong tầm đánh.\n<b>Mục tiêu</b>: Người đã chọn\n<b>Hiệu quả</b>: Gây 1 sát thương Lôi cho mục tiêu."
+  },
+  {
+   "id": "jink",
+   "name": "Thiểm",
+   "kind": "Cơ bản",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài cơ bản\n\n<b>Thời điểm</b>: Khi lá [Sát] có hiệu quả với bạn\n<b>Hiệu quả</b>: Triệt tiêu hiệu quả của lá[Sát] này với bạn."
+  },
+  {
+   "id": "peach",
+   "name": "Đào",
+   "kind": "Cơ bản",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài cơ bản\n\nCách thức I: \n<b>Mục tiêu</b>: Bạn nếu đang bị thương.\n<b>Hiệu quả</b>: Mục tiêu hồi 1 máu.\n\nCách thức II:\n<b>Thời điểm</b>: Khi 1 người trong trạng thái hấp hối.\n<b>Mục tiêu</b>: Người đang trong trạng thái hấp hối.\n<b>Hiệu quả</b>: Mục tiêu hồi 1 máu."
+  },
+  {
+   "id": "analeptic",
+   "name": "Tửu",
+   "kind": "Cơ bản",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài cơ bản\n\nCách thức I: \n<b>Giới hạn</b>: Một lần trong lượt của mỗi người.\n<b>Mục tiêu</b>: Bạn.\n<b>Hiệu quả</b>: Lá [Sát] tiếp theo mục tiêu sử dụng trong lượt này +1 sát thương.\n\nCách thức II: \n<b>Thời điểm</b>: Khi bạn trong trạng thái hấp hối.\n<b>Mục tiêu</b>: Bạn.\n<b>Hiệu quả</b>: Mục tiêu hồi 1 máu"
+  },
+  {
+   "id": "Crossbow",
+   "name": "Gia Cát Liên Nỏ",
+   "kind": "Trang bị",
+   "sub": "Vũ khí",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Vũ khí\n\n<b>Tầm đánh</b>: 1\n<b>Kỹ năng</b>: Tỏa định kỹ: bạn không giới hạn số lần sử dụng lá [Sát]."
+  },
+  {
+   "id": "DoubleSword",
+   "name": "Thư Hùng Song Cổ Kiếm",
+   "kind": "Trang bị",
+   "sub": "Vũ khí",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Vũ khí\n\n<b>Tầm đánh</b>: 2\n<b>Kỹ năng</b>: Sau khi xác định từng mục tiêu của [Sát], nếu mục tiêu khác giới tính với bạn, bạn có thể lệnh mục tiêu chọn bỏ 1 lá bài trên tay hoặc lệnh bạn rút 1 lá bài."
+  },
+  {
+   "id": "SixSwords",
+   "name": "Ngô Lục Kiếm",
+   "kind": "Trang bị",
+   "sub": "Vũ khí",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Vũ khí\n\n<b>Tầm đánh</b>: 2\n<b>Kỹ năng</b>: Tỏa định kỹ: người khác có thế lực giống bạn +1 tầm đánh."
+  },
+  {
+   "id": "Triblade",
+   "name": "Tam Tiêm Lưỡng Nhận Đao",
+   "kind": "Trang bị",
+   "sub": "Vũ khí",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Vũ khí\n\n<b>Tầm đánh</b>: 3<br/><b>Kỹ năng</b>: Sau khi bạn gây sát thương cho mục tiêu của lá [Sát], bạn có thể bỏ 1 lá bài trên tay và chọn 1 người khác ở khoảng cách 1 của mục tiêu, bạn gây 1 sát thương cho họ."
+  },
+  {
+   "id": "QinggangSword",
+   "name": "Thanh Công Kiếm",
+   "kind": "Trang bị",
+   "sub": "Vũ khí",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Vũ khí\n\n<b>Tầm đánh</b>: 2\n<b>Kỹ năng</b>: Tỏa định kỹ: Sau khi bạn xác định mục tiêu của lá [Sát], ứng với mỗi mục tiêu, bạn lệnh [Sát] này Bỏ qua phòng cụ của họ.\n<b>Bỏ qua phòng cụ</b>: Vô hiệu hoá phòng cụ người bị bỏ qua phòng cụ đến khi xác định số sát thương cuối cùng mà họ phải nhận."
+  },
+  {
+   "id": "Spear",
+   "name": "Trượng Bát Xà Mâu",
+   "kind": "Trang bị",
+   "sub": "Vũ khí",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Vũ khí\n\n<b>Tầm đánh</b>: 3\n<b>Kỹ năng</b>: Bạn có thể chuyển hóa sử dụng/đánh ra 2 lá trên tay thành [Sát]."
+  },
+  {
+   "id": "Axe",
+   "name": "Quán Thạch Phủ",
+   "kind": "Trang bị",
+   "sub": "Vũ khí",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Vũ khí\n\n<b>Tầm đánh</b>: 3\n<b>Kỹ năng</b>: Sau khi [Sát] bạn sử dụng bị triệt tiêu bởi [Thiểm] của mục tiêu, bạn có thể bỏ 2 lá, lệnh cho [Sát] này vẫn có hiệu quả đối với mục tiêu này."
+  },
+  {
+   "id": "KylinBow",
+   "name": "Kỳ Lân Cung",
+   "kind": "Trang bị",
+   "sub": "Vũ khí",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Vũ khí\n\n<b>Tầm đánh</b>: 5\n<b>Kỹ năng</b>: Khi bạn gây sát thương cho mục tiêu của [Sát], bạn có thể bỏ 1 Ngựa trong vùng trang bị của mục tiêu."
+  },
+  {
+   "id": "EightDiagram",
+   "name": "Bát Quái Trận",
+   "kind": "Trang bị",
+   "sub": "Phòng cụ",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Phòng cụ\n\n<b>Kỹ năng</b>: Khi bạn được yêu cầu sử dụng/đánh ra [Thiểm], bạn có thể tiến hành Phán xét, nếu kết quả phán xét có màu Đỏ, xem như bạn đã sử dụng/đánh ra [Thiểm]."
+  },
+  {
+   "id": "RenwangShield",
+   "name": "Nhân Vương Thuẫn",
+   "kind": "Trang bị",
+   "sub": "Phòng cụ",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Phòng cụ\n\n<b>Kỹ năng</b>: Tỏa định kỹ: [Sát] Đen không có hiệu quả với bạn."
+  },
+  {
+   "id": "IceSword",
+   "name": "Hàn Băng Kiếm",
+   "kind": "Trang bị",
+   "sub": "Vũ khí",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Vũ khí\n\n<b>Tầm đánh</b>: 2\n<b>Kỹ năng</b>: Khi bạn gây sát thương cho mục tiêu của [Sát], nếu mục tiêu có bài, bạn có thể chặn sát thương này và lần lượt bỏ 2 lá của mục tiêu."
+  },
+  {
+   "id": "Fan",
+   "name": "Chu Tước Vũ Phiến",
+   "kind": "Trang bị",
+   "sub": "Vũ khí",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Vũ khí\n\n<b>Tầm đánh</b>: 4\n<b>Kỹ năng</b>: Khi bạn sử dụng [Sát] phổ thông, bạn có thể chuyển hóa [Sát] này thành [Sát Hỏa]."
+  },
+  {
+   "id": "SilverLion",
+   "name": "Bạch Ngân Sư Tử",
+   "kind": "Trang bị",
+   "sub": "Phòng cụ",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Phòng cụ\n\n<b>Kỹ năng</b>: Tỏa định kỹ:\n• Khi bạn nhận sát thương, nếu sát thương này > 1, sát thương này trở thành 1.\n• Sau khi bạn mất [Bạch Ngân Sư Tử] từ vùng trang bị của bạn, bạn hồi 1 máu."
+  },
+  {
+   "id": "Vine",
+   "name": "Đằng Giáp",
+   "kind": "Trang bị",
+   "sub": "Phòng cụ",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Phòng cụ\n\n<b>Kỹ năng</b>: Tỏa định kỹ:\n• [Nam Man Nhập Xâm], [Vạn Tiễn Tề Phát] và [Sát] phổ thông không có hiệu quả với bạn.\n• Khi bạn tính toán sát thương phải nhận, nếu sát thương này có thuộc tính Hỏa, sát thương này +1."
+  },
+  {
+   "id": "+1 horse",
+   "name": "+1 horse",
+   "kind": "Trang bị",
+   "sub": "Ngựa +1",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Ngựa +1\n\n<b>Kỹ năng</b>: Tỏa định kỹ: khoảng cách từ người khác đến bạn +1."
+  },
+  {
+   "id": "-1 horse",
+   "name": "-1 horse",
+   "kind": "Trang bị",
+   "sub": "Ngựa -1",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài trang bị - Ngựa -1\n\n<b>Kỹ năng</b>: Tỏa định kỹ: khoảng cách từ bạn đến người khác -1."
+  },
+  {
+   "id": "amazing_grace",
+   "name": "Ngũ Cốc Phong Đăng",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ\n\n<b>Mục tiêu</b>: Tất cả\n<b>Hiệu quả</b>: Lật ra từ chồng bài số lá bài bằng với số mục tiêu; mục tiêu thu lấy 1 lá từ số bài đã lật ra."
+  },
+  {
+   "id": "god_salvation",
+   "name": "Đào Viên Kết Nghĩa",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài Công cụ\n\n<b>Mục tiêu</b>: Tất cả\n<b>Hiệu quả</b>: Mục tiêu hồi 1 máu; Không có hiệu quả với mục tiêu không bị thương."
+  },
+  {
+   "id": "savage_assault",
+   "name": "Nam Man Nhập Xâm",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ\n\n<b>Mục tiêu</b>: Tất cả người khác\n<b>Hiệu quả</b>: Mục tiêu cần đánh ra 1 lá [Sát]; nếu không, họ nhận 1 sát thương."
+  },
+  {
+   "id": "archery_attack",
+   "name": "Vạn Tiễn Tề Phát",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ\n\n<b>Mục tiêu</b>: Tất cả người khác.\n<b>Hiệu quả</b>: Mục tiêu cần đánh ra 1 lá [Thiểm]; nếu không, họ nhận 1 sát thương."
+  },
+  {
+   "id": "collateral",
+   "name": "Tá Đao Sát Nhân",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ\n\n<b>Lựa chọn</b>: 1 người khác có vũ khí trong vùng trang bị (gọi là A) và 1 người trong tầm đánh của A (gọi là B)\n<b>Mục tiêu</b>: A\n<b>Hiệu quả</b>: A cần sử dụng [Sát] với B, nếu không, họ giao vũ khí trong vùng trang bị cho bạn."
+  },
+  {
+   "id": "duel",
+   "name": "Quyết Đấu",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ\n\n<b>Lựa chọn</b>: 1 người khác\n<b>Mục tiêu</b>: Người đã chọn.\n<b>Hiệu quả</b>: Bắt đầu từ mục tiêu và bạn lần lượt đánh ra lá [Sát] đến khi có người  không đánh ra lá[Sát], người đó nhận 1 sát thương từ người còn lại."
+  },
+  {
+   "id": "ex_nihilo",
+   "name": "Vô Trung Sinh Hữu",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ\n\n<b>Mục tiêu</b>: Bạn\n<b>Hiệu quả</b>: Mục tiêu rút 2 lá."
+  },
+  {
+   "id": "snatch",
+   "name": "Thuận Thủ Khiên Dương",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ\n\n<b>Lựa chọn</b>: 1 người khác ở khoảng cách 1 của bạn và có bài trong vùng chơi\n<b>Mục tiêu</b>: Người đã chọn\n<b>Hiệu quả</b>: Bạn thu lấy 1 lá trong vùng chơi của mục tiêu."
+  },
+  {
+   "id": "dismantlement",
+   "name": "Quá Hạ Sách Kiều",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ\n\n<b>Lựa chọn</b>: 1 người khác có bài trong vùng chơi\n<b>Mục tiêu</b>: Người đã chọn.\n<b>Hiệu quả</b>: Bạn bỏ 1 lá trong vùng chơi của mục tiêu."
+  },
+  {
+   "id": "nullification",
+   "name": "Vô Giải Khả Kích",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ\n\n<b>Thời điểm</b>: Khi 1 lá công cụ có hiệu quả với 1 người hoặc khi [Vô Giải Khả Kích] có hiệu quả.\n<b>Hiệu quả</b>: Triệt tiêu hiệu quả của lá công cụ với người đó; hoặc triệt tiêu hiệu quả của [Vô Giải Khả Kích];\n▷ Nếu công cụ bị triệt tiêu là [Thiểm Điện], chuyển lá đó sang người tiếp theo."
+  },
+  {
+   "id": "heg_nullification",
+   "name": "Vô Giải Khả Kích - Quốc",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ\n\n<b>Thời điểm</b>: Khi 1 lá công cụ có hiệu quả với 1 người hoặc khi [Vô Giải Khả Kích] có hiệu quả.\n<b>Hiệu quả</b>: Triệt tiêu hiệu quả của lá công cụ với người đó hoặc tất cả người cùng thế lực với người đó; hoặc triệt tiêu hiệu quả của [Vô Giải Khả Kích];\n▷ Nếu công cụ bị triệt tiêu là [Thiểm Điện], chuyển lá đó sang người tiếp theo."
+  },
+  {
+   "id": "indulgence",
+   "name": "Lạc Bất Tư Thục",
+   "kind": "Công cụ trì hoãn",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ thời gian\n\n<b>Lựa chọn</b>: 1 người khác\n<b>Mục tiêu</b>: Người đã chọn\n<b>Hiệu quả</b>: Giai đoạn phán xét của mục tiêu, họ tiến hành phán xét, nếu kết quả phán xét không phải chất CƠ, bỏ qua giai đoạn ra bài lượt này; sau đó đưa lá này vào chồng bài bỏ."
+  },
+  {
+   "id": "lightning",
+   "name": "Thiểm Điện",
+   "kind": "Công cụ trì hoãn",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ thời gian\n\n<b>Mục tiêu</b>: Bạn\n<b>Hiệu quả</b>: Giai đoạn phán xét của mục tiêu, tiến hành phán xét, nếu kết quả phán xét từ 2~9 BÍCH, mục tiêu nhận 3 điểm sát thương Lôi, sau đó đưa lá này vào chồng bài bỏ; nếu không, lá [Thiểm Điện] chuyển sang người tiếp theo."
+  },
+  {
+   "id": "iron_chain",
+   "name": "Thiết Tác Liên Hoàn",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ\n\n<b>Lựa chọn</b>: 1-2 người\n<b>Mục tiêu</b>: Người đã chọn\n<b>Hiệu quả</b>: Mục tiêu thay đổi trạng thái xích.\n<b>Trùng Chú</b>: Có thể đưa lá này vào chồng bài bỏ để rút 1 lá."
+  },
+  {
+   "id": "fire_attack",
+   "name": "Hỏa Công",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ\n\n<b>Lựa chọn</b>: 1 người có bài trên tay\n<b>Mục tiêu</b>: Người đã chọn.\n<b>Hiệu quả</b>: Mục tiêu mở 1 lá trên tay, bạn có thể bỏ 1 lá trên tay có cùng chất với lá họ đã mở để gây 1 sát thương Hỏa cho mục tiêu."
+  },
+  {
+   "id": "supply_shortage",
+   "name": "Binh Lương Thốn Đoạn",
+   "kind": "Công cụ trì hoãn",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ thời gian\n\n<b>Lựa chọn</b>: 1 người khác ở khoảng cách 1\n<b>Mục tiêu</b>: Người đã chọn\n<b>Hiệu quả</b>: Giai đoạn phán xét của mục tiêu, họ tiến hành phán xét, nếu kết quả phán xét không phải chất TÉP, bỏ qua giai đoạn rút bài lượt này; sau đó đưa lá này vào chồng bài bỏ."
+  },
+  {
+   "id": "await_exhausted",
+   "name": "Dĩ Dật Đãi Lao",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ\n\n<b>Mục tiêu</b>: Tất cả người có cùng thế lực với bạn.\n<b>Hiệu quả</b>: Mục tiêu rút 2 lá và bỏ 2 lá."
+  },
+  {
+   "id": "known_both",
+   "name": "Tri Bỉ Tri Kỉ",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ\n\n<b>Lựa chọn</b>: 1 người khác có tướng chưa mở hoặc có bài trên tay\n<b>Mục tiêu</b>: Người đã chọn\n<b>Hiệu quả</b>: Bạn chọn xem tất cả bài trên tay hoặc 1 tướng úp của mục tiêu.\n<b>Trùng Chú</b>: Có thể đưa lá này vào chồng bài bỏ để rút 1 lá."
+  },
+  {
+   "id": "befriend_attacking",
+   "name": "Viễn Giao Cận Công",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Bài Tiêu chuẩn",
+   "desc": "Bài công cụ\n\n<b>Lựa chọn</b>: 1 người có thế lực xác định khác bạn\n<b>Mục tiêu</b>: Người đã chọn\n<b>Hiệu quả</b>: Mục tiêu rút 1 lá, sau đó bạn rút 3 lá."
+  },
+  {
+   "id": "Blade",
+   "name": "Thanh Long Yển Nguyệt Đao",
+   "kind": "Trang bị",
+   "sub": "Vũ khí",
+   "pkg": "Thế Bị Thiên",
+   "desc": "Bài Trang bị - Vũ khí\n\n<b>Tầm đánh</b>: 3\n<b>Kỹ năng</b>: Tỏa định kỹ: Khi bạn sử dụng [Sát], mục tiêu của lá [Sát] này không thể mở tướng cho đến khi [Sát] này kết toán xong"
+  },
+  {
+   "id": "Halberd",
+   "name": "Phương Thiên Hoạ Kích",
+   "kind": "Trang bị",
+   "sub": "Vũ khí",
+   "pkg": "Thế Bị Thiên",
+   "desc": "Bài Trang bị - Vũ khí\n\n<b>Tầm đánh</b>: 4\n<b>Kỹ năng</b>: Sau khi bạn chỉ định mục tiêu cho [Sát], bạn có thể chỉ định ở các thế lực xác định khác với mục tiêu, mỗi thế lực một người, đồng thời có thể chọn những người không có thế lực, lệnh họ trở thành mục tiêu của [Sát] này;\n▶ Sau khi 1 mục tiêu sử dụng [Thiểm] triệt tiêu [Sát] này, lệnh cho [Sát] này không có hiệu quả với những mục tiêu còn lại."
+  },
+  {
+   "id": "Breastplate",
+   "name": "Hộ Tâm Kính",
+   "kind": "Trang bị",
+   "sub": "Phòng cụ",
+   "pkg": "Thế Bị Thiên",
+   "desc": "Bài Trang bị - Phòng cụ\n\n<b>Kỹ năng</b>: Khi bạn nhận sát thương, nếu số sát thương ≥ số máu hiện tại của bạn, bạn có thể đưa lá này từ vùng trang bị vào chồng bài bỏ để chặn sát thương này."
+  },
+  {
+   "id": "IronArmor",
+   "name": "Minh Quang Khải",
+   "kind": "Trang bị",
+   "sub": "Phòng cụ",
+   "pkg": "Thế Bị Thiên",
+   "desc": "Bài Trang bị - Phòng cụ\n\n<b>Kỹ năng</b>: Tỏa định kỹ:\n• Khi bạn trở thành mục tiêu của [Hỏa Thiêu Liên Doanh]/[Hỏa Công]/[Sát Hỏa], hủy bỏ mục tiêu đối với bạn.\n• Nếu bạn thuộc tiểu thế lực, bạn không thể nhận trạng thái xích."
+  },
+  {
+   "id": "WoodenOx",
+   "name": "Mộc Ngưu Lưu Mã",
+   "kind": "Trang bị",
+   "sub": "Bảo vật",
+   "pkg": "Thế Bị Thiên",
+   "desc": "Bài Trang bị - Bảo vật\n\n<b>Kỹ năng</b>:\n• Một lần trong giai đoạn ra bài, nếu số lá trong [Mộc Ngưu Lưu Mã] < 5, bạn có thể đặt úp 1 lá trên tay vào [Mộc Ngưu Lưu Mã], sau đó bạn có thể chuyển [Mộc Ngưu Lưu Mã] sang vùng trang bị của người khác.\n• Bạn có thể sử dụng hoặc đánh ra bài trên [Mộc Ngưu Lưu Mã] như bài trên tay.\n• Khi bạn mất [Mộc Ngưu Lưu Mã], nếu lá này không chuyển sang vùng trang bị khác, đưa tất cả lá trong [Mộc Ngưu Lưu Mã] vào chồng bài bỏ."
+  },
+  {
+   "id": "JadeSeal",
+   "name": "Ngọc Tỉ",
+   "kind": "Trang bị",
+   "sub": "Bảo vật",
+   "pkg": "Thế Bị Thiên",
+   "desc": "Bài Trang bị - Bảo vật\n\n<b>Kỹ năng</b>: Tỏa định kỹ: Nếu bạn đã có thế lực:\n• Thế lực của bạn là Đại thế lực duy nhất, tất cả thế lực khác không có [Ngọc Tỉ] là Tiểu Thế Lực.\n• Giai đoạn rút bài, bạn rút thêm 1 lá.\n• Khi bắt đầu giai đoạn ra bài, bạn xem như sử dụng 1 lá [Tri Bỉ Tri Kỉ].\n"
+  },
+  {
+   "id": "drowning",
+   "name": "Thuỷ Yêm Thất Quân",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Thế Bị Thiên",
+   "desc": "Bài công cụ\n\n<b>Lựa chọn</b>: 1 người khác có bài trong vùng trang bị\n<b>Mục tiêu</b>: Người đã chọn\n<b>Hiệu quả</b>: Mục tiêu lựa chọn bỏ tất cả bài trong vùng trang bị hoặc nhận 1 sát thương Lôi."
+  },
+  {
+   "id": "burning_camps",
+   "name": "Hỏa Thiêu Liên Doanh",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Thế Bị Thiên",
+   "desc": "Bài công cụ\n\n<b>Mục tiêu</b>: Tất cả người cùng đội hình với người phía sau bạn.\n<b>Hiệu quả</b>: Bạn gây 1 sát thương Hỏa đối với mục tiêu. "
+  },
+  {
+   "id": "lure_tiger",
+   "name": "Điệu Hổ Ly Sơn",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Thế Bị Thiên",
+   "desc": "Bài công cụ\n\n<b>Lựa chọn</b>: 1-2 người khác\n<b>Mục tiêu</b>: Người đã chọn\n<b>Hiệu quả</b>: Trong lượt này, mục tiêu không tính khoảng cách, vị trí; không thể sử dụng bài; không thể bị chỉ định làm mục tiêu của bài; không thể thay đổi số máu."
+  },
+  {
+   "id": "fight_together",
+   "name": "Lục Lực Đồng Tâm",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Thế Bị Thiên",
+   "desc": "Bài công cụ\n\n<b>Lựa chọn</b>: 1 người thuộc đại thế lực hoặc tiểu thế lực\n<b>Mục tiêu</b>: Tất cả người thuộc cùng cấp độ thế lực với người đã chọn.\n<b>Hiệu quả</b>: Nếu mục tiêu đang có trạng thái xích, họ rút 1 lá; nếu không, họ nhận trạng thái xích.\n<b>Trùng Chú</b>: Có thể đưa lá này vào chồng bài bỏ để rút 1 lá."
+  },
+  {
+   "id": "alliance_feast",
+   "name": "Liên Quân Thịnh Yến",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Thế Bị Thiên",
+   "desc": "Bài công cụ\n\n<b>Lựa chọn</b>: 1 người có thế lực xác định khác bạn\n<b>Mục tiêu</b>: Bạn và tất cả người cùng thế lực với người đã chọn.\n<b>Hiệu quả</b>: Nếu mục tiêu là:\n*Bạn: Chọn rút số bài và hồi số máu tùy ý với tổng bằng số người của thế lực đã chọn.\n* Không phải bạn: Họ rút 1 lá và thoát trạng thái xích."
+  },
+  {
+   "id": "threaten_emperor",
+   "name": "Hiệp Thiên Tử Dĩ Lệnh Chư Hầu",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Thế Bị Thiên",
+   "desc": "Bài công cụ\n\n<b>Mục tiêu</b>: Bạn\n<b>Điều kiện</b>: Bạn thuộc đại thế lực và đang trong giai đoạn ra bài của bạn\n<b>Hiệu quả</b>: Bạn kết thúc giai đoạn ra bài;\n▶ Khi kết thúc giai đoạn bỏ bài, bạn có thể bỏ 1 lá trên tay để nhận thêm một lượt sau lượt này."
+  },
+  {
+   "id": "imperial_order",
+   "name": "Sắc lệnh",
+   "kind": "Công cụ",
+   "sub": "",
+   "pkg": "Thế Bị Thiên",
+   "desc": "Bài công cụ\n\n<b>Mục tiêu</b>: Tất cả người không có thế lực.\n<b>Hiệu quả</b>: Mục tiêu chọn 1 mục:\n1. Mở 1 tướng và rút 1 lá;\n2.Bỏ 1 trang bị;\n3. Mất 1 máu.\n<b>Hiệu ứng thêm</b>: Khi lá này tiến vào chồng bài bỏ không phải do sử dụng, lá này bị loại bỏ khỏi trận đấu, sau đó đưa [Chiếu Thư] vào đáy chồng bài rút;\n▶ Khi kết thúc lượt này, tất cả người không có thế lực có thế lực giải quyết hiệu quả của lá này."
+  },
+  {
+   "id": "LuminousPearl",
+   "name": "Định Lan Dạ Minh Châu",
+   "kind": "Trang bị",
+   "sub": "Bảo vật",
+   "pkg": "Biến",
+   "desc": "Bài Trang bị - Bảo vật\n\nKỹ năng: Tỏa định kỹ:\n* Nếu bạn đã có »Chế Hành«, không giới hạn số lá bỏ đi trong 1 lần phát động »Chế Hành«;\n* Nếu bạn không có kỹ năng »Chế Hành«, xem như bạn có »Chế Hành«."
+  }
+ ]
+}

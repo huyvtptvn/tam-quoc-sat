@@ -1,0 +1,24 @@
+[
+  {
+    "_ghiChu": "Nhóm B: tướng Bất Thần (君临天下·不臣篇) + Quyền, Tung Hoành Bãi Hạp, Thập Chu Niên, Mobile. Kỹ năng viết trong content/scripts/goi-bat-than.mjs. Thế lực/âm dương ngư ước lượng theo bản Quốc Chiến chính thức."
+  },
+  { "id": "mengda", "name": "Mạnh Đạt", "kingdom": "wei", "halfHp": 4, "skills": ["qiuan", "liangfan"] },
+  { "id": "tangzi", "name": "Đường Tư", "kingdom": "wei", "halfHp": 4, "skills": ["xingzhao"] },
+  { "id": "zhanglu", "name": "Trương Lỗ", "kingdom": "qun", "halfHp": 3, "skills": ["bushi", "midao"] },
+  { "id": "shixie", "name": "Sĩ Nhiếp", "kingdom": "wu", "halfHp": 3, "skills": ["biluan", "lixia"] },
+  { "id": "zhonghui", "name": "Chung Hội", "kingdom": "ye", "halfHp": 4, "skills": ["quanji", "paiyi"] },
+  { "id": "dongzhao", "name": "Đổng Chiêu", "kingdom": "wei", "halfHp": 3, "skills": ["quanjin", "zaoyun"] },
+  { "id": "yanbaihu", "name": "Nghiêm Bạch Hổ", "kingdom": "qun", "halfHp": 4, "skills": ["zhidao", "jilix"] },
+  { "id": "simazhao", "name": "Tư Mã Chiêu", "kingdom": "ye", "halfHp": 4, "skills": ["suzhi", "zhaoxin"] },
+  { "id": "sunchen", "name": "Tôn Lâm", "kingdom": "ye", "halfHp": 4, "skills": ["shilu", "xiongnve"] },
+  { "id": "wenqin", "name": "Văn Khâm", "kingdom": "wei", "halfHp": 4, "skills": ["jinfa"] },
+  { "id": "gongsunyuan", "name": "Công Tôn Uyên", "kingdom": "ye", "halfHp": 4, "skills": ["huaiyi", "huaiyi_di", "zisui"] },
+  { "id": "liuba", "name": "Lưu Ba", "kingdom": "shu", "halfHp": 3, "skills": ["tongdu", "qingyin"] },
+  { "id": "zhuling", "name": "Chu Linh", "kingdom": "wei", "halfHp": 4, "skills": ["juejue", "fangyuan"] },
+  { "id": "cuiyanmaojie", "name": "Thôi Diễm & Mao Giới", "kingdom": "wei", "halfHp": 3, "skills": ["zhengbi", "fengying"] },
+  { "id": "lifeng", "name": "Lý Phong", "kingdom": "shu", "halfHp": 3, "skills": ["tunchu", "shuliang"] },
+  { "id": "yangwan", "name": "Dương Uyển", "kingdom": "shu", "halfHp": 3, "gender": "female", "skills": ["youyan", "zhuihuan"] },
+  { "id": "zongyux", "name": "Tông Dự", "kingdom": "shu", "halfHp": 3, "skills": ["qiao", "chengshang"] },
+  { "id": "fengxi", "name": "Phùng Hy", "kingdom": "wu", "halfHp": 3, "skills": ["yusui", "boyan"] },
+  { "id": "yanghu", "name": "Dương Hỗ", "kingdom": "wei", "halfHp": 4, "skills": ["deshao", "mingfa"] }
+]

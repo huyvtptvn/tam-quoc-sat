@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%225%22 fill=%22%23a8281d%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%23f6e9d2%22 font-family=%22serif%22%3ES%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tam Quốc Sát – Client kiểm thử</title>
+<style>
+  :root { --bg:#f6f3ec; --panel:#fffdf8; --ink:#2b2620; --muted:#7a6f62; --line:#e2d9c8; --accent:#9b2c2c; --ok:#2f6b3a; --warn:#a46b00; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.45 system-ui, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:10px 16px; background:#2b2620; color:#f6f3ec; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size:16px; margin:0; font-weight:600; }
+  header .muted { color:#c9bfae; }
+  main { display:grid; grid-template-columns: minmax(0,1fr) 340px; gap:12px; padding:12px 16px; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px; margin-bottom:12px; }
+  .panel h2 { font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:0 0 8px; }
+  button { font:inherit; padding:6px 10px; border-radius:6px; border:1px solid var(--line); background:#fff; cursor:pointer; margin:2px; }
+  button:hover { border-color:var(--accent); }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button:disabled { opacity:.5; cursor:default; }
+  input, select { font:inherit; padding:5px 8px; border:1px solid var(--line); border-radius:6px; }
+  table { width:100%; border-collapse:collapse; }
+  td, th { padding:6px; border-bottom:1px solid var(--line); vertical-align:top; text-align:left; }
+  tr.current { background:#fbf1dc; }
+  tr.dead { opacity:.45; }
+  .hp { color:var(--accent); letter-spacing:1px; }
+  .chip { display:inline-block; padding:1px 6px; border-radius:10px; background:#efe7d6; margin:1px; font-size:12px; }
+  .card { display:inline-block; padding:4px 8px; border:1px solid var(--line); border-radius:6px; background:#fff; margin:2px; }
+  .red { color:#b3261e; }
+  #log { height:340px; overflow:auto; font-size:12.5px; background:#fff; border:1px solid var(--line); border-radius:6px; padding:6px 8px; }
+  #log div { padding:1px 0; border-bottom:1px dotted #eee; }
+  #request { border-color:var(--accent); }
+  #request .prompt { font-weight:600; margin-bottom:6px; }
+  .timer { float:right; color:var(--warn); font-variant-numeric:tabular-nums; }
+  .muted { color:var(--muted); }
+  .error { color:var(--accent); }
+  label.pick { display:inline-flex; gap:4px; align-items:center; margin:2px 8px 2px 0; }
+  .hidden { display:none; }
+  .gen { border:1px solid var(--line); border-radius:6px; padding:6px 8px; margin:4px 0; cursor:pointer; background:#fff; }
+  .gen.sel { border-color:var(--accent); background:#fbf1dc; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Tam Quốc Sát · client kiểm thử</h1>
+  <span id="conn" class="muted">Chưa kết nối</span>
+  <span style="flex:1"></span>
+  <input id="name" placeholder="Tên của bạn" maxlength="24">
+  <button id="btnConnect" class="primary">Kết nối</button>
+</header>
+
+<main>
+  <div>
+    <div id="lobby" class="panel hidden">
+      <h2>Sảnh chờ</h2>
+      <div id="rooms" class="muted">Chưa có phòng nào.</div>
+      <div style="margin-top:8px">
+        <input id="roomName" placeholder="Tên phòng">
+        Số ghế <select id="roomSeats"><option>2</option><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option><option>8</option></select>
+        Thời gian trả lời <select id="roomTimeout"><option value="15">15 giây</option><option value="30" selected>30 giây</option><option value="60">60 giây</option></select>
+        <button id="btnCreate" class="primary">Tạo phòng</button>
+      </div>
+    </div>
+
+    <div id="roomPanel" class="panel hidden">
+      <h2>Phòng <span id="roomTitle"></span></h2>
+      <div id="seats"></div>
+      <div style="margin-top:6px">
+        <button id="btnAddBot">+ Thêm bot</button>
+        <button id="btnRemoveBot">− Bớt bot</button>
+        <button id="btnStart" class="primary">Bắt đầu</button>
+        <button id="btnLeave">Rời phòng</button>
+      </div>
+    </div>
+
+    <div id="request" class="panel hidden">
+      <h2>Đến lượt bạn <span id="timer" class="timer"></span></h2>
+      <div id="reqBody"></div>
+    </div>
+
+    <div id="board" class="panel hidden">
+      <h2>Bàn chơi</h2>
+      <table><thead><tr><th>#</th><th>Người chơi</th><th>Tướng</th><th>Máu</th><th>Bài</th><th>Trang bị / Phán định</th></tr></thead><tbody id="players"></tbody></table>
+      <h2 style="margin-top:12px">Bài trên tay</h2>
+      <div id="hand" class="muted">—</div>
+      <div id="notes" class="muted" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="panel">
+      <h2>Nhật ký</h2>
+      <div id="log"></div>
+    </div>
+    <div class="panel">
+      <h2>Trò chuyện</h2>
+      <div id="chat" class="muted" style="max-height:120px;overflow:auto"></div>
+      <input id="chatText" placeholder="Nhập rồi Enter" style="width:100%;margin-top:6px">
+    </div>
+  </div>
+</main>
+
+<script>
+// ============================================================
+// Client kiểm thử: đủ để chơi thử mọi loại câu hỏi của engine qua WebSocket.
+// Giao diện đẹp sẽ làm ở giai đoạn 6.
+// ============================================================
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+
+let ws = null, catalog = null, token = store.get('tqs_token'), mySeat = null, view = null, pendingReq = null, timerEnd = 0;
+const SUIT = { spade: '♠', heart: '♥', club: '♣', diamond: '♦' };
+const RANK = ['', 'A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+$('name').value = store.get('tqs_name') || '';
+
+function cardText(c, as) {
+  if (!c) return '';
+  const info = catalog?.cards[c.name];
+  const pre = c.nature === 'fire' ? 'Hỏa ' : c.nature === 'thunder' ? 'Lôi ' : '';
+  const red = c.suit === 'heart' || c.suit === 'diamond';
+  const asText = as && as !== c.name ? ` (như ${catalog?.cards[as]?.label ?? as})` : '';
+  return `<span class="${red ? 'red' : ''}">${esc(pre + (info?.label ?? c.name))} ${SUIT[c.suit]}${RANK[c.rank]}</span>${esc(asText)}`;
+}
+const genName = (id) => (id ? catalog?.generals.find((g) => g.id === id)?.name ?? id : '[úp]');
+const playerName = (s) => view?.players[s]?.name ?? `Ghế ${s}`;
+
+function send(msg) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(msg)); }
+
+async function connect() {
+  const name = $('name').value.trim() || 'Người chơi';
+  store.set('tqs_name', name);
+  if (!catalog) catalog = await (await fetch('/api/catalog')).json();
+  ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`);
+  ws.onopen = () => send({ t: 'hello', name, token });
+  ws.onclose = () => { $('conn').textContent = 'Mất kết nối – thử lại sau 2 giây...'; setTimeout(connect, 2000); };
+  ws.onmessage = (e) => onMessage(JSON.parse(e.data));
+}
+
+function onMessage(m) {
+  switch (m.t) {
+    case 'welcome':
+      token = m.token; store.set('tqs_token', token);
+      $('conn').textContent = `Đã kết nối: ${m.name} · nội dung phiên bản ${m.contentVersion}`;
+      $('lobby').classList.remove('hidden');
+      break;
+    case 'rooms': renderRooms(m.rooms); break;
+    case 'room': renderRoom(m.room, m.yourSeat); break;
+    case 'state':
+      view = m.view;
+      for (const line of m.log) addLog(line);
+      renderBoard();
+      break;
+    case 'request':
+      pendingReq = m; view = m.view; timerEnd = Date.now() + m.timeoutMs;
+      renderBoard(); renderRequest();
+      break;
+    case 'requestClosed':
+      if (pendingReq?.reqId === m.reqId) { pendingReq = null; renderRequest(); if (m.reason === 'timeout') addLog('⏱ Hết giờ, bot đã trả lời thay bạn.'); }
+      break;
+    case 'gameOver': addLog(`🏁 Kết thúc ván. Người thắng: ${m.result.winner ?? 'không có (hòa)'}`); pendingReq = null; renderRequest(); break;
+    case 'chat': $('chat').insertAdjacentHTML('beforeend', `<div><b>${esc(m.from)}:</b> ${esc(m.text)}</div>`); break;
+    case 'notice': addLog(`ℹ ${m.text}`); break;
+    case 'error': addLog(`<span class="error">⚠ ${esc(m.message)}</span>`, true); break;
+  }
+}
+
+function addLog(line, html) {
+  const d = document.createElement('div');
+  if (html) d.innerHTML = line; else d.textContent = line;
+  $('log').appendChild(d);
+  while ($('log').children.length > 300) $('log').firstChild.remove();
+  $('log').scrollTop = $('log').scrollHeight;
+}
+
+function renderRooms(rooms) {
+  $('rooms').innerHTML = rooms.length ? rooms.map((r) =>
+    `<div>${esc(r.name)} <span class="chip">${r.seats.length}/${r.maxSeats}</span> <span class="chip">${r.status === 'waiting' ? 'đang chờ' : 'đang chơi'}</span>
+     ${r.status === 'waiting' && r.seats.length < r.maxSeats ? `<button onclick="send({t:'joinRoom',roomId:'${r.id}'})">Vào</button>` : ''}</div>`).join('')
+    : 'Chưa có phòng nào. Hãy tạo phòng mới.';
+}
+
+function renderRoom(room, seat) {
+  mySeat = seat;
+  $('roomPanel').classList.toggle('hidden', !room);
+  $('lobby').classList.toggle('hidden', !!room);
+  if (!room) { $('board').classList.add('hidden'); pendingReq = null; renderRequest(); return; }
+  $('roomTitle').textContent = `${room.name} (${room.status === 'playing' ? 'đang chơi' : 'đang chờ'})`;
+  $('seats').innerHTML = room.seats.map((s) => `<span class="chip">${s.index}. ${esc(s.name)}${s.kind === 'bot' ? ' 🤖' : s.connected ? '' : ' (mất kết nối)'}${s.index === seat ? ' ← bạn' : ''}</span>`).join(' ');
+  const host = room.host === $('name').value.trim();
+  for (const id of ['btnAddBot', 'btnRemoveBot', 'btnStart']) $(id).disabled = room.status !== 'waiting';
+  if (room.status === 'playing') $('board').classList.remove('hidden');
+  void host;
+}
+
+function renderBoard() {
+  if (!view) return;
+  $('board').classList.remove('hidden');
+  $('players').innerHTML = view.players.map((p) => {
+    const g = p.generals ? `${esc(genName(p.generals.main.generalId))}${p.generals.main.revealed ? '' : ' (úp)'} + ${esc(genName(p.generals.deputy.generalId))}${p.generals.deputy.revealed ? '' : ' (úp)'}` : '';
+    const hp = p.alive ? '♥'.repeat(Math.max(0, p.hp)) + '·'.repeat(Math.max(0, p.maxHp - Math.max(0, p.hp))) : '☠';
+    const eq = Object.values(p.equips || {}).map((c) => cardText(c)).join(', ');
+    const jd = (p.judgeArea || []).map((c) => cardText(c)).join(', ');
+    const marks = p.marks ? [p.marks.yinyang && `Âm Dương Ngư×${p.marks.yinyang}`, p.marks.pioneer && `Tiên Khu×${p.marks.pioneer}`, p.marks.pair && `Châu Liên Bích Hợp×${p.marks.pair}`].filter(Boolean) : [];
+    return `<tr class="${p.seat === view.currentSeat ? 'current' : ''} ${p.alive ? '' : 'dead'}">
+      <td>${p.seat}</td>
+      <td>${esc(p.name)}${p.seat === view.me ? ' <b>(bạn)</b>' : ''}<br><span class="chip">${esc(p.team ?? '?')}</span>${p.chained ? ' <span class="chip">⛓ xích</span>' : ''}${marks.map((x) => ` <span class="chip">${x}</span>`).join('')}</td>
+      <td>${g}</td><td class="hp">${hp}<div class="muted">${p.hp}/${p.maxHp}</div></td><td>${p.handCount}</td>
+      <td>${eq ? `🛡 ${eq}` : ''}${jd ? `<div>⚖ ${jd}</div>` : ''}${p.special?.length ? `<div>Sẹo: ${p.special.map((c) => cardText(c)).join(', ')}</div>` : ''}</td></tr>`;
+  }).join('');
+  $('hand').innerHTML = view.myHand.length ? view.myHand.map((c) => `<span class="card">${cardText(c)}</span>`).join('') : '<span class="muted">(không có)</span>';
+  $('notes').innerHTML = view.notes?.length ? `Ghi chú riêng: ${view.notes.slice(-3).map(esc).join(' · ')}` : '';
+}
+
+// ---------- Trả lời câu hỏi ----------
+
+function answer(response) {
+  if (!pendingReq) return;
+  send({ t: 'answer', reqId: pendingReq.reqId, response });
+  pendingReq = null;
+  renderRequest();
+}
+
+/** Ô chọn nhiều: trả về hàm lấy giá trị đã chọn. */
+function picks(name, items) {
+  return items.map((it) => `<label class="pick"><input type="checkbox" name="${name}" value="${it.value}"> ${it.label}</label>`).join('');
+}
+const checked = (name) => [...document.querySelectorAll(`input[name="${name}"]:checked`)].map((x) => Number(x.value));
+
+function renderRequest() {
+  const box = $('request');
+  if (!pendingReq) { box.classList.add('hidden'); return; }
+  box.classList.remove('hidden');
+  const r = pendingReq.request, v = pendingReq.view;
+  const body = $('reqBody');
+  const handItems = (ids) => ids.map((id) => ({ value: id, label: cardText(v.myHand.find((c) => c.id === id)) }));
+  const seatItems = (seats) => seats.map((s) => ({ value: s, label: esc(`${s}. ${playerName(s)}`) }));
+
+  switch (r.type) {
+    case 'play': {
+      const hints = v.hints.map((h, i) => `<button onclick="pickHint(${i})">Dùng ${cardText(v.myHand.find((c) => c.id === h.cardId), h.as)}</button>`).join('');
+      const skills = (v.skillHints || []).map((s, i) => `<button onclick="pickSkill(${i})">✦ ${esc(s.name)}${s.reveals ? ' (lật tướng)' : ''}</button>`).join('');
+      body.innerHTML = `<div class="prompt">Giai đoạn ra bài</div><div>${hints || '<span class="muted">Không có lá nào dùng được.</span>'}</div><div>${skills}</div>
+        <div id="sub"></div><div style="margin-top:8px"><button class="primary" onclick="answer({kind:'endPlay'})">Kết thúc giai đoạn ra bài</button></div>`;
+      window.pickHint = (i) => {
+        const h = v.hints[i];
+        if (!h.needsTarget) return answer({ kind: 'useCard', cardId: h.cardId, targets: [], as: h.as });
+        $('sub').innerHTML = `<div class="prompt">Chọn ${h.minTargets === h.maxTargets ? h.maxTargets : `${h.minTargets}–${h.maxTargets}`} mục tiêu${h.minTargets === 0 ? ' (không chọn ai = trùng chú)' : ''}</div>${picks('tg', seatItems(h.targets))}<button class="primary" id="ok">Xác nhận</button>`;
+        $('ok').onclick = () => answer({ kind: 'useCard', cardId: h.cardId, targets: checked('tg'), as: h.as });
+      };
+      window.pickSkill = (i) => {
+        const s = v.skillHints[i];
+        const cards = s.cards === 'none' ? '' : `<div>Chọn lá (${s.minCards ?? 1}–${s.maxCards ?? '…'}): ${picks('sc', handItems(s.validCards ?? v.myHand.map((c) => c.id)))}</div>`;
+        const tg = s.needsTarget ? `<div>Mục tiêu: ${picks('st', seatItems(s.targets))}</div>` : '';
+        if (!cards && !tg) return answer({ kind: 'useSkill', skill: s.skill, cardIds: [], targets: [] });
+        $('sub').innerHTML = `<div class="prompt">${esc(s.name)}</div>${cards}${tg}<button class="primary" id="ok">Dùng</button>`;
+        $('ok').onclick = () => answer({ kind: 'useSkill', skill: s.skill, cardIds: checked('sc'), targets: checked('st') });
+      };
+      break;
+    }
+    case 'respond':
+    case 'save': {
+      const title = r.type === 'respond' ? esc(r.reason) : `${esc(playerName(r.dying))} đang hấp hối, cần ${r.need} Đào`;
+      const opts = v.responseOptions.map((o) => `<button onclick="answer({kind:'card',cardId:${o.cardId}})">${cardText(v.myHand.find((c) => c.id === o.cardId), o.as)}</button>`).join('');
+      const sp = r.type === 'save' ? (v.specialSaves || []).map((s) => `<button onclick="answer({kind:'useSkill',skill:'${s.skill}',cardIds:[],targets:[]})">${esc(s.name)}</button>`).join('') : '';
+      body.innerHTML = `<div class="prompt">${title}</div>${opts}${sp}<button onclick="answer({kind:'pass'})">Không đánh</button>`;
+      break;
+    }
+    case 'discard':
+      body.innerHTML = `<div class="prompt">Bỏ đúng ${r.count} lá</div>${picks('d', handItems(v.myHand.map((c) => c.id)))}<br><button class="primary" id="ok">Bỏ</button>`;
+      $('ok').onclick = () => answer({ kind: 'discard', cardIds: checked('d') });
+      break;
+    case 'chooseCards':
+      body.innerHTML = `<div class="prompt">${esc(r.prompt)} (${r.min}–${r.max} lá)</div>${picks('cc', handItems(r.cardIds))}<br><button class="primary" id="ok">Chọn</button>`;
+      $('ok').onclick = () => answer({ kind: 'cards', cardIds: checked('cc') });
+      break;
+    case 'choose':
+      body.innerHTML = `<div class="prompt">${esc(r.prompt)}</div>${r.options.map((o, i) => `<button onclick="answer({kind:'choice',index:${i}})">${esc(o)}</button>`).join('')}`;
+      break;
+    case 'chooseTargets':
+      body.innerHTML = `<div class="prompt">${esc(r.prompt)} (${r.min}–${r.max} người)</div>${picks('ct', seatItems(r.candidates))}<br><button class="primary" id="ok">Chọn</button>`;
+      $('ok').onclick = () => answer({ kind: 'targets', targets: checked('ct') });
+      break;
+    case 'confirm':
+      body.innerHTML = `<div class="prompt">${esc(r.prompt)}</div><button class="primary" onclick="answer({kind:'yes'})">Có</button><button onclick="answer({kind:'no'})">Không</button>`;
+      break;
+    case 'reveal':
+      body.innerHTML = `<div class="prompt">Lật tướng?</div><button onclick="answer({kind:'reveal',main:false,deputy:false})">Không lật</button>
+        ${r.canMain ? `<button onclick="answer({kind:'reveal',main:true,deputy:false})">Lật chủ tướng</button>` : ''}
+        ${r.canDeputy ? `<button onclick="answer({kind:'reveal',main:false,deputy:true})">Lật phó tướng</button>` : ''}
+        ${r.canMain && r.canDeputy ? `<button class="primary" onclick="answer({kind:'reveal',main:true,deputy:true})">Lật cả hai</button>` : ''}`;
+      break;
+    case 'chooseGenerals': {
+      const sel = [];
+      body.innerHTML = `<div class="prompt">Chọn 2 tướng CÙNG thế lực (chọn trước = chủ tướng)</div><div id="gens"></div><button class="primary" id="ok" disabled>Xác nhận</button>`;
+      const draw = () => {
+        $('gens').innerHTML = r.candidates.map((id) => {
+          const g = catalog.generals.find((x) => x.id === id);
+          const sk = g.skills.map((s) => `<div class="muted">· <b>${esc(catalog.skills[s]?.name)}</b>: ${esc(catalog.skills[s]?.desc)}</div>`).join('');
+          return `<div class="gen ${sel.includes(id) ? 'sel' : ''}" data-id="${id}"><b>${esc(g.name)}</b> <span class="chip">${esc(g.kingdomLabel)}</span> <span class="chip">${g.halfHp} cá</span> ${sel[0] === id ? '<span class="chip">chủ tướng</span>' : sel[1] === id ? '<span class="chip">phó tướng</span>' : ''}${sk}</div>`;
+        }).join('');
+        document.querySelectorAll('.gen').forEach((el) => el.onclick = () => {
+          const id = el.dataset.id;
+          const i = sel.indexOf(id);
+          if (i >= 0) sel.splice(i, 1); else if (sel.length < 2) sel.push(id);
+          draw();
+        });
+        $('ok').disabled = sel.length !== 2;
+      };
+      draw();
+      $('ok').onclick = () => answer({ kind: 'generals', main: sel[0], deputy: sel[1] });
+      break;
+    }
+    default:
+      body.innerHTML = `<div class="prompt">Câu hỏi chưa hỗ trợ: ${esc(r.type)}</div><button onclick="answer({kind:'pass'})">Bỏ qua</button>`;
+  }
+}
+
+setInterval(() => {
+  $('timer').textContent = pendingReq ? `${Math.max(0, Math.ceil((timerEnd - Date.now()) / 1000))} giây` : '';
+}, 250);
+
+$('btnConnect').onclick = () => { if (!ws) connect(); };
+$('btnCreate').onclick = () => send({ t: 'createRoom', name: $('roomName').value, seats: Number($('roomSeats').value), timeoutSec: Number($('roomTimeout').value) });
+$('btnAddBot').onclick = () => send({ t: 'addBot' });
+$('btnRemoveBot').onclick = () => send({ t: 'removeBot' });
+$('btnStart').onclick = () => send({ t: 'start' });
+$('btnLeave').onclick = () => send({ t: 'leaveRoom' });
+$('chatText').onkeydown = (e) => { if (e.key === 'Enter' && e.target.value.trim()) { send({ t: 'chat', text: e.target.value }); e.target.value = ''; } };
+if (store.get('tqs_name')) connect();
+</script>
+</body>
+</html>

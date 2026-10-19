@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%225%22 fill=%22%23a8281d%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%23f6e9d2%22 font-family=%22serif%22%3ES%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bảng xếp hạng · Tam Quốc Sát</title>
+<link rel="stylesheet" href="/ui/fonts.css">
+<link rel="stylesheet" href="/ui/cards.css">
+<link rel="stylesheet" href="/ui/game.css">
+<style>
+  main { max-width: 1000px; margin: 0 auto; padding: 22px 16px 60px; }
+  .rk-head { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+  .rk-head h1 { margin: 0; font-size: 30px; }
+  .rk-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+  .rk-tabs button { background: none; border: 1px solid var(--rim-dim); border-radius: 1em; padding: 2px 12px; cursor: pointer; color: var(--bone-2); }
+  .rk-tabs button.on { color: var(--bone); border-color: var(--act); background: rgba(224,83,63,.12); }
+  table.rk { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  table.rk th, table.rk td { padding: 8px 8px; border-bottom: 1px solid rgba(197,152,82,.15); text-align: left; }
+  table.rk th { color: var(--bone-2); font-weight: 400; font-size: 12.5px; }
+  table.rk .num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.rk tr.click { cursor: pointer; }
+  table.rk tr.click:hover td { background: rgba(197,152,82,.07); }
+  .place { width: 2.5em; font-weight: 700; color: var(--rim); }
+  .place.p1 { color: #f0c46a; } .place.p2 { color: #d9d9d9; } .place.p3 { color: #d29a6a; }
+  .rank-chip { font-size: 12px; padding: 0 .55em; border-radius: 1em; border: 1px solid var(--rim-dim); color: var(--bone-2); white-space: nowrap; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 12px 0 18px; }
+  .stat { background: rgba(0,0,0,.28); border: 1px solid rgba(197,152,82,.18); border-radius: 8px; padding: 10px 12px; }
+  .stat b { display: block; font-size: 22px; line-height: 1.2; }
+  .stat span { font-size: 12.5px; color: var(--bone-2); }
+  .ranks { display: flex; gap: 6px; flex-wrap: wrap; font-size: 12.5px; color: var(--bone-2); margin-top: 10px; }
+  .back { margin-bottom: 10px; }
+  .hide-sm { }
+  @media (max-width: 640px) { .hide-sm { display: none; } table.rk th, table.rk td { padding: 7px 4px; } }
+  .match-row td { vertical-align: top; }
+  .portrait { --pw: 40px; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/" title="Về trang chính" style="color:inherit;text-decoration:none"><span class="mark">三国</span><span>Tam Quốc Sát</span></a>
+  <span class="spacer"></span>
+  <a class="btn small ghost" href="/game.html">Vào chơi</a>
+</header>
+<main>
+  <div id="view"></div>
+</main>
+<script src="/ui/cards.js"></script>
+<script>
+(function () {
+  const C = window.TQSCards;
+  const { esc } = C;
+  const $ = (id) => document.getElementById(id);
+  const CAT = [['damage', 'Sát thương'], ['kill', 'Hạ gục'], ['heal', 'Hồi máu'], ['cards', 'Hủy/lấy bài'], ['hpLoss', 'Làm mất máu'],
+    ['jail', 'Tù'], ['control', 'Khống chế'], ['support', 'Hỗ trợ'], ['end', 'Kết thúc ván']];
+  const FACTION = (f) => (f === 'careerist' ? 'Dã tâm gia' : C.KINGDOM[f]?.label ?? f);
+  const fmt = (x) => (Number.isInteger(x) ? String(x) : x.toFixed(1));
+  const when = (iso) => iso ? new Date(iso).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+  const gname = (id) => C.general(id)?.name ?? id;
+  const SORTS = [['rating', 'Elo'], ['wins', 'Số trận thắng'], ['score', 'Điểm TB/ván'], ['mvp', 'Số lần MVP']];
+  let sort = 'rating';
+
+  async function get(path) {
+    const r = await fetch(path);
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'Lỗi tải dữ liệu');
+    return j;
+  }
+
+  async function showBoard() {
+    const data = await get(`/api/leaderboard?sort=${sort}`);
+    const rows = data.players.map((p) => `<tr class="click" data-u="${esc(p.username)}">
+      <td class="place p${p.place}">${p.place}</td>
+      <td><b>${esc(p.displayName)}</b> <small class="muted">@${esc(p.username)}</small><br><span class="rank-chip">${esc(p.rank)}</span></td>
+      <td class="num"><b>${p.rating}</b></td>
+      <td class="num">${p.games}</td>
+      <td class="num hide-sm">${p.wins} <small class="muted">(${p.winRate}%)</small></td>
+      <td class="num hide-sm">${p.mvps}</td>
+      <td class="num">${fmt(p.avgScore)}</td>
+    </tr>`).join('');
+    $('view').innerHTML = `<div class="rk-head"><h1>Bảng xếp hạng</h1>
+      <div class="rk-tabs">${SORTS.map(([k, l]) => `<button type="button" data-sort="${k}" class="${k === sort ? 'on' : ''}">${l}</button>`).join('')}</div></div>
+      <div class="panel">${data.players.length ? `<table class="rk"><thead><tr><th>#</th><th>Người chơi</th><th class="num">Elo</th><th class="num">Ván</th><th class="num hide-sm">Thắng</th><th class="num hide-sm">MVP</th><th class="num">Điểm TB</th></tr></thead><tbody>${rows}</tbody></table>`
+        : '<div class="empty">Chưa có ai chơi ván có tài khoản. Đăng nhập ở màn hình vào game rồi chơi một ván để lên bảng.</div>'}
+      <div class="ranks">Cấp bậc: <span class="rank-chip">Binh Sĩ &lt; 1000</span>${data.ranks.slice().reverse().map((r) => `<span class="rank-chip">${esc(r.name)} ≥ ${r.min}</span>`).join('')} · 10 ván đầu là "đang xếp hạng".</div></div>`;
+    document.querySelectorAll('[data-sort]').forEach((b) => { b.onclick = () => { sort = b.dataset.sort; showBoard(); }; });
+    document.querySelectorAll('tr[data-u]').forEach((tr) => { tr.onclick = () => { location.hash = `nguoi-${encodeURIComponent(tr.dataset.u)}`; }; });
+  }
+
+  async function showProfile(u) {
+    const { profile: p, matches } = await get(`/api/profile?u=${encodeURIComponent(u)}`);
+    const titles = Object.entries(p.titles).sort((a, b) => b[1] - a[1]).map(([t, n]) => `<span class="title-chip ${t === 'MVP' ? 'mvp' : ''}">${esc(t)} ×${n}</span>`).join(' ');
+    const rows = matches.map((m) => {
+      const me = m.players.find((x) => x.username === p.username);
+      const d = me.ratingAfter !== null && me.ratingBefore !== null ? me.ratingAfter - me.ratingBefore : null;
+      return `<tr class="click match-row" data-m="${esc(m.id)}">
+        <td>${when(m.at)}<br><small class="muted">${m.players.length} người · ${m.turns} lượt</small></td>
+        <td>${esc(me.generals.map(gname).join(' + '))}<br><small class="muted">${esc(FACTION(me.faction))}</small></td>
+        <td>${me.winner ? '<b>Thắng</b>' : 'Thua'}${me.titles.includes('MVP') ? ' <span class="title-chip mvp">MVP</span>' : ''}</td>
+        <td class="num">${fmt(me.score)}</td>
+        <td class="num">${d === null ? '<span class="muted">—</span>' : `<span class="${d >= 0 ? 'elo-up' : 'elo-down'}">${d >= 0 ? '+' : ''}${d}</span>`}</td>
+      </tr>`;
+    }).join('');
+    $('view').innerHTML = `<div class="back"><a class="btn small ghost" href="#">← Bảng xếp hạng</a></div>
+      <div class="rk-head"><h1>${esc(p.displayName)}</h1><span class="muted">@${esc(p.username)} · <span class="rank-chip">${esc(p.rank)}</span></span></div>
+      <div class="stats">
+        <div class="stat"><b>${p.rating}</b><span>Elo (cao nhất ${p.peak})</span></div>
+        <div class="stat"><b>${p.games}</b><span>Ván đã chơi</span></div>
+        <div class="stat"><b>${p.winRate}%</b><span>Tỉ lệ thắng (${p.wins} ván)</span></div>
+        <div class="stat"><b>${p.mvps}</b><span>Lần MVP</span></div>
+        <div class="stat"><b>${fmt(p.avgScore)}</b><span>Điểm TB/ván</span></div>
+        <div class="stat"><b>${fmt(p.bestScore)}</b><span>Điểm cao nhất</span></div>
+      </div>
+      ${titles ? `<p>${titles}</p>` : ''}
+      <div class="panel"><h2>20 ván gần nhất</h2>
+      ${matches.length ? `<table class="rk"><thead><tr><th>Thời gian</th><th>Tướng</th><th>Kết quả</th><th class="num">Điểm</th><th class="num">Elo</th></tr></thead><tbody>${rows}</tbody></table>` : '<div class="empty">Chưa có ván nào.</div>'}</div>`;
+    document.querySelectorAll('tr[data-m]').forEach((tr) => { tr.onclick = () => { location.hash = `van-${tr.dataset.m}`; }; });
+  }
+
+  async function showMatch(id) {
+    const m = await get(`/api/match?id=${encodeURIComponent(id)}`);
+    const rows = [...m.players].sort((a, b) => b.score - a.score).map((p) => {
+      const d = p.ratingAfter !== null && p.ratingBefore !== null ? p.ratingAfter - p.ratingBefore : null;
+      const detail = CAT.filter(([k]) => p.breakdown[k]).map(([k, l]) => `${l} ${p.breakdown[k] > 0 ? '+' : ''}${fmt(p.breakdown[k])}`).join(' · ');
+      return `<tr class="${p.winner ? 'win' : ''}">
+        <td>${C.portraitHTML(p.generals[0])}</td>
+        <td><b>${esc(p.name)}</b> ${p.username ? `<a class="muted" href="#nguoi-${encodeURIComponent(p.username)}">@${esc(p.username)}</a>` : `<small class="muted">${p.bot ? 'bot' : 'khách'}</small>`}${p.alive ? '' : ' <span class="muted">✝</span>'}<br>
+          <small class="muted">${esc(p.generals.map(gname).join(' + '))} · ${esc(FACTION(p.faction))}${p.winner ? ' · <b>Thắng</b>' : ''}</small>
+          <div class="titles">${p.titles.map((t) => `<span class="title-chip ${t === 'MVP' ? 'mvp' : ''}">${esc(t)}</span>`).join('')}</div>
+          <div class="score-detail">${esc(detail)}</div></td>
+        <td class="num total">${fmt(p.score)}</td>
+        <td class="num">${d === null ? '<span class="muted">—</span>' : `${p.ratingAfter}<br><small class="${d >= 0 ? 'elo-up' : 'elo-down'}">${d >= 0 ? '+' : ''}${d}</small>`}</td>
+      </tr>`;
+    }).join('');
+    $('view').innerHTML = `<div class="back"><a class="btn small ghost" href="javascript:history.back()">← Quay lại</a></div>
+      <div class="rk-head"><h1>Ván ${esc(m.id)}</h1><span class="muted">${when(m.at)} · ${esc(m.room)} · ${m.turns} lượt · ${esc(m.winner ? `${m.winner} thắng` : 'Hòa')}${m.ranked ? ' · có tính Elo' : ''}</span></div>
+      <div class="panel"><table class="score-table"><thead><tr><th></th><th>Người chơi</th><th class="num">Điểm</th><th class="num">Elo</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
+  async function route() {
+    const h = decodeURIComponent(location.hash.slice(1));
+    try {
+      if (h.startsWith('nguoi-')) await showProfile(h.slice(6));
+      else if (h.startsWith('van-')) await showMatch(h.slice(4));
+      else await showBoard();
+    } catch (e) {
+      $('view').innerHTML = `<div class="back"><a class="btn small ghost" href="#">← Bảng xếp hạng</a></div><div class="panel"><div class="empty">${esc(e.message)}</div></div>`;
+    }
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', route);
+  (async () => {
+    try { C.setCatalog(await (await fetch('/api/catalog')).json()); } catch { /* vẫn hiện bảng, thiếu tên tướng */ }
+    route();
+  })();
+})();
+</script>
+</body>
+</html>

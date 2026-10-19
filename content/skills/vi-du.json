@@ -1,0 +1,112 @@
+[
+  {
+    "_ghiChu": "KIỂU 1 - KÍCH HOẠT: KHI chịu sát thương, NẾU là mình, THÌ bốc bài. Đúng mẫu 'mất máu thì bốc bài'.",
+    "id": "phan_hoi",
+    "name": "Phản Hồi",
+    "desc": "Sau khi bạn chịu sát thương, bạn có thể bốc số lá bằng số sát thương.",
+    "type": "trigger",
+    "event": "damaged",
+    "role": "target",
+    "actions": [
+      { "do": "draw", "count": "amount" }
+    ]
+  },
+  {
+    "_ghiChu": "KIỂU 1 - KÍCH HOẠT + SỬA SỰ KIỆN: tỏa định (optional=false) giảm sát thương khi ít máu.",
+    "id": "kien_thu",
+    "name": "Kiên Thủ",
+    "desc": "Tỏa định. Khi bạn chịu sát thương lớn hơn 1 và còn không quá 2 máu, sát thương giảm 1.",
+    "type": "trigger",
+    "event": "beforeDamage",
+    "role": "target",
+    "optional": false,
+    "if": "amount > 1 and self.hp <= 2",
+    "actions": [
+      { "do": "modifyDamage", "add": "-1" },
+      { "do": "say", "text": "Kiên Thủ của {self.name}: sát thương giảm còn {amount - 1}." }
+    ]
+  },
+  {
+    "_ghiChu": "KIỂU 1 - KÍCH HOẠT + PHÁN ĐỊNH + LỰA CHỌN: sau khi gây sát thương bằng Sát.",
+    "id": "doc_ke",
+    "name": "Độc Kế",
+    "desc": "Sau khi Sát của bạn gây sát thương, bạn có thể phán định; nếu là lá đen, người đó chọn: bỏ 1 lá trên tay, hoặc mất 1 máu.",
+    "type": "trigger",
+    "event": "damaged",
+    "role": "source",
+    "if": "byCard == 'sha' and target.alive",
+    "limit": { "perTurn": 1 },
+    "actions": [
+      {
+        "do": "judge",
+        "success": "judge.color == 'black'",
+        "then": [
+          {
+            "do": "choose",
+            "who": "target",
+            "prompt": "Độc Kế của {self.name}: bạn chọn",
+            "options": [
+              { "label": "Bỏ 1 lá trên tay", "if": "target.hand > 0", "actions": [ { "do": "discard", "who": "target", "count": "1" } ] },
+              { "label": "Mất 1 máu", "actions": [ { "do": "loseHp", "who": "target", "count": "1" } ] }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "_ghiChu": "KIỂU 1 - KÍCH HOẠT: cuối lượt, nếu hết bài thì hồi máu.",
+    "id": "an_cu",
+    "name": "An Cư",
+    "desc": "Cuối lượt của bạn, nếu bạn không còn bài trên tay, bạn hồi 1 máu.",
+    "type": "trigger",
+    "event": "turnEnd",
+    "role": "current",
+    "optional": false,
+    "if": "self.hand == 0 and self.lostHp > 0",
+    "actions": [ { "do": "recover", "count": "1" } ]
+  },
+  {
+    "_ghiChu": "KIỂU 2 - CHỦ ĐỘNG: bấm dùng trong giai đoạn ra bài. Bỏ 1 lá đỏ để gây sát thương.",
+    "id": "tran_tinh",
+    "name": "Trần Tình",
+    "desc": "Mỗi lượt một lần, bạn có thể bỏ 1 lá đỏ để gây 1 sát thương cho một người trong tầm đánh.",
+    "type": "active",
+    "cards": { "min": 1, "max": 1, "filter": "card.color == 'red'" },
+    "target": { "filter": "t != self and inRange(self, t)" },
+    "cost": "discard",
+    "limit": { "perTurn": 1 },
+    "bot": { "use": "always", "target": "enemy" },
+    "actions": [ { "do": "damage", "who": "target", "count": "1" } ]
+  },
+  {
+    "_ghiChu": "KIỂU 2 - CHỦ ĐỘNG: đổi bài, số lá bốc phụ thuộc số lá đã bỏ.",
+    "id": "muu_dinh",
+    "name": "Mưu Định",
+    "desc": "Mỗi lượt một lần, bạn có thể bỏ 1–3 lá, rồi bốc số lá đó cộng 1.",
+    "type": "active",
+    "cards": { "min": 1, "max": 3 },
+    "cost": "discard",
+    "limit": { "perTurn": 1 },
+    "bot": { "use": "always" },
+    "actions": [ { "do": "draw", "count": "cards.count + 1" } ]
+  },
+  {
+    "_ghiChu": "KIỂU 3 - BỊ ĐỘNG: luôn có hiệu lực khi đã lật tướng.",
+    "id": "kiem_khach",
+    "name": "Kiếm Khách",
+    "desc": "Tỏa định. Tầm đánh của bạn +1. Mỗi lượt bạn được dùng 2 lá Sát. Lá Chuồn của bạn có thể dùng như Sát.",
+    "type": "passive",
+    "attackRange": "1",
+    "slashLimit": 2,
+    "convert": [ { "from": "card.suit == 'club'", "as": "sha" } ]
+  },
+  {
+    "_ghiChu": "KIỂU 3 - BỊ ĐỘNG theo điều kiện: giới hạn bài trên tay tăng theo số máu đã mất.",
+    "id": "tich_luong",
+    "name": "Tích Lương",
+    "desc": "Tỏa định. Giới hạn bài trên tay của bạn cộng thêm số máu bạn đã mất.",
+    "type": "passive",
+    "handLimit": "self.lostHp"
+  }
+]

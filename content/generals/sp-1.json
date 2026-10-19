@@ -1,0 +1,18 @@
+[
+ {
+  "_ghiChu": "Nhóm C1 — tướng SP (gói SP-Tiêu Trừ, Overseas.lua). Kỹ năng viết trong content/scripts/goi-sp-1.mjs. Số âm dương ngư ước lượng theo bản Quốc Chiến chính thức."
+ },
+ { "id": "liaohua", "name": "Liêu Hóa", "kingdom": "shu", "halfHp": 4, "skills": ["dangxian"] },
+ { "id": "zhugejin", "name": "Gia Cát Cẩn", "kingdom": "wu", "halfHp": 3, "skills": ["huanshi", "hongyuan", "mingzhe"] },
+ { "id": "quancong", "name": "Toàn Tông", "kingdom": "wu", "halfHp": 4, "skills": ["qinzhong", "zhaofu"] },
+ { "id": "guohuai", "name": "Quách Hoài", "kingdom": "wei", "halfHp": 4, "skills": ["jingce"] },
+ { "id": "yangxiu", "name": "Dương Tu", "kingdom": "wei", "halfHp": 3, "skills": ["danlao", "jilei"] },
+ { "id": "zumao", "name": "Tổ Mậu", "kingdom": "wu", "halfHp": 4, "skills": ["yinbingx", "juedi"] },
+ { "id": "fuwan", "name": "Phục Hoàn", "kingdom": "qun", "halfHp": 4, "skills": ["moukui"] },
+ { "id": "chendao", "name": "Trần Đáo", "kingdom": "shu", "halfHp": 4, "skills": ["wanglie", "dizai"] },
+ { "id": "tianyu", "name": "Điền Dự", "kingdom": "wei", "halfHp": 3, "skills": ["zhenxi", "jiansu"],
+   "_ghiChu": "Bản gốc 4 cá; Kiệm Tố (phó tướng kỹ) giảm 0.5 máu gốc -> khai báo luôn 3 cá (đơn giản hóa: làm chủ tướng cũng tính 3 cá)." },
+ { "id": "huaxiong", "name": "Hoa Hùng", "kingdom": "qun", "halfHp": 4, "skills": ["yaowu", "shiyong"] },
+ { "id": "liufuren", "name": "Lưu Phu Nhân", "kingdom": "qun", "halfHp": 3, "skills": ["zhuidu", "shigong"], "gender": "female" },
+ { "id": "yijibo", "name": "Y Tịch", "kingdom": "shu", "halfHp": 3, "skills": ["dingke", "jiyuan"] }
+]

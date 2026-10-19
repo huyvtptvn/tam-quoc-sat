@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%225%22 fill=%22%23a8281d%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%23f6e9d2%22 font-family=%22serif%22%3ES%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hướng dẫn kỹ năng · Tam Quốc Sát</title>
+<link rel="stylesheet" href="/ui/fonts.css">
+<link rel="stylesheet" href="/ui/cards.css">
+<link rel="stylesheet" href="/ui/game.css">
+<style>
+  .doc-wrap { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 32px; max-width: 1180px; margin: 0 auto; padding: 28px 16px 60px; }
+  @media (max-width: 880px) { .doc-wrap { grid-template-columns: 1fr; } #toc { position: static !important; max-height: none !important; } }
+  #toc { position: sticky; top: 16px; align-self: start; max-height: calc(100vh - 32px); overflow: auto; font-size: 14px; }
+  #toc a { display: block; padding: 4px 8px; border-radius: 5px; color: var(--bone-2); text-decoration: none; }
+  #toc a:hover { color: var(--bone); background: rgba(197,152,82,.12); }
+  #doc { max-width: 76ch; line-height: 1.7; font-size: 16px; }
+  #doc h1 { font-size: 32px; line-height: 1.2; margin: 0 0 16px; }
+  #doc h2 { font-size: 23px; margin: 40px 0 10px; padding-top: 8px; border-top: 1px solid var(--rim-dim); }
+  #doc h3 { font-size: 18px; margin: 26px 0 6px; color: #f6d79b; }
+  #doc p, #doc ul, #doc ol { margin: 0 0 12px; }
+  #doc li { margin: 3px 0; }
+  #doc a { color: #f6d79b; }
+  #doc code { font-family: ui-monospace, Consolas, monospace; font-size: .88em; background: rgba(0,0,0,.35); padding: .1em .35em; border-radius: 4px; }
+  #doc pre { background: rgba(0,0,0,.45); border: 1px solid var(--rim-dim); border-radius: 8px; padding: 12px 14px; overflow: auto; line-height: 1.5; }
+  #doc pre code { background: none; padding: 0; font-size: 13.5px; }
+  #doc blockquote { margin: 0 0 12px; padding: 8px 14px; border-left: 3px solid var(--rim); background: rgba(197,152,82,.08); }
+  #doc table { border-collapse: collapse; width: 100%; margin: 0 0 14px; font-size: 14.5px; display: block; overflow-x: auto; }
+  #doc th, #doc td { border-bottom: 1px solid rgba(197,152,82,.2); padding: 6px 10px; text-align: left; vertical-align: top; }
+  #doc th { color: #f6d79b; }
+  #doc hr { border: 0; border-top: 1px solid var(--rim-dim); margin: 28px 0; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/" style="color:inherit;text-decoration:none"><span class="mark">三国</span><span>Tam Quốc Sát</span></a>
+  <span class="spacer"></span>
+  <a class="btn small ghost" href="/admin.html">Quản trị nội dung</a>
+</header>
+<div class="doc-wrap">
+  <nav id="toc" aria-label="Mục lục"></nav>
+  <article id="doc">Đang tải hướng dẫn…</article>
+</div>
+<script>
+// Hiển thị content/HUONG-DAN-KY-NANG.md. Bộ đọc Markdown tối giản: tiêu đề, đoạn, danh sách, bảng, khối mã, trích dẫn.
+(function () {
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const slug = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const inline = (s) => esc(s)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, t, u) => (/^(https?:|\/|#)/.test(u) ? `<a href="${u}">${t}</a>` : t));
+
+  function render(md) {
+    const lines = md.replace(/\r/g, '').split('\n');
+    const out = [], toc = [];
+    let i = 0;
+    while (i < lines.length) {
+      const l = lines[i];
+      if (/^```/.test(l)) {
+        const buf = []; i++;
+        while (i < lines.length && !/^```/.test(lines[i])) buf.push(lines[i++]);
+        i++; out.push(`<pre><code>${esc(buf.join('\n'))}</code></pre>`); continue;
+      }
+      const h = l.match(/^(#{1,4})\s+(.*)/);
+      if (h) {
+        const n = h[1].length, id = slug(h[2]);
+        if (n === 2) toc.push({ id, text: h[2] });
+        out.push(`<h${n} id="${id}">${inline(h[2])}</h${n}>`); i++; continue;
+      }
+      if (/^---+\s*$/.test(l)) { out.push('<hr>'); i++; continue; }
+      if (/^\|/.test(l)) {
+        const rows = [];
+        while (i < lines.length && /^\|/.test(lines[i])) rows.push(lines[i++]);
+        const cells = (r) => r.replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
+        const body = rows.filter((r, k) => !(k === 1 && /^\|[\s:|-]+\|?$/.test(r)));
+        out.push('<table>' + body.map((r, k) => `<tr>${cells(r).map((c) => (k === 0 ? `<th>${inline(c)}</th>` : `<td>${inline(c)}</td>`)).join('')}</tr>`).join('') + '</table>');
+        continue;
+      }
+      if (/^>\s?/.test(l)) {
+        const buf = [];
+        while (i < lines.length && /^>\s?/.test(lines[i])) buf.push(lines[i++].replace(/^>\s?/, ''));
+        out.push(`<blockquote>${inline(buf.join(' '))}</blockquote>`); continue;
+      }
+      if (/^\s*([-*]|\d+\.)\s+/.test(l)) {
+        const ordered = /^\s*\d+\./.test(l);
+        const items = [];
+        while (i < lines.length && (/^\s*([-*]|\d+\.)\s+/.test(lines[i]) || (/^\s{2,}\S/.test(lines[i]) && items.length))) {
+          const m = lines[i].match(/^\s*(?:[-*]|\d+\.)\s+(.*)/);
+          if (m) items.push(m[1]); else items[items.length - 1] += ' ' + lines[i].trim();
+          i++;
+        }
+        out.push(`<${ordered ? 'ol' : 'ul'}>${items.map((t) => `<li>${inline(t)}</li>`).join('')}</${ordered ? 'ol' : 'ul'}>`); continue;
+      }
+      if (!l.trim()) { i++; continue; }
+      const buf = [];
+      while (i < lines.length && lines[i].trim() && !/^(#{1,4}\s|```|\||>|\s*([-*]|\d+\.)\s|---+\s*$)/.test(lines[i])) buf.push(lines[i++]);
+      out.push(`<p>${inline(buf.join(' '))}</p>`);
+    }
+    return { html: out.join('\n'), toc };
+  }
+
+  fetch('/docs/ky-nang').then((r) => r.text()).then((md) => {
+    const { html, toc } = render(md);
+    document.getElementById('doc').innerHTML = html;
+    document.getElementById('toc').innerHTML = toc.map((t) => `<a href="#${t.id}">${inline(t.text)}</a>`).join('');
+    if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+  }).catch(() => { document.getElementById('doc').textContent = 'Không tải được hướng dẫn.'; });
+})();
+</script>
+</body>
+</html>

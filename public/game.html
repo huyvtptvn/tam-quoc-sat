@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%225%22 fill=%22%23a8281d%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%23f6e9d2%22 font-family=%22serif%22%3ES%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tam Quốc Sát · Quốc Chiến</title>
+<link rel="stylesheet" href="/ui/fonts.css">
+<link rel="stylesheet" href="/ui/cards.css">
+<link rel="stylesheet" href="/ui/game.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/" title="Về trang chính" style="color:inherit;text-decoration:none"><span class="mark">三国</span><span>Tam Quốc Sát</span></a>
+  <span id="connState" class="muted"></span>
+  <span class="spacer"></span>
+  <span id="accBadge" class="acc-badge hidden"></span>
+  <a class="btn small ghost" href="/ranking.html" target="_blank" rel="noopener">Xếp hạng</a>
+  <button id="btnLogout" class="btn small ghost hidden" type="button">Đăng xuất</button>
+  <button id="sideToggle" class="btn small ghost" type="button">Nhật ký</button>
+  <button id="btnLeave" class="btn small ghost hidden" type="button">Rời phòng</button>
+</header>
+
+<!-- Vào game -->
+<section id="login" class="screen">
+  <div class="hero">
+    <div class="seal-big" aria-hidden="true">三国</div>
+    <div>
+      <h1>Tam Quốc Sát<br>Quốc Chiến</h1>
+      <p>Chọn hai tướng cùng thế lực, giấu mặt đến phút quyết định. Bàn có bot ngồi sẵn, vào là chơi được.</p>
+      <div class="login-tabs" role="tablist">
+        <button type="button" class="on" data-ltab="guest" role="tab">Chơi như khách</button>
+        <button type="button" data-ltab="account" role="tab">Tài khoản (có xếp hạng)</button>
+      </div>
+      <form id="loginForm">
+        <input id="name" class="field" placeholder="Tên hiển thị" maxlength="24" autocomplete="nickname" required>
+        <button class="btn primary" type="submit">Vào sảnh</button>
+      </form>
+      <form id="accountForm" class="hidden">
+        <input id="accUser" class="field" placeholder="Tên đăng nhập" maxlength="20" autocomplete="username" required>
+        <input id="accPass" class="field" type="password" placeholder="Mật khẩu (ít nhất 6 ký tự)" maxlength="100" autocomplete="current-password" required>
+        <input id="accDisplay" class="field hidden" placeholder="Tên hiển thị (không bắt buộc)" maxlength="24" autocomplete="nickname">
+        <button class="btn primary" type="submit" id="accSubmit">Đăng nhập</button>
+        <button class="btn ghost" type="button" id="accSwitch">Chưa có tài khoản? Đăng ký</button>
+        <p id="accErr" class="acc-err hidden" role="alert"></p>
+      </form>
+      <p class="muted" style="font-size:13px;margin-top:10px">Khách vẫn chơi bình thường nhưng không được lưu điểm. <a href="/ranking.html" class="muted">Xem bảng xếp hạng</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- Sảnh -->
+<section id="lobby" class="screen hidden">
+  <div class="wrap lobby-grid">
+    <div class="panel">
+      <h2>Phòng đang mở</h2>
+      <div id="rooms"></div>
+    </div>
+    <form id="createForm" class="panel form-col">
+      <h2>Tạo phòng</h2>
+      <label>Tên phòng <input id="roomName" class="field" maxlength="40" placeholder="Phòng của bạn"></label>
+      <label>Số người
+        <select id="roomSeats" class="field">
+          <option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option><option>8</option>
+        </select>
+      </label>
+      <label>Thời gian mỗi lần trả lời
+        <select id="roomTimeout" class="field">
+          <option value="15">15 giây</option><option value="30" selected>30 giây</option><option value="60">60 giây</option>
+        </select>
+      </label>
+      <label>Bộ bài
+        <select id="roomDeck" class="field">
+          <option value="quocchien" selected>Quốc Chiến</option><option value="quantranh">Quân Tranh</option><option value="ungbien">Ứng Biến</option>
+        </select>
+      </label>
+      <p id="roomDeckDesc" class="muted" style="margin:-4px 0 0;font-size:13px"></p>
+      <label>Chế độ chọn tướng
+        <select id="roomMode" class="field">
+          <option value="normal" selected>Bình thường</option>
+          <option value="free">Tự chọn tướng</option>
+          <option value="chaos">Loạn tướng</option>
+        </select>
+      </label>
+      <p id="roomModeDesc" class="muted" style="margin:-4px 0 0;font-size:13px"></p>
+      <label class="muted" style="display:flex;gap:8px;align-items:center"><input id="roomMulligan" type="checkbox" checked> Cho đổi 4 lá bài khởi đầu</label>
+      <label class="muted" style="display:flex;gap:8px;align-items:center"><input id="roomLord" type="checkbox" checked> Cho đổi chủ tướng thành quân chủ (Lưu Bị, Trương Giác, Tào Tháo, Tôn Quyền - Quân)</label>
+      <label class="muted" style="display:flex;gap:8px;align-items:center"><input id="autoFill" type="checkbox" checked> Thêm bot cho đủ ghế</label>
+      <button class="btn primary" type="submit">Tạo phòng</button>
+    </form>
+  </div>
+</section>
+
+<!-- Phòng chờ -->
+<section id="room" class="screen hidden">
+  <div class="wrap">
+    <div class="panel">
+      <h2 id="roomTitle"></h2>
+      <p id="roomSub" class="muted" style="margin:-6px 0 10px"></p>
+      <div id="seatGrid" class="seat-grid"></div>
+      <div class="room-actions">
+        <button id="btnStart" class="btn primary" type="button">Bắt đầu ván</button>
+        <button id="btnAddBot" class="btn" type="button">Thêm bot</button>
+        <button id="btnRemoveBot" class="btn" type="button">Bớt bot</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Bàn chơi -->
+<section id="game" class="hidden">
+  <div id="board">
+    <div id="table">
+      <div id="center">
+        <div id="phaseStrip"></div>
+        <div id="turnLine"></div>
+        <div id="played"></div>
+        <div id="narrate"></div>
+      </div>
+      <div id="seats"></div>
+    </div>
+    <div id="mine">
+      <div id="myseat" class="myseat"></div>
+      <div id="play">
+        <div id="actionbar">
+          <div id="timer"></div>
+          <div id="prompt"></div>
+          <div id="buttons"></div>
+        </div>
+        <div id="hand"></div>
+      </div>
+      <div id="skills"></div>
+    </div>
+  </div>
+  <aside id="side">
+    <div class="tabs">
+      <button type="button" class="on" data-tab="log">Nhật ký</button>
+      <button type="button" data-tab="chat">Trò chuyện</button>
+    </div>
+    <div id="log"></div>
+    <div id="chatLog" class="hidden"></div>
+    <form id="chatForm"><input id="chatText" class="field" placeholder="Nhắn cả bàn" maxlength="200"><button class="btn small" type="submit">Gửi</button></form>
+  </aside>
+</section>
+
+<div id="modal" class="hidden"></div>
+<div id="toast" class="hidden" role="status"></div>
+
+<script src="/ui/cards.js"></script>
+<script src="/ui/game.js"></script>
+</body>
+</html>

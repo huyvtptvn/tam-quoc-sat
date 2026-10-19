@@ -1,0 +1,2615 @@
+{
+ "_ghiChu": "Danh sách tướng trong gói tham khảo. 'pack' = tên thư mục trong gói ảnh; 'id' = id trong game (tên file ảnh content/images/generals/<id>.png). 'skin' (tùy chọn) = chọn bộ ảnh số mấy, mặc định lấy bộ nhỏ nhất có full.png. status: co-san | moi | chua-ho-tro | anh-tuong-up. Sửa 'skin' hoặc 'id' ở đây rồi chạy lại Nhap-Anh-Tuong.bat.",
+ "tuong": [
+  {
+   "pack": "caocao",
+   "id": "caocao",
+   "han": "曹操",
+   "name": "Tào Tháo",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "jianxiong",
+     "han": "奸雄",
+     "name": "Gian Hùng"
+    }
+   ]
+  },
+  {
+   "pack": "simayi",
+   "id": "simayi",
+   "han": "司马懿",
+   "name": "Tư Mã Ý",
+   "kingdom": "wei",
+   "halfHp": 3,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "fankui",
+     "han": "反馈",
+     "name": "Phản Quỹ"
+    },
+    {
+     "pinyin": "guicai",
+     "han": "鬼才",
+     "name": "Quỷ Tài"
+    }
+   ]
+  },
+  {
+   "pack": "xiahoudun",
+   "id": "xiahoudun",
+   "han": "夏侯惇",
+   "name": "Hạ Hầu Đôn",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "ganglie",
+     "han": "刚烈",
+     "name": "Cương Liệt"
+    }
+   ]
+  },
+  {
+   "pack": "zhangliao",
+   "id": "zhangliao",
+   "han": "张辽",
+   "name": "Trương Liêu",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "tuxi",
+     "han": "突袭",
+     "name": "Đột Tập"
+    }
+   ]
+  },
+  {
+   "pack": "xuchu",
+   "id": "xuchu",
+   "han": "许褚",
+   "name": "Hứa Chử",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "luoyi",
+     "han": "裸衣",
+     "name": "Lõa Y"
+    }
+   ]
+  },
+  {
+   "pack": "guojia",
+   "id": "guojia",
+   "han": "郭嘉",
+   "name": "Quách Gia",
+   "kingdom": "wei",
+   "halfHp": 3,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "tiandu",
+     "han": "天妒",
+     "name": "Thiên Đố"
+    },
+    {
+     "pinyin": "yiji",
+     "han": "遗计",
+     "name": "Di Kế"
+    }
+   ]
+  },
+  {
+   "pack": "zhenji",
+   "id": "zhenji",
+   "han": "甄姬",
+   "name": "Chân Cơ",
+   "kingdom": "wei",
+   "halfHp": 3,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "luoshen",
+     "han": "洛神",
+     "name": "Lạc Thần"
+    },
+    {
+     "pinyin": "qingguo",
+     "han": "倾国",
+     "name": "Khuynh Quốc"
+    }
+   ]
+  },
+  {
+   "pack": "xuhuang",
+   "id": "xu_huang",
+   "han": "徐晃",
+   "name": "Từ Hoảng",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "duanliang",
+     "han": "断粮",
+     "name": "Đoạn Lương"
+    }
+   ]
+  },
+  {
+   "pack": "dianwei",
+   "id": "dianwei",
+   "han": "典韦",
+   "name": "Điển Vi",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "qiangxi",
+     "han": "强袭",
+     "name": "Cường Tập"
+    }
+   ]
+  },
+  {
+   "pack": "liubei",
+   "id": "liubei",
+   "han": "刘备",
+   "name": "Lưu Bị",
+   "kingdom": "shu",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "rende",
+     "han": "仁德",
+     "name": "Nhân Đức"
+    }
+   ]
+  },
+  {
+   "pack": "guanyu",
+   "id": "guanyu",
+   "han": "关羽",
+   "name": "Quan Vũ",
+   "kingdom": "shu",
+   "halfHp": 5,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "wusheng",
+     "han": "武圣",
+     "name": "Võ Thánh"
+    }
+   ]
+  },
+  {
+   "pack": "zhangfei",
+   "id": "zhangfei",
+   "han": "张飞",
+   "name": "Trương Phi",
+   "kingdom": "shu",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "paoxiao",
+     "han": "咆哮",
+     "name": "Bào Hao"
+    }
+   ]
+  },
+  {
+   "pack": "zhugeliang",
+   "id": "zhugeliang",
+   "han": "诸葛亮",
+   "name": "Gia Cát Lượng",
+   "kingdom": "shu",
+   "halfHp": 3,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "guanxing",
+     "han": "观星",
+     "name": "Quan Tinh"
+    },
+    {
+     "pinyin": "kongcheng",
+     "han": "空城",
+     "name": "Không Thành"
+    }
+   ]
+  },
+  {
+   "pack": "zhaoyun",
+   "id": "zhaoyun",
+   "han": "赵云",
+   "name": "Triệu Vân",
+   "kingdom": "shu",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "longdan",
+     "han": "龙胆",
+     "name": "Long Đảm"
+    }
+   ]
+  },
+  {
+   "pack": "machao",
+   "id": "machao",
+   "han": "马超",
+   "name": "Mã Siêu",
+   "kingdom": "shu",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "tieqi",
+     "han": "铁骑",
+     "name": "Thiết Kỵ"
+    }
+   ]
+  },
+  {
+   "pack": "huangzhong",
+   "id": "huangzhong",
+   "han": "黄忠",
+   "name": "Hoàng Trung",
+   "kingdom": "shu",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "liegong",
+     "han": "烈弓",
+     "name": "Liệt Cung"
+    }
+   ]
+  },
+  {
+   "pack": "pangtong",
+   "id": "pang_tong",
+   "han": "庞统",
+   "name": "Bàng Thống",
+   "kingdom": "shu",
+   "halfHp": 3,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "lianhuan",
+     "han": "连环",
+     "name": "Liên Hoàn"
+    },
+    {
+     "pinyin": "niepan",
+     "han": "涅槃",
+     "name": "Niết Bàn"
+    }
+   ]
+  },
+  {
+   "pack": "jiangwei",
+   "id": "jiangwei",
+   "han": "姜维",
+   "name": "Khương Duy",
+   "kingdom": "shu",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "tiaoxin",
+     "han": "挑衅",
+     "name": "Khiêu Hấn"
+    },
+    {
+     "pinyin": "yizhi",
+     "han": "遗志",
+     "name": "Di Chí"
+    },
+    {
+     "pinyin": "guanxing_jiangwei",
+     "han": "观星",
+     "name": "Quan Tinh (Khương Duy)"
+    },
+    {
+     "pinyin": "kanpo_jiangwei",
+     "han": "看破",
+     "name": "Khán Phá (Khương Duy)"
+    }
+   ]
+  },
+  {
+   "pack": "sunquan",
+   "id": "sunquan",
+   "han": "孙权",
+   "name": "Tôn Quyền",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "zhiheng",
+     "han": "制衡",
+     "name": "Chế Hành"
+    }
+   ]
+  },
+  {
+   "pack": "lvmeng",
+   "id": "lvmeng",
+   "han": "吕蒙",
+   "name": "Lã Mông",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "keji",
+     "han": "克己",
+     "name": "Khắc Kỷ"
+    },
+    {
+     "pinyin": "mouduan",
+     "han": "谋断",
+     "name": "Mưu Đoạn"
+    },
+    {
+     "pinyin": "gongxin",
+     "han": "攻心",
+     "name": "Công Tâm"
+    }
+   ]
+  },
+  {
+   "pack": "huanggai",
+   "id": "huanggai",
+   "han": "黄盖",
+   "name": "Hoàng Cái",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "kurou",
+     "han": "苦肉",
+     "name": "Khổ Nhục"
+    }
+   ]
+  },
+  {
+   "pack": "zhouyu",
+   "id": "zhouyu",
+   "han": "周瑜",
+   "name": "Chu Du",
+   "kingdom": "wu",
+   "halfHp": 3,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "yingzi_zhouyu",
+     "han": "英姿",
+     "name": "Anh Tư"
+    },
+    {
+     "pinyin": "fanjian",
+     "han": "反间",
+     "name": "Phản Gián"
+    }
+   ]
+  },
+  {
+   "pack": "luxun",
+   "id": "luxun",
+   "han": "陆逊",
+   "name": "Lục Tốn",
+   "kingdom": "wu",
+   "halfHp": 3,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "qianxun",
+     "han": "谦逊",
+     "name": "Khiêm Tốn"
+    },
+    {
+     "pinyin": "duoshi",
+     "han": "度势",
+     "name": "Độ Thế"
+    }
+   ]
+  },
+  {
+   "pack": "taishici",
+   "id": "taishi_ci",
+   "han": "太史慈",
+   "name": "Thái Sử Từ",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "tianyi",
+     "han": "天义",
+     "name": "Thiên Nghĩa"
+    }
+   ]
+  },
+  {
+   "pack": "zhoutai",
+   "id": "zhoutai",
+   "han": "周泰",
+   "name": "Chu Thái",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "buqu",
+     "han": "不屈",
+     "name": "Bất Khuất"
+    },
+    {
+     "pinyin": "fenji",
+     "han": "奋激",
+     "name": "Phấn Kích"
+    }
+   ]
+  },
+  {
+   "pack": "dingfeng",
+   "id": "dingfeng",
+   "han": "丁奉",
+   "name": "Đinh Phụng",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "duanbing",
+     "han": "短兵",
+     "name": "Đoản Binh"
+    },
+    {
+     "pinyin": "fenxun",
+     "han": "奋迅",
+     "name": "Phấn Tấn"
+    }
+   ]
+  },
+  {
+   "pack": "sunce",
+   "id": "sunce",
+   "han": "孙策",
+   "name": "Tôn Sách",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "jiang",
+     "han": "激昂",
+     "name": "Kích Ngang"
+    },
+    {
+     "pinyin": "yingzi_sunce",
+     "han": "英姿",
+     "name": "Anh Tư"
+    },
+    {
+     "pinyin": "yinghun_sunce",
+     "han": "英魂",
+     "name": "Anh Hồn"
+    }
+   ]
+  },
+  {
+   "pack": "huatuo",
+   "id": "huatuo",
+   "han": "华佗",
+   "name": "Hoa Đà",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "jijiu",
+     "han": "急救",
+     "name": "Cấp Cứu"
+    },
+    {
+     "pinyin": "chuli",
+     "han": "除疠",
+     "name": "Trừ Lệ"
+    }
+   ]
+  },
+  {
+   "pack": "lvbu",
+   "id": "lvbu",
+   "han": "吕布",
+   "name": "Lữ Bố",
+   "kingdom": "qun",
+   "halfHp": 5,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "wushuang",
+     "han": "无双",
+     "name": "Vô Song"
+    }
+   ]
+  },
+  {
+   "pack": "diaochan",
+   "id": "diaochan",
+   "han": "貂蝉",
+   "name": "Điêu Thuyền",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "lijian",
+     "han": "离间",
+     "name": "Ly Gián"
+    },
+    {
+     "pinyin": "biyue",
+     "han": "闭月",
+     "name": "Bế Nguyệt"
+    }
+   ]
+  },
+  {
+   "pack": "jiaxu",
+   "id": "jiaxu",
+   "han": "贾诩",
+   "name": "Giả Hủ",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "wansha",
+     "han": "完杀",
+     "name": "Hoàn Sát"
+    },
+    {
+     "pinyin": "luanwu",
+     "han": "乱武",
+     "name": "Loạn Vũ"
+    },
+    {
+     "pinyin": "weimu",
+     "han": "帷幕",
+     "name": "Duy Mạc"
+    }
+   ]
+  },
+  {
+   "pack": "pangde",
+   "id": "pangde",
+   "han": "庞德",
+   "name": "Bàng Đức",
+   "kingdom": "qun",
+   "halfHp": 4,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "jianchu",
+     "han": "鞬出",
+     "name": "Kiện Xuất"
+    }
+   ]
+  },
+  {
+   "pack": "zhangjiao",
+   "id": "zhangjiao",
+   "han": "张角",
+   "name": "Trương Giác",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "co-san",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "leiji",
+     "han": "雷击",
+     "name": "Lôi Kích"
+    },
+    {
+     "pinyin": "guidao",
+     "han": "鬼道",
+     "name": "Quỷ Đạo"
+    }
+   ]
+  },
+  {
+   "pack": "xiahouyuan",
+   "id": "xiahouyuan",
+   "han": "夏侯渊",
+   "name": "Hạ Hầu Uyên",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "shensu",
+     "han": "神速",
+     "name": "Thần Tốc"
+    }
+   ]
+  },
+  {
+   "pack": "zhanghe",
+   "id": "zhanghe",
+   "han": "张郃",
+   "name": "Trương Cáp",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "qiaobian",
+     "han": "巧变",
+     "name": "Xảo Biến"
+    }
+   ]
+  },
+  {
+   "pack": "caoren",
+   "id": "caoren",
+   "han": "曹仁",
+   "name": "Tào Nhân",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "jushou",
+     "han": "据守",
+     "name": "Cứ Thủ"
+    }
+   ]
+  },
+  {
+   "pack": "xunyu",
+   "id": "xunyu",
+   "han": "荀彧",
+   "name": "Tuân Úc",
+   "kingdom": "wei",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "quhu",
+     "han": "驱虎",
+     "name": "Khu Hổ"
+    },
+    {
+     "pinyin": "jieming",
+     "han": "节命",
+     "name": "Tiết Mệnh"
+    }
+   ]
+  },
+  {
+   "pack": "caopi",
+   "id": "caopi",
+   "han": "曹丕",
+   "name": "Tào Phi",
+   "kingdom": "wei",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "xingshang",
+     "han": "行殇",
+     "name": "Hành Thương"
+    },
+    {
+     "pinyin": "fangzhu",
+     "han": "放逐",
+     "name": "Phóng Trục"
+    }
+   ]
+  },
+  {
+   "pack": "yuejin",
+   "id": "yuejin",
+   "han": "乐进",
+   "name": "Nhạc Tiến",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "xiaoguo",
+     "han": "骁果",
+     "name": "Kiêu Quả"
+    }
+   ]
+  },
+  {
+   "pack": "dengai",
+   "id": "dengai",
+   "han": "邓艾",
+   "name": "Đặng Ngải",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "tuntian",
+     "han": "屯田",
+     "name": "Đồn Điền"
+    },
+    {
+     "pinyin": "jixi",
+     "han": "急袭",
+     "name": "Cấp Tập"
+    },
+    {
+     "pinyin": "ziliang",
+     "han": "资粮",
+     "name": "Tư Lương"
+    }
+   ]
+  },
+  {
+   "pack": "caohong",
+   "id": "caohong",
+   "han": "曹洪",
+   "name": "Tào Hồng",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "huyuan",
+     "han": "护援",
+     "name": "Hộ Viện"
+    }
+   ]
+  },
+  {
+   "pack": "lidian",
+   "id": "lidian",
+   "han": "李典",
+   "name": "Lý Điển",
+   "kingdom": "wei",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "xunxun",
+     "han": "恂恂",
+     "name": "Tuân Tuân"
+    },
+    {
+     "pinyin": "wangxi",
+     "han": "忘隙",
+     "name": "Vong Khích"
+    }
+   ]
+  },
+  {
+   "pack": "zangba",
+   "id": "zangba",
+   "han": "臧霸",
+   "name": "Tang Bá",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "hengjiang",
+     "han": "横江",
+     "name": "Hoành Giang"
+    }
+   ]
+  },
+  {
+   "pack": "yujin",
+   "id": "yujin",
+   "han": "于禁",
+   "name": "Vu Cấm",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "jieyue",
+     "han": "节钺",
+     "name": "Tiết Việt"
+    }
+   ]
+  },
+  {
+   "pack": "xunyou",
+   "id": "xunyou",
+   "han": "荀攸",
+   "name": "Tuân Du",
+   "kingdom": "wei",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "qice",
+     "han": "奇策",
+     "name": "Kỳ Sách"
+    },
+    {
+     "pinyin": "zhiyu",
+     "han": "智愚",
+     "name": "Trí Ngu"
+    }
+   ]
+  },
+  {
+   "pack": "bianhuanghou",
+   "id": "bianhuanghou",
+   "han": "卞皇后",
+   "name": "Biện Hoàng Hậu",
+   "kingdom": "wei",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "wanwei",
+     "han": "挽危",
+     "name": "Vãn Nguy"
+    },
+    {
+     "pinyin": "yuejian",
+     "han": "约俭",
+     "name": "Ước Kiệm"
+    }
+   ]
+  },
+  {
+   "pack": "caozhen",
+   "id": "caozhen",
+   "han": "曹真",
+   "name": "Tào Chân",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "sidi",
+     "han": "司敌",
+     "name": "Ti Địch"
+    }
+   ]
+  },
+  {
+   "pack": "zhangchunhua",
+   "id": "zhangchunhua",
+   "han": "张春华",
+   "name": "Trương Xuân Hoa",
+   "kingdom": "wei",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "shangshi",
+     "han": "伤逝",
+     "name": "Thương Thệ"
+    },
+    {
+     "pinyin": "guojue",
+     "han": "?",
+     "name": "(tên file 'guojue' — có thể là Tuyệt Tình 绝情)"
+    }
+   ]
+  },
+  {
+   "pack": "jianggan",
+   "id": "jianggan",
+   "han": "蒋干",
+   "name": "Tưởng Cán",
+   "kingdom": "wei",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "weicheng",
+     "han": "伪诚",
+     "name": "Ngụy Thành"
+    },
+    {
+     "pinyin": "daoshu",
+     "han": "盗书",
+     "name": "Đạo Thư"
+    }
+   ]
+  },
+  {
+   "pack": "huaxin",
+   "id": "huaxin",
+   "han": "华歆",
+   "name": "Hoa Hâm",
+   "kingdom": "wei",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "wanggui",
+     "han": "望归",
+     "name": "Vọng Quy"
+    },
+    {
+     "pinyin": "xibing",
+     "han": "息兵",
+     "name": "Tức Binh"
+    }
+   ]
+  },
+  {
+   "pack": "duyu",
+   "id": "duyu",
+   "han": "杜预",
+   "name": "Đỗ Dự",
+   "kingdom": "wei",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "wuku",
+     "han": "武库",
+     "name": "Vũ Khố"
+    },
+    {
+     "pinyin": "miewu",
+     "han": "灭吴",
+     "name": "Diệt Ngô"
+    }
+   ]
+  },
+  {
+   "pack": "huangyueying",
+   "id": "huangyueying",
+   "han": "黄月英",
+   "name": "Hoàng Nguyệt Anh",
+   "kingdom": "shu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "jizhi",
+     "han": "集智",
+     "name": "Tập Trí"
+    }
+   ]
+  },
+  {
+   "pack": "wolong",
+   "id": "wolong",
+   "han": "卧龙诸葛亮",
+   "name": "Ngọa Long (Gia Cát Lượng)",
+   "kingdom": "shu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "bazhen",
+     "han": "八阵",
+     "name": "Bát Trận"
+    },
+    {
+     "pinyin": "huoji",
+     "han": "火计",
+     "name": "Hỏa Kế"
+    },
+    {
+     "pinyin": "kanpo",
+     "han": "看破",
+     "name": "Khán Phá"
+    }
+   ]
+  },
+  {
+   "pack": "weiyan",
+   "id": "weiyan",
+   "han": "魏延",
+   "name": "Ngụy Diên",
+   "kingdom": "shu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "kuanggu",
+     "han": "狂骨",
+     "name": "Cuồng Cốt"
+    }
+   ]
+  },
+  {
+   "pack": "liushan",
+   "id": "liushan",
+   "han": "刘禅",
+   "name": "Lưu Thiện",
+   "kingdom": "shu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "xiangle",
+     "han": "享乐",
+     "name": "Hưởng Lạc"
+    },
+    {
+     "pinyin": "fangquan",
+     "han": "放权",
+     "name": "Phóng Quyền"
+    }
+   ]
+  },
+  {
+   "pack": "menghuo",
+   "id": "menghuo",
+   "han": "孟获",
+   "name": "Mạnh Hoạch",
+   "kingdom": "shu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "huoshou",
+     "han": "祸首",
+     "name": "Họa Thủ"
+    },
+    {
+     "pinyin": "zaiqi",
+     "han": "再起",
+     "name": "Tái Khởi"
+    }
+   ]
+  },
+  {
+   "pack": "zhurong",
+   "id": "zhurong",
+   "han": "祝融",
+   "name": "Chúc Dung",
+   "kingdom": "shu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "juxiang",
+     "han": "巨象",
+     "name": "Cự Tượng"
+    },
+    {
+     "pinyin": "lieren",
+     "han": "烈刃",
+     "name": "Liệt Nhận"
+    }
+   ]
+  },
+  {
+   "pack": "ganfuren",
+   "id": "ganfuren",
+   "han": "甘夫人",
+   "name": "Cam phu nhân",
+   "kingdom": "shu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "shushen",
+     "han": "淑慎",
+     "name": "Thục Thận"
+    },
+    {
+     "pinyin": "shenzhi",
+     "han": "神智",
+     "name": "Thần Trí"
+    }
+   ]
+  },
+  {
+   "pack": "jiangwanfeiyi",
+   "id": "jiangwanfeiyi",
+   "han": "蒋琬费祎",
+   "name": "Tưởng Uyển & Phí Y",
+   "kingdom": "shu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "shengxi",
+     "han": "生息",
+     "name": "Sinh Tức"
+    },
+    {
+     "pinyin": "shoucheng",
+     "han": "守成",
+     "name": "Thủ Thành"
+    }
+   ]
+  },
+  {
+   "pack": "mifuren",
+   "id": "mifuren",
+   "han": "糜夫人",
+   "name": "My phu nhân",
+   "kingdom": "shu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "guixiu",
+     "han": "闺秀",
+     "name": "Khuê Tú"
+    },
+    {
+     "pinyin": "cunsi",
+     "han": "存嗣",
+     "name": "Tồn Tự"
+    },
+    {
+     "pinyin": "yongjue",
+     "han": "勇决",
+     "name": "Dũng Quyết"
+    }
+   ]
+  },
+  {
+   "pack": "madai",
+   "id": "madai",
+   "han": "马岱",
+   "name": "Mã Đại",
+   "kingdom": "shu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "qianxi",
+     "han": "潜袭",
+     "name": "Tiềm Tập"
+    }
+   ]
+  },
+  {
+   "pack": "fazheng",
+   "id": "fazheng",
+   "han": "法正",
+   "name": "Pháp Chính",
+   "kingdom": "shu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "enyuan",
+     "han": "恩怨",
+     "name": "Ân Oán"
+    },
+    {
+     "pinyin": "xuanhuo",
+     "han": "眩惑",
+     "name": "Huyễn Hoặc"
+    }
+   ]
+  },
+  {
+   "pack": "wangping",
+   "id": "wangping",
+   "han": "王平",
+   "name": "Vương Bình",
+   "kingdom": "shu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "jianglve",
+     "han": "将略",
+     "name": "Tướng Lược"
+    }
+   ]
+  },
+  {
+   "pack": "maliang",
+   "id": "maliang",
+   "han": "马良",
+   "name": "Mã Lương",
+   "kingdom": "shu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "mumeng",
+     "han": "穆盟",
+     "name": "Mục Minh (?)"
+    },
+    {
+     "pinyin": "naman",
+     "han": "纳蛮",
+     "name": "Nạp Man"
+    }
+   ]
+  },
+  {
+   "pack": "dengzhi",
+   "id": "dengzhi",
+   "han": "邓芝",
+   "name": "Đặng Chi",
+   "kingdom": "shu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": []
+  },
+  {
+   "pack": "xushu",
+   "id": "xushu",
+   "han": "徐庶",
+   "name": "Từ Thứ",
+   "kingdom": "shu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "zhuhai",
+     "han": "诛害",
+     "name": "Tru Hại"
+    },
+    {
+     "pinyin": "pozhen",
+     "han": "破阵",
+     "name": "Phá Trận"
+    },
+    {
+     "pinyin": "jiancai",
+     "han": "荐才",
+     "name": "Tiến Tài"
+    }
+   ]
+  },
+  {
+   "pack": "masu",
+   "id": "masu",
+   "han": "马谡",
+   "name": "Mã Tốc",
+   "kingdom": "shu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "sanyao",
+     "han": "散谣",
+     "name": "Tán Dao"
+    },
+    {
+     "pinyin": "zhiman",
+     "han": "制蛮",
+     "name": "Chế Man"
+    }
+   ]
+  },
+  {
+   "pack": "shamoke",
+   "id": "shamoke",
+   "han": "沙摩柯",
+   "name": "Sa Ma Kha",
+   "kingdom": "shu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "jili",
+     "han": "蒺藜",
+     "name": "Tật Lê"
+    }
+   ]
+  },
+  {
+   "pack": "xiahouba",
+   "id": "xiahouba",
+   "han": "夏侯霸",
+   "name": "Hạ Hầu Bá",
+   "kingdom": "shu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "baolie",
+     "han": "豹烈",
+     "name": "Báo Liệt"
+    }
+   ]
+  },
+  {
+   "pack": "pengyang",
+   "id": "pengyang",
+   "han": "彭羕",
+   "name": "Bành Dạng",
+   "kingdom": "shu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": []
+  },
+  {
+   "pack": "ganning",
+   "id": "ganning",
+   "han": "甘宁",
+   "name": "Cam Ninh",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "qixi",
+     "han": "奇袭",
+     "name": "Kỳ Tập"
+    }
+   ]
+  },
+  {
+   "pack": "daqiao",
+   "id": "daqiao",
+   "han": "大乔",
+   "name": "Đại Kiều",
+   "kingdom": "wu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "guose",
+     "han": "国色",
+     "name": "Quốc Sắc"
+    },
+    {
+     "pinyin": "liuli",
+     "han": "流离",
+     "name": "Lưu Ly"
+    }
+   ]
+  },
+  {
+   "pack": "sunshangxiang",
+   "id": "sunshangxiang",
+   "han": "孙尚香",
+   "name": "Tôn Thượng Hương",
+   "kingdom": "wu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "jieyin",
+     "han": "结姻",
+     "name": "Kết Nhân"
+    },
+    {
+     "pinyin": "xiaoji",
+     "han": "枭姬",
+     "name": "Kiêu Cơ"
+    }
+   ]
+  },
+  {
+   "pack": "sunjian",
+   "id": "sunjian",
+   "han": "孙坚",
+   "name": "Tôn Kiên",
+   "kingdom": "wu",
+   "halfHp": 5,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "yinghun_sunjian",
+     "han": "英魂",
+     "name": "Anh Hồn"
+    }
+   ]
+  },
+  {
+   "pack": "xiaoqiao",
+   "id": "xiaoqiao",
+   "han": "小乔",
+   "name": "Tiểu Kiều",
+   "kingdom": "wu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "tianxiang",
+     "han": "天香",
+     "name": "Thiên Hương"
+    }
+   ]
+  },
+  {
+   "pack": "lusu",
+   "id": "lusu",
+   "han": "鲁肃",
+   "name": "Lỗ Túc",
+   "kingdom": "wu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "haoshi",
+     "han": "好施",
+     "name": "Hảo Thí"
+    },
+    {
+     "pinyin": "dimeng",
+     "han": "缔盟",
+     "name": "Đế Minh"
+    }
+   ]
+  },
+  {
+   "pack": "erzhang",
+   "id": "erzhang",
+   "han": "二张",
+   "name": "Nhị Trương (Trương Chiêu & Trương Hoành)",
+   "kingdom": "wu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "zhijian",
+     "han": "直谏",
+     "name": "Trực Gián"
+    },
+    {
+     "pinyin": "guzheng",
+     "han": "固政",
+     "name": "Cố Chính"
+    }
+   ]
+  },
+  {
+   "pack": "chenwudongxi",
+   "id": "chenwudongxi",
+   "han": "陈武董袭",
+   "name": "Trần Vũ & Đổng Tập",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "duanxie",
+     "han": "断绁",
+     "name": "Đoạn Tiết"
+    },
+    {
+     "pinyin": "fenming",
+     "han": "奋命",
+     "name": "Phấn Mệnh"
+    }
+   ]
+  },
+  {
+   "pack": "lingtong",
+   "id": "lingtong",
+   "han": "凌统",
+   "name": "Lăng Thống",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "xuanlve",
+     "han": "旋略",
+     "name": "Toàn Lược"
+    },
+    {
+     "pinyin": "yongjin",
+     "han": "勇进",
+     "name": "Dũng Tiến"
+    }
+   ]
+  },
+  {
+   "pack": "lvfan",
+   "id": "lvfan",
+   "han": "吕范",
+   "name": "Lã Phạm",
+   "kingdom": "wu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "diaodu",
+     "han": "调度",
+     "name": "Điều Độ"
+    },
+    {
+     "pinyin": "diancai",
+     "han": "典财",
+     "name": "Điển Tài"
+    }
+   ]
+  },
+  {
+   "pack": "xusheng",
+   "id": "xusheng",
+   "han": "徐盛",
+   "name": "Từ Thịnh",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "yicheng",
+     "han": "疑城",
+     "name": "Nghi Thành"
+    }
+   ]
+  },
+  {
+   "pack": "jiangqin",
+   "id": "jiangqin",
+   "han": "蒋钦",
+   "name": "Tưởng Khâm",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "shangyi",
+     "han": "尚义",
+     "name": "Thượng Nghĩa"
+    },
+    {
+     "pinyin": "niaoxiang",
+     "han": "鸟翔",
+     "name": "Điểu Tường"
+    }
+   ]
+  },
+  {
+   "pack": "wuguotai",
+   "id": "wuguotai",
+   "han": "吴国太",
+   "name": "Ngô Quốc Thái",
+   "kingdom": "wu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "ganlu",
+     "han": "甘露",
+     "name": "Cam Lộ"
+    },
+    {
+     "pinyin": "buyi",
+     "han": "补益",
+     "name": "Bổ Ích"
+    }
+   ]
+  },
+  {
+   "pack": "lukang",
+   "id": "lukang",
+   "han": "陆抗",
+   "name": "Lục Kháng",
+   "kingdom": "wu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "keshou",
+     "han": "克守",
+     "name": "Khắc Thủ"
+    },
+    {
+     "pinyin": "zhuwei",
+     "han": "筑围",
+     "name": "Trúc Vi"
+    }
+   ]
+  },
+  {
+   "pack": "zhugeke",
+   "id": "zhugeke",
+   "han": "诸葛恪",
+   "name": "Gia Cát Khác",
+   "kingdom": "wu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "aocai",
+     "han": "傲才",
+     "name": "Ngạo Tài"
+    },
+    {
+     "pinyin": "duwu",
+     "han": "黩武",
+     "name": "Độc Vũ"
+    }
+   ]
+  },
+  {
+   "pack": "luyusheng",
+   "id": "luyusheng",
+   "han": "陆郁生",
+   "name": "Lục Úc Sinh",
+   "kingdom": "wu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "zhente",
+     "han": "贞特",
+     "name": "Trinh Đặc"
+    },
+    {
+     "pinyin": "zhiwei",
+     "han": "至微",
+     "name": "Chí Vi"
+    }
+   ]
+  },
+  {
+   "pack": "panjun",
+   "id": "panjun",
+   "han": "潘濬",
+   "name": "Phan Tuấn",
+   "kingdom": "wu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "congcha",
+     "han": "聪察",
+     "name": "Thông Sát"
+    },
+    {
+     "pinyin": "gongqing",
+     "han": "公清",
+     "name": "Công Thanh"
+    }
+   ]
+  },
+  {
+   "pack": "wujing",
+   "id": "wujing",
+   "han": "吴景",
+   "name": "Ngô Cảnh",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": []
+  },
+  {
+   "pack": "sufei",
+   "id": "sufei",
+   "han": "苏飞",
+   "name": "Tô Phi",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "lianpian",
+     "han": "联翩",
+     "name": "Liên Phiên"
+    }
+   ]
+  },
+  {
+   "pack": "lingcao",
+   "id": "lingcao",
+   "han": "凌操",
+   "name": "Lăng Thao",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "dujin",
+     "han": "独进",
+     "name": "Độc Tiến"
+    }
+   ]
+  },
+  {
+   "pack": "zhouyi",
+   "id": "zhouyi",
+   "han": "周夷",
+   "name": "Chu Di",
+   "kingdom": "wu",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "zhukou",
+     "han": "逐寇",
+     "name": "Trục Khấu"
+    },
+    {
+     "pinyin": "duannian",
+     "han": "断念",
+     "name": "Đoạn Niệm"
+    }
+   ]
+  },
+  {
+   "pack": "mifangfushiren",
+   "id": "mifangfushiren",
+   "han": "糜芳傅士仁",
+   "name": "My Phương & Phó Sĩ Nhân",
+   "kingdom": "wu",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "fengshix",
+     "han": "锋势",
+     "name": "Phong Thế"
+    }
+   ]
+  },
+  {
+   "pack": "yuanshao",
+   "id": "yuanshao",
+   "han": "袁绍",
+   "name": "Viên Thiệu",
+   "kingdom": "qun",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "luanji",
+     "han": "乱击",
+     "name": "Loạn Kích"
+    }
+   ]
+  },
+  {
+   "pack": "yanliangwenchou",
+   "id": "yanliangwenchou",
+   "han": "颜良文丑",
+   "name": "Nhan Lương & Văn Xú",
+   "kingdom": "qun",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "shuangxiong",
+     "han": "双雄",
+     "name": "Song Hùng"
+    }
+   ]
+  },
+  {
+   "pack": "caiwenji",
+   "id": "caiwenji",
+   "han": "蔡文姬",
+   "name": "Thái Văn Cơ",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "beige",
+     "han": "悲歌",
+     "name": "Bi Ca"
+    },
+    {
+     "pinyin": "duanchang",
+     "han": "断肠",
+     "name": "Đoạn Trường"
+    }
+   ]
+  },
+  {
+   "pack": "mateng",
+   "id": "mateng",
+   "han": "马腾",
+   "name": "Mã Đằng",
+   "kingdom": "qun",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "xiongyi",
+     "han": "雄异",
+     "name": "Hùng Dị"
+    }
+   ]
+  },
+  {
+   "pack": "kongrong",
+   "id": "kongrong",
+   "han": "孔融",
+   "name": "Khổng Dung",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "mingshi",
+     "han": "名士",
+     "name": "Danh Sĩ"
+    },
+    {
+     "pinyin": "lirang",
+     "han": "礼让",
+     "name": "Lễ Nhượng"
+    }
+   ]
+  },
+  {
+   "pack": "jiling",
+   "id": "jiling",
+   "han": "纪灵",
+   "name": "Kỷ Linh",
+   "kingdom": "qun",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "shuangren",
+     "han": "双刃",
+     "name": "Song Nhận"
+    }
+   ]
+  },
+  {
+   "pack": "tianfeng",
+   "id": "tianfeng",
+   "han": "田丰",
+   "name": "Điền Phong",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "sijian",
+     "han": "死谏",
+     "name": "Tử Gián"
+    },
+    {
+     "pinyin": "suishi",
+     "han": "随势",
+     "name": "Tùy Thế"
+    }
+   ]
+  },
+  {
+   "pack": "panfeng",
+   "id": "panfeng",
+   "han": "潘凤",
+   "name": "Phan Phụng",
+   "kingdom": "qun",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "kuangfu",
+     "han": "狂斧",
+     "name": "Cuồng Phủ"
+    }
+   ]
+  },
+  {
+   "pack": "zoushi",
+   "id": "zoushi",
+   "han": "邹氏",
+   "name": "Trâu thị",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "huoshui",
+     "han": "祸水",
+     "name": "Họa Thủy"
+    },
+    {
+     "pinyin": "qingcheng",
+     "han": "倾城",
+     "name": "Khuynh Thành"
+    }
+   ]
+  },
+  {
+   "pack": "dongzhuo",
+   "id": "dongzhuo",
+   "han": "董卓",
+   "name": "Đổng Trác",
+   "kingdom": "qun",
+   "halfHp": 5,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "hengzheng",
+     "han": "横征",
+     "name": "Hoành Chinh"
+    },
+    {
+     "pinyin": "baoling",
+     "han": "暴凌",
+     "name": "Bạo Lăng"
+    },
+    {
+     "pinyin": "benghuai",
+     "han": "崩坏",
+     "name": "Băng Hoại"
+    }
+   ]
+  },
+  {
+   "pack": "zhangxiu",
+   "id": "zhangxiu",
+   "han": "张绣",
+   "name": "Trương Tú",
+   "kingdom": "qun",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "fudi",
+     "han": "附敌",
+     "name": "Phụ Địch"
+    },
+    {
+     "pinyin": "congjian",
+     "han": "从谏",
+     "name": "Tòng Gián"
+    }
+   ]
+  },
+  {
+   "pack": "hetaihou",
+   "id": "hetaihou",
+   "han": "何太后",
+   "name": "Hà Thái Hậu",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "zhendu",
+     "han": "鸩毒",
+     "name": "Trậm Độc"
+    },
+    {
+     "pinyin": "qiluan",
+     "han": "戚乱",
+     "name": "Thích Loạn"
+    }
+   ]
+  },
+  {
+   "pack": "yuanshu",
+   "id": "yuanshu",
+   "han": "袁术",
+   "name": "Viên Thuật",
+   "kingdom": "qun",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "yongsi",
+     "han": "庸肆",
+     "name": "Dung Tứ"
+    },
+    {
+     "pinyin": "weidi",
+     "han": "伪帝",
+     "name": "Ngụy Đế"
+    }
+   ]
+  },
+  {
+   "pack": "lijueguosi",
+   "id": "lijueguosi",
+   "han": "李傕郭汜",
+   "name": "Lý Thôi & Quách Dĩ",
+   "kingdom": "qun",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "xiongsuan",
+     "han": "凶算",
+     "name": "Hung Toán"
+    }
+   ]
+  },
+  {
+   "pack": "zuoci",
+   "id": "zuoci",
+   "han": "左慈",
+   "name": "Tả Từ",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "huashen",
+     "han": "化身",
+     "name": "Hóa Thân"
+    },
+    {
+     "pinyin": "xinsheng",
+     "han": "新生",
+     "name": "Tân Sinh"
+    }
+   ]
+  },
+  {
+   "pack": "new_zuoci",
+   "id": "new_zuoci",
+   "han": "左慈 (mới)",
+   "name": "Tả Từ (bản mới)",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "yigui",
+     "han": "役鬼",
+     "name": "Dịch Quỷ"
+    },
+    {
+     "pinyin": "jihun",
+     "han": "汲魂",
+     "name": "Cấp Hồn"
+    }
+   ]
+  },
+  {
+   "pack": "yuji",
+   "id": "yuji",
+   "han": "于吉",
+   "name": "Vu Cát",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "qianhuan",
+     "han": "千幻",
+     "name": "Thiên Huyễn"
+    }
+   ]
+  },
+  {
+   "pack": "zhangren",
+   "id": "zhangren",
+   "han": "张任",
+   "name": "Trương Nhậm",
+   "kingdom": "qun",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "chuanxin",
+     "han": "穿心",
+     "name": "Xuyên Tâm"
+    },
+    {
+     "pinyin": "fengshi",
+     "han": "锋矢",
+     "name": "Phong Thỉ"
+    }
+   ]
+  },
+  {
+   "pack": "xunchen",
+   "id": "xunchen",
+   "han": "荀谌",
+   "name": "Tuân Kham",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "fenglve",
+     "han": "锋略",
+     "name": "Phong Lược"
+    },
+    {
+     "pinyin": "anyong",
+     "han": "暗涌",
+     "name": "Ám Dũng"
+    }
+   ]
+  },
+  {
+   "pack": "xuyou",
+   "id": "xuyou",
+   "han": "许攸",
+   "name": "Hứa Du",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "chenglve",
+     "han": "成略",
+     "name": "Thành Lược"
+    },
+    {
+     "pinyin": "shicai",
+     "han": "恃才",
+     "name": "Thị Tài"
+    }
+   ]
+  },
+  {
+   "pack": "huangzu",
+   "id": "huangzu",
+   "han": "黄祖",
+   "name": "Hoàng Tổ",
+   "kingdom": "qun",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "xishe",
+     "han": "袭射",
+     "name": "Tập Xạ"
+    }
+   ]
+  },
+  {
+   "pack": "liuqi",
+   "id": "liuqi",
+   "han": "刘琦",
+   "name": "Lưu Kỳ",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "wenji",
+     "han": "问计",
+     "name": "Vấn Kế"
+    },
+    {
+     "pinyin": "tunjiang",
+     "han": "屯江",
+     "name": "Đồn Giang"
+    }
+   ]
+  },
+  {
+   "pack": "nanhualaoxian",
+   "id": "nanhualaoxian",
+   "han": "南华老仙",
+   "name": "Nam Hoa lão tiên",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "gongxiu",
+     "han": "共修",
+     "name": "Cộng Tu"
+    },
+    {
+     "pinyin": "jinghe",
+     "han": "经合",
+     "name": "Kinh Hợp"
+    }
+   ]
+  },
+  {
+   "pack": "lvlingqi",
+   "id": "lvlingqi",
+   "han": "吕玲绮",
+   "name": "Lã Linh Khởi",
+   "kingdom": "qun",
+   "halfHp": 4,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "guowu",
+     "han": "帼舞",
+     "name": "Quốc Vũ"
+    },
+    {
+     "pinyin": "zhuangrong",
+     "han": "妆戎",
+     "name": "Trang Nhung"
+    },
+    {
+     "pinyin": "shenwei",
+     "han": "神威",
+     "name": "Thần Uy"
+    },
+    {
+     "pinyin": "wushuang_lvlingqi",
+     "han": "无双",
+     "name": "Vô Song"
+    }
+   ]
+  },
+  {
+   "pack": "miheng",
+   "id": "miheng",
+   "han": "祢衡",
+   "name": "Nễ Hành",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "kuangcai",
+     "han": "狂才",
+     "name": "Cuồng Tài"
+    },
+    {
+     "pinyin": "shejian",
+     "han": "舌剑",
+     "name": "Thiệt Kiếm"
+    }
+   ]
+  },
+  {
+   "pack": "beimihu",
+   "id": "beimihu",
+   "han": "卑弥呼",
+   "name": "Ti Di Hô (Himiko)",
+   "kingdom": "qun",
+   "halfHp": 3,
+   "status": "moi",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "guishu",
+     "han": "鬼术",
+     "name": "Quỷ Thuật"
+    },
+    {
+     "pinyin": "yuanyu",
+     "han": "远域",
+     "name": "Viễn Vực"
+    }
+   ]
+  },
+  {
+   "pack": "zhonghui",
+   "id": "zhonghui",
+   "han": "钟会",
+   "name": "Chung Hội",
+   "kingdom": "careerist",
+   "halfHp": 4,
+   "status": "chua-ho-tro",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "quanji",
+     "han": "权计",
+     "name": "Quyền Kế"
+    },
+    {
+     "pinyin": "paiyi",
+     "han": "排异",
+     "name": "Bài Dị"
+    }
+   ]
+  },
+  {
+   "pack": "simazhao",
+   "id": "simazhao",
+   "han": "司马昭",
+   "name": "Tư Mã Chiêu",
+   "kingdom": "careerist",
+   "halfHp": 3,
+   "status": "chua-ho-tro",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "zhaoxin",
+     "han": "昭心",
+     "name": "Chiêu Tâm"
+    },
+    {
+     "pinyin": "suzhi",
+     "han": "夙智",
+     "name": "Túc Trí"
+    }
+   ]
+  },
+  {
+   "pack": "gongsunyuan",
+   "id": "gongsunyuan",
+   "han": "公孙渊",
+   "name": "Công Tôn Uyên",
+   "kingdom": "careerist",
+   "halfHp": 4,
+   "status": "chua-ho-tro",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "huaiyi",
+     "han": "怀异",
+     "name": "Hoài Dị"
+    }
+   ]
+  },
+  {
+   "pack": "lord_caocao",
+   "id": "lord_caocao",
+   "han": "君曹操",
+   "name": "Tào Tháo (Quân chủ)",
+   "kingdom": "lord-wei",
+   "halfHp": 4,
+   "status": "chua-ho-tro",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "jianan",
+     "han": "建安",
+     "name": "Kiến An"
+    },
+    {
+     "pinyin": "huibian",
+     "han": "挥鞭",
+     "name": "Huy Tiên"
+    },
+    {
+     "pinyin": "zongyu",
+     "han": "总御",
+     "name": "Tổng Ngự"
+    },
+    {
+     "pinyin": "elitegeneralflag",
+     "han": "五子良将纛",
+     "name": "Ngũ Tử Lương Tướng Đạo (bảo vật)"
+    }
+   ]
+  },
+  {
+   "pack": "lord_liubei",
+   "id": "lord_liubei",
+   "han": "君刘备",
+   "name": "Lưu Bị (Quân chủ)",
+   "kingdom": "lord-shu",
+   "halfHp": 4,
+   "status": "chua-ho-tro",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "rende_lord_liubei",
+     "han": "仁德",
+     "name": "Nhân Đức (quân chủ)"
+    },
+    {
+     "pinyin": "zhangwu",
+     "han": "章武",
+     "name": "Chương Vũ"
+    },
+    {
+     "pinyin": "shouyue",
+     "han": "授钺",
+     "name": "Thụ Việt"
+    },
+    {
+     "pinyin": "jizhao",
+     "han": "激诏",
+     "name": "Kích Chiếu"
+    }
+   ]
+  },
+  {
+   "pack": "lord_sunquan",
+   "id": "lord_sunquan",
+   "han": "君孙权",
+   "name": "Tôn Quyền (Quân chủ)",
+   "kingdom": "lord-wu",
+   "halfHp": 4,
+   "status": "chua-ho-tro",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "lianzi",
+     "han": "敛资",
+     "name": "Liễm Tư"
+    },
+    {
+     "pinyin": "zhiheng_lord_sunquan",
+     "han": "制衡",
+     "name": "Chế Hành (quân chủ)"
+    },
+    {
+     "pinyin": "flamemap",
+     "han": "缘江烽火图",
+     "name": "Duyên Giang Phong Hỏa Đồ (bảo vật)"
+    }
+   ]
+  },
+  {
+   "pack": "lord_zhangjiao",
+   "id": "lord_zhangjiao",
+   "han": "君张角",
+   "name": "Trương Giác (Quân chủ)",
+   "kingdom": "lord-qun",
+   "halfHp": 4,
+   "status": "chua-ho-tro",
+   "skin": null,
+   "skills": [
+    {
+     "pinyin": "wuxin",
+     "han": "悟心",
+     "name": "Ngộ Tâm"
+    },
+    {
+     "pinyin": "hongfa",
+     "han": "弘法",
+     "name": "Hoằng Pháp"
+    },
+    {
+     "pinyin": "wendao",
+     "han": "问道",
+     "name": "Vấn Đạo"
+    },
+    {
+     "pinyin": "huangjinsymbol",
+     "han": "黄巾天兵符",
+     "name": "Hoàng Cân Thiên Binh Phù (bảo vật)"
+    }
+   ]
+  },
+  {
+   "pack": "wuding",
+   "id": "wuding",
+   "han": "?",
+   "name": "(chưa rõ tướng nào)",
+   "kingdom": "unknown",
+   "halfHp": 0,
+   "status": "chua-ho-tro",
+   "skin": null,
+   "skills": []
+  },
+  {
+   "pack": "sujiang",
+   "id": "sujiang",
+   "han": "素将",
+   "name": "Tố tướng (nam) — ảnh tướng úp",
+   "kingdom": "hidden",
+   "halfHp": 0,
+   "status": "anh-tuong-up",
+   "skin": null,
+   "skills": []
+  },
+  {
+   "pack": "sujiangf",
+   "id": "sujiangf",
+   "han": "素将",
+   "name": "Tố tướng (nữ) — ảnh tướng úp",
+   "kingdom": "hidden",
+   "halfHp": 0,
+   "status": "anh-tuong-up",
+   "skin": null,
+   "skills": []
+  }
+ ]
+}

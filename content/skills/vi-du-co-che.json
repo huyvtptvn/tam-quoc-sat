@@ -1,0 +1,162 @@
+[
+  {
+    "_ghiChu": "Mẫu dùng các CƠ CHẾ MỞ RỘNG bằng JSON (không cần JavaScript). Các kỹ năng này chưa gắn cho tướng nào — thêm id vào \"skills\" của một tướng để dùng. Xem mục 15 trong HUONG-DAN-KY-NANG.md.",
+    "id": "mau_cu_thu",
+    "name": "Cố Thủ (mẫu)",
+    "desc": "Giai đoạn kết thúc, bạn có thể bốc 3 lá rồi lật úp tướng (bỏ qua lượt kế tiếp).",
+    "type": "trigger",
+    "event": "phaseStart",
+    "role": "current",
+    "if": "phase == 'end'",
+    "actions": [
+      { "do": "draw", "count": "3" },
+      { "do": "turnOver", "who": "self" }
+    ]
+  },
+  {
+    "_ghiChu": "LƯỢT THÊM: bỏ 1 lá, người được chọn có thêm một lượt ngay sau lượt này. Mỗi ván 1 lần.",
+    "id": "mau_nhuong_luot",
+    "name": "Nhường Lượt (mẫu)",
+    "desc": "Hạn định. Giai đoạn ra bài, bạn có thể bỏ 1 lá để một người khác được thêm một lượt ngay sau lượt này.",
+    "type": "active",
+    "cards": { "min": 1, "max": 1 },
+    "target": { "filter": "t != self" },
+    "cost": "discard",
+    "limit": { "perGame": 1 },
+    "bot": { "use": "never" },
+    "actions": [ { "do": "extraTurn", "who": "target" } ]
+  },
+  {
+    "_ghiChu": "LÁ ẢO: coi như dùng Sát (không cần lá thật, không giới hạn khoảng cách, không tính vào số lần Sát).",
+    "id": "mau_thoat_kich",
+    "name": "Thoát Kích (mẫu)",
+    "desc": "Mỗi lượt một lần, bạn có thể mất 1 máu để coi như dùng một lá Sát vào một người khác.",
+    "type": "active",
+    "target": { "filter": "t != self" },
+    "limit": { "perTurn": 1 },
+    "bot": { "use": "healthy", "target": "enemy" },
+    "actions": [
+      { "do": "loseHp", "who": "self" },
+      { "do": "useAs", "card": "sha", "target": "target" }
+    ]
+  },
+  {
+    "_ghiChu": "GIÁP ẢO: không lắp giáp thì coi như có Bát Quái Trận.",
+    "id": "mau_bat_tran",
+    "name": "Bát Trận (mẫu)",
+    "desc": "Tỏa định. Khi bạn không lắp giáp, bạn coi như đang lắp Bát Quái Trận.",
+    "type": "passive",
+    "virtualArmor": "bagua"
+  },
+  {
+    "_ghiChu": "CHUYỂN HÓA THÀNH CẨM NANG TRÌ HOÃN: lá Rô dùng như Lạc Bất Tư Thục (đã có sẵn trong convert, nay hoạt động với cẩm nang trì hoãn).",
+    "id": "mau_quoc_sac",
+    "name": "Quốc Sắc (mẫu)",
+    "desc": "Bạn có thể dùng một lá Rô như Lạc Bất Tư Thục.",
+    "type": "passive",
+    "convert": [ { "from": "card.suit == 'diamond'", "as": "lebu" } ]
+  },
+  {
+    "_ghiChu": "CẤM MÀU BÀI: lượt này người bị chọn không dùng/đánh được bài cùng màu lá phán định.",
+    "id": "mau_tiem_tap",
+    "name": "Tiềm Tập (mẫu)",
+    "desc": "Giai đoạn bắt đầu, bạn có thể phán định, rồi chọn một người ở khoảng cách 1: lượt này họ không thể dùng hoặc đánh bài trên tay cùng màu với lá phán định.",
+    "type": "trigger",
+    "event": "phaseStart",
+    "role": "current",
+    "if": "phase == 'start'",
+    "actions": [
+      { "do": "judge", "success": "judge.color == 'red'",
+        "then": [ { "do": "chooseTarget", "filter": "t != self and distance(self, t) <= 1",
+                    "then": [ { "do": "banCards", "who": "chosen", "color": "red" } ] } ],
+        "else": [ { "do": "chooseTarget", "filter": "t != self and distance(self, t) <= 1",
+                    "then": [ { "do": "banCards", "who": "chosen", "color": "black" } ] } ] }
+    ]
+  },
+  {
+    "_ghiChu": "TRAO KỸ NĂNG: người được chọn có Bào Hao trong lượt này.",
+    "id": "mau_khich_le",
+    "name": "Khích Lệ (mẫu)",
+    "desc": "Mỗi lượt một lần, bạn có thể bỏ 1 lá để một người cùng thế lực có kỹ năng Bào Hao đến hết lượt này.",
+    "type": "active",
+    "cards": { "min": 1, "max": 1 },
+    "target": { "filter": "t == self or sameFaction(self, t)" },
+    "cost": "discard",
+    "limit": { "perTurn": 1 },
+    "bot": { "use": "never" },
+    "actions": [ { "do": "grantSkill", "who": "target", "skill": "baohao", "turnOnly": "true" } ]
+  },
+  {
+    "_ghiChu": "LOẠI BỎ / ÚP LẠI TƯỚNG.",
+    "id": "mau_ly_gian_tuong",
+    "name": "Ly Gián Tướng (mẫu)",
+    "desc": "Hạn định. Giai đoạn ra bài, bạn có thể bỏ 2 lá để úp lại một tướng đã lật của một người khác.",
+    "type": "active",
+    "cards": { "min": 2, "max": 2 },
+    "target": { "filter": "t != self and t.revealed" },
+    "cost": "discard",
+    "limit": { "perGame": 1 },
+    "bot": { "use": "never" },
+    "actions": [ { "do": "hideGeneral", "who": "target", "which": "ask" } ]
+  },
+  {
+    "_ghiChu": "ĐẤU ĐIỂM: thắng thì gây sát thương; thua thì chính mình mất 1 máu. Biến pindian.mine / pindian.theirs là hai lá đã đấu.",
+    "id": "mau_tranh_hung",
+    "name": "Tranh Hùng (mẫu)",
+    "desc": "Mỗi lượt một lần, bạn có thể đấu điểm với một người khác: thắng thì gây 1 sát thương cho họ; không thắng thì bạn mất 1 máu.",
+    "type": "active",
+    "target": { "filter": "t != self and t.hand > 0" },
+    "limit": { "perTurn": 1 },
+    "bot": { "use": "healthy", "target": "enemy" },
+    "actions": [
+      { "do": "pindian", "with": "target",
+        "win": [ { "do": "damage", "who": "target" }, { "do": "say", "text": "{self.name} thắng với {pindian.mine.name} điểm {pindian.mine.rank}." } ],
+        "lose": [ { "do": "loseHp", "who": "self" } ] }
+    ]
+  },
+  {
+    "_ghiChu": "QUÂN LỆNH: người nhận không thực hiện thì bạn bốc 2 lá.",
+    "id": "mau_ban_lenh",
+    "name": "Ban Lệnh (mẫu)",
+    "desc": "Mỗi lượt một lần, bạn có thể ban quân lệnh cho một người khác: nếu họ không thực hiện, bạn bốc 2 lá.",
+    "type": "active",
+    "target": { "filter": "t != self" },
+    "limit": { "perTurn": 1 },
+    "bot": { "use": "always", "target": "enemy" },
+    "actions": [ { "do": "order", "to": "target", "refused": [ { "do": "draw", "count": "2" } ] } ]
+  },
+  {
+    "_ghiChu": "VÂY CÔNG: khi bạn cùng đồng minh kẹp một người khác thế lực, Sát của hai người vào người đó cần 2 Thiểm. besieging(a, x): a có đang vây x không.",
+    "id": "mau_vay_ham",
+    "name": "Vây Hãm (mẫu)",
+    "desc": "Trận pháp. Khi bạn hoặc người cùng bạn vây công một người dùng Sát vào người đó, họ phải đánh 2 Thiểm mới né được.",
+    "type": "trigger",
+    "event": "slashTargeted",
+    "optional": false,
+    "if": "besieging(self, target) and besieging(source, target)",
+    "actions": [ { "do": "needShan", "count": "2" } ]
+  },
+  {
+    "_ghiChu": "KÍCH HOẠT KHI MÌNH VỪA CHẾT: role = victim. Người giết bị loại phó tướng.",
+    "id": "mau_tuyet_menh",
+    "name": "Tuyệt Mệnh (mẫu)",
+    "desc": "Tỏa định. Khi bạn chết, người giết bạn bị loại bỏ phó tướng.",
+    "type": "trigger",
+    "event": "death",
+    "role": "victim",
+    "optional": false,
+    "if": "killer != null and killer != self",
+    "actions": [ { "do": "removeGeneral", "who": "killer", "which": "deputy" } ]
+  },
+  {
+    "_ghiChu": "HỦY MỤC TIÊU CẨM NANG: sự kiện trickTargeted + cancel.",
+    "id": "mau_van_nguy",
+    "name": "Vãn Nguy (mẫu)",
+    "desc": "Khi bạn trở thành mục tiêu của Quá Hà Sách Kiều, bạn có thể bỏ 1 lá trên tay để hủy mục tiêu là bạn.",
+    "type": "trigger",
+    "event": "trickTargeted",
+    "role": "target",
+    "if": "card.name == 'guohe' and self.hand > 0",
+    "actions": [ { "do": "discard", "who": "self" }, { "do": "cancel" } ]
+  }
+]

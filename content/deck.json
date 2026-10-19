@@ -1,0 +1,10 @@
+{
+  "_ghiChu": "mode: add = thêm vào bộ bài Quốc Chiến gốc 119 lá; replace = thay toàn bộ. remove: bỏ hẳn các loại bài. Mỗi dòng cards: [loại bài, \"S7 H10\" (S=Bích H=Cơ C=Chuồn D=Rô, điểm 1-13), thuộc tính Sát nếu có].",
+  "mode": "add",
+  "cards": [
+    ["binh_phap", "S9 C9"],
+    ["chan_te", "H10"],
+    ["hoa_hoan", "D8"],
+    ["luu_tinh", "D11"]
+  ]
+}
