@@ -159,7 +159,7 @@ export class ScoreKeeper {
   factionKey(seat: number): string {
     const h = this.g.heroes[seat];
     if (!h) return `?${seat}`;
-    if (h.careerist) return `c${seat}`;
+    if (h.careerist) return `c${h.careeristGroup ?? seat}`;
     const k = this.g.realKingdom(seat);
     return k === 'ye' ? `c${seat}` : k;
   }

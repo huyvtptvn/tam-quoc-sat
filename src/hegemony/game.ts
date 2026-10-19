@@ -9,7 +9,7 @@ import type { EventName } from '../core/events.js';
 import { shuffle } from '../core/rng.js';
 import type { Card, CardName, Controller, Request, RespondContext, Response, UseMode, Zone } from '../core/types.js';
 import { viewFor, type PlayerView, type SkillHint, type SlotView } from '../core/view.js';
-import { FEMALE_GENERALS, GENERALS, getGeneral, isLordId, lordVersionOf, isGeneralId, isPair, KINGDOM_LABEL, KINGDOMS, type Kingdom } from './generals.js';
+import { FEMALE_GENERALS, GENERALS, getGeneral, isDualGeneral, isLordId, kingdomsOf, lordVersionOf, isGeneralId, isPair, KINGDOM_LABEL, KINGDOMS, type Kingdom } from './generals.js';
 import { EQUIP_SKILLS, GLOBAL_SKILLS, SKILLS, type ActiveSkill, type Skill, type SkillTrigger } from './skills.js';
 import * as mech from './mechanics.js';
 import { installTreasures } from './treasures.js';
@@ -31,8 +31,15 @@ export interface HeroState {
   main: HeroSlot; // chủ tướng
   deputy: HeroSlot; // phó tướng
   careerist: boolean; // dã tâm gia
-  /** Ký hiệu: âm dương ngư, tiên khu, châu liên bích hợp. */
-  marks: { yinyang: number; pioneer: number; pair: number };
+  /**
+   * Phe dã tâm gia (野心家) có đồng minh: ghế của người cầm đầu. Người được "Lạp Long Nhân Tâm" gia nhập cùng nhóm.
+   * Bỏ trống = dã tâm gia một mình (ví dụ do thế lực quá nửa).
+   */
+  careeristGroup?: number;
+  /** Tướng tím (Dã tâm gia) đã lộ (暴露野心): đã nhận dấu, đã xét Lạp Long Nhân Tâm. */
+  exposed?: boolean;
+  /** Ký hiệu: âm dương ngư, tiên khu, châu liên bích hợp, dã tâm gia (dùng thay được cả 3 loại kia). */
+  marks: { yinyang: number; pioneer: number; pair: number; ambition: number };
   /** Đã xử lý phần thưởng khi lật đủ 2 tướng chưa. */
   bothRevealedHandled: boolean;
 }
@@ -138,6 +145,7 @@ export class HegemonyGame extends Game {
       // Quân chủ: lật chủ tướng ngay đầu lượt đầu tiên
       const h = this.heroes[seat];
       if (h && isLordId(h.main.generalId) && !h.main.revealed) await this.reveal(seat, 'main');
+      while (this.pendingRecruit.length) await this.offerRecruit(this.pendingRecruit.shift()!);
       await this.askRevealAtTurnStart(seat);
     });
     // Quân chủ chết: mọi người cùng thế lực trở thành dã tâm gia
@@ -238,11 +246,18 @@ export class HegemonyGame extends Game {
     }
   }
 
+  /**
+   * Cặp tướng hợp lệ:
+   * - Tướng Dã tâm gia (tướng tím) chỉ làm chủ tướng; phó tướng là tướng thường bất kỳ (kể cả tướng 2 thế lực).
+   * - Tướng 2 thế lực chỉ làm phó tướng; chủ tướng phải thuộc 1 trong 2 thế lực của nó.
+   * - Còn lại: 2 tướng cùng thế lực. Chế độ Loạn tướng bỏ qua thế lực (vẫn giữ 2 quy tắc vị trí ở trên).
+   */
   isValidPair(main: unknown, deputy: unknown): boolean {
     if (!isGeneralId(main) || !isGeneralId(deputy) || main === deputy) return false;
-    const km = getGeneral(main).kingdom, kd = getGeneral(deputy).kingdom;
-    if (kd === 'ye') return false; // tướng Dã tâm gia chỉ làm chủ tướng
-    return this.mode === 'chaos' || km === 'ye' || km === kd;
+    const km = getGeneral(main).kingdom;
+    if (getGeneral(deputy).kingdom === 'ye') return false; // tướng Dã tâm gia chỉ làm chủ tướng
+    if (isDualGeneral(main)) return false; // tướng 2 thế lực chỉ làm phó tướng
+    return this.mode === 'chaos' || km === 'ye' || kingdomsOf(deputy).includes(km);
   }
 
   private assignGenerals(seat: number, main: string, deputy: string): void {
@@ -250,7 +265,7 @@ export class HegemonyGame extends Game {
       main: { generalId: main, revealed: false },
       deputy: { generalId: deputy, revealed: false },
       careerist: false,
-      marks: { yinyang: 0, pioneer: 0, pair: 0 },
+      marks: { yinyang: 0, pioneer: 0, pair: 0, ambition: 0 },
       bothRevealedHandled: false,
     };
     const p = this.player(seat);
@@ -259,14 +274,14 @@ export class HegemonyGame extends Game {
 
   /** Người có danh sách ứng viên này có chọn được ít nhất 1 cặp cùng thế lực không. */
   private hasPair(cands: string[]): boolean {
-    if (cands.some((id) => getGeneral(id).kingdom === 'ye') && cands.some((id) => getGeneral(id).kingdom !== 'ye')) return true;
-    const seen = new Set<Kingdom>();
-    for (const id of cands) {
-      const k = getGeneral(id).kingdom;
-      if (seen.has(k)) return true;
-      seen.add(k);
+    // Danh sách lớn (chế độ tự chọn): gom theo thế lực cho nhanh
+    if (cands.length > 40) {
+      const mains = new Map<string, number>();
+      for (const id of cands) if (!isDualGeneral(id)) mains.set(getGeneral(id).kingdom, (mains.get(getGeneral(id).kingdom) ?? 0) + 1);
+      return cands.some((d) => getGeneral(d).kingdom !== 'ye' && ((mains.get('ye') ?? 0) > 0
+        || kingdomsOf(d).some((k) => (mains.get(k) ?? 0) - (!isDualGeneral(d) && getGeneral(d).kingdom === k ? 1 : 0) > 0)));
     }
-    return false;
+    return cands.some((a) => cands.some((b) => this.isValidPair(a, b)));
   }
 
   /**
@@ -281,7 +296,8 @@ export class HegemonyGame extends Game {
     for (let attempt = 0; attempt < 50; attempt++) {
       const pool = shuffle([...this.pool], this.rng);
       const hands = this.state.players.map((_, i) => pool.slice(i * k, (i + 1) * k));
-      if (this.mode === 'chaos' || hands.every((h) => this.hasPair(h))) return hands;
+      // Loạn tướng vẫn cần ít nhất 1 cặp đặt được (tướng tím chỉ làm chủ, tướng 2 thế lực chỉ làm phó)
+      if (hands.every((h) => this.hasPair(h))) return hands;
     }
     return this.dealWithReservedPairs(k);
   }
@@ -293,12 +309,13 @@ export class HegemonyGame extends Game {
       const i = pool.findIndex(pred);
       return i < 0 ? null : pool.splice(i, 1)[0];
     };
-    const remaining = (kd: Kingdom) => pool.filter((id) => getGeneral(id).kingdom === kd).length;
+    const remaining = (kd: Kingdom) => Math.min(pool.filter((id) => getGeneral(id).kingdom === kd && !isDualGeneral(id)).length,
+      pool.filter((id) => kingdomsOf(id).includes(kd)).length - 1);
     const hands = this.state.players.map(() => {
       const kingdoms = shuffle([...KINGDOMS], this.rng).sort((a, b) => remaining(b) - remaining(a));
       const k0 = kingdoms[0];
       if (remaining(k0) < 2) throw new Error('Không đủ tướng cùng thế lực để chia');
-      return [take((id) => getGeneral(id).kingdom === k0)!, take((id) => getGeneral(id).kingdom === k0)!];
+      return [take((id) => getGeneral(id).kingdom === k0 && !isDualGeneral(id))!, take((id) => kingdomsOf(id).includes(k0))!];
     });
     for (const h of hands) {
       while (h.length < k && pool.length > 0) h.push(take(() => true)!);
@@ -374,8 +391,24 @@ export class HegemonyGame extends Game {
     return h;
   }
 
+  /**
+   * Thế lực thật của người chơi = thế lực chủ tướng.
+   * Chủ tướng là tướng Dã tâm gia (tím) còn úp: tạm theo thế lực phó tướng (phó tướng 2 thế lực thì không có thế lực
+   * tạm -> 'ye'). Khi chủ tướng tím lật ra -> 'ye' (dã tâm gia).
+   */
   realKingdom(seat: number): Kingdom {
-    return getGeneral(this.hero(seat).main.generalId).kingdom;
+    const h = this.hero(seat);
+    const km = getGeneral(h.main.generalId).kingdom;
+    if (km !== 'ye' || h.main.revealed) return km;
+    const kd = kingdomsOf(h.deputy.generalId);
+    return kd.length === 1 && kd[0] !== 'ye' ? kd[0] : 'ye';
+  }
+
+  /** Khóa phe đang lộ: thế lực, hoặc "c<ghế>" cho dã tâm gia (cùng nhóm Lạp Long Nhân Tâm thì chung khóa). null = chưa lộ. */
+  factionKeyOf(seat: number): string | null {
+    const k = this.shownKingdom(seat);
+    if (k === null) return null;
+    return k === 'careerist' ? `c${this.heroes[seat]?.careeristGroup ?? seat}` : k;
   }
 
   isRevealedAny(seat: number): boolean {
@@ -401,7 +434,12 @@ export class HegemonyGame extends Game {
 
   isSameFaction(a: number, b: number): boolean {
     const ka = this.shownKingdom(a);
-    return ka !== null && ka !== 'careerist' && ka === this.shownKingdom(b);
+    if (ka === 'careerist') {
+      // Dã tâm gia: chỉ cùng phe với đồng minh Lạp Long Nhân Tâm (cùng nhóm)
+      const ga = this.heroes[a]?.careeristGroup;
+      return a !== b && ga !== undefined && this.shownKingdom(b) === 'careerist' && this.heroes[b]?.careeristGroup === ga;
+    }
+    return ka !== null && ka === this.shownKingdom(b);
   }
 
   // ---------- Đại thế lực / tiểu thế lực ----------
@@ -425,7 +463,7 @@ export class HegemonyGame extends Game {
       ?? this.alivePlayers().find((p) => this.skillEntries(p.seat, true).some((e) => e.skill.virtualTreasure?.(this, p.seat) === 'yuxi'));
     if (jade) {
       const k = this.shownKingdom(jade.seat);
-      return [k === 'careerist' ? `seat:${jade.seat}` : String(k)];
+      return [k === 'careerist' ? `seat:${this.heroes[jade.seat]?.careeristGroup ?? jade.seat}` : String(k)];
     }
     const sizes = KINGDOMS.map((k) => [k, this.factionSize(k)] as const).filter(([, n]) => n >= 2);
     const max = Math.max(0, ...sizes.map(([, n]) => n));
@@ -437,7 +475,7 @@ export class HegemonyGame extends Game {
     const k = this.shownKingdom(seat);
     if (k === null) return false;
     const big = this.bigFactions();
-    return k === 'careerist' ? big.includes(`seat:${seat}`) : big.includes(k);
+    return k === 'careerist' ? big.includes(`seat:${this.heroes[seat]?.careeristGroup ?? seat}`) : big.includes(k);
   }
 
   /** `seat` thuộc tiểu thế lực: đã có thế lực nhưng không phải đại thế lực. */
@@ -452,7 +490,12 @@ export class HegemonyGame extends Game {
 
   private teamLabel(seat: number): string {
     const k = this.shownKingdom(seat);
-    return k === null ? '?' : k === 'careerist' ? 'Dã tâm gia' : KINGDOM_LABEL[k];
+    if (k === 'careerist') {
+      // Mỗi dã tâm gia (hoặc nhóm Lạp Long Nhân Tâm) là một phe riêng, ghi kèm tên người cầm đầu
+      const lead = this.heroes[seat]?.careeristGroup ?? seat;
+      return `Dã tâm gia ${this.player(lead).name}`;
+    }
+    return k === null ? '?' : KINGDOM_LABEL[k];
   }
 
   // ==========================================================
@@ -484,7 +527,7 @@ export class HegemonyGame extends Game {
       const k = this.realKingdom(seat);
       for (const q of this.state.players) {
         const hq = this.heroes[q.seat];
-        if (q.seat !== seat && hq?.careerist && q.alive && this.realKingdom(q.seat) === k) {
+        if (q.seat !== seat && hq?.careerist && q.alive && this.realKingdom(q.seat) === k && hq.careeristGroup === undefined) {
           hq.careerist = false;
           q.team = this.teamLabel(q.seat);
           this.say(`${q.name} quay về thế lực ${KINGDOM_LABEL[k]} nhờ quân chủ.`);
@@ -492,9 +535,13 @@ export class HegemonyGame extends Game {
       }
     }
 
-    this.say(`${p.name} lật ${SLOT_LABEL[which]} ${gen.name} (${KINGDOM_LABEL[gen.kingdom]})`
-      + (gen.kingdom !== this.realKingdom(seat) ? ` — phe ${KINGDOM_LABEL[this.realKingdom(seat)]} theo chủ tướng.` : '.'));
-    if (first && h.careerist) this.say(`⚑ ${p.name} trở thành DÃ TÂM GIA!`);
+    const genKs = kingdomsOf(slot.generalId);
+    this.say(`${p.name} lật ${SLOT_LABEL[which]} ${gen.name} (${genKs.map((k) => KINGDOM_LABEL[k]).join('/')})`
+      + (!h.careerist && (genKs.length > 1 || gen.kingdom !== this.realKingdom(seat)) ? ` — phe ${KINGDOM_LABEL[this.realKingdom(seat)]} theo chủ tướng.` : '.'));
+    // Tướng tím: chủ tướng Dã tâm gia lật ra -> bạo lộ dã tâm
+    let exposedNow = false;
+    if (which === 'main' && gen.kingdom === 'ye' && !h.exposed) { this.exposeCareerist(seat); exposedNow = true; }
+    else if (first && h.careerist) this.say(`⚑ ${p.name} trở thành DÃ TÂM GIA!`);
 
     if (first && !this.anyRevealed) {
       this.anyRevealed = true;
@@ -515,6 +562,62 @@ export class HegemonyGame extends Game {
       }
     }
     await this.bus.emit('generalRevealed', { seat, generalId: slot.generalId, first });
+    if (exposedNow) await this.offerRecruit(seat);
+  }
+
+  // ---------- Tướng tím (Dã tâm gia, 野心家) ----------
+
+  /** Người cần được hỏi Lạp Long Nhân Tâm ở đầu lượt kế tiếp (bị buộc bạo lộ lúc kiểm tra thắng). */
+  private pendingRecruit: number[] = [];
+
+  /**
+   * Bạo lộ dã tâm (暴露野心): chủ tướng tím lật ra -> trở thành dã tâm gia, nhận 1 dấu Dã Tâm Gia
+   * (dùng thay được Âm Dương Ngư, Tiên Khu hoặc Châu Liên Bích Hợp).
+   */
+  private exposeCareerist(seat: number): void {
+    const h = this.hero(seat);
+    const p = this.player(seat);
+    h.exposed = true;
+    h.main.revealed = true;
+    if (!h.careerist || h.careeristGroup === undefined) h.careeristGroup = seat;
+    h.careerist = true;
+    h.marks.ambition++;
+    p.team = this.teamLabel(seat);
+    this.say(`⚑ ${p.name} BẠO LỘ DÃ TÂM: ${getGeneral(h.main.generalId).name} là Dã tâm gia! Nhận 1 dấu Dã Tâm Gia.`);
+  }
+
+  /**
+   * Lạp Long Nhân Tâm (拉拢人心): dã tâm gia vừa bạo lộ (bàn còn ít nhất 3 người) mời người khác gia nhập.
+   * Lần lượt từ người kế tiếp, ai đồng ý đầu tiên thì gia nhập (chỉ 1 người; không mời quân chủ, dã tâm gia, tướng tím đang úp):
+   * người đó thành dã tâm gia cùng phe, bốc bài đến 4 lá và hồi 1 máu.
+   */
+  async offerRecruit(leader: number): Promise<void> {
+    const lp = this.player(leader);
+    if (!lp.alive || this.state.finished || this.alivePlayers().length < 3) return;
+    const ok = await this.ask({ type: 'confirm', seat: leader, skill: 'recruit', reveal: false,
+      prompt: 'Lạp Long Nhân Tâm: mời 1 người gia nhập phe Dã tâm gia của bạn (thắng/thua cùng bạn)?' });
+    if (ok.kind !== 'yes') return;
+    this.say(`${lp.name} dùng Lạp Long Nhân Tâm, mời mọi người gia nhập phe Dã tâm gia.`);
+    for (const s of this.aliveSeatsFrom(leader)) {
+      if (s === leader) continue;
+      const hq = this.heroes[s];
+      if (!hq || hq.careerist || this.isLord(s) || getGeneral(hq.main.generalId).kingdom === 'ye') continue;
+      const res = await this.ask({ type: 'confirm', seat: s, skill: 'joinCareerist', reveal: false,
+        prompt: `Gia nhập phe Dã tâm gia của ${lp.name}? Bạn sẽ thắng/thua cùng họ, lật tướng, bốc bài đến 4 lá và hồi 1 máu.` });
+      if (res.kind !== 'yes') continue;
+      hq.careerist = true;
+      hq.careeristGroup = leader;
+      if (!hq.main.revealed && !hq.main.removed) await this.reveal(s, 'main');
+      hq.careerist = true;
+      hq.careeristGroup = leader;
+      const q = this.player(s);
+      q.team = this.teamLabel(s);
+      this.say(`${q.name} gia nhập phe Dã tâm gia của ${lp.name}.`);
+      await this.draw(s, Math.max(0, 4 - q.hand.length));
+      if (q.hp < q.maxHp) await this.recover(s, 1, s);
+      return;
+    }
+    this.say('Không ai gia nhập phe Dã tâm gia.');
   }
 
   private async askRevealAtTurnStart(seat: number): Promise<void> {
@@ -801,10 +904,10 @@ export class HegemonyGame extends Game {
     const h = this.heroes[seat];
     if (!h) return [];
     const km = getGeneral(h.main.generalId).kingdom;
-    const kingdom = km === 'ye' ? getGeneral(h.deputy.generalId).kingdom : km;
+    const kingdom = km === 'ye' ? kingdomsOf(h.deputy.generalId)[0] : km;
     const inUse = new Set(this.heroes.flatMap((x) => (x ? [x.main.generalId, x.deputy.generalId] : [])));
     return this.pool.filter((id) => isGeneralId(id) && !inUse.has(id) && !this.transformedOut.has(id) && !this.takenGenerals.has(id)
-      && !isLordId(id) && getGeneral(id).kingdom === kingdom);
+      && !isLordId(id) && getGeneral(id).kingdom !== 'ye' && (km === 'ye' ? !isDualGeneral(id) : true) && kingdomsOf(id).includes(kingdom));
   }
 
   /**
@@ -931,17 +1034,17 @@ export class HegemonyGame extends Game {
 
   /** Vô Giải·Quốc: chặn cho mọi người cùng thế lực đã lộ với mục tiêu. */
   override factionGroup(target: number): number[] {
-    const k = this.shownKingdom(target);
-    if (k === null || k === 'careerist') return [target];
-    return this.alivePlayers().filter((p) => this.shownKingdom(p.seat) === k).map((p) => p.seat);
+    const k = this.factionKeyOf(target);
+    if (k === null) return [target];
+    return this.alivePlayers().filter((p) => this.factionKeyOf(p.seat) === k).map((p) => p.seat);
   }
 
   /** Số thế lực đã lộ diện trong số người còn sống (mỗi dã tâm gia tính là một thế lực riêng). */
   revealedFactionCount(): number {
     const keys = new Set<string>();
     for (const p of this.alivePlayers()) {
-      const k = this.shownKingdom(p.seat);
-      if (k !== null) keys.add(k === 'careerist' ? `careerist-${p.seat}` : k);
+      const k = this.factionKeyOf(p.seat);
+      if (k !== null) keys.add(k);
     }
     return keys.size;
   }
@@ -1097,29 +1200,33 @@ export class HegemonyGame extends Game {
     return null;
   }
 
+  /** Tiêu 1 ký hiệu loại `kind`; hết thì dùng dấu Dã Tâm Gia thay. */
+  private useMark(h: HeroState, kind: 'yinyang' | 'pioneer' | 'pair'): boolean {
+    if (h.marks[kind] > 0) { h.marks[kind]--; return true; }
+    if (h.marks.ambition > 0) { h.marks.ambition--; return true; }
+    return false;
+  }
+
   protected override async useSkillAction(seat: number, res: Extract<Response, { kind: 'useSkill' }>): Promise<string | null> {
     if (typeof res.skill !== 'string' || !Array.isArray(res.cardIds) || !Array.isArray(res.targets)) return 'Yêu cầu không hợp lệ';
     const p = this.player(seat);
     const h = this.hero(seat);
 
     if (res.skill === MARK_SKILL.yinyang) {
-      if (h.marks.yinyang <= 0) return 'Không có ký hiệu Âm Dương Ngư';
-      h.marks.yinyang--;
+      if (!this.useMark(h, 'yinyang')) return 'Không có ký hiệu Âm Dương Ngư';
       this.say(`${p.name} dùng ký hiệu Âm Dương Ngư.`);
       await this.draw(seat, 1);
       return null;
     }
     if (res.skill === MARK_SKILL.pioneer) {
-      if (h.marks.pioneer <= 0) return 'Không có ký hiệu Tiên Khu';
-      h.marks.pioneer--;
+      if (!this.useMark(h, 'pioneer')) return 'Không có ký hiệu Tiên Khu';
       this.say(`${p.name} dùng ký hiệu Tiên Khu.`);
       await this.draw(seat, Math.max(0, 4 - p.hand.length));
       return null;
     }
 
     if (res.skill === MARK_SKILL.pair) {
-      if (h.marks.pair <= 0) return 'Không có ký hiệu Châu Liên Bích Hợp';
-      h.marks.pair--;
+      if (!this.useMark(h, 'pair')) return 'Không có ký hiệu Châu Liên Bích Hợp';
       this.say(`${p.name} dùng ký hiệu Châu Liên Bích Hợp để bốc 2 lá.`);
       await this.draw(seat, 2);
       return null;
@@ -1141,9 +1248,9 @@ export class HegemonyGame extends Game {
       return null;
     }
     if (res.skill === MARK_SKILL.pairTao) {
-      if (h.marks.pair <= 0) return 'Không có ký hiệu Châu Liên Bích Hợp';
+      if (h.marks.pair + h.marks.ambition <= 0) return 'Không có ký hiệu Châu Liên Bích Hợp';
       if (p.hp >= p.maxHp) return 'Máu đang đầy';
-      h.marks.pair--;
+      this.useMark(h, 'pair');
       this.say(`${p.name} dùng ký hiệu Châu Liên Bích Hợp như Đào.`);
       await this.recover(seat, 1, seat);
       return null;
@@ -1165,8 +1272,7 @@ export class HegemonyGame extends Game {
   /** Dùng ký hiệu Châu Liên Bích Hợp như Đào để cứu người hấp hối. */
   protected override async specialSave(helper: number, dying: number, res: Extract<Response, { kind: 'useSkill' }>): Promise<boolean> {
     const h = this.heroes[helper];
-    if (res.skill !== MARK_SKILL.pairTao || !h || h.marks.pair <= 0) return false;
-    h.marks.pair--;
+    if (res.skill !== MARK_SKILL.pairTao || !h || !this.useMark(h, 'pair')) return false;
     this.say(`${this.player(helper).name} dùng ký hiệu Châu Liên Bích Hợp như Đào cứu ${this.player(dying).name}.`);
     await this.recover(dying, 1, helper);
     return true;
@@ -1201,11 +1307,21 @@ export class HegemonyGame extends Game {
     if (alive.length === 0 || this.heroes.length === 0) return null;
     const careerists = alive.filter((p) => this.hero(p.seat).careerist);
     if (careerists.length > 0) {
-      return alive.length === 1 ? `Dã tâm gia ${alive[0].name}` : null;
+      // Dã tâm gia (và đồng minh Lạp Long Nhân Tâm) thắng khi chỉ còn người trong nhóm của họ
+      const keys = new Set(alive.map((p) => (this.hero(p.seat).careerist ? `c${this.hero(p.seat).careeristGroup ?? p.seat}` : 'other')));
+      if (keys.size !== 1 || keys.has('other')) return null;
+      const lead = this.hero(careerists[0].seat).careeristGroup ?? careerists[0].seat;
+      return `Dã tâm gia ${this.player(lead).name}`;
     }
 
     const kingdoms = new Set(alive.map((p) => this.realKingdom(p.seat)));
     if (kingdoms.size !== 1) return null;
+    // Bạo lộ dã tâm: phe "giả" sắp thắng mà còn người có chủ tướng tím đang úp -> buộc lật, ván chưa kết thúc
+    const hiddenYe = alive.filter((p) => { const h = this.hero(p.seat); return getGeneral(h.main.generalId).kingdom === 'ye' && !h.main.revealed && !h.main.removed; });
+    if (hiddenYe.length) {
+      for (const p of hiddenYe) { this.exposeCareerist(p.seat); this.pendingRecruit.push(p.seat); }
+      return this.checkWinner();
+    }
     const k = [...kingdoms][0];
     const hidden = alive.filter((p) => !this.isRevealedAny(p.seat));
     // Nếu lật hết mà thế lực này vượt quá một nửa -> sẽ có người thành dã tâm gia -> chưa kết thúc
@@ -1237,6 +1353,7 @@ export class HegemonyGame extends Game {
         kingdom: this.shownKingdom(pp.seat),
         generals: { main: sv(h.main), deputy: sv(h.deputy) },
         marks: { ...h.marks },
+        ...(h.careerist && h.careeristGroup !== undefined && this.shownKingdom(pp.seat) === 'careerist' ? { careeristGroup: h.careeristGroup } : {}),
         ...(this.generalPilesOf(pp.seat).length ? {
           generalPiles: this.generalPilesOf(pp.seat).map(([name, pile]) => ({
             name, count: pile.ids.length, ...(pile.open || pp.seat === seat ? { ids: [...pile.ids] } : {}),
@@ -1246,7 +1363,7 @@ export class HegemonyGame extends Game {
       };
     });
     if (req?.type === 'play') v.skillHints = this.skillHints(seat);
-    if (req?.type === 'save' && (this.heroes[seat]?.marks.pair ?? 0) > 0) {
+    if (req?.type === 'save' && ((this.heroes[seat]?.marks.pair ?? 0) + (this.heroes[seat]?.marks.ambition ?? 0)) > 0) {
       v.specialSaves = [{ skill: MARK_SKILL.pairTao, name: 'Châu Liên Bích Hợp (dùng như Đào)' }];
     }
     return v;
@@ -1271,17 +1388,18 @@ export class HegemonyGame extends Game {
       });
     }
     const h = this.heroes[seat];
-    if (h?.marks.yinyang) {
-      out.push({ skill: MARK_SKILL.yinyang, name: 'Âm Dương Ngư (bốc 1 lá)', cards: 'none', targets: [], needsTarget: false, reveals: false });
+    const amb = h?.marks.ambition ? ' — dấu Dã Tâm Gia' : '';
+    if (h?.marks.yinyang || h?.marks.ambition) {
+      out.push({ skill: MARK_SKILL.yinyang, name: `Âm Dương Ngư (bốc 1 lá)${h.marks.yinyang ? '' : amb}`, cards: 'none', targets: [], needsTarget: false, reveals: false });
     }
-    if (h?.marks.pair) {
-      out.push({ skill: MARK_SKILL.pair, name: 'Châu Liên Bích Hợp (bốc 2 lá)', cards: 'none', targets: [], needsTarget: false, reveals: false });
+    if (h?.marks.pair || h?.marks.ambition) {
+      out.push({ skill: MARK_SKILL.pair, name: `Châu Liên Bích Hợp (bốc 2 lá)${h.marks.pair ? '' : amb}`, cards: 'none', targets: [], needsTarget: false, reveals: false });
       if (this.player(seat).hp < this.player(seat).maxHp) {
-        out.push({ skill: MARK_SKILL.pairTao, name: 'Châu Liên Bích Hợp (như Đào)', cards: 'none', targets: [], needsTarget: false, reveals: false });
+        out.push({ skill: MARK_SKILL.pairTao, name: `Châu Liên Bích Hợp (như Đào)${h.marks.pair ? '' : amb}`, cards: 'none', targets: [], needsTarget: false, reveals: false });
       }
     }
-    if (h?.marks.pioneer && this.player(seat).hand.length < 4) {
-      out.push({ skill: MARK_SKILL.pioneer, name: 'Tiên Khu (bốc đến 4 lá)', cards: 'none', targets: [], needsTarget: false, reveals: false });
+    if ((h?.marks.pioneer || h?.marks.ambition) && this.player(seat).hand.length < 4) {
+      out.push({ skill: MARK_SKILL.pioneer, name: `Tiên Khu (bốc đến 4 lá)${h.marks.pioneer ? '' : amb}`, cards: 'none', targets: [], needsTarget: false, reveals: false });
     }
     // Hợp Tung (合纵): mỗi giai đoạn ra bài một lần, giao 1 lá có dấu "Hợp" cho người khác phe / chưa có thế lực
     const tCards = this.player(seat).hand.filter((id) => this.isTransferable(seat, id));

@@ -131,7 +131,7 @@
   },
   {
     "id": "bianhuanghou",
-    "name": "Biện Hoàng Hậu",
+    "name": "Biện Phu Nhân",
     "kingdom": "wei",
     "halfHp": 3,
     "skills": [
@@ -207,7 +207,7 @@
   },
   {
     "id": "wolong",
-    "name": "Ngọa Long",
+    "name": "Khổng Minh",
     "kingdom": "shu",
     "halfHp": 3,
     "skills": [
@@ -359,7 +359,7 @@
   },
   {
     "id": "masu",
-    "name": "Mã Tốc",
+    "name": "Mã Tắc",
     "kingdom": "shu",
     "halfHp": 3,
     "skills": [
@@ -465,7 +465,7 @@
   },
   {
     "id": "erzhang",
-    "name": "Nhị Trương (Trương Chiêu & Trương Hoành)",
+    "name": "Trương Chiêu & Trương Hoành",
     "kingdom": "wu",
     "halfHp": 3,
     "skills": [
@@ -476,7 +476,7 @@
   },
   {
     "id": "chenwudongxi",
-    "name": "Trần Vũ & Đổng Tập",
+    "name": "Trấn Vũ & Đổng Tập",
     "kingdom": "wu",
     "halfHp": 4,
     "skills": [
@@ -498,7 +498,7 @@
   },
   {
     "id": "lvfan",
-    "name": "Lã Phạm",
+    "name": "Lữ Phạm",
     "kingdom": "wu",
     "halfHp": 3,
     "skills": [
@@ -606,7 +606,7 @@
   },
   {
     "id": "lingcao",
-    "name": "Lăng Thao",
+    "name": "Lăng Tháo",
     "kingdom": "wu",
     "halfHp": 4,
     "skills": [
@@ -628,7 +628,7 @@
   },
   {
     "id": "mifangfushiren",
-    "name": "My Phương & Phó Sĩ Nhân",
+    "name": "Mi Phương & Phó Sĩ Nhân",
     "kingdom": "wu",
     "halfHp": 4,
     "skills": [
@@ -777,7 +777,7 @@
   },
   {
     "id": "lijueguosi",
-    "name": "Lý Thôi & Quách Dĩ",
+    "name": "Lý Giác & Quách Tỷ",
     "kingdom": "qun",
     "halfHp": 4,
     "skills": [
@@ -797,7 +797,7 @@
   },
   {
     "id": "new_zuoci",
-    "name": "Tả Từ (bản mới)",
+    "name": "Tả Từ",
     "kingdom": "qun",
     "halfHp": 3,
     "skills": [
@@ -818,7 +818,7 @@
   },
   {
     "id": "zhangren",
-    "name": "Trương Nhậm",
+    "name": "Trương Nhiệm",
     "kingdom": "qun",
     "halfHp": 4,
     "skills": [
@@ -883,7 +883,7 @@
   },
   {
     "id": "lvlingqi",
-    "name": "Lã Linh Khởi",
+    "name": "Lữ Linh Khởi",
     "kingdom": "qun",
     "halfHp": 4,
     "skills": [
@@ -907,7 +907,7 @@
   },
   {
     "id": "beimihu",
-    "name": "Ti Di Hô (Himiko)",
+    "name": "Himiko",
     "kingdom": "qun",
     "halfHp": 3,
     "skills": [

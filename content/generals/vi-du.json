@@ -1,38 +1,18 @@
 [
   {
-    "_ghiChu": "Tướng mới: cần id, name, kingdom (wei/shu/wu/qun), halfHp (số âm dương ngư), skills.",
+    "_ghiChu": "Tướng mẫu: cần id, name, kingdom (wei/shu/wu/qun), halfHp (số âm dương ngư), skills. Chỉnh tướng có sẵn: chỉ ghi id + trường muốn đổi. Thêm \"disabled\": true để tạm tắt tướng.",
     "id": "chen_gong",
     "name": "Trần Cung",
     "kingdom": "qun",
     "halfHp": 3,
     "skills": ["doc_ke", "tran_tinh"],
-    "pairs": ["lvbu"]
+    "pairs": ["lvbu"],
+    "disabled": true,
+    "_lyDo": "Không có trong file lua"
   },
   {
-    "id": "pang_tong",
-    "name": "Bàng Thống",
-    "kingdom": "shu",
-    "halfHp": 3,
-    "skills": ["muu_dinh", "an_cu"],
-    "pairs": ["liubei"]
-  },
-  {
-    "id": "xu_huang",
-    "name": "Từ Hoảng",
-    "kingdom": "wei",
-    "halfHp": 4,
-    "skills": ["kiem_khach"]
-  },
-  {
-    "id": "taishi_ci",
-    "name": "Thái Sử Từ",
-    "kingdom": "wu",
-    "halfHp": 4,
-    "skills": ["phan_hoi", "kien_thu"]
-  },
-  {
-    "_ghiChu": "Chỉnh tướng có sẵn: chỉ ghi id + trường muốn đổi. Ví dụ đổi Hứa Chử thành 5 cá. Thêm \"disabled\": true để tạm tắt tướng.",
-    "id": "xuchu",
-    "halfHp": 5
+    "id": "liubiao",
+    "disabled": true,
+    "_lyDo": "Không có trong file lua"
   }
 ]

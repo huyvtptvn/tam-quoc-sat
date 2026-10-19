@@ -27,7 +27,7 @@ test('gói tướng: các tướng được bật đều có đủ kỹ năng, m
   }
 });
 
-test('Cứ Thủ: 3 thế lực -> bốc 3 lá, dùng trang bị / bỏ 1 lá rồi bị lật úp, lượt kế tiếp bị bỏ qua', async () => {
+test('Chiếm Thủ: 3 thế lực -> bốc 3 lá, dùng trang bị / bỏ 1 lá rồi bị lật úp, lượt kế tiếp bị bỏ qua', async () => {
   const { game, ctrls } = makeHG([['caoren', 'xuchu'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng']]);
   await game.setup();
   await revealAll(game, 0, 1, 2);
@@ -42,7 +42,7 @@ test('Cứ Thủ: 3 thế lực -> bốc 3 lá, dùng trang bị / bỏ 1 lá r�
   assert.equal(game.log.filter((l) => l.startsWith('—— Lượt')).length, turnsBefore, 'lượt bị bỏ qua không in dòng "Lượt"');
 });
 
-test('Phóng Quyền: bỏ qua ra bài, cuối lượt bỏ 1 lá để người khác được thêm lượt', async () => {
+test('Ủy Quyền: bỏ qua ra bài, cuối lượt bỏ 1 lá để người khác được thêm lượt', async () => {
   const { game, ctrls } = makeHG([['liushan', 'zhangfei'], ['caocao', 'xuchu']], { maxTurns: 3 });
   await game.setup();
   await revealAll(game, 0);
@@ -224,7 +224,7 @@ test('Hành Thương: nhận toàn bộ bài của người vừa chết', async
   assert.equal(game.player(0).hand.length, n0 + n1);
 });
 
-test('Tuần Tuần: đầu giai đoạn bốc bài xem 4 lá (gửi kèm mặt bài), đặt 2 lá lên đầu, 2 lá xuống đáy rồi bốc bình thường', async () => {
+test('Tuân Tuân: đầu giai đoạn bốc bài xem 4 lá (gửi kèm mặt bài), đặt 2 lá lên đầu, 2 lá xuống đáy rồi bốc bình thường', async () => {
   const { game, ctrls } = makeHG([['lidian', 'xuchu'], ['liubei', 'guanyu']]);
   await game.setup();
   await revealAll(game, 0);

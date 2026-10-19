@@ -48,7 +48,7 @@ const MIME: Record<string, string> = {
 function catalog(images: ImageStore) {
   return {
     images: images.index(),
-    generals: GENERALS.map((g) => ({ id: g.id, name: g.name, kingdom: g.kingdom, kingdomLabel: KINGDOM_LABEL[g.kingdom], halfHp: g.halfHp, skills: g.skills })),
+    generals: GENERALS.map((g) => ({ id: g.id, name: g.name, kingdom: g.kingdom, kingdomLabel: KINGDOM_LABEL[g.kingdom], halfHp: g.halfHp, skills: g.skills, ...(g.kingdoms && g.kingdoms.length > 1 ? { kingdoms: g.kingdoms, kingdomLabel: g.kingdoms.map((k) => KINGDOM_LABEL[k]).join('/') } : {}), ...(g.lord ? { lord: true } : {}) })),
     disabledGenerals: DISABLED_GENERALS.map((g) => ({ id: g.id, name: g.name, kingdom: g.kingdom, kingdomLabel: KINGDOM_LABEL[g.kingdom], halfHp: g.halfHp, skills: g.skills })),
     pairs: PAIRS,
     decks: Object.values(DECKS).map((d) => ({ id: d.id, label: deckLabel(d.id), desc: d.desc, size: deckSize(d.id) })),

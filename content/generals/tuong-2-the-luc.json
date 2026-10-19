@@ -1,0 +1,18 @@
+[
+  {
+    "_ghiChu": "Tướng 2 thế lực (双势力, bản Quốc Chiến · Bất Thần). Chỉ được làm PHÓ tướng; chủ tướng phải thuộc 1 trong 2 thế lực và chủ tướng quyết định phe. Muốn đổi: sửa mảng \"kingdoms\" (2 trong wei | shu | wu | qun). Xóa dòng của tướng nào thì tướng đó trở lại 1 thế lực.",
+    "_canXacNhan": "Cặp thế lực lấy theo nguồn tham khảo + tiểu sử (ai đổi chủ từ đâu sang đâu); hãy kiểm tra lại với bản game bạn chơi."
+  },
+  { "id": "mengda", "kingdoms": ["wei", "shu"] },
+  { "id": "tangzi", "kingdoms": ["wei", "wu"] },
+  { "id": "zhanglu", "kingdoms": ["wei", "qun"] },
+  { "id": "mifangfushiren", "kingdoms": ["shu", "wu"] },
+  { "id": "liuqi", "kingdoms": ["shu", "qun"] },
+  { "id": "shixie", "kingdoms": ["wu", "qun"] },
+  { "id": "xiahouba", "kingdoms": ["wei", "shu"] },
+  { "id": "wenqin", "kingdoms": ["wei", "wu"] },
+  { "id": "xuyou", "kingdoms": ["wei", "qun"] },
+  { "id": "panjun", "kingdoms": ["shu", "wu"] },
+  { "id": "pengyang", "kingdoms": ["shu", "qun"] },
+  { "id": "sufei", "kingdoms": ["wu", "qun"] }
+]

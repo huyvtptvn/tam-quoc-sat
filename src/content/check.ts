@@ -7,7 +7,7 @@
 //   npm run content:check -- --mode chaos         (chế độ chọn tướng: normal | free | chaos, có đổi bài khởi đầu)
 //   thêm --json để in kết quả dạng JSON (trang quản trị dùng)
 // ============================================================
-import { getGeneral, GENERALS, KINGDOM_LABEL } from '../hegemony/generals.js';
+import { getGeneral, GENERALS, isDualGeneral, kingdomsOf, KINGDOM_LABEL } from '../hegemony/generals.js';
 import { HegemonyGame, type GameMode } from '../hegemony/game.js';
 import { HegemonyBot } from '../hegemony/bot.js';
 import { createRng, shuffle } from '../core/rng.js';
@@ -39,18 +39,28 @@ export function focusPresets(focus: string, players: number, seed: number): [str
   const rng = createRng(seed);
   const f = getGeneral(focus);
   const pool = shuffle(GENERALS.filter((g) => !g.lord).map((g) => g.id).filter((id) => id !== focus), rng);
-  const take = (kd: string) => {
-    const i = pool.findIndex((id) => getGeneral(id).kingdom === kd);
+  /** Lấy 1 tướng: làm chủ (đúng thế lực, không phải tướng 2 thế lực) hoặc làm phó (thế lực có chứa kd, không phải tướng tím). */
+  const take = (kd: string, asMain: boolean) => {
+    const i = pool.findIndex((id) => (asMain ? getGeneral(id).kingdom === kd && !isDualGeneral(id) : getGeneral(id).kingdom !== 'ye' && kingdomsOf(id).includes(kd as never)));
     return i < 0 ? null : pool.splice(i, 1)[0];
   };
-  // Tướng Dã tâm gia: phó tướng lấy từ một thế lực thường bất kỳ
-  const deputyKd = f.kingdom === 'ye' ? ['wei', 'shu', 'wu', 'qun'][Math.floor(rng() * 4)] : f.kingdom;
-  const out: [string, string][] = [[focus, take(deputyKd)!]];
-  // Các ghế khác: chọn ngẫu nhiên một thế lực còn đủ 2 tướng (giống chia bài thật)
+  const out: [string, string][] = [];
+  if (isDualGeneral(focus)) {
+    // Tướng 2 thế lực chỉ làm phó tướng
+    const kd = kingdomsOf(focus)[Math.floor(rng() * 2)];
+    out.push([take(kd, true)!, focus]);
+  } else {
+    // Tướng Dã tâm gia: phó tướng lấy từ một thế lực thường bất kỳ
+    const deputyKd = f.kingdom === 'ye' ? ['wei', 'shu', 'wu', 'qun'][Math.floor(rng() * 4)] : f.kingdom;
+    out.push([focus, take(deputyKd, false)!]);
+  }
+  // Các ghế khác: chọn ngẫu nhiên một thế lực còn đủ tướng (giống chia bài thật)
   for (let s = 1; s < players; s++) {
-    const options = ['wei', 'shu', 'wu', 'qun'].filter((kd) => pool.filter((x) => getGeneral(x).kingdom === kd).length >= 2);
+    const options = ['wei', 'shu', 'wu', 'qun'].filter((kd) => pool.some((x) => getGeneral(x).kingdom === kd && !isDualGeneral(x))
+      && pool.filter((x) => getGeneral(x).kingdom !== 'ye' && kingdomsOf(x).includes(kd as never)).length >= 2);
     const kd = options[Math.floor(rng() * options.length)];
-    out.push([take(kd)!, take(kd)!]);
+    const m = take(kd, true)!;
+    out.push([m, take(kd, false)!]);
   }
   return out;
 }

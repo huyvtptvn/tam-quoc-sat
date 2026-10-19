@@ -1,5 +1,5 @@
 // Test nhóm A (content/scripts/goi-bo-sung.mjs): Mã Lương, Đặng Chi, Bành Dạng, Ngô Cảnh, Chu Di, Viên Thuật,
-// Tả Từ (bản mới), Nam Hoa Lão Tiên (+ kỹ năng Thiên Thư), Lữ Linh Khởi, Nễ Hành, Himiko.
+// Tả Từ, Nam Hoa Lão Tiên (+ kỹ năng Thiên Thư), Lữ Linh Khởi, Nễ Hành, Himiko.
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadContent, DISABLED_GENERALS } from '../src/content/loader.js';
@@ -150,7 +150,7 @@ test('Cận Hãm: mở tướng -> người khoảng cách 1 đã mở hết th�
 });
 
 test('Thông Linh: sau khi gây sát thương cho A, người cùng thế lực dùng Sát vào A trúng -> rút 2 lá', async () => {
-  const { game, ctrls } = makeHG([['pengyang', 'liubei'], ['caocao', 'xuchu']]);
+  const { game, ctrls } = makeHG([['liubei', 'pengyang'], ['caocao', 'xuchu']]);
   await game.setup();
   await revealAll(game, 0, 1);
   for (const p of game.state.players) await game.moveCards([...p.hand], { kind: 'hand', seat: p.seat }, { kind: 'discard' }, 'test');
@@ -244,7 +244,7 @@ test('Liên Hựu + Hưng Hỏa: chết thì trao Hưng Hỏa; sát thương H�
 
 // ---------------- Viên Thuật ----------------
 
-test('Dung Tứ: không ai có Ngọc Tỷ -> là đại thế lực duy nhất, bốc thêm 1; bị Tri Kỷ thì mở bài', async () => {
+test('Dong Tứ: không ai có Ngọc Tỷ -> là đại thế lực duy nhất, bốc thêm 1; bị Tri Kỷ thì mở bài', async () => {
   const { game } = makeHG([['yuanshu', 'lvbu'], ['caocao', 'xuchu'], ['xiahoudun', 'zhangliao']]);
   await game.setup();
   await revealAll(game, 0, 1, 2);
@@ -256,7 +256,7 @@ test('Dung Tứ: không ai có Ngọc Tỷ -> là đại thế lực duy nhất,
   const zj = await giveWhere(game, 1, (c) => c.name === 'zhiji');
   enterPlay(game, 1);
   await game.useCard(1, zj, [0]);
-  assert.ok(game.log.some((l) => l.includes('Dung Tứ: P0 mở bài trên tay')));
+  assert.ok(game.log.some((l) => l.includes('Dong Tứ: P0 mở bài trên tay')));
   totalOk(game);
 });
 

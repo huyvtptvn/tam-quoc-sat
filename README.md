@@ -1,4 +1,4 @@
-# Tam Quốc Sát Engine – Giai đoạn 1–13
+# Tam Quốc Sát Engine – Giai đoạn 1–14
 
 Engine luật chơi Quốc Chiến viết bằng TypeScript + server WebSocket + nội dung cấu hình bằng JSON + giao diện bàn chơi.
 
@@ -69,6 +69,18 @@ npm test
 - Chi tiết vận hành, API, giao thức, triển khai: **SERVER.md**
 
 ---
+
+## Giai đoạn 14: Theo đúng file lua, tướng 2 thế lực, tướng tím
+
+- **Kỹ năng và tên tướng theo file lua bạn gửi** (`content/import/qsgs-viet.json`): làm lại Bàng Thống, Từ Hoảng, Thái Sử Từ
+  (`content/scripts/goi-chuan.mjs`), đổi 13 tên tướng và 22 tên kỹ năng cho đúng chữ trong file, bỏ bản chỉnh 5 ngư của Hứa Chử.
+  Trần Cung và Lưu Biểu không có trong file nên đã tắt (`content/generals/vi-du.json`, xóa dòng `disabled` để bật lại).
+- **Tướng 2 thế lực** (`content/generals/tuong-2-the-luc.json`, trường `"kingdoms": ["wei", "shu"]`): chỉ làm phó tướng;
+  chủ tướng phải thuộc 1 trong 2 thế lực và quyết định phe. Đổi phó tướng cũng nhận được tướng 2 thế lực hợp phe.
+- **Tướng tím (Dã tâm gia)**: chỉ làm chủ tướng, phó tướng bất kỳ; khi chủ tướng tím còn úp thì tạm theo thế lực phó tướng.
+  Lật chủ tướng tím = **bạo lộ dã tâm**: thành dã tâm gia, nhận **dấu Dã Tâm Gia** (dùng thay Âm Dương Ngư / Tiên Khu /
+  Châu Liên Bích Hợp) và được dùng **Lạp Long Nhân Tâm**: mời lần lượt mọi người, người đầu tiên đồng ý gia nhập
+  (bốc đến 4 lá, hồi 1 máu, thắng/thua cùng phe dã tâm gia). Phe "giả" sắp thắng mà tướng tím còn úp thì bị buộc lật.
 
 ## Giai đoạn 13: Tính điểm, tài khoản, Elo, bảng xếp hạng
 

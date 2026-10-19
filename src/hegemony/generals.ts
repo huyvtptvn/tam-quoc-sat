@@ -32,6 +32,22 @@ export interface General {
    * làm chủ tướng được hỏi có đổi thành quân chủ không.
    */
   lord?: boolean;
+  /**
+   * Tướng 2 thế lực (双势力), ví dụ ['wei', 'shu']. Chỉ được làm PHÓ tướng; chủ tướng phải thuộc 1 trong 2 thế lực này
+   * và chủ tướng quyết định phe. `kingdom` = thế lực đầu tiên (để hiển thị / tương thích).
+   */
+  kingdoms?: Kingdom[];
+}
+
+/** Các thế lực in trên tướng (2 nếu là tướng 2 thế lực). */
+export function kingdomsOf(id: string): Kingdom[] {
+  const g = getGeneral(id);
+  return g.kingdoms && g.kingdoms.length > 1 ? g.kingdoms : [g.kingdom];
+}
+
+/** Tướng 2 thế lực. */
+export function isDualGeneral(id: string): boolean {
+  return isGeneralId(id) && kingdomsOf(id).length > 1;
 }
 
 /** Tướng nữ có sẵn (kể cả gói tướng mới). Tướng thêm bằng JSON có thể ghi "gender": "female". */

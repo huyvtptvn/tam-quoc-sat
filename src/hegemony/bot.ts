@@ -5,7 +5,7 @@ import { SimpleBot } from '../agents/bot.js';
 import type { Request, Response } from '../core/types.js';
 import type { PlayerView, PublicPlayer } from '../core/view.js';
 import { cardValue } from '../agents/bot.js';
-import { getGeneral, type Kingdom } from './generals.js';
+import { getGeneral, isDualGeneral, kingdomsOf, type Kingdom } from './generals.js';
 import { SKILLS } from './skills.js';
 
 export class HegemonyBot extends SimpleBot {
@@ -23,6 +23,12 @@ export class HegemonyBot extends SimpleBot {
         if (req.skill === 'mulligan') {
           const good = v.myHand.filter((c) => ['tao', 'shan', 'wuzhong', 'jiu', 'wuxie'].includes(c.name)).length;
           return { kind: good <= 1 ? 'yes' : 'no' };
+        }
+        // Lạp Long Nhân Tâm: chỉ gia nhập dã tâm gia khi thế lực của mình gần như không còn ai
+        if (req.skill === 'joinCareerist') {
+          const k = this.myKingdom(v);
+          const mates = v.players.filter((p) => p.alive && p.seat !== v.me && p.kingdom === k).length;
+          return { kind: mates === 0 && v.players[v.me].hp <= 2 ? 'yes' : 'no' };
         }
         if (req.reveal && !this.safeToReveal(v)) return { kind: 'no' };
         const hasSha = v.myHand.some((c) => c.name === 'sha');
@@ -90,11 +96,13 @@ export class HegemonyBot extends SimpleBot {
       for (const b of candidates) {
         const ga = getGeneral(a);
         const gb = getGeneral(b);
-        if (a === b || gb.kingdom === 'ye' || (!anyKingdom && ga.kingdom !== 'ye' && ga.kingdom !== gb.kingdom)) continue;
+        // a = chủ tướng, b = phó tướng (tướng tím chỉ làm chủ, tướng 2 thế lực chỉ làm phó)
+        if (a === b || gb.kingdom === 'ye' || isDualGeneral(a)) continue;
+        if (!anyKingdom && ga.kingdom !== 'ye' && !kingdomsOf(b).includes(ga.kingdom)) continue;
         const score = ga.halfHp + gb.halfHp + 0.5 * (ga.skills.length + gb.skills.length);
         if (score > bestScore) {
           bestScore = score;
-          best = ga.kingdom === 'ye' || ga.halfHp >= gb.halfHp ? [a, b] : [b, a];
+          best = [a, b];
         }
       }
     }
@@ -102,7 +110,11 @@ export class HegemonyBot extends SimpleBot {
   }
 
   private myKingdom(v: PlayerView): Kingdom {
-    return getGeneral(v.players[v.me].generals!.main.generalId!).kingdom;
+    const g = v.players[v.me].generals!;
+    const km = getGeneral(g.main.generalId!).kingdom;
+    // Chủ tướng tím còn úp: tạm theo thế lực phó tướng
+    if (km === 'ye' && !g.main.revealed && g.deputy.generalId && !isDualGeneral(g.deputy.generalId)) return getGeneral(g.deputy.generalId).kingdom;
+    return km;
   }
 
   private amRevealed(v: PlayerView): boolean {
@@ -121,7 +133,11 @@ export class HegemonyBot extends SimpleBot {
   protected override isAlly(v: PlayerView, p: PublicPlayer): boolean {
     if (p.seat === v.me) return true;
     const me = v.players[v.me];
-    if (me.kingdom === 'careerist' || (!this.amRevealed(v) && !this.safeToReveal(v))) return false;
+    if (me.kingdom === 'careerist') {
+      // Đồng minh Lạp Long Nhân Tâm
+      return p.kingdom === 'careerist' && me.careeristGroup !== undefined && p.careeristGroup === me.careeristGroup;
+    }
+    if (!this.amRevealed(v) && !this.safeToReveal(v)) return false;
     return p.kingdom != null && p.kingdom === this.myKingdom(v);
   }
 
