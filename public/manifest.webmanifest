@@ -1,0 +1,17 @@
+{
+  "name": "Tam Quốc Sát · Quốc Chiến",
+  "short_name": "Tam Quốc Sát",
+  "description": "Tam Quốc Sát Quốc Chiến: chơi với bạn bè và bot, chế độ Thảo Phạt đánh boss.",
+  "start_url": "/game.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0c161b",
+  "theme_color": "#a8281d",
+  "lang": "vi",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

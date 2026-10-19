@@ -138,6 +138,11 @@ export class HegemonyGame extends Game {
   readonly bossThreat: number[] = [];
   /** Ghế đang chờ hồi sinh -> số lượt boss còn phải chờ. */
   readonly bossReviving = new Map<number, number>();
+  /** Ký hiệu riêng của boss (Trương Giác: Hoàng Cân). */
+  bossTokens = 0;
+  /** Boss nhiều mạng (Mạnh Hoạch): số lần đã bắt. */
+  bossCaptures = 0;
+  private readonly bossCounters = new Map<string, number>();
   /** Số người chơi đã đi kể từ lượt boss gần nhất; người đi gần nhất. */
   private bossSince = 0;
   private bossLastPlayer = -1;
@@ -387,7 +392,7 @@ export class HegemonyGame extends Game {
     const seats = this.playerSeats();
     // Mọi người chọn cùng lúc
     const picks = await Promise.all(candidates.map((cands, i) => [seats[i], cands] as const).map(([seat, cands]) =>
-      this.ask({ type: 'chooseGenerals', seat, candidates: cands, mode: this.mode, ...(anyKingdom ? { anyKingdom } : {}) }).then((res): [string, string] => {
+      this.ask({ type: 'chooseGenerals', seat, candidates: cands, mode: this.mode, ...(anyKingdom ? { anyKingdom } : {}), ...(this.bossSeat !== null ? { boss: true } : {}) }).then((res): [string, string] => {
         const ok = res.kind === 'generals' && cands.includes(res.main) && cands.includes(res.deputy)
           && this.isValidPair(res.main, res.deputy);
         return ok ? [res.main, res.deputy] : this.autoPick(cands);
@@ -1335,10 +1340,26 @@ export class HegemonyGame extends Game {
   // Chế độ Thảo Phạt (đánh boss)
   // ==========================================================
 
-  /** Máu tối đa của boss: (máu gốc + máu mỗi người chơi × số người) × hệ số độ khó. */
+  /** Máu tối đa của boss (boss nhiều mạng: máu mỗi mạng): (máu gốc + máu mỗi người chơi × số người) × hệ số độ khó. */
   bossMaxHp(): number {
     const def = this.bossDef!;
-    return Math.round((def.baseHp + def.hpPerPlayer * this.playerSeats().length) * BOSS_DIFFICULTY[this.bossDifficulty].hpMul);
+    return Math.max(1, Math.round((def.baseHp + def.hpPerPlayer * this.playerSeats().length) * BOSS_DIFFICULTY[this.bossDifficulty].hpMul));
+  }
+
+  /** Bộ đếm theo lượt cho kỹ năng boss (ví dụ "mỗi lượt tối đa 2 lần"). */
+  bossCounter(name: string): number {
+    return this.bossCounters.get(`${name}@${this.state.turnCount}`) ?? 0;
+  }
+  bossCount(name: string): void {
+    const k = `${name}@${this.state.turnCount}`;
+    this.bossCounters.set(k, (this.bossCounters.get(k) ?? 0) + 1);
+  }
+
+  /** Người chơi còn sống có thù hận cao nhất (hòa thì người ít máu hơn), hoặc null. */
+  bossTarget(): number | null {
+    const cands = this.playerSeats().filter((s) => this.player(s).alive);
+    if (!cands.length) return null;
+    return cands.sort((a, b) => this.bossThreat[b] - this.bossThreat[a] || this.player(a).hp - this.player(b).hp)[0];
   }
 
   /** Đặt tướng boss, lật hết tướng của mọi người, chia phe Liên quân / Boss, trao Khiêu Chiến cho người chơi. */
@@ -1367,8 +1388,8 @@ export class HegemonyGame extends Game {
     // Boss bốc thêm bài ở độ khó cao
     this.bus.on('drawPhase', (ctx) => { if (isBoss(ctx.seat)) ctx.count += diff.drawBonus; });
     // Đổi giai đoạn khi máu xuống ngưỡng (trước khi xét hấp hối)
-    this.bus.on('damageDealt', async (ctx) => { if (isBoss(ctx.target)) await this.bossCheckPhase(); }, 1000);
-    this.bus.on('hpLost', async (ctx) => { if (isBoss(ctx.seat)) await this.bossCheckPhase(); }, 1000);
+    this.bus.on('damageDealt', async (ctx) => { if (isBoss(ctx.target)) await this.bossCheckPhase(ctx.nature === 'fire'); }, 1000);
+    this.bus.on('hpLost', async (ctx) => { if (isBoss(ctx.seat)) await this.bossCheckPhase(false); }, 1000);
     // Thù hận
     this.bus.on('damageDealt', (ctx) => { if (isBoss(ctx.target) && ctx.source !== null && !isBoss(ctx.source)) this.bossThreat[ctx.source] += 2 * ctx.amount; }, -100);
     this.bus.on('recovered', (ctx) => { if (ctx.source !== null && !isBoss(ctx.source) && !isBoss(ctx.seat)) this.bossThreat[ctx.source] += ctx.amount; }, -100);
@@ -1409,12 +1430,26 @@ export class HegemonyGame extends Game {
   }
 
   /** Máu boss xuống ngưỡng giai đoạn kế -> đổi tướng, hồi máu, bỏ khu vực phán định. */
-  private async bossCheckPhase(): Promise<void> {
+  private async bossCheckPhase(fire: boolean): Promise<void> {
     const b = this.bossSeat!;
     const def = this.bossDef!;
     const p = this.player(b);
     const h = this.hero(b);
-    while (this.bossPhase < def.phases.length - 1 && p.hp <= Math.floor(p.maxHp * def.phases[this.bossPhase + 1].at)) {
+    // Boss nhiều mạng (Thất Cầm Thất Túng): về 0 máu là bị bắt; chưa đủ số lần thì thả ra đầy máu
+    if (def.lives && p.hp <= 0) {
+      this.bossCaptures = Math.min(def.lives, this.bossCaptures + (fire ? 2 : 1));
+      this.say(`⛓ ${def.name}: bắt được lần ${this.bossCaptures}/${def.lives}${fire ? ' (sát thương Hỏa tính 2 lần)' : ''}.`);
+      if (this.bossCaptures < def.lives) {
+        p.hp = p.maxHp;
+        p.chained = false;
+        p.faceDown = false;
+        if (p.judgeArea.length) await this.moveCards([...p.judgeArea], { kind: 'judge', seat: b }, { kind: 'discard' }, 'bossCapture');
+        this.say(`${p.name} được thả ra (Tái Khởi): đầy máu ${p.hp}/${p.maxHp}, bốc 2 lá.`);
+        await this.draw(b, 2);
+      }
+    }
+    const reached = (ph: BossDef['phases'][number]) => (ph.capture !== undefined ? this.bossCaptures >= ph.capture : p.hp <= Math.floor(p.maxHp * ph.at));
+    while (this.bossPhase < def.phases.length - 1 && p.hp > -100 && reached(def.phases[this.bossPhase + 1])) {
       this.bossPhase++;
       const ph = def.phases[this.bossPhase];
       h.main = { generalId: ph.general, revealed: true };
@@ -1465,6 +1500,8 @@ export class HegemonyGame extends Game {
       seat: this.bossSeat, id: def.id, name: def.name, difficulty: this.bossDifficulty, difficultyLabel: diff.label,
       phase: this.bossPhase, phases: def.phases.map((p) => p.name), round: this.bossRound, roundLimit: def.roundLimit,
       food: this.bossFood, foodMax: diff.food, threat: [...this.bossThreat], reviving: Object.fromEntries(this.bossReviving),
+      ...(def.lives ? { captures: this.bossCaptures, lives: def.lives } : {}),
+      ...(def.tokenName ? { tokens: this.bossTokens, tokenName: def.tokenName } : {}),
     };
   }
 

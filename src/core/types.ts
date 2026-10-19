@@ -130,7 +130,7 @@ export type Request =
    * Chọn 2 tướng. `anyKingdom` = true (chế độ Loạn tướng): không cần cùng thế lực.
    * `mode`: 'normal' | 'free' (tự chọn từ danh sách) | 'chaos' (loạn tướng).
    */
-  | { type: 'chooseGenerals'; seat: number; candidates: string[]; anyKingdom?: boolean; mode?: string }
+  | { type: 'chooseGenerals'; seat: number; candidates: string[]; anyKingdom?: boolean; mode?: string; /** Thảo Phạt: ghép tướng tự do, cùng phe Liên quân. */ boss?: boolean }
   /** Đầu lượt: có lật tướng đang úp không. */
   | { type: 'reveal'; seat: number; canMain: boolean; canDeputy: boolean }
   /** Hỏi có kích hoạt kỹ năng không. `reveal` = true nghĩa là phải lật tướng để dùng. */

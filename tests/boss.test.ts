@@ -133,3 +133,69 @@ test('Bot chơi trọn ván Thảo Phạt ở mọi độ khó, 2–5 người',
     }
   }
 });
+
+/** Ván boss bất kỳ với 3 người chơi preset. */
+function makeAny(id: string, difficulty: 'normal' | 'hard' | 'nightmare' = 'normal') {
+  const ctrls = [new ByType(), new ByType(), new ByType(), new ByType()];
+  const game = new HegemonyGame(ctrls.map((controller, i) => ({ name: i === 3 ? 'Boss' : `P${i}`, controller })), {
+    seed: 11, boss: { id, difficulty },
+    presetGenerals: [['caocao', 'xuchu'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng']],
+  });
+  return { game, ctrls };
+}
+
+test('Đổng Trác: Bạo Ngược hồi 1 máu mỗi lượt khi gây sát thương; giai đoạn 2 Hỏa Thiêu Lạc Dương', async () => {
+  const { game } = makeAny('dongzhuo');
+  await game.setup();
+  const p = game.player(3);
+  p.hp -= 3;
+  const hp = p.hp;
+  await game.damage({ source: 3, target: 0, amount: 1, card: null, cancelled: false });
+  await game.damage({ source: 3, target: 1, amount: 1, card: null, cancelled: false });
+  assert.equal(p.hp, hp + 1, 'chỉ hồi 1 lần trong lượt');
+  await game.damage({ source: 0, target: 3, amount: p.hp - Math.floor(p.maxHp / 2), card: null, cancelled: false });
+  assert.equal(game.heroes[3].main.generalId, 'boss_dongzhuo2');
+  assert.ok(game.hasSkill(3, 'boss_phonghoa'));
+});
+
+test('Trương Giác: [Hoàng Cân] chặn sát thương', async () => {
+  const { game } = makeAny('zhangjiao');
+  await game.setup();
+  game.bossTokens = 2;
+  const hp = game.player(3).hp;
+  await game.damage({ source: 0, target: 3, amount: 3, card: null, cancelled: false });
+  assert.equal(game.player(3).hp, hp - 1);
+  assert.equal(game.bossTokens, 0);
+  assert.equal(game.makeView(0).boss?.tokenName, 'Hoàng Cân');
+});
+
+test('Mạnh Hoạch: phải bắt 7 lần; sát thương Hỏa tính 2 lần; lần thứ 4 Chúc Dung trợ chiến', async () => {
+  const { game } = makeAny('menghuo');
+  await game.setup();
+  const p = game.player(3);
+  const kill = (nature?: 'fire') => game.damage({ source: 0, target: 3, amount: p.hp, card: null, nature, cancelled: false });
+  await kill();
+  assert.equal(game.bossCaptures, 1);
+  assert.ok(p.alive && p.hp === p.maxHp, 'được thả ra đầy máu');
+  await kill('fire');
+  assert.equal(game.bossCaptures, 3);
+  await kill();
+  assert.equal(game.bossCaptures, 4);
+  assert.ok(game.hasSkill(3, 'boss_phidao'), 'Chúc Dung trợ chiến');
+  await kill(); await kill();
+  assert.equal(game.bossCaptures, 6);
+  assert.ok(!game.state.finished);
+  try { await kill(); } catch { /* ván kết thúc */ }
+  assert.equal(game.state.winner, 'Liên quân');
+});
+
+test('Bot chơi trọn ván với mọi boss', async () => {
+  for (const id of ['dongzhuo', 'zhangjiao', 'menghuo']) {
+    for (const n of [2, 4]) {
+      const g = new HegemonyGame([...Array.from({ length: n }, (_, i) => ({ name: `B${i}`, controller: new HegemonyBot() })), { name: 'Boss', controller: new BossBot() }],
+        { seed: 300 + n, boss: { id, difficulty: 'hard' } });
+      const r = await g.run();
+      assert.ok(r.winner === 'Liên quân' || r.winner === 'Boss', `${id}: kết quả lạ ${r.winner}`);
+    }
+  }
+});

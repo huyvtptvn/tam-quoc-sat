@@ -2,6 +2,10 @@
 
 Engine luật chơi Quốc Chiến viết bằng TypeScript + server WebSocket + nội dung cấu hình bằng JSON + giao diện bàn chơi.
 
+## Chơi trên điện thoại, đưa lên web
+
+Xem **`DEPLOY.md`**: chơi qua wifi, thêm ra màn hình chính như app, đưa lên Render/Railway/VPS bằng Docker, Cloudflare Tunnel, và cách làm app trên kho ứng dụng.
+
 ## Chạy nhanh: bấm đúp
 
 | Máy | File |
@@ -81,6 +85,12 @@ npm test
   Thua khi tất cả người chơi cùng chết hoặc quá 15 vòng. Boss nhắm người có **thù hận** cao nhất; kỹ năng chung **Khiêu Chiến** kéo boss về mình.
 - **Chiến công** = điểm trong ván + thưởng hạ boss (+30 / +50 / +80) + 2 điểm mỗi vòng sớm hơn giới hạn. Không tính Elo.
 - **Bảng xếp hạng Thảo Phạt**: `/ranking.html#thao-phat` — đội hạ boss nhanh nhất và người chơi theo tổng Chiến công, lọc theo boss/độ khó.
+- **Đổng Trác – Loạn Lạc Dương**: Tửu Trì (♠ dùng như Rượu), Bạo Ngược (gây sát thương thì hồi 1 máu/lượt); còn nửa máu:
+  Hỏa Thiêu Lạc Dương (đầu lượt mọi người phán xét, Cơ/Rô chịu 1 sát thương Hỏa).
+- **Trương Giác – Hoàng Cân Khởi Nghĩa**: Lôi Kích, Quỷ Đạo, [Hoàng Cân] chặn sát thương; còn nửa máu: Thiên Công Tướng Quân
+  (Hoàng Cân mỗi vòng, cuối lượt giáng sét người bị nhắm).
+- **Mạnh Hoạch – Thất Cầm Thất Túng**: phải bắt 7 lần (mỗi lần về 0 máu được thả ra đầy máu; hạ bằng sát thương Hỏa tính 2 lần);
+  Họa Thủ miễn Nam Man / Vạn Tiễn; từ lần bắt thứ 4 Chúc Dung trợ chiến (Phi Đao). Giới hạn 18 vòng.
 - Thêm boss mới: khai báo trong `src/hegemony/boss.ts` (`BOSSES`, tướng `boss_*`, kỹ năng).
 
 ## Skin tướng và lồng tiếng (từ QSanguosha)

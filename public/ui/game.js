@@ -86,7 +86,7 @@
     bar.innerHTML = `<div class="boss-top"><b>${esc(b.name)}</b> <span class="pill">${esc(b.difficultyLabel)}</span>
         <span class="muted">Giai đoạn ${b.phase + 1}/${b.phases.length}: ${esc(b.phases[b.phase])}</span></div>
       <div class="boss-hp"><i style="width:${pct.toFixed(1)}%"></i><span>${Math.max(0, bp.hp)}/${bp.maxHp}</span></div>
-      <div class="boss-meta muted">Vòng ${b.round}/${b.roundLimit} · Quân lương ${b.food}/${b.foodMax}${top && top[0] > 0 ? ` · Boss đang nhắm: <b>${esc(pname(top[1]))}</b>` : ''}${rev ? ` · Chờ hồi sinh: ${rev}` : ''}</div>`;
+      <div class="boss-meta muted">${b.lives ? `Đã bắt <b>${b.captures}/${b.lives}</b> · ` : ''}${b.tokenName ? `${esc(b.tokenName)}: <b>${b.tokens}</b> · ` : ''}Vòng ${b.round}/${b.roundLimit} · Quân lương ${b.food}/${b.foodMax}${top && top[0] > 0 ? ` · Boss đang nhắm: <b>${esc(pname(top[1]))}</b>` : ''}${rev ? ` · Chờ hồi sinh: ${rev}` : ''}</div>`;
   }
 
   // ---------- Chế độ chọn tướng ----------
@@ -813,7 +813,9 @@
     const kingdomsOf = (id) => C.general(id)?.kingdoms ?? [kingdomOf(id)];
     const isDual = (id) => kingdomsOf(id).length > 1;
     const norm = (t) => String(t ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
-    const sub = any
+    const sub = r.boss
+      ? 'Thảo Phạt: chọn 2 tướng BẤT KỲ (không cần cùng thế lực) — mọi người chơi cùng phe Liên quân. Tướng chọn trước là chủ tướng.'
+      : any
       ? 'Loạn tướng: chọn 2 tướng BẤT KỲ (không cần cùng thế lực). Tướng chọn trước là chủ tướng — phe của bạn theo chủ tướng.'
       : big
         ? 'Tự chọn tướng: chọn 2 tướng cùng thế lực. Tướng chọn trước là chủ tướng. Tướng người khác đã chọn không còn trong danh sách.'
@@ -1073,7 +1075,7 @@
   let lastVoice = null;
   function renderSound() {
     const b = $('btnSound');
-    if (b) { b.textContent = soundOn ? '🔊 Tiếng' : '🔇 Tắt tiếng'; b.title = soundOn ? 'Bấm để tắt lồng tiếng' : 'Bấm để bật lồng tiếng'; }
+    if (b) { b.innerHTML = soundOn ? '🔊<span class="lbl"> Tiếng</span>' : '🔇<span class="lbl"> Tắt tiếng</span>'; b.title = soundOn ? 'Bấm để tắt lồng tiếng' : 'Bấm để bật lồng tiếng'; }
   }
   function playSfx(m) {
     if (!soundOn) return;

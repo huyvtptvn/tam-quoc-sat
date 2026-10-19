@@ -557,3 +557,17 @@ input.field:focus { border-color: var(--rim); outline: none; }
 #bossBar .boss-hp i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #8a1f14, #e0533f); transition: width .4s; }
 #bossBar .boss-hp span { position: relative; display: block; text-align: center; font-size: 12px; line-height: 16px; font-weight: 700; }
 #bossBar .boss-meta { font-size: 12.5px; }
+
+/* ---------- Điện thoại ---------- */
+@media (max-width: 640px) {
+  .topbar { gap: 6px; padding-inline: 8px; }
+  .topbar .brand span:not(.mark) { display: none; }
+  .topbar .btn.small { padding: .15em .5em; }
+  .topbar .hide-sm, #btnSound .lbl { display: none; }
+  #bossBar { width: 100%; padding: 4px 8px; margin-bottom: 4px; }
+  #bossBar .boss-top b, #bossBar .boss-top .pill { display: none; }
+  #bossBar .boss-top { font-size: 11.5px; }
+  #bossBar .boss-hp { height: 13px; margin: 3px 0; }
+  #bossBar .boss-hp span { font-size: 10.5px; line-height: 13px; }
+  #bossBar .boss-meta { font-size: 11px; line-height: 1.3; }
+}
