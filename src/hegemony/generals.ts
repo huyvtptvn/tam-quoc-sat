@@ -37,6 +37,8 @@ export interface General {
    * và chủ tướng quyết định phe. `kingdom` = thế lực đầu tiên (để hiển thị / tương thích).
    */
   kingdoms?: Kingdom[];
+  /** Dùng ảnh/skin của tướng khác (tướng boss dùng ảnh tướng gốc). */
+  art?: string;
 }
 
 /** Các thế lực in trên tướng (2 nếu là tướng 2 thế lực). */

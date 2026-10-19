@@ -10,6 +10,7 @@ import { DELAYED_DEFS, TRICK_DEFS } from '../core/tricks.js';
 import type { StatEvent } from '../core/game.js';
 import type { CardName, Zone } from '../core/types.js';
 import type { HegemonyGame } from './game.js';
+import { BOSS_DIFFICULTY } from './boss.js';
 
 /** Bảng điểm (sửa ở đây để cân bằng lại). */
 export const SCORE_RULES = {
@@ -173,6 +174,11 @@ export class ScoreKeeper {
     const res = this.g.result;
     const out = new Set<number>();
     if (!res?.winner) return out;
+    if (this.g.bossSeat !== null) {
+      if (res.winner === 'Boss') out.add(this.g.bossSeat);
+      else for (const s of this.g.playerSeats()) out.add(s);
+      return out;
+    }
     const alive = this.g.alivePlayers();
     if (alive.length === 0) return out;
     const key = this.factionKey(alive[0].seat);
@@ -262,7 +268,15 @@ export class ScoreKeeper {
     // Kết thúc ván
     const win = this.winners();
     const soloCareerist = win.size === 1 && this.factionKey([...win][0]).startsWith('c');
+    const boss = g.bossSeat;
     for (const p of g.state.players) {
+      if (boss !== null) {
+        // Thảo Phạt (Chiến công): thắng theo độ khó + thưởng tốc độ (mỗi vòng sớm hơn giới hạn +2); boss không tính điểm kết thúc
+        if (p.seat === boss) continue;
+        if (win.has(p.seat)) add(p.seat, 'end', BOSS_DIFFICULTY[g.bossDifficulty].winBonus + 2 * Math.max(0, g.bossDef!.roundLimit - g.bossRound));
+        if (p.alive) add(p.seat, 'end', R.survive);
+        continue;
+      }
       if (win.has(p.seat)) add(p.seat, 'end', soloCareerist ? R.careeristSolo : p.alive ? R.winAlive : R.winDead);
       if (p.alive) add(p.seat, 'end', R.survive);
       if (this.firstRevealer === p.seat) add(p.seat, 'end', R.firstReveal);
@@ -284,16 +298,19 @@ export class ScoreKeeper {
     });
     // Danh hiệu: người dẫn đầu mỗi chỉ số (phải > 0)
     const crown = (title: string, f: (s: RawStats) => number) => {
-      const best = Math.max(...players.map((p) => f(p.stats)));
-      if (best > 0) for (const p of players) if (f(p.stats) === best) p.titles.push(title);
+      const cands = players.filter((p) => p.seat !== boss);
+      const best = Math.max(...cands.map((p) => f(p.stats)));
+      if (best > 0) for (const p of cands) if (f(p.stats) === best) p.titles.push(title);
     };
     crown('Sát Thần', (s) => s.damageToEnemy);
     crown('Thần Y', (s) => s.healed);
     crown('Cai Ngục', (s) => s.jailHits);
     crown('Đạo Tặc', (s) => s.cardsDestroyed + s.cardsStolen);
     crown('Kẻ Phản Bội', (s) => s.damageToAlly + s.allyKills * 3);
-    const top = Math.max(...players.map((p) => p.total));
-    const mvp = players.find((p) => p.total === top)?.seat ?? null;
+    // MVP chỉ xét người chơi (không xét boss)
+    const pool = players.filter((p) => p.seat !== boss);
+    const top = Math.max(...pool.map((p) => p.total));
+    const mvp = pool.find((p) => p.total === top)?.seat ?? null;
     if (mvp !== null) players[mvp].titles.unshift('MVP');
     this.board = { players, mvp };
     return this.board;

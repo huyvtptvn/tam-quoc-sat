@@ -70,6 +70,19 @@ npm test
 
 ---
 
+## Chế độ Thảo Phạt (đánh boss) và bảng xếp hạng riêng
+
+- Tạo phòng → **Kiểu ván: Thảo Phạt** → chọn boss và độ khó (Thường / Khó / Ác mộng), 2–5 người chơi; boss ngồi thêm 1 ghế, do máy điều khiển.
+- Mọi người lật tướng từ đầu, cùng phe **Liên quân**, ghép tướng tự do. Mỗi vòng: người chơi lần lượt đi, rồi tới boss.
+- **Lữ Bố – Hổ Lao Quan**: máu = 4 + 4 × số người chơi (× 1.2 Khó, × 1.4 Ác mộng; Khó/Ác mộng boss bốc thêm 1 lá).
+  Giai đoạn 1: Vô Song, Thần Kích (Sát là lá cuối cùng thì thêm 2 mục tiêu), Mã Thuật.
+  Còn nửa máu → **Bạo Nộ**: hồi 3 máu, bỏ khu vực phán định, thêm Tu La và Thần Phẫn.
+- Người chơi chết: sống lại sau 2 lượt boss (2 máu, 2 lá), mỗi lần tốn 1 **Quân lương** (3; Ác mộng 2).
+  Thua khi tất cả người chơi cùng chết hoặc quá 15 vòng. Boss nhắm người có **thù hận** cao nhất; kỹ năng chung **Khiêu Chiến** kéo boss về mình.
+- **Chiến công** = điểm trong ván + thưởng hạ boss (+30 / +50 / +80) + 2 điểm mỗi vòng sớm hơn giới hạn. Không tính Elo.
+- **Bảng xếp hạng Thảo Phạt**: `/ranking.html#thao-phat` — đội hạ boss nhanh nhất và người chơi theo tổng Chiến công, lọc theo boss/độ khó.
+- Thêm boss mới: khai báo trong `src/hegemony/boss.ts` (`BOSSES`, tướng `boss_*`, kỹ năng).
+
 ## Skin tướng và lồng tiếng (từ QSanguosha)
 
 - Thư mục `content/images/hero-skin/<id tướng QSGS>/<số skin>/` (chép nguyên từ `hero-skin` của QSanguosha):

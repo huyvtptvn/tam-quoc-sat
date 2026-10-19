@@ -227,7 +227,7 @@ export class Game {
           this.state.turnCount++;
           if (this.state.turnCount >= this.opts.maxTurns) await this.finish(null, 'turnLimit');
         }
-        seat = this.nextAliveSeat(seat);
+        seat = this.nextTurnSeat(seat);
       }
     } catch (e) {
       if (!(e instanceof GameOver)) throw e;
@@ -318,6 +318,24 @@ export class Game {
       if (this.state.players[s].alive) out.push(s);
     }
     return out;
+  }
+
+  /** Ai đi lượt kế tiếp sau `seat` (mặc định: người còn sống kế bên). Chế độ đánh boss ghi đè. */
+  protected nextTurnSeat(seat: number): number {
+    return this.nextAliveSeat(seat);
+  }
+
+  /** Cho người đã chết sống lại (chế độ đánh boss): `hp` máu, bốc `cards` lá, mọi trạng thái tạm bị xóa. */
+  async revive(seat: number, hp: number, cards: number): Promise<void> {
+    const p = this.player(seat);
+    if (p.alive) return;
+    p.alive = true;
+    p.hp = Math.max(1, Math.min(hp, p.maxHp));
+    p.chained = false;
+    p.faceDown = false;
+    p.flags = {};
+    this.say(`${p.name} sống lại với ${p.hp} máu.`);
+    if (cards > 0) await this.draw(seat, cards);
   }
 
   nextAliveSeat(seat: number): number {

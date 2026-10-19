@@ -29,7 +29,11 @@ export interface Account {
   /** Băm sha256 của các mã đăng nhập còn hiệu lực (tối đa 10 thiết bị). */
   tokens: string[];
   lastPlayed: string | null;
+  /** Thảo Phạt: thống kê theo "<boss>:<độ khó>". best = số vòng ít nhất khi thắng. */
+  boss?: Record<string, BossStat>;
 }
+
+export interface BossStat { plays: number; clears: number; points: number; best: number | null }
 
 /** Thông tin công khai của một tài khoản. */
 export interface PublicProfile {
@@ -47,6 +51,8 @@ export interface PublicProfile {
   titles: Record<string, number>;
   createdAt: string;
   lastPlayed: string | null;
+  /** Thảo Phạt: tổng Chiến công, số lần hạ boss, số ván đánh boss. */
+  boss: { points: number; clears: number; plays: number };
 }
 
 export interface MatchPlayer {
@@ -75,6 +81,8 @@ export interface MatchRecord {
   winner: string | null;
   ranked: boolean;
   players: MatchPlayer[];
+  /** Ván Thảo Phạt (đánh boss). */
+  boss?: { id: string; name: string; difficulty: string; difficultyLabel: string; rounds: number; win: boolean };
 }
 
 /** Người ngồi ghế lúc bắt đầu ván. */
@@ -195,6 +203,7 @@ export class AccountStore {
       games: a.games, wins: a.wins, winRate: a.games ? Math.round((a.wins / a.games) * 1000) / 10 : 0,
       mvps: a.mvps, avgScore: a.games ? Math.round((a.totalScore / a.games) * 10) / 10 : 0, bestScore: a.bestScore,
       titles: a.titles, createdAt: a.createdAt, lastPlayed: a.lastPlayed,
+      boss: Object.values(a.boss ?? {}).reduce((s, x) => ({ points: Math.round((s.points + x.points) * 10) / 10, clears: s.clears + x.clears, plays: s.plays + x.plays }), { points: 0, clears: 0, plays: 0 }),
     };
   }
 
@@ -219,6 +228,75 @@ export class AccountStore {
       .sort((a, b) => f(b) - f(a) || b.rating - a.rating || a.username.localeCompare(b.username))
       .slice(0, Math.max(1, Math.min(500, limit)))
       .map((p, i) => ({ ...p, place: i + 1 }));
+  }
+
+  /**
+   * Ghi một ván Thảo Phạt: không tính Elo. Mỗi người có tài khoản cộng Chiến công (điểm trong ván),
+   * số lần đánh / hạ boss và kỷ lục số vòng ít nhất cho đúng boss + độ khó.
+   */
+  recordBossMatch(info: { room: string; deck: string; turns: number; winner: string | null;
+    boss: { id: string; name: string; difficulty: string; difficultyLabel: string; rounds: number } },
+  owners: SeatOwner[], board: ScoreBoard, bossSeat: number): MatchRecord {
+    const win = info.winner === 'Liên quân';
+    const key = `${info.boss.id}:${info.boss.difficulty}`;
+    const seen = new Set<string>();
+    const now = new Date().toISOString();
+    const players: MatchPlayer[] = board.players.map((p, i) => {
+      const acc = owners[i]?.accountId ? this.byId.get(owners[i].accountId!) ?? null : null;
+      const a = acc && !seen.has(acc.id) && i !== bossSeat ? acc : null;
+      if (a) {
+        seen.add(a.id);
+        const st = (a.boss ??= {})[key] ?? (a.boss[key] = { plays: 0, clears: 0, points: 0, best: null });
+        st.plays++;
+        st.points += p.total;
+        if (win) { st.clears++; st.best = st.best === null ? info.boss.rounds : Math.min(st.best, info.boss.rounds); }
+        a.lastPlayed = now;
+      }
+      return {
+        seat: p.seat, name: p.name, username: a?.username ?? null, bot: owners[i]?.bot ?? true,
+        generals: p.generals, faction: i === bossSeat ? 'boss' : 'lienquan', winner: p.winner, alive: p.alive, score: p.total,
+        breakdown: p.breakdown, titles: p.titles, ratingBefore: null, ratingAfter: null,
+      };
+    });
+    const rec: MatchRecord = {
+      id: randomBytes(5).toString('hex'), at: now, room: info.room, deck: info.deck, mode: 'boss', turns: info.turns,
+      winner: info.winner, ranked: false, players, boss: { ...info.boss, win },
+    };
+    this.matches.push(rec);
+    if (this.matches.length > 5000) this.matches.shift();
+    appendFileSync(join(this.dir, 'matches.jsonl'), `${JSON.stringify(rec)}\n`);
+    if (seen.size) this.save();
+    return rec;
+  }
+
+  /**
+   * Bảng xếp hạng Thảo Phạt cho 1 boss (+ độ khó, hoặc 'all' = mọi độ khó):
+   * - fastest: các đội hạ boss nhanh nhất (ít vòng nhất, rồi sớm nhất);
+   * - players: người chơi theo tổng Chiến công.
+   */
+  bossLeaderboard(boss: string, difficulty = 'all', limit = 50) {
+    const match = (k: string) => k.startsWith(`${boss}:`) && (difficulty === 'all' || k === `${boss}:${difficulty}`);
+    const fastest = this.matches
+      .filter((m) => m.boss && m.boss.id === boss && m.boss.win && (difficulty === 'all' || m.boss.difficulty === difficulty))
+      .sort((a, b) => a.boss!.rounds - b.boss!.rounds || a.at.localeCompare(b.at))
+      .slice(0, 20)
+      .map((m, i) => ({
+        place: i + 1, id: m.id, at: m.at, rounds: m.boss!.rounds, difficulty: m.boss!.difficultyLabel,
+        team: m.players.filter((p) => p.faction !== 'boss').map((p) => ({ name: p.name, username: p.username, generals: p.generals, score: p.score })),
+      }));
+    const players = this.accounts.map((a) => {
+      const stats = Object.entries(a.boss ?? {}).filter(([k]) => match(k)).map(([, v]) => v);
+      const bests = stats.map((x) => x.best).filter((x): x is number => x !== null);
+      return {
+        username: a.username, displayName: a.displayName,
+        plays: stats.reduce((s, x) => s + x.plays, 0), clears: stats.reduce((s, x) => s + x.clears, 0),
+        points: Math.round(stats.reduce((s, x) => s + x.points, 0) * 10) / 10, best: bests.length ? Math.min(...bests) : null,
+      };
+    }).filter((p) => p.plays > 0)
+      .sort((a, b) => b.points - a.points || b.clears - a.clears || a.username.localeCompare(b.username))
+      .slice(0, Math.max(1, Math.min(500, limit)))
+      .map((p, i) => ({ ...p, place: i + 1 }));
+    return { fastest, players };
   }
 
   /**

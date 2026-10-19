@@ -10,6 +10,7 @@ import { HegemonyBot } from '../hegemony/bot.js';
 import { GAME_MODES, HegemonyGame, type GameMode } from '../hegemony/game.js';
 import { GENERALS } from '../hegemony/generals.js';
 import { attachScoring, type ScoreKeeper } from '../hegemony/scoring.js';
+import { BOSS_DIFFICULTY, BOSSES, BossBot, type BossDifficulty } from '../hegemony/boss.js';
 import type { AccountStore, SeatOwner } from './accounts.js';
 import type { ClientMsg, RoomInfo, ServerMsg } from './protocol.js';
 
@@ -146,6 +147,8 @@ export class Room {
   mulligan = true;
   /** Cho người có chủ tướng có bản quân chủ đổi thành quân chủ. */
   lord = true;
+  /** Thảo Phạt (đánh boss): boss ngồi thêm 1 ghế cuối, do máy điều khiển. */
+  boss: { id: string; difficulty: BossDifficulty } | null = null;
   private controllers: Controller[] = [];
   /** Kho tài khoản để ghi kết quả ván (Lobby gán). */
   accounts: AccountStore | null = null;
@@ -169,7 +172,8 @@ export class Room {
       id: this.id, name: this.name, host: this.host.name, status: this.status,
       maxSeats: this.maxSeats, timeoutSec: this.timeoutSec,
       deck: this.deck, deckLabel: deckLabel(this.deck),
-      mode: this.mode, modeLabel: GAME_MODES[this.mode].label, mulligan: this.mulligan, lord: this.lord,
+      mode: this.mode, modeLabel: this.boss ? 'Thảo Phạt' : GAME_MODES[this.mode].label, mulligan: this.mulligan, lord: this.lord,
+      boss: this.boss ? { id: this.boss.id, name: BOSSES[this.boss.id].name, difficulty: this.boss.difficulty, difficultyLabel: BOSS_DIFFICULTY[this.boss.difficulty].label } : null,
       seats: this.seats.map((s, index) => s.kind === 'human'
         ? { index, kind: 'human', name: s.session.name, connected: s.session.connected, ...(s.session.username ? { username: s.session.username } : {}) }
         : { index, kind: 'bot', name: s.name, connected: true }),
@@ -205,11 +209,20 @@ export class Room {
     const candidates = Math.min(7, Math.floor(GENERALS.length / this.seats.length));
     if (candidates < 2) return 'Không đủ tướng cho số người này';
 
+    if (this.boss && (this.seats.length < 2 || this.seats.length > 5)) return 'Thảo Phạt cần 2–5 người chơi (kể cả bot)';
     this.controllers = this.seats.map((s) => (s.kind === 'human' ? new SocketController(s.session, this.timeoutSec * 1000) : paced(new HegemonyBot(), this.botDelayMs)));
-    this.game = new HegemonyGame(
-      this.seats.map((s, i) => ({ name: s.kind === 'human' ? s.session.name : s.name, controller: this.controllers[i] })),
-      { seed: Date.now(), candidates, deck: buildDeckById(this.deck), mode: this.mode, mulligan: this.mulligan, lordConvert: this.lord, onLog: (line) => this.queueLog(line) },
-    );
+    const setups = this.seats.map((s, i) => ({ name: s.kind === 'human' ? s.session.name : s.name, controller: this.controllers[i] }));
+    if (this.boss) {
+      // Boss ngồi ghế cuối (sau mọi ghế của phòng), luôn do máy điều khiển
+      const bossCtrl = paced(new BossBot(), this.botDelayMs);
+      this.controllers.push(bossCtrl);
+      setups.push({ name: BOSSES[this.boss.id].name, controller: bossCtrl });
+    }
+    this.game = new HegemonyGame(setups, {
+      seed: Date.now(), candidates: this.boss ? 5 : candidates, deck: buildDeckById(this.deck),
+      mode: this.boss ? 'normal' : this.mode, mulligan: this.mulligan, lordConvert: this.lord && !this.boss,
+      ...(this.boss ? { boss: this.boss } : {}), onLog: (line) => this.queueLog(line),
+    });
     this.scorer = attachScoring(this.game);
     // Lồng tiếng: báo client khi kỹ năng được dùng / có người tử trận
     const g0 = this.game;
@@ -221,6 +234,7 @@ export class Room {
       if (h) this.broadcast({ t: 'sfx', kind: 'death', seat, general: h.main.generalId });
     }, 1000);
     this.owners = this.seats.map((s) => ({ accountId: s.kind === 'human' ? s.session.accountId : null, bot: s.kind === 'bot' }));
+    if (this.boss) this.owners.push({ accountId: null, bot: true });
     this.status = 'playing';
     this.sendRoomState();
     const game = this.game;
@@ -230,10 +244,15 @@ export class Room {
         try {
           scores = this.scorer!.compute();
           const keys = game.state.players.map((p) => this.scorer!.factionKey(p.seat));
-          match = this.accounts?.recordMatch(
-            { room: this.name, deck: this.deck, mode: this.mode, turns: result.turns, winner: result.winner },
-            this.owners, scores, keys,
-          );
+          match = game.bossSeat !== null
+            ? this.accounts?.recordBossMatch({
+              room: this.name, deck: this.deck, turns: result.turns, winner: result.winner,
+              boss: { id: game.bossDef!.id, name: game.bossDef!.name, difficulty: game.bossDifficulty, difficultyLabel: BOSS_DIFFICULTY[game.bossDifficulty].label, rounds: game.bossRound },
+            }, this.owners, scores, game.bossSeat)
+            : this.accounts?.recordMatch(
+              { room: this.name, deck: this.deck, mode: this.mode, turns: result.turns, winner: result.winner },
+              this.owners, scores, keys,
+            );
         } catch (e) {
           console.error(`[phòng ${this.id}] lỗi tính điểm:`, e);
         }
@@ -402,7 +421,8 @@ export class Lobby {
         return;
       case 'createRoom': {
         if (room) return err('Bạn đang ở trong một phòng');
-        const seats = Math.min(10, Math.max(2, Math.floor(Number(msg.seats) || 5)));
+        // Thảo Phạt: 2–5 người chơi (boss ngồi thêm 1 ghế riêng)
+        const seats = Math.min(typeof msg.boss === 'string' && BOSSES[msg.boss] ? 5 : 10, Math.max(2, Math.floor(Number(msg.seats) || 5)));
         const timeoutSec = Math.min(120, Math.max(5, Math.floor(Number(msg.timeoutSec) || 30)));
         const r = new Room(String(msg.name || `Phòng của ${session.name}`).slice(0, 40), session, seats, timeoutSec, this.onGameEnd, this.botDelayMs);
         r.accounts = this.accounts;
@@ -410,6 +430,9 @@ export class Lobby {
         if (typeof msg.mode === 'string' && msg.mode in GAME_MODES) r.mode = msg.mode as GameMode;
         if (typeof msg.mulligan === 'boolean') r.mulligan = msg.mulligan;
         if (typeof msg.lord === 'boolean') r.lord = msg.lord;
+        if (typeof msg.boss === 'string' && BOSSES[msg.boss]) {
+          r.boss = { id: msg.boss, difficulty: (typeof msg.bossDifficulty === 'string' && msg.bossDifficulty in BOSS_DIFFICULTY ? msg.bossDifficulty : 'normal') as BossDifficulty };
+        }
         r.seats.push({ kind: 'human', session });
         this.rooms.set(r.id, r);
         session.roomId = r.id;

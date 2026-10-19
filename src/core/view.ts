@@ -95,6 +95,8 @@ export interface PlayerView {
   /** Chỉ có khi được hỏi 'save': các cách cứu không dùng lá bài (gửi lại dạng useSkill). */
   specialSaves?: { skill: string; name: string }[];
   recentLog: string[];
+  /** Chế độ Thảo Phạt (đánh boss): thông tin boss, công khai cho mọi người. */
+  boss?: import('../hegemony/boss.js').BossView;
 }
 
 export function viewFor(game: Game, seat: number, req?: Request): PlayerView {

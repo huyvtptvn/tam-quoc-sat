@@ -46,6 +46,49 @@
     desc();
   }
 
+  // ---------- Thảo Phạt (đánh boss) ----------
+  function fillBosses() {
+    const list = C.catalog.bosses?.list || [];
+    const sel = $('roomBoss');
+    if (!sel) return;
+    sel.innerHTML = list.map((b) => `<option value="${esc(b.id)}">${esc(b.name)}</option>`).join('');
+    const desc = () => {
+      const b = list.find((x) => x.id === sel.value);
+      $('roomBossDesc').textContent = b ? `${b.desc} Giới hạn ${b.roundLimit} vòng. Không tính Elo — có bảng xếp hạng Thảo Phạt riêng.` : '';
+    };
+    sel.onchange = desc;
+    desc();
+  }
+  if ($('roomKind')) {
+    const kind = () => {
+      const boss = $('roomKind').value === 'boss';
+      $('bossOpts').classList.toggle('hidden', !boss);
+      $('roomSeatsLabel').textContent = boss ? 'Số người chơi (chưa tính boss, 2–5)' : 'Số người';
+      for (const o of $('roomSeats').options) o.disabled = boss && Number(o.value) > 5;
+      if (boss && Number($('roomSeats').value) > 5) $('roomSeats').value = '4';
+      $('roomMode').closest('label').classList.toggle('hidden', boss);
+      $('roomLord').closest('label').classList.toggle('hidden', boss);
+    };
+    $('roomKind').onchange = kind;
+    kind();
+  }
+
+  function renderBossBar() {
+    const bar = $('bossBar');
+    const b = view?.boss;
+    if (!bar) return;
+    bar.classList.toggle('hidden', !b);
+    if (!b) return;
+    const bp = view.players[b.seat];
+    const pct = bp.maxHp ? Math.max(0, bp.hp) / bp.maxHp * 100 : 0;
+    const top = b.threat.map((t, s) => [t, s]).filter(([, s]) => s !== b.seat && view.players[s].alive).sort((x, y) => y[0] - x[0])[0];
+    const rev = Object.entries(b.reviving).map(([s, n]) => `${esc(pname(Number(s)))} (${n})`).join(', ');
+    bar.innerHTML = `<div class="boss-top"><b>${esc(b.name)}</b> <span class="pill">${esc(b.difficultyLabel)}</span>
+        <span class="muted">Giai đoạn ${b.phase + 1}/${b.phases.length}: ${esc(b.phases[b.phase])}</span></div>
+      <div class="boss-hp"><i style="width:${pct.toFixed(1)}%"></i><span>${Math.max(0, bp.hp)}/${bp.maxHp}</span></div>
+      <div class="boss-meta muted">Vòng ${b.round}/${b.roundLimit} · Quân lương ${b.food}/${b.foodMax}${top && top[0] > 0 ? ` · Boss đang nhắm: <b>${esc(pname(top[1]))}</b>` : ''}${rev ? ` · Chờ hồi sinh: ${rev}` : ''}</div>`;
+  }
+
   // ---------- Chế độ chọn tướng ----------
   const MODE_DESC = {
     normal: 'Chia ngẫu nhiên vài tướng, chọn 2 tướng cùng thế lực (luật thường).',
@@ -61,7 +104,7 @@
   // ---------- Kết nối ----------
   async function connect() {
     if (!C.catalog.generals.length) {
-      C.setCatalog(await (await fetch('/api/catalog')).json()); fillDecks();
+      C.setCatalog(await (await fetch('/api/catalog')).json()); fillDecks(); fillBosses();
       try { C.setSkins((await (await fetch('/api/skins')).json()).skins); } catch { /* không có skin: dùng chân dung vẽ sẵn */ }
     }
     ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`);
@@ -181,7 +224,7 @@
   function renderRoom() {
     const r = room;
     $('roomTitle').textContent = r.name;
-    $('roomSub').textContent = `${r.seats.length}/${r.maxSeats} người · ${r.timeoutSec} giây mỗi lần trả lời${r.deckLabel ? ` · Bộ bài ${r.deckLabel}` : ''}${r.modeLabel ? ` · Chế độ ${r.modeLabel}` : ''}${r.mulligan ? ' · được đổi bài khởi đầu' : ''}${r.lord ? ' · có quân chủ' : ''}`;
+    $('roomSub').textContent = `${r.seats.length}/${r.maxSeats} người · ${r.timeoutSec} giây mỗi lần trả lời${r.deckLabel ? ` · Bộ bài ${r.deckLabel}` : ''}${r.modeLabel ? ` · Chế độ ${r.modeLabel}` : ''}${r.mulligan ? ' · được đổi bài khởi đầu' : ''}${r.lord && !r.boss ? ' · có quân chủ' : ''}${r.boss ? ` · Boss: ${r.boss.name} (${r.boss.difficultyLabel})` : ''}`;
     const tiles = r.seats.map((s) => `<div class="seat-tile ${s.index === mySeat ? 'me' : ''}">
       <span class="no">${s.index + 1}</span>
       <div><b>${esc(s.name)}</b><small>${s.kind === 'bot' ? 'Máy' : s.index === mySeat ? 'Bạn' : s.connected ? 'Người chơi' : 'Mất kết nối'}${s.kind === 'human' ? (s.username ? ` · <a class="muted" href="/ranking.html#nguoi-${encodeURIComponent(s.username)}" target="_blank" rel="noopener">@${esc(s.username)}</a>` : ' · khách') : ''}</small></div></div>`);
@@ -230,6 +273,7 @@
   }
 
   function kingdomTag(p) {
+    if (view?.boss) return `<span class="tag ${p.seat === view.boss.seat ? 'k-ye' : 'k-shu'}">${p.seat === view.boss.seat ? 'Boss' : 'Liên quân'}</span>`;
     const k = p.kingdom;
     if (!k) return '<span class="tag">Chưa lộ</span>';
     // Dã tâm gia: ghi kèm người cầm đầu (đồng minh Lạp Long Nhân Tâm cùng tên)
@@ -382,6 +426,7 @@
   window.addEventListener('resize', () => requestAnimationFrame(layoutSeats));
 
   function renderCenter() {
+    renderBossBar();
     $('phaseStrip').innerHTML = PHASES.map(([k, l]) => `<span class="${view.phase === k ? 'on' : ''}">${l}</span>`).join('');
     $('turnLine').innerHTML = `${C.backHTML('pile-mini')}<span>Vòng ${view.turn} · lượt của <b>${esc(pname(view.currentSeat))}</b> · chồng bài ${view.drawPileCount} lá</span>`;
     const cards = view.lastDiscards || [];
@@ -882,7 +927,7 @@
   // ---------- Kết thúc ván ----------
   const CAT = [['damage', 'Sát thương'], ['kill', 'Hạ gục'], ['heal', 'Hồi máu'], ['cards', 'Hủy/lấy bài'], ['hpLoss', 'Làm mất máu'],
     ['jail', 'Tù'], ['control', 'Khống chế'], ['support', 'Hỗ trợ'], ['end', 'Kết thúc ván']];
-  const FACTION_LABEL = (f) => (f === 'careerist' ? 'Dã tâm gia' : C.KINGDOM[f]?.label ?? f);
+  const FACTION_LABEL = (f) => (f === 'careerist' ? 'Dã tâm gia' : f === 'lienquan' ? 'Liên quân' : f === 'boss' ? 'Boss' : C.KINGDOM[f]?.label ?? f);
   const fmt = (x) => (Number.isInteger(x) ? String(x) : x.toFixed(1));
 
   function showGameOver(result, scores, match) {
@@ -890,9 +935,10 @@
     const winner = result.winner;
     const mine = scores?.players.find((p) => p.seat === view?.me);
     const won = mine ? mine.winner : false;
+    const bossMode = !!view?.boss;
     let body;
     if (scores) {
-      const rows = [...scores.players].sort((a, b) => b.total - a.total).map((p) => {
+      const rows = [...scores.players].filter((p) => !bossMode || p.seat !== view.boss.seat).sort((a, b) => b.total - a.total).map((p) => {
         const r = match?.ratings?.[p.seat];
         const elo = r && r.before !== null && r.after !== null
           ? `<span class="${r.after >= r.before ? 'elo-up' : 'elo-down'}">${r.after}<br><small>${r.after >= r.before ? '+' : ''}${r.after - r.before}</small></span>` : '<span class="muted">—</span>';
@@ -902,20 +948,20 @@
         return `<tr class="${p.winner ? 'win' : ''} ${p.seat === view?.me ? 'me' : ''}">
           <td>${C.portraitHTML(p.generals[0])}</td>
           <td><b>${esc(p.name)}</b>${p.seat === view?.me ? ' (bạn)' : ''}${p.alive ? '' : ' <span class="muted">✝</span>'}<br>
-            <small class="muted">${esc(names)} · ${esc(FACTION_LABEL(p.faction))}${p.winner ? ' · <b>Thắng</b>' : ''}</small>
+            <small class="muted">${esc(names)} · ${esc(bossMode ? 'Liên quân' : FACTION_LABEL(p.faction))}${p.winner ? ' · <b>Thắng</b>' : ''}</small>
             ${titles ? `<div class="titles">${titles}</div>` : ''}
             <div class="score-detail">${esc(detail || 'Không có điểm hành động')}</div></td>
           <td class="num total">${fmt(p.total)}</td>
-          <td class="num">${elo}</td>
+          ${bossMode ? '' : `<td class="num">${elo}</td>`}
         </tr>`;
       }).join('');
       body = `<div class="score-wrap"><table class="score-table">
-        <thead><tr><th></th><th>Người chơi</th><th class="num">Điểm</th><th class="num">Elo</th></tr></thead>
+        <thead><tr><th></th><th>Người chơi</th><th class="num">${bossMode ? 'Chiến công' : 'Điểm'}</th>${bossMode ? '' : '<th class="num">Elo</th>'}</tr></thead>
         <tbody>${rows}</tbody></table></div>
-        <p class="muted" style="font-size:13px;margin:10px 0 0">${match?.ranked ? 'Ván đã được lưu và tính Elo cho người chơi có tài khoản.' : match ? 'Ván đã được lưu (không tính Elo: không có người thắng hoặc không ai có tài khoản).' : ''}
+        <p class="muted" style="font-size:13px;margin:10px 0 0">${bossMode ? `Thảo Phạt ${esc(view.boss.name)} (${esc(view.boss.difficultyLabel)}) · ${view.boss.round} vòng. Chiến công được cộng vào bảng xếp hạng Thảo Phạt (không tính Elo).` : match?.ranked ? 'Ván đã được lưu và tính Elo cho người chơi có tài khoản.' : match ? 'Ván đã được lưu (không tính Elo: không có người thắng hoặc không ai có tài khoản).' : ''}
         ${account ? '' : ' Đăng nhập tài khoản để được lưu điểm và xếp hạng.'}</p>`;
     } else body = '<p class="muted">Không có bảng điểm.</p>';
-    const title = !winner ? 'Ván hòa' : won ? 'Bạn thắng' : `${winner} thắng`;
+    const title = !winner ? 'Ván hòa' : bossMode ? (winner === 'Liên quân' ? `Hạ được ${view.boss.name}!` : `${view.boss.name} thắng`) : won ? 'Bạn thắng' : `${winner} thắng`;
     openModal(`<div class="dialog" style="width:min(720px,100%)">
       <h2>${esc(title)}</h2>
       <p class="sub">${esc(result.reason === 'victory' ? `Kết thúc sau ${result.turns} lượt.` : 'Không còn bài hoặc quá số lượt tối đa.')}</p>
@@ -986,8 +1032,10 @@
     e.preventDefault();
     const seats = Number($('roomSeats').value);
     autoFillWanted = $('autoFill').checked ? seats - 1 : 0;
+    const isBoss = $('roomKind').value === 'boss';
     send({ t: 'createRoom', name: $('roomName').value.trim() || `Phòng của ${myName}`, seats, timeoutSec: Number($('roomTimeout').value),
-      deck: $('roomDeck').value, mode: $('roomMode').value, mulligan: $('roomMulligan').checked, lord: $('roomLord').checked });
+      deck: $('roomDeck').value, mode: $('roomMode').value, mulligan: $('roomMulligan').checked, lord: $('roomLord').checked,
+      ...(isBoss ? { boss: $('roomBoss').value, bossDifficulty: $('roomBossDiff').value } : {}) });
   };
   $('btnStart').onclick = () => send({ t: 'start' });
   $('btnAddBot').onclick = () => send({ t: 'addBot' });

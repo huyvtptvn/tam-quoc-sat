@@ -195,7 +195,7 @@ export async function prepareContent(dir: string, overrides: Record<string, stri
     for (const other of data.pairs ?? []) pairs.push([data.id, other]);
   }
   for (const k of ['wei', 'shu', 'wu', 'qun']) {
-    const n = [...merged.values()].filter((g) => g.kingdom === k && !g.disabled).length;
+    const n = [...merged.values()].filter((g) => g.kingdom === k && !g.disabled && !g.id.startsWith('boss_') && !g.lord).length;
     if (n < 2) errors.push(`Thế lực ${k} chỉ còn ${n} tướng, cần ít nhất 2 để chia tướng`);
   }
 
@@ -244,7 +244,7 @@ export async function prepareContent(dir: string, overrides: Record<string, stri
     GENERALS.length = 0;
     DISABLED_GENERALS.length = 0;
     for (const g of merged.values()) {
-      const plain = { id: g.id, name: g.name, kingdom: g.kingdom, halfHp: g.halfHp, skills: g.skills, ...(g.female ? { female: true } : {}), ...(g.lord ? { lord: true } : {}), ...(g.kingdoms && g.kingdoms.length > 1 ? { kingdoms: g.kingdoms } : {}) };
+      const plain = { id: g.id, name: g.name, kingdom: g.kingdom, halfHp: g.halfHp, skills: g.skills, ...(g.female ? { female: true } : {}), ...(g.lord ? { lord: true } : {}), ...(g.kingdoms && g.kingdoms.length > 1 ? { kingdoms: g.kingdoms } : {}), ...(g.art ? { art: g.art } : {}) };
       (g.disabled ? DISABLED_GENERALS : GENERALS).push(plain);
     }
     reindexGenerals();

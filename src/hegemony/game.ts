@@ -12,6 +12,7 @@ import { viewFor, type PlayerView, type SkillHint, type SlotView } from '../core
 import { FEMALE_GENERALS, GENERALS, getGeneral, isDualGeneral, isLordId, kingdomsOf, lordVersionOf, isGeneralId, isPair, KINGDOM_LABEL, KINGDOMS, type Kingdom } from './generals.js';
 import { EQUIP_SKILLS, GLOBAL_SKILLS, SKILLS, type ActiveSkill, type Skill, type SkillTrigger } from './skills.js';
 import * as mech from './mechanics.js';
+import { BOSS_DIFFICULTY, BOSSES, isBossId, type BossDef, type BossDifficulty, type BossView } from './boss.js';
 import { installTreasures } from './treasures.js';
 import { halberdTargets, installQcCards, peaceSpellBonus, sixSwordsBonus } from './qc-cards.js';
 import { EQUIP_SLOTS } from '../core/types.js';
@@ -70,6 +71,8 @@ export interface HegemonyOptions extends Omit<GameOptions, 'revealTeams'> {
   mulligan?: boolean;
   /** Cho phép đổi chủ tướng thành quân chủ (Lưu Bị, Trương Giác, Tào Tháo, Tôn Quyền – Quân). */
   lordConvert?: boolean;
+  /** Chế độ Thảo Phạt (đánh boss): boss ngồi ghế CUỐI, các ghế còn lại là Liên quân. */
+  boss?: { id: string; difficulty?: BossDifficulty };
 }
 
 export type GameMode = 'normal' | 'free' | 'chaos';
@@ -120,6 +123,25 @@ export class HegemonyGame extends Game {
   private readonly lordConvert: boolean;
   private readonly mulligan: boolean;
 
+  // ---------- Chế độ Thảo Phạt (đánh boss) ----------
+  /** Ghế của boss (null = ván thường). */
+  readonly bossSeat: number | null = null;
+  readonly bossDef: BossDef | null = null;
+  readonly bossDifficulty: BossDifficulty = 'normal';
+  /** Giai đoạn hiện tại của boss (0 = đầu tiên). */
+  bossPhase = 0;
+  /** Số lượt boss đã đi (= số vòng). */
+  bossRound = 0;
+  /** Quân lương còn lại (mỗi lần hồi sinh tốn 1). */
+  bossFood = 0;
+  /** Thù hận của boss với từng ghế. */
+  readonly bossThreat: number[] = [];
+  /** Ghế đang chờ hồi sinh -> số lượt boss còn phải chờ. */
+  readonly bossReviving = new Map<number, number>();
+  /** Số người chơi đã đi kể từ lượt boss gần nhất; người đi gần nhất. */
+  private bossSince = 0;
+  private bossLastPlayer = -1;
+
   constructor(setups: HegemonyPlayerSetup[], options: HegemonyOptions = {}) {
     super(
       setups.map((s) => ({ name: s.name, team: '?', maxHp: 1, controller: s.controller })),
@@ -128,13 +150,25 @@ export class HegemonyGame extends Game {
     this.mode = options.mode ?? 'normal';
     this.mulligan = options.mulligan ?? false;
     this.candidateCount = this.mode === 'chaos' ? 3 : options.candidates ?? 5;
-    this.pool = (options.generalPool ?? GENERALS.map((g) => g.id)).filter((id) => !isLordId(id));
+    this.pool = (options.generalPool ?? GENERALS.map((g) => g.id)).filter((id) => !isLordId(id) && !isBossId(id));
     this.lordConvert = options.lordConvert ?? false;
+    if (options.boss) {
+      const def = BOSSES[options.boss.id];
+      if (!def) throw new Error(`Không có boss "${options.boss.id}"`);
+      if (setups.length < 3 || setups.length > 6) throw new Error('Thảo Phạt cần 2–5 người chơi và 1 boss');
+      this.bossSeat = setups.length - 1;
+      this.bossDef = def;
+      this.bossDifficulty = options.boss.difficulty && BOSS_DIFFICULTY[options.boss.difficulty] ? options.boss.difficulty : 'normal';
+      this.bossFood = BOSS_DIFFICULTY[this.bossDifficulty].food;
+      for (let i = 0; i < setups.length; i++) this.bossThreat.push(0);
+      this.installBossMode();
+    }
     installTreasures(this);
     installQcCards(this);
 
     if (options.presetGenerals) {
       options.presetGenerals.forEach(([m, d], seat) => {
+        if (seat === this.bossSeat) return;
         if (!this.isValidPair(m, d)) throw new Error(`Cặp tướng không hợp lệ ở ghế ${seat}: ${m}, ${d}`);
         this.assignGenerals(seat, m, d);
       });
@@ -190,8 +224,11 @@ export class HegemonyGame extends Game {
 
   override async setup(): Promise<void> {
     if (this.started) return;
-    if (this.heroes.length === 0) await this.chooseGenerals();
-    if (this.lordConvert) await this.offerLords();
+    if (this.bossSeat !== null) {
+      if (this.playerSeats().some((s) => !this.heroes[s])) await this.chooseGenerals();
+      this.setupBoss();
+    } else if (this.heroes.length === 0) await this.chooseGenerals();
+    if (this.lordConvert && this.bossSeat === null) await this.offerLords();
     await super.setup();
     if (this.mulligan) await this.offerMulligan();
   }
@@ -257,7 +294,7 @@ export class HegemonyGame extends Game {
     const km = getGeneral(main).kingdom;
     if (getGeneral(deputy).kingdom === 'ye') return false; // tướng Dã tâm gia chỉ làm chủ tướng
     if (isDualGeneral(main)) return false; // tướng 2 thế lực chỉ làm phó tướng
-    return this.mode === 'chaos' || km === 'ye' || kingdomsOf(deputy).includes(km);
+    return this.mode === 'chaos' || this.bossSeat !== null || km === 'ye' || kingdomsOf(deputy).includes(km);
   }
 
   private assignGenerals(seat: number, main: string, deputy: string): void {
@@ -288,14 +325,19 @@ export class HegemonyGame extends Game {
    * Chia ứng viên NGẪU NHIÊN như bốc bài thật (nhờ vậy một thế lực có thể dồn nhiều người -> có dã tâm gia).
    * Nếu có người không có cặp hợp lệ thì chia lại; sau 50 lần vẫn không được mới dùng cách giữ chỗ.
    */
+  /** Các ghế người chơi (trừ boss). */
+  playerSeats(): number[] {
+    return this.state.players.map((p) => p.seat).filter((s) => s !== this.bossSeat);
+  }
+
   private dealCandidates(): string[][] {
-    const n = this.state.players.length;
+    const n = this.playerSeats().length;
     const k = Math.min(this.candidateCount, Math.floor(this.pool.length / n));
     if (k < 2) throw new Error('Không đủ tướng cho số người chơi này');
 
     for (let attempt = 0; attempt < 50; attempt++) {
       const pool = shuffle([...this.pool], this.rng);
-      const hands = this.state.players.map((_, i) => pool.slice(i * k, (i + 1) * k));
+      const hands = Array.from({ length: n }, (_, i) => pool.slice(i * k, (i + 1) * k));
       // Loạn tướng vẫn cần ít nhất 1 cặp đặt được (tướng tím chỉ làm chủ, tướng 2 thế lực chỉ làm phó)
       if (hands.every((h) => this.hasPair(h))) return hands;
     }
@@ -311,7 +353,7 @@ export class HegemonyGame extends Game {
     };
     const remaining = (kd: Kingdom) => Math.min(pool.filter((id) => getGeneral(id).kingdom === kd && !isDualGeneral(id)).length,
       pool.filter((id) => kingdomsOf(id).includes(kd)).length - 1);
-    const hands = this.state.players.map(() => {
+    const hands = this.playerSeats().map(() => {
       const kingdoms = shuffle([...KINGDOMS], this.rng).sort((a, b) => remaining(b) - remaining(a));
       const k0 = kingdoms[0];
       if (remaining(k0) < 2) throw new Error('Không đủ tướng cùng thế lực để chia');
@@ -341,15 +383,16 @@ export class HegemonyGame extends Game {
   private async chooseGenerals(): Promise<void> {
     if (this.mode === 'free') { await this.chooseGeneralsFree(); return; }
     const candidates = this.dealCandidates();
-    const anyKingdom = this.mode === 'chaos';
+    const anyKingdom = this.mode === 'chaos' || this.bossSeat !== null;
+    const seats = this.playerSeats();
     // Mọi người chọn cùng lúc
-    const picks = await Promise.all(candidates.map((cands, seat) =>
+    const picks = await Promise.all(candidates.map((cands, i) => [seats[i], cands] as const).map(([seat, cands]) =>
       this.ask({ type: 'chooseGenerals', seat, candidates: cands, mode: this.mode, ...(anyKingdom ? { anyKingdom } : {}) }).then((res): [string, string] => {
         const ok = res.kind === 'generals' && cands.includes(res.main) && cands.includes(res.deputy)
           && this.isValidPair(res.main, res.deputy);
         return ok ? [res.main, res.deputy] : this.autoPick(cands);
       })));
-    picks.forEach(([m, d], seat) => this.assignGenerals(seat, m, d));
+    picks.forEach(([m, d], i) => this.assignGenerals(seats[i], m, d));
     this.say('Tất cả đã chọn xong 2 tướng và úp xuống.');
   }
 
@@ -360,6 +403,7 @@ export class HegemonyGame extends Game {
   private async chooseGeneralsFree(): Promise<void> {
     const taken = new Set<string>();
     for (const p of this.state.players) {
+      if (p.seat === this.bossSeat) continue;
       const cands = this.pool.filter((id) => !taken.has(id));
       if (!this.hasPair(cands)) throw new Error('Không đủ tướng cùng thế lực cho chế độ tự chọn');
       const res = await this.ask({ type: 'chooseGenerals', seat: p.seat, candidates: cands, mode: 'free' });
@@ -397,6 +441,8 @@ export class HegemonyGame extends Game {
    * tạm -> 'ye'). Khi chủ tướng tím lật ra -> 'ye' (dã tâm gia).
    */
   realKingdom(seat: number): Kingdom {
+    // Thảo Phạt: mọi người chơi chung một thế lực (Liên quân), boss riêng
+    if (this.bossSeat !== null) return seat === this.bossSeat ? 'qun' : 'shu';
     const h = this.hero(seat);
     const km = getGeneral(h.main.generalId).kingdom;
     if (km !== 'ye' || h.main.revealed) return km;
@@ -489,6 +535,7 @@ export class HegemonyGame extends Game {
   }
 
   private teamLabel(seat: number): string {
+    if (this.bossSeat !== null) return seat === this.bossSeat ? 'Boss' : 'Liên quân';
     const k = this.shownKingdom(seat);
     if (k === 'careerist') {
       // Mỗi dã tâm gia (hoặc nhóm Lạp Long Nhân Tâm) là một phe riêng, ghi kèm tên người cầm đầu
@@ -1092,7 +1139,9 @@ export class HegemonyGame extends Game {
 
   /** Khu Thỉ: số mục tiêu của Sát +cờ turn_extraSlashTargets. */
   override maxSlashTargets(seat: number, cardId: number): number {
-    return super.maxSlashTargets(seat, cardId) + (this.player(seat).flags.turn_extraSlashTargets ?? 0);
+    // Thần Kích (boss Lữ Bố): Sát là lá cuối cùng trên tay -> thêm tối đa 2 mục tiêu
+    const thanKich = this.hasSkill(seat, 'boss_thankich', true) && this.player(seat).hand.length <= 1 ? 2 : 0;
+    return super.maxSlashTargets(seat, cardId) + (this.player(seat).flags.turn_extraSlashTargets ?? 0) + thanKich;
   }
 
   /** Giáp ảo (Bát Trận): khi không lắp giáp thì coi như có. Thanh Công Kiếm vẫn bỏ qua. */
@@ -1114,6 +1163,7 @@ export class HegemonyGame extends Game {
   }
 
   override handLimit(seat: number): number {
+    if (seat === this.bossSeat) return 6;
     return super.handLimit(seat) + this.sumBonus(seat, (s) => s.handLimitBonus) + peaceSpellBonus(this, seat);
   }
 
@@ -1282,11 +1332,148 @@ export class HegemonyGame extends Game {
   }
 
   // ==========================================================
+  // Chế độ Thảo Phạt (đánh boss)
+  // ==========================================================
+
+  /** Máu tối đa của boss: (máu gốc + máu mỗi người chơi × số người) × hệ số độ khó. */
+  bossMaxHp(): number {
+    const def = this.bossDef!;
+    return Math.round((def.baseHp + def.hpPerPlayer * this.playerSeats().length) * BOSS_DIFFICULTY[this.bossDifficulty].hpMul);
+  }
+
+  /** Đặt tướng boss, lật hết tướng của mọi người, chia phe Liên quân / Boss, trao Khiêu Chiến cho người chơi. */
+  private setupBoss(): void {
+    const b = this.bossSeat!;
+    const def = this.bossDef!;
+    if (!this.heroes[b]) this.assignGenerals(b, def.phases[0].general, def.deputy);
+    const bp = this.player(b);
+    bp.maxHp = bp.hp = this.bossMaxHp();
+    for (const p of this.state.players) {
+      const h = this.heroes[p.seat];
+      if (!h) continue;
+      h.main.revealed = h.deputy.revealed = true;
+      h.bothRevealedHandled = true;
+      if (p.seat === b) { h.careerist = true; h.careeristGroup = b; }
+      p.team = this.teamLabel(p.seat);
+      if (p.seat !== b) this.grantSkill(p.seat, 'khieuchien', false);
+    }
+    this.anyRevealed = true;
+    this.say(`⚔ Thảo Phạt: ${def.name} (${BOSS_DIFFICULTY[this.bossDifficulty].label}) — ${bp.maxHp} máu, giới hạn ${def.roundLimit} vòng, ${this.bossFood} Quân lương.`);
+  }
+
+  private installBossMode(): void {
+    const diff = BOSS_DIFFICULTY[this.bossDifficulty];
+    const isBoss = (s: number | null) => s !== null && s === this.bossSeat;
+    // Boss bốc thêm bài ở độ khó cao
+    this.bus.on('drawPhase', (ctx) => { if (isBoss(ctx.seat)) ctx.count += diff.drawBonus; });
+    // Đổi giai đoạn khi máu xuống ngưỡng (trước khi xét hấp hối)
+    this.bus.on('damageDealt', async (ctx) => { if (isBoss(ctx.target)) await this.bossCheckPhase(); }, 1000);
+    this.bus.on('hpLost', async (ctx) => { if (isBoss(ctx.seat)) await this.bossCheckPhase(); }, 1000);
+    // Thù hận
+    this.bus.on('damageDealt', (ctx) => { if (isBoss(ctx.target) && ctx.source !== null && !isBoss(ctx.source)) this.bossThreat[ctx.source] += 2 * ctx.amount; }, -100);
+    this.bus.on('recovered', (ctx) => { if (ctx.source !== null && !isBoss(ctx.source) && !isBoss(ctx.seat)) this.bossThreat[ctx.source] += ctx.amount; }, -100);
+    this.statListeners.push((e) => {
+      if (e.kind === 'nullified' && e.cancelled && isBoss(e.user) && !isBoss(e.by)) this.bossThreat[e.by] += 2;
+    });
+    // Người chơi chết: chờ 2 lượt boss rồi sống lại (tốn 1 Quân lương)
+    this.bus.on('death', ({ seat }) => {
+      if (isBoss(seat)) return;
+      this.bossThreat[seat] = 0;
+      if (this.bossFood > 0) {
+        this.bossFood--;
+        this.bossReviving.set(seat, 2);
+        this.say(`${this.player(seat).name} về doanh trại: sống lại sau 2 lượt của boss (Quân lương còn ${this.bossFood}).`);
+      } else {
+        this.say(`Hết Quân lương: ${this.player(seat).name} không thể sống lại.`);
+      }
+    }, -100);
+    this.bus.on('turnStart', async ({ seat }) => {
+      if (!isBoss(seat)) return;
+      this.bossRound++;
+      if (this.bossRound > this.bossDef!.roundLimit) {
+        this.say(`Quá ${this.bossDef!.roundLimit} vòng: Liên quân không hạ được boss.`);
+        await this.finish('Boss', 'victory');
+      }
+      this.say(`Vòng ${this.bossRound}/${this.bossDef!.roundLimit} của boss.`);
+    }, 1000);
+    this.bus.on('turnEnd', async ({ seat }) => {
+      if (!isBoss(seat)) return;
+      for (const [s, left] of [...this.bossReviving]) {
+        if (left > 1) { this.bossReviving.set(s, left - 1); continue; }
+        this.bossReviving.delete(s);
+        if (this.state.finished) continue;
+        await this.revive(s, 2, 2);
+        this.player(s).team = this.teamLabel(s);
+      }
+    });
+  }
+
+  /** Máu boss xuống ngưỡng giai đoạn kế -> đổi tướng, hồi máu, bỏ khu vực phán định. */
+  private async bossCheckPhase(): Promise<void> {
+    const b = this.bossSeat!;
+    const def = this.bossDef!;
+    const p = this.player(b);
+    const h = this.hero(b);
+    while (this.bossPhase < def.phases.length - 1 && p.hp <= Math.floor(p.maxHp * def.phases[this.bossPhase + 1].at)) {
+      this.bossPhase++;
+      const ph = def.phases[this.bossPhase];
+      h.main = { generalId: ph.general, revealed: true };
+      p.hp = Math.max(1, Math.min(p.maxHp, Math.max(p.hp, 0) + ph.heal));
+      p.chained = false;
+      p.faceDown = false;
+      if (p.judgeArea.length) await this.moveCards([...p.judgeArea], { kind: 'judge', seat: b }, { kind: 'discard' }, 'bossPhase');
+      this.say(`🔥 ${def.name} chuyển sang giai đoạn ${this.bossPhase + 1}: ${ph.name}! Hồi ${ph.heal} máu (còn ${p.hp}/${p.maxHp}).`);
+    }
+  }
+
+  /** Khiêu Chiến: thù hận của `seat` trở thành cao nhất. */
+  tauntBoss(seat: number): void {
+    this.bossThreat[seat] = Math.max(0, ...this.bossThreat) + 1;
+    this.say(`${this.player(seat).name} khiêu chiến: boss sẽ nhắm vào ${this.player(seat).name}.`);
+  }
+
+  /** Lượt kế tiếp: người chơi lần lượt, hết 1 vòng thì tới boss. */
+  protected override nextTurnSeat(prev: number): number {
+    const b = this.bossSeat;
+    if (b === null) return super.nextTurnSeat(prev);
+    const players = this.playerSeats();
+    const n = this.state.players.length;
+    const nextPlayer = (from: number) => {
+      for (let k = 1; k <= n; k++) {
+        const s = (from + k + n) % n;
+        if (s !== b && this.player(s).alive) return s;
+      }
+      return b;
+    };
+    if (prev === b) {
+      this.bossSince = 0;
+      return nextPlayer(this.bossLastPlayer < 0 ? -1 : this.bossLastPlayer);
+    }
+    this.bossLastPlayer = prev;
+    this.bossSince++;
+    // Boss đi sau khi mọi người chơi còn sống đã đi 1 lượt (1 vòng)
+    const interval = Math.max(1, players.filter((s) => this.player(s).alive).length);
+    if (this.bossSince >= interval && this.player(b).alive) return b;
+    return nextPlayer(prev);
+  }
+
+  bossView(): BossView | undefined {
+    if (this.bossSeat === null) return undefined;
+    const def = this.bossDef!;
+    const diff = BOSS_DIFFICULTY[this.bossDifficulty];
+    return {
+      seat: this.bossSeat, id: def.id, name: def.name, difficulty: this.bossDifficulty, difficultyLabel: diff.label,
+      phase: this.bossPhase, phases: def.phases.map((p) => p.name), round: this.bossRound, roundLimit: def.roundLimit,
+      food: this.bossFood, foodMax: diff.food, threat: [...this.bossThreat], reviving: Object.fromEntries(this.bossReviving),
+    };
+  }
+
+  // ==========================================================
   // Thưởng / phạt và điều kiện thắng
   // ==========================================================
 
   private async rewardOrPunish(victim: number, killer: number | null): Promise<void> {
-    if (killer === null || killer === victim) return;
+    if (killer === null || killer === victim || this.bossSeat !== null) return;
     const k = this.player(killer);
     if (!k.alive || this.shownKingdom(killer) === null) return; // chưa lộ phe: không thưởng không phạt
     if (this.skillEntries(killer, true).some((e) => e.skill.skipRewardPunish?.(this, killer, victim))) {
@@ -1308,6 +1495,11 @@ export class HegemonyGame extends Game {
   override checkWinner(): string | null {
     const alive = this.alivePlayers();
     if (alive.length === 0 || this.heroes.length === 0) return null;
+    if (this.bossSeat !== null) {
+      if (!this.player(this.bossSeat).alive) return 'Liên quân';
+      if (!this.playerSeats().some((s) => this.player(s).alive)) return 'Boss';
+      return null;
+    }
     const careerists = alive.filter((p) => this.hero(p.seat).careerist);
     if (careerists.length > 0) {
       // Dã tâm gia (và đồng minh Lạp Long Nhân Tâm) thắng khi chỉ còn người trong nhóm của họ
@@ -1365,6 +1557,7 @@ export class HegemonyGame extends Game {
         ...(isLordId(h.main.generalId) && (h.main.revealed || visible) ? { lord: true } : {}),
       };
     });
+    if (this.bossSeat !== null) v.boss = this.bossView();
     if (req?.type === 'play') v.skillHints = this.skillHints(seat);
     if (req?.type === 'save' && ((this.heroes[seat]?.marks.pair ?? 0) + (this.heroes[seat]?.marks.ambition ?? 0)) > 0) {
       v.specialSaves = [{ skill: MARK_SKILL.pairTao, name: 'Châu Liên Bích Hợp (dùng như Đào)' }];

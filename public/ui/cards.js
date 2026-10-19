@@ -103,7 +103,8 @@
     set(id, v) { try { localStorage.setItem(`tqs_skin_${id}`, v); } catch { /* trình duyệt chặn lưu trữ */ } },
   };
   function setSkins(index) { skins = index || {}; }
-  const skinsOf = (id) => skins[id] || [];
+  // Tướng boss dùng skin của tướng gốc (art)
+  const skinsOf = (id) => skins[id] || (generalById.get(id)?.art ? skins[generalById.get(id).art] : null) || [];
   /** Skin đang dùng cho tướng `id` (null nếu tướng không có skin). */
   function currentSkin(id) {
     const list = skinsOf(id);

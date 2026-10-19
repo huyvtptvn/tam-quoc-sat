@@ -20,6 +20,13 @@ import { GENERALS, KINGDOM_LABEL, PAIRS } from '../hegemony/generals.js';
 import { SKILLS } from '../hegemony/skills.js';
 import { AccountStore } from './accounts.js';
 import { RANKS } from './elo.js';
+import { BOSS_DIFFICULTY, BOSSES } from '../hegemony/boss.js';
+
+/** Danh sách boss cho giao diện (tạo phòng, bảng xếp hạng). */
+const bossCatalog = () => ({
+  list: Object.values(BOSSES).map((b) => ({ id: b.id, name: b.name, desc: b.desc, roundLimit: b.roundLimit, phases: b.phases.map((p) => p.name) })),
+  difficulties: Object.entries(BOSS_DIFFICULTY).map(([id, d]) => ({ id, label: d.label, winBonus: d.winBonus })),
+});
 import { ContentManager } from './content-manager.js';
 import { SKIN_MIME, SkinStore, skinCoverage } from './skins.js';
 import { IMAGE_MIME, ImageStore, MAX_IMAGE_BYTES } from './images.js';
@@ -49,9 +56,10 @@ const MIME: Record<string, string> = {
 function catalog(images: ImageStore) {
   return {
     images: images.index(),
-    generals: GENERALS.map((g) => ({ id: g.id, name: g.name, kingdom: g.kingdom, kingdomLabel: KINGDOM_LABEL[g.kingdom], halfHp: g.halfHp, skills: g.skills, ...(g.kingdoms && g.kingdoms.length > 1 ? { kingdoms: g.kingdoms, kingdomLabel: g.kingdoms.map((k) => KINGDOM_LABEL[k]).join('/') } : {}), ...(g.lord ? { lord: true } : {}) })),
+    generals: GENERALS.map((g) => ({ id: g.id, name: g.name, kingdom: g.kingdom, kingdomLabel: KINGDOM_LABEL[g.kingdom], halfHp: g.halfHp, skills: g.skills, ...(g.kingdoms && g.kingdoms.length > 1 ? { kingdoms: g.kingdoms, kingdomLabel: g.kingdoms.map((k) => KINGDOM_LABEL[k]).join('/') } : {}), ...(g.lord ? { lord: true } : {}), ...(g.art ? { art: g.art } : {}) })),
     disabledGenerals: DISABLED_GENERALS.map((g) => ({ id: g.id, name: g.name, kingdom: g.kingdom, kingdomLabel: KINGDOM_LABEL[g.kingdom], halfHp: g.halfHp, skills: g.skills })),
     pairs: PAIRS,
+    bosses: bossCatalog(),
     decks: Object.values(DECKS).map((d) => ({ id: d.id, label: deckLabel(d.id), desc: d.desc, size: deckSize(d.id) })),
     skills: Object.fromEntries(Object.values(SKILLS).map((s) => [s.id, { name: s.name, desc: s.desc, origin: s.origin ?? 'builtin' }])),
     cards: Object.fromEntries(Object.entries(CARD_INFO).map(([k, v]) => [k, { label: v.label, type: v.type, slot: v.slot, range: v.range, desc: v.desc, glyph: v.glyph }])),
@@ -167,6 +175,10 @@ export async function startServer(opts: ServerOptions = {}) {
       }
       if (path === '/api/leaderboard') {
         return json(res, 200, { ranks: RANKS.filter((r) => Number.isFinite(r.min)), players: accounts.leaderboard(url.searchParams.get('sort') ?? 'rating', Number(url.searchParams.get('limit')) || 100) });
+      }
+      if (path === '/api/leaderboard/boss') {
+        const boss = url.searchParams.get('boss') ?? Object.keys(BOSSES)[0];
+        return json(res, 200, { bosses: bossCatalog(), ...accounts.bossLeaderboard(boss, url.searchParams.get('diff') ?? 'all') });
       }
       if (path === '/api/profile') {
         const p = accounts.profile(url.searchParams.get('u') ?? '');

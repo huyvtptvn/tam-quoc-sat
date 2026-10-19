@@ -15,7 +15,8 @@ export type ClientMsg =
   | { t: 'listRooms' }
   | { t: 'createRoom'; name?: string; seats?: number; timeoutSec?: number; /** id bộ bài: quocchien | quantranh | ungbien */ deck?: string;
       /** Chế độ chọn tướng: normal | free | chaos */ mode?: string; /** Cho đổi bài khởi đầu (mặc định có) */ mulligan?: boolean;
-      /** Cho đổi chủ tướng thành quân chủ (mặc định có) */ lord?: boolean }
+      /** Cho đổi chủ tướng thành quân chủ (mặc định có) */ lord?: boolean;
+      /** Thảo Phạt: id boss (bỏ trống = ván Quốc Chiến thường) và độ khó normal | hard | nightmare */ boss?: string; bossDifficulty?: string }
   | { t: 'joinRoom'; roomId: string }
   | { t: 'leaveRoom' }
   | { t: 'addBot' }
@@ -49,6 +50,8 @@ export interface RoomInfo {
   mulligan: boolean;
   /** Cho đổi chủ tướng thành quân chủ (Lưu Bị, Trương Giác, Tào Tháo, Tôn Quyền - Quân). */
   lord: boolean;
+  /** Thảo Phạt: boss và độ khó (null = ván thường). */
+  boss: { id: string; name: string; difficulty: string; difficultyLabel: string } | null;
   seats: SeatInfo[];
 }
 

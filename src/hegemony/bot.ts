@@ -132,6 +132,8 @@ export class HegemonyBot extends SimpleBot {
   /** Đồng minh: cùng thế lực đã lộ với mình (dã tâm gia thì không có đồng minh). */
   protected override isAlly(v: PlayerView, p: PublicPlayer): boolean {
     if (p.seat === v.me) return true;
+    // Thảo Phạt: mọi người chơi là đồng minh, boss là kẻ địch chung
+    if (v.boss) return v.me !== v.boss.seat && p.seat !== v.boss.seat;
     const me = v.players[v.me];
     if (me.kingdom === 'careerist') {
       // Đồng minh Lạp Long Nhân Tâm

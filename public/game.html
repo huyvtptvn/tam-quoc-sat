@@ -60,7 +60,22 @@
     <form id="createForm" class="panel form-col">
       <h2>Tạo phòng</h2>
       <label>Tên phòng <input id="roomName" class="field" maxlength="40" placeholder="Phòng của bạn"></label>
-      <label>Số người
+      <label>Kiểu ván
+        <select id="roomKind" class="field">
+          <option value="qc" selected>Quốc Chiến (ẩn phe)</option>
+          <option value="boss">Thảo Phạt (cùng nhau đánh boss)</option>
+        </select>
+      </label>
+      <div id="bossOpts" class="form-col hidden" style="gap:8px">
+        <label>Boss <select id="roomBoss" class="field"></select></label>
+        <label>Độ khó
+          <select id="roomBossDiff" class="field">
+            <option value="normal" selected>Thường</option><option value="hard">Khó</option><option value="nightmare">Ác mộng</option>
+          </select>
+        </label>
+        <p id="roomBossDesc" class="muted" style="margin:-4px 0 0;font-size:13px"></p>
+      </div>
+      <label><span id="roomSeatsLabel">Số người</span>
         <select id="roomSeats" class="field">
           <option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option><option>8</option>
         </select>
@@ -113,6 +128,7 @@
   <div id="board">
     <div id="table">
       <div id="center">
+        <div id="bossBar" class="hidden"></div>
         <div id="phaseStrip"></div>
         <div id="turnLine"></div>
         <div id="played"></div>
