@@ -212,6 +212,18 @@ export async function startServer(opts: ServerOptions = {}) {
           const buf = await readBuffer(req, MAX_IMAGE_BYTES + 1);
           return json(res, 200, { ok: true, url: images.save(kind, key, buf) });
         }
+        // Tài khoản: danh sách (kèm đang online ở đâu), đặt lại mật khẩu, đăng xuất mọi thiết bị
+        if (action === 'accounts' && req.method === 'GET') {
+          const online = lobby.onlineAccounts();
+          return json(res, 200, { accounts: accounts.adminList().map(({ id, ...a }) => ({ ...a, online: online.has(id), room: online.get(id) ?? null })) });
+        }
+        if (action === 'account/reset-password' && req.method === 'POST') {
+          return json(res, 200, { password: accounts.adminResetPassword(url.searchParams.get('username') ?? '') });
+        }
+        if (action === 'account/logout-all' && req.method === 'POST') {
+          accounts.adminLogoutAll(url.searchParams.get('username') ?? '');
+          return json(res, 200, { ok: true });
+        }
         if (action === 'rooms' && req.method === 'GET') return json(res, 200, { rooms: lobby.roomList() });
         // Giải tán phòng (quản trị viên): POST /api/admin/dissolve?id=<mã phòng>
         if (action === 'dissolve' && req.method === 'POST') {

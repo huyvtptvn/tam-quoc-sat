@@ -453,3 +453,27 @@ test('đầu hàng: tướng chết ngay, ván vẫn tiếp tục bằng bot, ng
   if (over.scores) assert.equal(over.scores.players[0].winner, false);
   a.close();
 });
+
+test('API quản trị: danh sách tài khoản (không lộ mật khẩu/mã), online, đặt mật khẩu tạm, đăng xuất mọi nơi', async () => {
+  const reg = await api('/api/account/register', { method: 'POST', admin: false, body: JSON.stringify({ username: 'qtv_xem', password: 'matkhau1' }), headers: { 'content-type': 'application/json' } });
+  assert.equal(reg.status, 200);
+  assert.equal((await api('/api/admin/accounts', { admin: false })).status, 401);
+  const c = await new Client().connect('x');
+  c.send({ t: 'hello', name: 'x', token: c.token, auth: reg.body.token });
+  await c.wait((m) => m.t === 'welcome' && !!m.account);
+  const list = await api('/api/admin/accounts');
+  const me = list.body.accounts.find((a: { username: string }) => a.username === 'qtv_xem');
+  assert.ok(me && me.online && me.devices === 1);
+  const raw = JSON.stringify(list.body);
+  assert.ok(!/"hash"|"salt"|"tokens"|"id"/.test(raw), 'không lộ dữ liệu nhạy cảm');
+  const rs = await api('/api/admin/account/reset-password?username=qtv_xem', { method: 'POST' });
+  assert.ok(rs.body.password?.length >= 6);
+  const old = await api('/api/account/login', { method: 'POST', admin: false, body: JSON.stringify({ username: 'qtv_xem', password: 'matkhau1' }), headers: { 'content-type': 'application/json' } });
+  assert.equal(old.status, 400);
+  const nw = await api('/api/account/login', { method: 'POST', admin: false, body: JSON.stringify({ username: 'qtv_xem', password: rs.body.password }), headers: { 'content-type': 'application/json' } });
+  assert.equal(nw.status, 200);
+  assert.equal((await api('/api/admin/account/logout-all?username=qtv_xem', { method: 'POST' })).status, 200);
+  assert.equal((await api('/api/account/me', { admin: false, headers: { 'x-account-token': nw.body.token } })).status, 401);
+  assert.equal((await api('/api/admin/account/reset-password?username=khongco', { method: 'POST' })).status, 400);
+  c.close();
+});

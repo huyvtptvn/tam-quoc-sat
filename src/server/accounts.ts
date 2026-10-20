@@ -193,6 +193,35 @@ export class AccountStore {
     return token ? this.byToken.get(sha(String(token))) ?? null : null;
   }
 
+  /** Danh sách tài khoản cho trang quản trị (không bao giờ kèm mật khẩu băm hay mã đăng nhập). */
+  adminList(): (PublicProfile & { id: string; devices: number })[] {
+    return this.accounts.map((a) => ({ ...this.publicProfile(a), id: a.id, devices: a.tokens.length }))
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
+  /** Quản trị: đặt mật khẩu tạm mới và đăng xuất mọi thiết bị. Trả về mật khẩu tạm. */
+  adminResetPassword(username: string): string {
+    const a = this.byName.get(String(username ?? '').toLowerCase());
+    if (!a) throw new Error('Không có tài khoản này');
+    const pw = randomBytes(6).toString('base64url');
+    a.salt = randomBytes(16).toString('hex');
+    a.hash = hashPw(pw, a.salt);
+    for (const t of a.tokens) this.byToken.delete(t);
+    a.tokens = [];
+    this.failures.delete(a.username.toLowerCase());
+    this.save();
+    return pw;
+  }
+
+  /** Quản trị: đăng xuất tài khoản khỏi mọi thiết bị. */
+  adminLogoutAll(username: string): void {
+    const a = this.byName.get(String(username ?? '').toLowerCase());
+    if (!a) throw new Error('Không có tài khoản này');
+    for (const t of a.tokens) this.byToken.delete(t);
+    a.tokens = [];
+    this.save();
+  }
+
   get(id: string): Account | null {
     return this.byId.get(id) ?? null;
   }

@@ -431,6 +431,16 @@ export class Lobby {
     }
   };
 
+  /** Tài khoản đang kết nối: id tài khoản -> tên phòng (null nếu ở sảnh). */
+  onlineAccounts(): Map<string, string | null> {
+    const out = new Map<string, string | null>();
+    for (const s of this.byToken.values()) {
+      if (!s.ws || !s.accountId) continue;
+      out.set(s.accountId, s.roomId ? this.rooms.get(s.roomId)?.name ?? null : null);
+    }
+    return out;
+  }
+
   roomList(): RoomInfo[] {
     return [...this.rooms.values()].map((r) => r.info());
   }

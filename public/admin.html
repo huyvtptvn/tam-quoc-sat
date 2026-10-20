@@ -130,6 +130,21 @@
   </div>
 </div>
 
+<div class="img-wrap" id="tai-khoan">
+  <div class="panel">
+    <h2>Tài khoản <span id="accCount" class="muted"></span> <button id="btnAccounts" style="float:right">Làm mới</button></h2>
+    <input id="accSearch" placeholder="Tìm theo tên đăng nhập / tên hiển thị" style="width:280px;margin-bottom:6px">
+    <label class="muted" style="margin-left:10px"><input type="checkbox" id="accOnline"> chỉ người đang online</label>
+    <div id="accMsg"></div>
+    <div style="max-height:420px;overflow:auto"><table id="accTable"><thead><tr>
+      <th data-s="username">Tên đăng nhập</th><th data-s="displayName">Tên hiển thị</th><th data-s="online">Trạng thái</th>
+      <th data-s="rating">Elo</th><th data-s="games">Ván</th><th data-s="winRate">Thắng %</th><th data-s="mvps">MVP</th>
+      <th data-s="boss">Thảo Phạt</th><th data-s="devices">Thiết bị</th><th data-s="createdAt">Tạo lúc</th><th data-s="lastPlayed">Chơi gần nhất</th><th></th>
+    </tr></thead><tbody></tbody></table></div>
+    <div class="muted" style="margin-top:4px">Bấm tiêu đề cột để sắp xếp. Mật khẩu chỉ lưu dạng băm, quản trị viên không xem được; chỉ có thể <b>đặt mật khẩu tạm</b> mới rồi báo lại cho người chơi.</div>
+  </div>
+</div>
+
 <div class="img-wrap" id="hinh-anh">
   <div class="panel">
     <h2>Hình ảnh lá bài & tướng</h2>
@@ -215,6 +230,51 @@ async function loadRooms() {
 }
 $('btnRooms').onclick = () => loadRooms();
 
+let accList = [], accSort = { k: 'createdAt', dir: -1 };
+const fmtTime = (t) => t ? new Date(t).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+async function loadAccounts() {
+  const r = await api('/api/admin/accounts');
+  accList = r.accounts || [];
+  renderAccounts();
+}
+function renderAccounts() {
+  const q = $('accSearch').value.trim().toLowerCase();
+  const onlyOn = $('accOnline').checked;
+  const val = (a, k) => k === 'boss' ? a.boss?.points ?? 0 : k === 'online' ? (a.online ? 1 : 0) : a[k] ?? '';
+  const rows = accList.filter((a) => (!q || a.username.toLowerCase().includes(q) || a.displayName.toLowerCase().includes(q)) && (!onlyOn || a.online))
+    .sort((a, b) => { const x = val(a, accSort.k), y = val(b, accSort.k); return (x > y ? 1 : x < y ? -1 : 0) * accSort.dir; });
+  $('accCount').textContent = `(${accList.length} tài khoản · ${accList.filter((a) => a.online).length} online)`;
+  $('accTable').querySelector('tbody').innerHTML = rows.map((a) => `<tr>
+    <td><a href="/ranking.html#nguoi-${encodeURIComponent(a.username)}" target="_blank">@${esc(a.username)}</a></td>
+    <td>${esc(a.displayName)}</td>
+    <td>${a.online ? `<b style="color:#1f7a35">● online</b>${a.room ? ` <span class="muted">· ${esc(a.room)}</span>` : ' <span class="muted">· sảnh</span>'}` : '<span class="muted">offline</span>'}</td>
+    <td>${a.rating} <span class="muted">${esc(a.rank ?? '')}</span></td><td>${a.games}</td><td>${a.winRate}</td><td>${a.mvps}</td>
+    <td>${a.boss?.plays ? `${a.boss.points} đ · ${a.boss.clears}/${a.boss.plays}` : '—'}</td><td>${a.devices}</td>
+    <td>${fmtTime(a.createdAt)}</td><td>${fmtTime(a.lastPlayed)}</td>
+    <td style="white-space:nowrap"><button data-reset="${esc(a.username)}">Đặt mật khẩu tạm</button> <button data-lo="${esc(a.username)}" ${a.devices ? '' : 'disabled'}>Đăng xuất mọi nơi</button></td>
+  </tr>`).join('') || '<tr><td colspan="12" class="muted">Không có tài khoản nào.</td></tr>';
+  document.querySelectorAll('[data-reset]').forEach((b) => b.onclick = async () => {
+    if (!confirm(`Đặt mật khẩu tạm mới cho @${b.dataset.reset}? Mật khẩu cũ mất hiệu lực, tài khoản bị đăng xuất mọi thiết bị.`)) return;
+    const r = await api(`/api/admin/account/reset-password?username=${encodeURIComponent(b.dataset.reset)}`, { method: 'POST' });
+    $('accMsg').innerHTML = r.error ? `<div class="msg err">${esc(r.error)}</div>`
+      : `<div class="msg ok">Mật khẩu tạm của @${esc(b.dataset.reset)}: <b>${esc(r.password)}</b> — gửi riêng cho người chơi, họ đăng nhập rồi nên đổi lại.</div>`;
+    loadAccounts();
+  });
+  document.querySelectorAll('[data-lo]').forEach((b) => b.onclick = async () => {
+    if (!confirm(`Đăng xuất @${b.dataset.lo} khỏi mọi thiết bị?`)) return;
+    const r = await api(`/api/admin/account/logout-all?username=${encodeURIComponent(b.dataset.lo)}`, { method: 'POST' });
+    $('accMsg').innerHTML = r.error ? `<div class="msg err">${esc(r.error)}</div>` : `<div class="msg ok">Đã đăng xuất @${esc(b.dataset.lo)} khỏi mọi thiết bị.</div>`;
+    loadAccounts();
+  });
+}
+$('btnAccounts').onclick = () => loadAccounts();
+$('accSearch').oninput = renderAccounts;
+$('accOnline').onchange = renderAccounts;
+document.querySelectorAll('#accTable th[data-s]').forEach((th) => { th.style.cursor = 'pointer'; th.onclick = () => {
+  accSort = { k: th.dataset.s, dir: accSort.k === th.dataset.s ? -accSort.dir : (['username', 'displayName'].includes(th.dataset.s) ? 1 : -1) };
+  renderAccounts();
+}; });
+
 async function loadFiles() {
   const r = await api('/api/admin/files');
   $('files').innerHTML = r.files.map((f) => `<div class="file ${f === current ? 'sel' : ''}" data-f="${esc(f)}">${esc(f)}</div>`).join('') || '<span class="muted">(trống)</span>';
@@ -243,7 +303,7 @@ function showResult(r) {
 
 $('btnLogin').onclick = async () => {
   token = $('token').value.trim(); store.set('tqs_admin', token);
-  try { await loadFiles(); loadRooms().catch(() => {}); showResult({ ok: true }); $('result').innerHTML = '<div class="msg ok">✓ Đã đăng nhập.</div>'; } catch {}
+  try { await loadFiles(); loadRooms().catch(() => {}); loadAccounts().catch(() => {}); showResult({ ok: true }); $('result').innerHTML = '<div class="msg ok">✓ Đã đăng nhập.</div>'; } catch {}
 };
 $('btnCheck').onclick = async () => showResult(await api('/api/admin/validate', { method: 'POST', body: JSON.stringify({ path: $('path').value, text: $('editor').value }) }));
 $('btnSave').onclick = async () => {
@@ -315,7 +375,7 @@ function showHelp(tab) {
 document.querySelectorAll('#helpTabs button').forEach((b) => b.onclick = () => showHelp(b.dataset.tab));
 
 loadCatalog(); refreshStatus(); setInterval(refreshStatus, 5000);
-if (token) { loadFiles().catch(() => {}); loadRooms().catch(() => {}); }
+if (token) { loadFiles().catch(() => {}); loadRooms().catch(() => {}); loadAccounts().catch(() => {}); }
 
 // ---------- Hình ảnh ----------
 let imgTab = 'cards';
