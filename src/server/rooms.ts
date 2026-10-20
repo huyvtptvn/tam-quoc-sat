@@ -71,7 +71,7 @@ export class SocketController implements Controller {
       const reqId = nextReqId++;
       // Chọn tướng cần nhiều thời gian hơn (nhất là chế độ tự chọn với cả trăm tướng)
       // Bỏ bài nhiều lá cũng cần thêm thời gian để người chơi tự chọn
-      const ms = req.type === 'chooseGenerals' ? Math.max(this.timeoutMs * 3, 90_000)
+      const ms = req.type === 'chooseGenerals' ? CHOOSE_GENERALS_MS
         : req.type === 'discard' ? Math.max(this.timeoutMs * 2, 45_000) : this.timeoutMs;
       const timer = setTimeout(() => void this.expire(reqId), ms);
       this.pending = { reqId, req, view, resolve, timer, deadline: Date.now() + ms };
@@ -133,6 +133,9 @@ type Seat = { kind: 'human'; session: PlayerSession } | { kind: 'bot'; name: str
  * Bot có nhịp: chỉ chờ khi bot thật sự làm gì đó (đánh bài, dùng kỹ năng);
  * bỏ qua (pass / không) thì trả lời ngay để Vô Giải hỏi cả bàn không bị chậm.
  */
+/** Thời gian chọn tướng: 2 phút. */
+export const CHOOSE_GENERALS_MS = 120_000;
+
 function paced(bot: Controller, delayMs: number): Controller {
   if (delayMs <= 0) return bot;
   return {
@@ -268,6 +271,11 @@ export class Room {
     if (candidates < 2) return 'Không đủ tướng cho số người này';
 
     if (this.boss && (this.seats.length < 2 || this.seats.length > 5)) return 'Thảo Phạt cần 2–5 người chơi (kể cả bot)';
+    // Mỗi ván xếp lại thứ tự ngồi ngẫu nhiên (không theo thứ tự vào phòng)
+    for (let i = this.seats.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.seats[i], this.seats[j]] = [this.seats[j], this.seats[i]];
+    }
     this.controllers = this.seats.map((s) => (s.kind === 'human' ? new SocketController(s.session, this.timeoutSec * 1000) : paced(new HegemonyBot(), this.botDelayMs)));
     const setups = this.seats.map((s, i) => ({ name: s.kind === 'human' ? s.session.name : s.name, controller: this.controllers[i] }));
     if (this.boss) {
@@ -280,6 +288,8 @@ export class Room {
       seed: Date.now(), candidates: this.boss ? 5 : candidates, deck: buildDeckById(this.deck),
       mode: this.boss ? 'normal' : this.mode, mulligan: this.mulligan, lordConvert: this.lord && !this.boss,
       ...(this.boss ? { boss: this.boss } : {}), onLog: (line) => this.queueLog(line),
+      // Mỗi lá phán định dừng một chút cho mọi người kịp nhìn (Lạc Thần lật liên tục, Bát Quái, Thiểm Điện...)
+      judgePauseMs: this.botDelayMs > 0 ? Math.min(1200, Math.max(400, Math.round(this.botDelayMs / 2))) : 0,
     });
     this.scorer = attachScoring(this.game);
     // Lồng tiếng: báo client khi kỹ năng được dùng / có người tử trận

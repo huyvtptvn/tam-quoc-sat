@@ -40,8 +40,12 @@ export class SimpleBot implements Controller {
       case 'discard': {
         // Chỉ chọn trong các lá được phép bỏ; giữ Đào, Vô Giải Khả Kích, Thiểm, Rượu đến cuối
         const ids = req.cardIds ?? v.myHand.map((c) => c.id);
-        const byId = new Map(v.myHand.map((c) => [c.id, c]));
-        return { kind: 'discard', cardIds: pickDiscards(ids.filter((id) => byId.has(id)), req.count, (id) => byId.get(id)!) };
+        const mine = [...v.myHand, ...Object.values(v.players[v.me]?.equips ?? {}).filter((c): c is NonNullable<typeof c> => !!c)];
+        const byId = new Map(mine.map((c) => [c.id, c]));
+        // Ưu tiên bỏ bài trên tay; chỉ bỏ trang bị khi không đủ
+        const handIds = ids.filter((id) => v.myHand.some((c) => c.id === id));
+        const pool = handIds.length >= req.count ? handIds : ids.filter((id) => byId.has(id));
+        return { kind: 'discard', cardIds: pickDiscards(pool, req.count, (id) => byId.get(id)!) };
       }
       case 'chooseCards': {
         // Bài không nằm trên tay (ví dụ xem bài trên cùng chồng bốc rồi chọn lấy): chọn lá giá trị cao nhất

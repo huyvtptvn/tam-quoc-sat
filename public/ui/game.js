@@ -233,6 +233,8 @@
   }
 
   function onRoom(r, seat, watching = false) {
+    // Ván mới bắt đầu: xóa nội dung trò chuyện của ván trước
+    if (r && r.status === 'playing' && room?.status !== 'playing') $('chatLog').innerHTML = '';
     room = r; mySeat = seat; spectating = !!r && watching;
     document.body.classList.toggle('spectating', spectating);
     if (!r) { view = null; pending = null; closeModal(); show('lobby'); return; }
@@ -411,7 +413,7 @@
       const turn = p.seat === view.currentSeat && p.alive ? `<span class="turn-flag">${esc(PHASE_LABEL[view.phase] ?? '')}</span>` : '';
       const tg = selTargets().includes(s) ? '<span class="target-badge">Mục tiêu</span>' : '';
       el.innerHTML = `${turn}${tg}
-        <div class="seat-head"><span class="who" title="${esc(p.name)}">${esc(p.name)}</span>${p.alive ? hpHTML(p, false) : '<span class="dead-mark">Tử trận</span>'}<span class="handcount" title="Số bài trên tay">${p.handCount}</span></div>
+        <div class="seat-head"><span class="seatno" title="Thứ tự lượt: ghế ${s + 1}">${s + 1}</span><span class="who" title="${esc(p.name)}">${esc(p.name)}</span>${p.alive ? hpHTML(p, false) : '<span class="dead-mark">Tử trận</span>'}<span class="handcount" title="Số bài trên tay">${p.handCount}</span></div>
         <div class="seat-body">${gensHTML(p, false)}
           <div class="side">
             <div class="tags">${kingdomTag(p)}${markTags(p)}</div>
@@ -421,6 +423,8 @@
         <div class="zones">${zonesHTML(p, 'extras')}</div>`;
       seatFlags(p, el);
     });
+    // Thứ tự phần tử phải đúng thứ tự lượt (sau ván mới / đổi chỗ ngồi, phần tử cũ có thể nằm sai chỗ)
+    for (const s of order) box.appendChild(box.querySelector(`[data-seat="${s}"]`));
     layoutSeats();
   }
 
@@ -438,16 +442,27 @@
     const W = table.clientWidth, H = table.clientHeight;
     const m = els.length;
     box.classList.toggle('dense', m >= 6 || H < 470 || W < 700);
-    const sw = Math.max(...els.map((e) => e.offsetWidth || 180));
-    const sh = Math.max(...els.map((e) => e.offsetHeight || 130));
+    const sw0 = Math.max(...els.map((e) => e.offsetWidth || 180));
+    const sh0 = Math.max(...els.map((e) => e.offsetHeight || 130));
     const g = 8;
+    // Thu nhỏ ghế (scale) nếu bàn không đủ chỗ cho mọi ghế mà không đè lên nhau
+    let f = 1, sw = sw0, sh = sh0, k = 0, top = m, sideCap = 0;
+    for (f = 1; f >= 0.6; f = Math.round((f - 0.05) * 100) / 100) {
+      sw = sw0 * f; sh = sh0 * f;
+      const yt2f = sh * 1.5 + g * 2, ybf = H - sh / 2 - g;
+      sideCap = ybf >= yt2f ? Math.floor((ybf - yt2f) / (sh + g)) + 1 : 0;
+      const topCapF = Math.max(1, Math.floor((W - g) / (sw + g)));
+      k = m >= 3 ? Math.max(1, Math.ceil((m - topCapF) / 2)) : 0;
+      k = Math.min(k, sideCap, Math.floor((m - 1) / 2));
+      top = m - 2 * k;
+      if (top <= topCapF) break;
+    }
+    f = Math.max(0.6, f);
+    // Dùng thuộc tính "scale" riêng (không đụng "transform") để hiệu ứng rung khi mất máu vẫn chạy
+    // transform-origin 0 0: tâm ghế vẫn nằm đúng điểm (left, top) sau khi thu nhỏ
+    els.forEach((el) => { el.style.scale = f < 1 ? String(f) : ''; el.style.transformOrigin = f < 1 ? '0 0' : ''; });
     const xl = sw / 2 + g, xr = W - sw / 2 - g, yt = sh / 2 + g;
     const yt2 = sh * 1.5 + g * 2, yb = H - sh / 2 - g;
-    const sideCap = yb >= yt2 ? Math.floor((yb - yt2) / (sh + g)) + 1 : 0;
-    const topCap = Math.max(1, Math.floor((W - g) / (sw + g)));
-    let k = m >= 3 ? Math.max(1, Math.ceil((m - topCap) / 2)) : 0;
-    k = Math.min(k, sideCap, Math.floor((m - 1) / 2));
-    const top = m - 2 * k;
     const pos = [];
     const spread = (n, a, b) => (n === 1 ? [(a + b) / 2] : Array.from({ length: n }, (_, i) => a + ((b - a) * i) / (n - 1)));
     // cột phải: dưới lên
@@ -475,6 +490,16 @@
     center.classList.toggle('tight', B - T < 250 || R - L < 420);
   }
   window.addEventListener('resize', () => requestAnimationFrame(layoutSeats));
+  // Khu bài của mình cao/thấp lại (thanh hỏi nhiều nút, nhiều lá) làm bàn co giãn: xếp lại ghế cho khỏi bị che
+  if (window.ResizeObserver) {
+    let lastH = 0, lastW = 0;
+    new ResizeObserver(() => {
+      const t = $('table');
+      if (!t || (t.clientHeight === lastH && t.clientWidth === lastW)) return;
+      lastH = t.clientHeight; lastW = t.clientWidth;
+      requestAnimationFrame(layoutSeats);
+    }).observe($('table'));
+  }
 
   function renderCenter() {
     renderBossBar();
@@ -505,7 +530,7 @@
     const notes = (view.notes || []).slice(-2).map((n) => `<div class="notes">${esc(n)}</div>`).join('');
     el.innerHTML = `${selTargets().includes(p.seat) ? '<span class="target-badge">Mục tiêu</span>' : ''}${gensHTML(p, true)}
       <div class="side">
-        <div class="who">${esc(p.name)}</div>
+        <div class="who"><span class="seatno" title="Thứ tự lượt: ghế ${p.seat + 1}">${p.seat + 1}</span>${esc(p.name)}</div>
         ${p.alive ? hpHTML(p, true) : '<span class="dead-mark">Đã tử trận</span>'}
         <div class="tags">${kingdomTag(p)}${markTags(p)}</div>
         <div class="slots">${zonesHTML(p, true)}</div>
@@ -690,8 +715,13 @@
           prompt = r.reason === 'discardPhase' || !r.reason
             ? `Giai đoạn bỏ bài: bạn có ${view.myHand.length} lá${r.limit !== undefined ? `, giới hạn trữ bài ${r.limit}` : ''} — bấm chọn <b>${r.count}</b> lá muốn bỏ (đã chọn ${sel.cards.length}).`
             : `Phải bỏ <b>${r.count}</b> lá trên tay — bấm chọn lá muốn bỏ (đã chọn ${sel.cards.length}).`;
-          if (r.cardIds && r.cardIds.length < view.myHand.length) prompt += ' <span class="muted">Lá mờ không được phép bỏ.</span>';
+          if (r.cardIds && r.cardIds.filter((id) => view.myHand.some((c) => c.id === id)).length < view.myHand.length) prompt += ' <span class="muted">Lá mờ không được phép bỏ.</span>';
           buttons.push(btn('Bỏ bài', () => answer({ kind: 'discard', cardIds: sel.cards }), 'primary', sel.cards.length !== r.count));
+          // Được bỏ cả trang bị (Anh Hồn...): mở bảng chọn gồm bài trên tay + trang bị
+          if (r.cardIds && r.cardIds.some((id) => !view.myHand.some((c) => c.id === id))) {
+            prompt = prompt.replace('lá trên tay', 'lá (trên tay hoặc trang bị)');
+            buttons.push(btn('Chọn cả trang bị', () => openCardPicker({ ...r, prompt: `Bỏ ${r.count} lá (trên tay hoặc trang bị)`, min: r.count, max: r.count })));
+          }
           if (sel.cards.length) buttons.push(btn('Chọn lại', () => { sel.cards = []; renderGame(); }, 'ghost'));
           break;
         case 'chooseCards':
@@ -712,6 +742,12 @@
             prompt = esc(r.prompt);
             buttons.push(btn('Đổi thành quân chủ', () => answer({ kind: 'yes' }), 'primary'));
             buttons.push(btn('Giữ tướng thường', () => answer({ kind: 'no' })));
+            break;
+          }
+          if (r.skill === 'mark:yinyang-limit') {
+            prompt = esc(r.prompt);
+            buttons.push(btn('Dùng (+2 giới hạn)', () => answer({ kind: 'yes' }), 'primary'));
+            buttons.push(btn('Không, bỏ bài', () => answer({ kind: 'no' }), 'ghost'));
             break;
           }
           if (r.skill === 'mulligan') {
@@ -976,7 +1012,7 @@
       document.querySelectorAll('.card-pick .card').forEach((el) => {
         el.onclick = () => { toggleCard(Number(el.dataset.card), r.max); draw(); renderAction(); };
       });
-      $('cpOk').onclick = () => answer({ kind: 'cards', cardIds: sel.cards });
+      $('cpOk').onclick = () => answer(r.type === 'discard' ? { kind: 'discard', cardIds: sel.cards } : { kind: 'cards', cardIds: sel.cards });
     };
     draw();
   }

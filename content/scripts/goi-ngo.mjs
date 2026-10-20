@@ -91,8 +91,8 @@ export default {
             const [t] = await g.chooseTargets(o, 'Anh Hồn: chọn một người', others(g, o), 1, 1, 'ally');
             if (t === undefined) return;
             const pick = x === 0 ? 1 : x === 1 ? 0 : await g.choose(o, `Anh Hồn với ${name(g, t)}`, [`Rút ${x} lá, bỏ 1 lá`, `Rút 1 lá, bỏ ${x} lá`]);
-            if (pick === 0) { await g.draw(t, x); await g.forceDiscard(t, 1, 'yinghun'); }
-            else { await g.draw(t, 1); if (x > 0) await g.forceDiscard(t, x, 'yinghun'); }
+            if (pick === 0) { await g.draw(t, x); await g.forceDiscard(t, 1, 'yinghun', { equip: true }); }
+            else { await g.draw(t, 1); if (x > 0) await g.forceDiscard(t, x, 'yinghun', { equip: true }); }
           }),
       ],
     },
@@ -353,11 +353,11 @@ export default {
       triggers: [
         on('cardUsed', (g, ctx, o) => ctx.as === 'sha' && g.player(ctx.seat).alive && g.formation(o).includes(ctx.seat), async (g, ctx) => {
           await g.draw(ctx.seat, 1);
-          await g.forceDiscard(ctx.seat, 1, 'yicheng');
+          await g.forceDiscard(ctx.seat, 1, 'yicheng', { equip: true });
         }),
         on('slashTargeted', (g, ctx, o) => !ctx.cancelled && g.player(ctx.target).alive && g.formation(o).includes(ctx.target), async (g, ctx) => {
           await g.draw(ctx.target, 1);
-          await g.forceDiscard(ctx.target, 1, 'yicheng');
+          await g.forceDiscard(ctx.target, 1, 'yicheng', { equip: true });
         }),
       ],
     },
@@ -488,7 +488,7 @@ export default {
       desc: 'Sau khi phán xét của bạn có hiệu lực, nếu kết quả là 1 lá có khả năng gây sát thương cho mục tiêu, bạn có thể thu lấy lá đó; '
         + '▷ Bạn có thể lệnh cho người đang có lượt +1 giới hạn sử dụng [Sát] và +1 giới hạn trữ bài.',
       triggers: [
-        on('judged', (g, ctx, o) => ctx.seat === o && g.state.processing.includes(ctx.card.id) && DAMAGE_CARDS.has(ctx.card.name), async (g, ctx, o) => {
+        on('judgeFinal', (g, ctx, o) => ctx.seat === o && g.state.processing.includes(ctx.card.id) && DAMAGE_CARDS.has(ctx.card.name), async (g, ctx, o) => {
           await g.moveCards([ctx.card.id], { kind: 'processing' }, { kind: 'hand', seat: o }, 'zhuwei');
           g.say(`${name(g, o)} nhận lá phán định.`);
           const cur = g.state.currentSeat;

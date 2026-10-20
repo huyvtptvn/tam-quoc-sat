@@ -735,7 +735,7 @@
     "id": "dongzhuo",
     "name": "Đổng Trác",
     "kingdom": "qun",
-    "halfHp": 5,
+    "halfHp": 4,
     "skills": [
       "hengzheng",
       "baoling"

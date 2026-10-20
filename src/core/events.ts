@@ -59,6 +59,8 @@ export interface EventMap {
   duelStarted: { user: number; target: number; card: Card; need: Record<number, number> };
   /** Vừa lật lá phán định (lá đang nằm ở vùng xử lý). */
   judged: { seat: number; card: Card; reason: string };
+  /** Lá phán định cuối cùng, sau khi mọi kỹ năng sửa phán định đã chạy. */
+  judgeFinal: { seat: number; card: Card; reason: string };
   /** Một cẩm nang (không trì hoãn) chọn trúng `target`, TRƯỚC khi hỏi Vô Giải. Đặt cancelled = true để bỏ qua mục tiêu này. */
   trickTargeted: { user: number; target: number; card: Card; name: CardName; cancelled: boolean };
   /** Sắp hỏi `seat` đánh một lá thuộc `accept` (kỹ năng có thể đưa thêm bài vào tay trước khi hỏi, ví dụ Ngạo Tài). */

@@ -91,6 +91,8 @@ interface SkillEntry {
 /** Ký hiệu được dùng như kỹ năng chủ động. */
 export const MARK_SKILL = {
   yinyang: 'mark:yinyang',
+  /** Âm Dương Ngư: +2 giới hạn trữ bài (hỏi ở đầu giai đoạn bỏ bài). */
+  yinyangLimit: 'mark:yinyang-limit',
   pioneer: 'mark:pioneer',
   /** Châu Liên Bích Hợp: bốc 2 lá. */
   pair: 'mark:pair',
@@ -1167,6 +1169,21 @@ export class HegemonyGame extends Game {
     return null;
   }
 
+  /** Bát Trận trên tướng đang úp: khi cần Thiểm có thể lật tướng đó để dùng như Bát Quái Trận. */
+  protected override hiddenVirtualArmor(seat: number, source: number | null, isSlash: boolean, armor: CardName): { label: string; reveal: () => Promise<void> } | null {
+    const p = this.player(seat);
+    if (!p.alive || this.equipOf(seat, 'armor') || !this.heroes[seat]) return null;
+    if (isSlash && this.player(seat).flags.turn_ignoreArmor) return null;
+    if (isSlash && source !== null && source !== seat && this.player(source).alive) {
+      if (this.weaponName(source) === 'qinggang') return null;
+      if (this.skillEntries(source, true).some((e) => e.skill.ignoreArmor?.(this, source, seat))) return null;
+    }
+    if (!this.canReveal(seat)) return null;
+    const e = this.skillEntries(seat).find((x) => !x.slot.revealed && x.skill.virtualArmor?.(this, seat) === armor);
+    if (!e) return null;
+    return { label: e.skill.name, reveal: async () => { await this.reveal(seat, e.which); } };
+  }
+
   override handLimit(seat: number): number {
     if (seat === this.bossSeat) return 6;
     return super.handLimit(seat) + this.sumBonus(seat, (s) => s.handLimitBonus) + peaceSpellBonus(this, seat);
@@ -1255,6 +1272,19 @@ export class HegemonyGame extends Game {
     if (extra) return extra;
     if (a.target === 'one' && (targets.length !== 1 || !a.validTarget?.(this, seat, targets[0]) || !this.canTarget(seat, targets[0]))) return 'Mục tiêu không hợp lệ';
     return null;
+  }
+
+  /** Âm Dương Ngư (hoặc dấu Dã Tâm Gia): đầu giai đoạn bỏ bài, nếu phải bỏ bài thì có thể tiêu để +2 giới hạn trữ bài lượt này. */
+  protected override async beforeDiscardPhase(seat: number): Promise<void> {
+    const h = this.heroes[seat];
+    if (!h || (!h.marks.yinyang && !h.marks.ambition)) return;
+    const p = this.player(seat);
+    const over = p.hand.length - this.handLimit(seat);
+    const res = await this.ask({ type: 'confirm', seat, skill: MARK_SKILL.yinyangLimit, reveal: false,
+      prompt: `Dùng ký hiệu ${h.marks.yinyang ? 'Âm Dương Ngư' : 'Dã Tâm Gia (thay Âm Dương Ngư)'}: +2 giới hạn trữ bài lượt này (đang phải bỏ ${over} lá)?` });
+    if (res.kind !== 'yes' || !this.useMark(h, 'yinyang')) return;
+    p.flags.turn_handLimitDelta = (p.flags.turn_handLimitDelta ?? 0) + 2;
+    this.say(`${p.name} dùng ký hiệu Âm Dương Ngư: +2 giới hạn trữ bài lượt này.`);
   }
 
   /** Tiêu 1 ký hiệu loại `kind`; hết thì dùng dấu Dã Tâm Gia thay. */

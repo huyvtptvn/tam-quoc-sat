@@ -51,6 +51,8 @@ export interface GameOptions {
   firstSeat?: number;
   deck?: Card[];
   onLog?: (line: string) => void;
+  /** Dừng bao lâu sau mỗi lần lật lá phán định (ms) để người chơi kịp nhìn (Lạc Thần lật liên tục...). 0 = không dừng. */
+  judgePauseMs?: number;
 }
 
 type ResolvedOptions = Required<Omit<GameOptions, 'deck'>>;
@@ -118,6 +120,7 @@ export class Game {
       revealTeams: options.revealTeams ?? true,
       firstSeat: options.firstSeat ?? 0,
       onLog: options.onLog ?? (() => {}),
+      judgePauseMs: options.judgePauseMs ?? 0,
     };
     this.rng = createRng(this.opts.seed);
 
@@ -811,9 +814,13 @@ export class Game {
   /** Bát Quái Trận. Trả về lá phán định (coi như lá Thiểm đã đánh) nếu thành công. */
   private async tryBagua(seat: number, source: number | null, context?: RespondContext): Promise<Card | null> {
     const isSlash = context?.kind === 'slash';
-    if (this.armorOf(seat, source, isSlash) !== 'bagua') return null;
-    const ok = await this.ask({ type: 'confirm', seat, skill: 'bagua', prompt: 'Dùng Bát Quái Trận (phán định, đỏ = Thiểm)?', reveal: false });
+    // Bát Quái thật / Bát Trận đã lật; hoặc Bát Trận trên tướng đang úp (dùng thì phải lật tướng đó)
+    const hidden = this.armorOf(seat, source, isSlash) === 'bagua' ? null : this.hiddenVirtualArmor(seat, source, isSlash, 'bagua');
+    if (this.armorOf(seat, source, isSlash) !== 'bagua' && !hidden) return null;
+    const ok = await this.ask({ type: 'confirm', seat, skill: 'bagua', reveal: !!hidden,
+      prompt: hidden ? `Lật tướng để dùng ${hidden.label} (như Bát Quái Trận: phán định, đỏ = Thiểm)?` : 'Dùng Bát Quái Trận (phán định, đỏ = Thiểm)?' });
     if (ok.kind !== 'yes') return null;
+    if (hidden) await hidden.reveal();
     const card = await this.judge(seat, 'Bát Quái Trận');
     try {
       if (card.suit !== 'heart' && card.suit !== 'diamond') return null;
@@ -823,6 +830,11 @@ export class Game {
     } finally {
       await this.finishJudge(card);
     }
+  }
+
+  /** Phòng cụ ảo `armor` do kỹ năng của tướng đang úp (Bát Trận...). Luật cơ bản không có tướng úp. */
+  protected hiddenVirtualArmor(_seat: number, _source: number | null, _isSlash: boolean, _armor: CardName): { label: string; reveal: () => Promise<void> } | null {
+    return null;
   }
 
   /** Hỏi chọn từ min đến max lá trong `cardIds`. Trả lời sai -> engine chọn `min` lá đầu. */
@@ -854,11 +866,14 @@ export class Game {
     return ok ? [...t] : candidates.slice(0, min);
   }
 
-  /** Bắt `seat` bỏ đúng `count` lá trên tay (hoặc hết nếu không đủ). Trả lời sai -> tự bỏ các lá cuối. */
-  async forceDiscard(seat: number, count: number, reason: string): Promise<number[]> {
+  /**
+   * Bắt `seat` bỏ `count` lá. Mặc định chỉ bài trên tay; opts.equip: được bỏ cả trang bị ("bỏ X lá" theo luật).
+   */
+  async forceDiscard(seat: number, count: number, reason: string, opts: { equip?: boolean } = {}): Promise<number[]> {
     const p = this.player(seat);
     // Kê Lặc: lá thuộc loại bị cấm bỏ (cờ turn_banDiscardType_<loại>) không được chọn để bỏ
-    const allowed = p.hand.filter((id) => !p.flags[`turn_banDiscardType_${this.card(id).type}`]);
+    const equipIds = opts.equip ? (Object.keys(p.equips) as EquipSlot[]).flatMap((s) => p.equips[s]) : [];
+    const allowed = [...p.hand, ...equipIds].filter((id) => !p.flags[`turn_banDiscardType_${this.card(id).type}`]);
     count = Math.min(count, allowed.length);
     if (count <= 0) return [];
     const res = await this.ask({
@@ -869,7 +884,12 @@ export class Game {
     const valid = ids.length === count && new Set(ids).size === count && ids.every((id) => allowed.includes(id));
     // Trả lời sai / hết giờ: tự bỏ các lá ít giá trị nhất, giữ Đào, Vô Giải, Thiểm, Rượu
     if (!valid) ids = pickDiscards(allowed, count, (id) => this.card(id));
-    await this.moveCards(ids, { kind: 'hand', seat }, { kind: 'discard' }, reason);
+    const fromHand = ids.filter((id) => p.hand.includes(id));
+    if (fromHand.length) await this.moveCards(fromHand, { kind: 'hand', seat }, { kind: 'discard' }, reason);
+    for (const id of ids) {
+      const slot = (Object.keys(p.equips) as EquipSlot[]).find((s) => p.equips[s].includes(id));
+      if (slot) await this.moveCards([id], { kind: 'equip', seat, slot }, { kind: 'discard' }, reason);
+    }
     this.say(`${p.name} bỏ ${count} lá: ${ids.map((id) => cardLabel(this.card(id))).join(', ')}.`);
     return ids;
   }
@@ -893,6 +913,9 @@ export class Game {
     this.cancelledJudges.delete(card.id);
     const ctx = await this.bus.emit('judged', { seat, card, reason });
     if (this.cancelledJudges.has(card.id)) this.cancelledJudges.add(ctx.card.id);
+    // Kết quả cuối cùng (sau mọi kỹ năng thay lá phán định như Hoãn Thích, Quỷ Tài...)
+    await this.bus.emit('judgeFinal', { seat, card: ctx.card, reason });
+    if (this.opts.judgePauseMs > 0) await new Promise((r) => setTimeout(r, this.opts.judgePauseMs));
     return ctx.card;
   }
 
@@ -1419,8 +1442,12 @@ export class Game {
     }
   }
 
+  /** Ngay trước khi tính số lá phải bỏ ở giai đoạn bỏ bài (Âm Dương Ngư +2 giới hạn trữ bài...). */
+  protected async beforeDiscardPhase(_seat: number): Promise<void> {}
+
   private async discardPhase(seat: number): Promise<void> {
     const p = this.player(seat);
+    if (p.hand.length > this.handLimit(seat)) await this.beforeDiscardPhase(seat);
     const count = p.hand.length - this.handLimit(seat);
     if (count <= 0) return;
 

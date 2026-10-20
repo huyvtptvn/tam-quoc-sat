@@ -67,6 +67,6 @@ registerTrick({
   autoTargets: (g, user) => g.aliveSeatsFrom(user).filter((s) => s === user || hg(g).isSameFaction(user, s)),
   effect: async (g, _user, t) => {
     await g.draw(t, 2);
-    await g.forceDiscard(t, 2, 'yiyi');
+    await g.forceDiscard(t, 2, 'yiyi', { equip: true });
   },
 });

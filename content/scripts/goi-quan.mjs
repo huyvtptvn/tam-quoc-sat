@@ -634,7 +634,7 @@ export default {
       triggers: [
         on('damaged', (g, ctx, o) => ctx.target === o, async (g, ctx, o) => {
           if (ctx.amount === 1) await g.draw(o, 1);
-          else await g.forceDiscard(o, 2, 'shicai');
+          else await g.forceDiscard(o, 2, 'shicai', { equip: true });
         }, { compulsory: true }),
       ],
     },

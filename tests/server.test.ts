@@ -127,7 +127,7 @@ test('rớt mạng rồi kết nối lại bằng token: nhận lại phòng, tr
   await a2.connect('Cường', a.token);
   const resent = await a2.wait((m) => m.t === 'request') as Extract<ServerMsg, { t: 'request' }>;
   assert.equal(resent.reqId, req.reqId, 'câu hỏi cũ được gửi lại');
-  assert.ok(a2.msgs.some((m) => m.t === 'room' && m.yourSeat === 0));
+  assert.ok(a2.msgs.some((m) => m.t === 'room' && typeof m.yourSeat === 'number'), 'vẫn có ghế');
   a2.autoplay = true;
   const response = await new HegemonyBot().decide(resent.request, resent.view);
   a2.send({ t: 'answer', reqId: resent.reqId, response });

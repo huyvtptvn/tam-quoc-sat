@@ -165,6 +165,11 @@ export const EVENT_SPECS: Record<string, EventSpec> = {
     vars: { who: 'Người phán định', judge: 'Lá phán định (judge.color, judge.suit, judge.rank...)', reason: 'Lý do phán định' },
     mods: [], read: (c) => ({ who: c.seat, judge: cardVars(c.card), reason: c.reason }),
   },
+  judgeFinal: {
+    engine: 'judgeFinal', desc: 'Khi kết quả phán định đã chốt (sau mọi kỹ năng thay lá phán định).',
+    vars: { who: 'Người phán định', judge: 'Lá phán định cuối cùng', reason: 'Lý do phán định' },
+    mods: [], read: (c) => ({ who: c.seat, judge: cardVars(c.card), reason: c.reason }),
+  },
   trickTargeted: {
     engine: 'trickTargeted',
     desc: 'Khi một cẩm nang (không trì hoãn) nhắm vào một người, TRƯỚC khi hỏi Vô Giải. Dùng "cancel" để hủy mục tiêu này (Văn Ngụy, Họa Thủ).',

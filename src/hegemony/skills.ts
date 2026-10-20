@@ -248,7 +248,7 @@ export const SKILLS: Record<string, Skill> = {
     name: 'Thiên Khiển',
     desc: 'Sau khi phán xét của bạn có hiệu lực, bạn có thể thu lấy kết quả phán xét.',
     triggers: [
-      observe('judged', (g, ctx) => { judgedBy(g).set(ctx.card.id, ctx.seat); }),
+      observe('judgeFinal', (g, ctx) => { judgedBy(g).set(ctx.card.id, ctx.seat); }),
       on({
         event: 'cardsMoved',
         can: (g, ctx, owner) => ctx.from.kind === 'processing' && ctx.to.kind === 'discard' && ctx.reason === 'judge'
