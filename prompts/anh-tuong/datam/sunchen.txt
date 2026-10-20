@@ -1,0 +1,11 @@
+Tướng: Tôn Lâm
+Phe: Dã tâm
+Lưu ảnh vào: content/images/generals/datam/sunchen.png
+Gợi ý: Quyền thần chuyên quyền nhà Ngô, áo bào tím đen, ánh mắt tàn nhẫn
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Sun Chen, a tyrannical young Wu regent in his twenties with an arrogant cruel smile and cold eyes, luxurious purple and black brocade robes over armor, holding a sword and an imperial seal he has usurped, dark palace throne room with violet glow behind him. Color palette: royal purple and black with violet glow, stormy sky. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

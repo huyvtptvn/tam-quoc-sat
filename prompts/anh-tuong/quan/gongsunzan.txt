@@ -1,0 +1,11 @@
+Tướng: Công Tôn Toản
+Phe: Quần Hùng
+Lưu ảnh vào: content/images/generals/quan/gongsunzan.png
+Gợi ý: Bạch Mã tướng quân, giáp bạc trắng, cưỡi ngựa trắng
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Gongsun Zan, the White Horse General, a proud handsome warlord in his forties with a sharp moustache and a commanding voice, silver-white armor with grey cloak, riding a white warhorse, cavalry of white horses charging through snowy northern plains behind him. Color palette: ash grey, charcoal and muted earth tones, smoky sky. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

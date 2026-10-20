@@ -1,0 +1,11 @@
+Tướng: Hạ Hầu Thượng
+Phe: Ngụy
+Lưu ảnh vào: content/images/generals/nguy/xiahoushang.png
+Gợi ý: Tướng trẻ tuấn tú nhà Hạ Hầu, giáp xanh, cưỡi ngựa, cầm kiếm
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Xiahou Shang, a handsome young Wei noble general in his thirties, refined features, thin moustache, ornate blue-and-silver armor with a flowing dark blue cape, drawn straight jian sword, riding forward on a warhorse through a mountain pass. Color palette: deep royal blue and dark steel, cold dawn light. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

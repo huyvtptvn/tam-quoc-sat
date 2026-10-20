@@ -1,0 +1,11 @@
+Tướng: Tông Dự
+Phe: Thục
+Lưu ảnh vào: content/images/generals/thuc/zongyux.png
+Gợi ý: Sứ giả lão thành, râu bạc, cầm cờ tiết sứ, khí khái
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Zong Yu, a dignified elderly Shu envoy with a long white beard and unyielding eyes, crimson and gold official robes, holding an envoy's tasseled staff of authority, a river crossing to a foreign court behind him. Color palette: crimson red and warm gold, sunset light. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

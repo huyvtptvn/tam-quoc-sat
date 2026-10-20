@@ -1,0 +1,11 @@
+Tướng: Sĩ Nhiếp
+Phe: Ngô / Quần Hùng (2 thế lực)
+Lưu ảnh vào: content/images/generals/ngo/shixie.png
+Gợi ý: Thái thú Giao Chỉ, lão nho uy nghi, áo xanh lục - xám, cảnh phương Nam nhiệt đới
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Shi Xie, the venerable governor of Jiaozhi, an elderly scholar-lord with a long white beard and wise benevolent eyes, rich robes in jade green and ash grey with tropical bird embroidery, holding a classic text, lush southern tropical landscape with palms and rice fields behind him. Color palette: jade green and bronze combined with ash grey. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

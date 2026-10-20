@@ -1,0 +1,11 @@
+Tướng: Thạch Thao
+Phe: Quần Hùng
+Lưu ảnh vào: content/images/generals/quan/shitao.png
+Gợi ý: Kiếm khách giang hồ, bạn của Từ Thứ, áo vải xám, kiếm trên vai
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Shi Tao, a wandering swordsman and free-spirited knight-errant in his thirties, relaxed confident smile, travel-worn grey cloth robes and a straw hat on his back, sword resting on his shoulder, bamboo forest and a winding mountain road behind him. Color palette: ash grey, charcoal and muted earth tones, smoky sky. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

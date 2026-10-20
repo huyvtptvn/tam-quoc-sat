@@ -5,6 +5,8 @@
 //   content/images/cards/sha_fire.png, sha_thunder.png    (tùy chọn) ảnh riêng cho Hỏa Sát / Lôi Sát
 //   content/images/cards/back.png                         (tùy chọn) mặt sau lá bài
 //   content/images/generals/<id tướng>.webp|png|jpg|gif   ví dụ: caocao.jpg, chen_gong.png
+//   content/images/generals/<thư mục>/<id tướng>.png       được phép chia thư mục con (1 cấp), ví dụ generals/nguy/caoang.png
+//                                                          (ảnh nằm thẳng trong generals/ được ưu tiên nếu trùng tên)
 //
 // Không có ảnh -> client tự vẽ mặt bài / chân dung mặc định.
 // Không nhận SVG (SVG có thể chứa script).
@@ -51,12 +53,18 @@ export class ImageStore {
     for (const kind of IMAGE_KINDS) {
       const d = this.dir(kind);
       if (!existsSync(d)) continue;
-      for (const f of readdirSync(d)) {
-        const ext = extname(f).toLowerCase();
-        const key = f.slice(0, -ext.length);
-        if (!IMAGE_EXTS.includes(ext) || !KEY_RE.test(key)) continue;
-        out[kind][key] = `/images/${kind}/${f}?v=${Math.round(statSync(join(d, f)).mtimeMs)}`;
-      }
+      const add = (sub: string | null) => {
+        const dd = sub ? join(d, sub) : d;
+        for (const f of readdirSync(dd)) {
+          const ext = extname(f).toLowerCase();
+          const key = f.slice(0, -ext.length);
+          if (!IMAGE_EXTS.includes(ext) || !KEY_RE.test(key) || !statSync(join(dd, f)).isFile()) continue;
+          if (sub && out[kind][key]) continue; // ảnh ở thư mục gốc được ưu tiên
+          out[kind][key] = `/images/${kind}/${sub ? `${sub}/` : ''}${f}?v=${Math.round(statSync(join(dd, f)).mtimeMs)}`;
+        }
+      };
+      add(null);
+      for (const sub of readdirSync(d).sort()) if (KEY_RE.test(sub) && statSync(join(d, sub)).isDirectory()) add(sub);
     }
     return out;
   }
@@ -86,10 +94,11 @@ export class ImageStore {
   }
 
   /** Đường dẫn file thật cho url /images/<kind>/<file>, hoặc null nếu không hợp lệ. */
-  resolve(kind: string, file: string): string | null {
+  resolve(kind: string, file: string, sub?: string): string | null {
     const ext = extname(file).toLowerCase();
     if (!(IMAGE_KINDS as readonly string[]).includes(kind) || !IMAGE_EXTS.includes(ext) || !KEY_RE.test(file.slice(0, -ext.length))) return null;
-    const full = join(this.dir(kind as ImageKind), file);
+    if (sub !== undefined && !KEY_RE.test(sub)) return null;
+    const full = sub ? join(this.dir(kind as ImageKind), sub, file) : join(this.dir(kind as ImageKind), file);
     return existsSync(full) ? full : null;
   }
 }

@@ -1,0 +1,11 @@
+Tướng: Văn Khâm
+Phe: Ngụy / Ngô (2 thế lực)
+Lưu ảnh vào: content/images/generals/nguy/wenqin.png
+Gợi ý: Mãnh tướng nóng nảy, nửa giáp xanh nửa giáp lục, cầm roi sắt
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Wen Qin, a fierce hot-tempered general in his forties with a thick black beard and angry eyes, armor half royal blue (Wei) and half jade green (Wu), wielding an iron whip, rebel army campfires at night behind him. Color palette: deep royal blue and dark steel combined with jade green and bronze. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

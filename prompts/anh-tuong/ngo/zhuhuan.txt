@@ -1,0 +1,11 @@
+Tướng: Chu Hoàn
+Phe: Ngô
+Lưu ảnh vào: content/images/generals/ngo/zhuhuan.png
+Gợi ý: Tướng Ngô kiêu dũng, giáp xanh lục, cầm đao, sông nước
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Zhu Huan, a proud fierce Wu general in his forties with an intense scowl and a short beard, jade-green and bronze armor, gripping a broad dao blade, Yangtze river battle with burning boats behind him. Color palette: jade green and bronze, river mist and water reflections. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

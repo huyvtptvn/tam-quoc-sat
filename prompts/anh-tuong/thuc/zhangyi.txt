@@ -1,0 +1,11 @@
+Tướng: Trương Dực
+Phe: Thục
+Lưu ảnh vào: content/images/generals/thuc/zhangyi.png
+Gợi ý: Tướng Thục cương trực, giáp đỏ, cầm thương, trấn Nam Trung
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Zhang Yi, an upright stern Shu general in his forties with a square jaw and short beard, crimson armor and helmet with red tassel, holding a long spear, southern jungle mountains of Nanzhong with mist behind him. Color palette: crimson red and warm gold, sunset light. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

@@ -1,0 +1,11 @@
+Tướng: Phục Hoàng Hậu
+Phe: Quần Hùng
+Lưu ảnh vào: content/images/generals/quan/fuhuanghou.png
+Gợi ý: Hoàng hậu của Hán Hiến Đế, cao quý mà bi thương, mũ phượng, mật thư
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Empress Fu Shou, consort of Emperor Xian of Han, a noble and graceful young woman with a sorrowful brave expression, phoenix crown and layered imperial robes in silver grey and muted gold, holding a secret letter to her chest, dark palace with guards approaching behind her, modest and dignified depiction. Color palette: ash grey, charcoal and muted earth tones, smoky sky. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

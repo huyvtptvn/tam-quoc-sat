@@ -1,0 +1,11 @@
+Tướng: Đổng Chiêu
+Phe: Ngụy
+Lưu ảnh vào: content/images/generals/nguy/dongzhao.png
+Gợi ý: Quan văn lão luyện, tay cầm tấu chương, triều đình Ngụy
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Dong Zhao, a shrewd elderly Wei court official with a neat white beard and an expression of quiet cunning, rich dark blue court robes and a tall official hat, presenting a sealed imperial memorial, grand palace steps behind him. Color palette: deep royal blue and dark steel, cold dawn light. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

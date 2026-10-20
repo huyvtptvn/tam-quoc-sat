@@ -1,0 +1,11 @@
+Tướng: Đường Cơ
+Phe: Quần Hùng
+Lưu ảnh vào: content/images/generals/quan/tangji.png
+Gợi ý: Phi tần của Thiếu Đế Lưu Biện, u buồn, áo trắng xám, hoa rơi
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Tang Ji, consort of the young deposed emperor Liu Bian, a graceful sorrowful young woman, simple elegant hairstyle with a white flower, pale grey and white mourning robes, holding a willow branch, falling petals and a moonlit palace courtyard behind her, modest and dignified depiction. Color palette: ash grey, charcoal and muted earth tones, smoky sky. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

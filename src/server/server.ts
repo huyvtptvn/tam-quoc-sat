@@ -137,8 +137,9 @@ export async function startServer(opts: ServerOptions = {}) {
       }
       if (path === '/api/catalog') return json(res, 200, catalog(images));
       if (path.startsWith('/images/')) {
-        const [, , kind, file] = path.split('/');
-        const full = images.resolve(kind ?? '', decodeURIComponent(file ?? ''));
+        const parts = path.split('/').slice(2).map((p) => decodeURIComponent(p));
+        const full = parts.length === 2 ? images.resolve(parts[0], parts[1])
+          : parts.length === 3 ? images.resolve(parts[0], parts[2], parts[1]) : null;
         if (!full) return json(res, 404, { error: 'Không có ảnh này' });
         res.writeHead(200, { 'content-type': IMAGE_MIME[extname(full).toLowerCase()], 'cache-control': 'public, max-age=86400', 'x-content-type-options': 'nosniff' });
         return res.end(readFileSync(full));

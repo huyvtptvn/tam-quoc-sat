@@ -1,0 +1,11 @@
+Tướng: Lưu Phu Nhân
+Phe: Quần Hùng
+Lưu ảnh vào: content/images/generals/quan/liufuren.png
+Gợi ý: Vợ Viên Thiệu, quý phu nhân lạnh lùng, áo gấm xám tím, trâm vàng
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Lady Liu, the wife of Yuan Shao, a beautiful but cold and jealous noblewoman in her thirties, elaborate hairstyle with gold hairpins, layered silver-grey and dark plum brocade robes, holding a fan half covering her face, inner courtyard of a noble mansion at night, modest and dignified depiction. Color palette: ash grey, charcoal and muted earth tones, smoky sky. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

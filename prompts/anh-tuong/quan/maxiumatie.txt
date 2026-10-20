@@ -1,0 +1,11 @@
+Tướng: Mã Hưu & Mã Thiết
+Phe: Quần Hùng
+Lưu ảnh vào: content/images/generals/quan/maxiumatie.png
+Gợi ý: Hai anh em họ Mã, kỵ binh Tây Lương, giáp lông thú, thương và cung
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Ma Xiu and Ma Tie, two young brothers of the Ma clan from Xiliang, side by side, one holding a spear and the other a bow, wearing grey steel armor with fur and leather of the western frontier, riding horses on a windy desert steppe, brotherly loyal expressions. Color palette: ash grey, charcoal and muted earth tones, smoky sky. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

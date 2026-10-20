@@ -1,0 +1,11 @@
+Tướng: Triệu Thị Trinh
+Phe: Dã tâm
+Lưu ảnh vào: content/images/generals/datam/zhaoshizhen.png
+Gợi ý: Bà Triệu, nữ anh hùng Giao Chỉ, giáp vàng, cưỡi voi trắng, cầm gươm
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Lady Trieu (Trieu Thi Trinh), a legendary young Vietnamese heroine warrior of Jiaozhi around twenty years old, fierce determined face, hair tied high, golden armor over purple and black battle robes, holding a sword raised high, riding a war elephant leading a rebel army through tropical jungle and rice fields, violet storm sky, heroic and dignified depiction. Color palette: royal purple and black with violet glow, stormy sky. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

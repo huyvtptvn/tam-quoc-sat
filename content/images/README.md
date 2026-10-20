@@ -13,7 +13,8 @@ images/
 │   └── back.png           (tùy chọn) mặt sau lá bài
 └── generals/
     ├── caocao.jpg         id tướng (xem danh sách ở trang quản trị)
-    └── chen_gong.png
+    ├── chen_gong.png
+    └── nguy/ thuc/ ngo/ quan/ datam/   (tùy chọn) chia thư mục con theo phe, ví dụ nguy/caoang.png
 ```
 
 - Định dạng: PNG, JPG, WEBP, GIF. Tối đa 3 MB. Không nhận SVG.

@@ -1,0 +1,11 @@
+Tướng: Trương Lỗ
+Phe: Ngụy / Quần Hùng (2 thế lực)
+Lưu ảnh vào: content/images/generals/nguy/zhanglu.png
+Gợi ý: Thiên Sư đạo Ngũ Đấu Mễ, áo đạo sĩ, phất trần, khói hương
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Zhang Lu, the Celestial Master of the Five Pecks of Rice Taoist sect, a serene middle-aged man with a long black beard, flowing Taoist robes in blue and earthy grey with yin-yang embroidery, holding a horsetail whisk, incense smoke and talisman papers swirling around him, a mountain temple in Hanzhong behind. Color palette: deep royal blue and dark steel combined with ash grey. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face

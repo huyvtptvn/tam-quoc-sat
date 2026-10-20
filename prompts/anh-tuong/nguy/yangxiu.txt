@@ -1,0 +1,11 @@
+Tướng: Dương Tu
+Phe: Ngụy
+Lưu ảnh vào: content/images/generals/nguy/yangxiu.png
+Gợi ý: Mưu sĩ trẻ thông minh, áo quan văn, tay cầm khúc xương gà, nụ cười tinh quái
+Tỉ lệ: 3:4 (ví dụ 768x1024 hoặc 900x1200)
+
+PROMPT:
+Yang Xiu, a brilliant young court scholar in his late twenties, sharp clever eyes and a slightly arrogant knowing smile, elegant blue official robes and black gauze scholar cap, holding a writing brush in one hand and a small chicken rib bone in the other, scattered bamboo slips with riddles floating around him. Color palette: deep royal blue and dark steel, cold dawn light. Semi-realistic Chinese fantasy digital painting, Three Kingdoms era (late Eastern Han dynasty, around 200 AD), upper-body character portrait in three-quarter view, dynamic pose, painterly brushwork with fine detail, dramatic rim lighting, wind-swept cloth and hair, atmospheric background with soft ink-wash landscape and drifting mist, rich saturated colors, collectible card game character art, vertical 3:4 composition, face in the upper third of the frame, no text, no logo, no frame, no border, no watermark.
+
+NEGATIVE:
+text, letters, calligraphy, watermark, signature, frame, border, UI, modern clothing, Japanese samurai armor, anime, chibi, cartoon, 3D render, plastic skin, blurry, extra fingers, deformed hands, extra limbs, cropped head, duplicate face
