@@ -111,6 +111,9 @@ export async function startServer(opts: ServerOptions = {}) {
   let skinsVersion = -1;
   const lobby = new Lobby();
   lobby.botDelayMs = opts.botDelayMs ?? Number(process.env.BOT_DELAY_MS ?? 700);
+  // Mất kết nối bao lâu thì coi như đã tắt trang (tự đăng xuất, rời phòng)
+  if (process.env.SESSION_GRACE_MS) lobby.graceMs = Number(process.env.SESSION_GRACE_MS);
+  if (process.env.SESSION_GRACE_PLAYING_MS) lobby.gracePlayingMs = Number(process.env.SESSION_GRACE_PLAYING_MS);
   const dataDir = resolve(opts.dataDir ?? process.env.DATA_DIR ?? join(ROOT, 'data'));
   const accounts = new AccountStore(dataDir);
   lobby.accounts = accounts;

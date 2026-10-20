@@ -10,6 +10,19 @@
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch { /* trình duyệt chặn lưu trữ */ } },
   };
+  // Phiên đăng nhập và phiên chơi chỉ sống trong tab này: tắt trang là tự đăng xuất
+  // (tải lại trang vẫn giữ). Server cũng tự đăng xuất phiên mất kết nối quá 30 giây.
+  const sess = {
+    get(k) { try { return sessionStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { if (v) sessionStorage.setItem(k, v); else sessionStorage.removeItem(k); } catch { /* bỏ qua */ } },
+  };
+  // Bản cũ lưu mã đăng nhập lâu dài trong localStorage: thu hồi rồi xóa
+  try {
+    const old = localStorage.getItem('tqs_auth');
+    if (old) fetch('/api/account/logout', { method: 'POST', headers: { 'x-account-token': old } }).catch(() => {});
+    localStorage.removeItem('tqs_auth');
+    localStorage.removeItem('tqs_token');
+  } catch { /* bỏ qua */ }
 
   const PHASES = [['start', 'Bắt đầu'], ['judge', 'Phán định'], ['draw', 'Bốc bài'], ['play', 'Ra bài'], ['discard', 'Bỏ bài'], ['end', 'Kết thúc']];
   const PHASE_LABEL = Object.fromEntries(PHASES);
@@ -17,9 +30,9 @@
 
   // ---------- Trạng thái ----------
   let ws = null;
-  let token = store.get('tqs_token');
+  let token = sess.get('tqs_token');
   let myName = store.get('tqs_name') || '';
-  let authToken = store.get('tqs_auth') || '';
+  let authToken = sess.get('tqs_auth') || '';
   let account = null;       // hồ sơ công khai khi đã đăng nhập
   let room = null;          // RoomInfo
   let mySeat = null;
@@ -130,9 +143,9 @@
   function onMessage(m) {
     switch (m.t) {
       case 'welcome':
-        token = m.token; store.set('tqs_token', token);
+        token = m.token; sess.set('tqs_token', token);
         pendingLogout = false;
-        if (authToken && !m.account && !room) { authToken = ''; store.set('tqs_auth', ''); toast('Phiên đăng nhập đã hết hạn, bạn đang chơi như khách.'); }
+        if (authToken && !m.account && !room) { authToken = ''; sess.set('tqs_auth', ''); toast('Phiên đăng nhập đã hết hạn, bạn đang chơi như khách.'); }
         account = m.account || (authToken ? account : null);
         renderAccount();
         setConn(account ? '' : m.name);
@@ -1175,7 +1188,7 @@
       const r = await fetch(registerMode ? '/api/account/register' : '/api/account/login', { method: 'POST', body: JSON.stringify(body) });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error || 'Không đăng nhập được');
-      authToken = j.token; store.set('tqs_auth', authToken);
+      authToken = j.token; sess.set('tqs_auth', authToken);
       account = j.profile;
       myName = account.displayName; store.set('tqs_name', myName);
       $('accPass').value = '';
@@ -1187,11 +1200,12 @@
   $('btnLogout').onclick = async () => {
     if (room?.status === 'playing') { toast('Đang trong ván, hãy đăng xuất sau khi ván kết thúc.'); return; }
     try { await fetch('/api/account/logout', { method: 'POST', headers: { 'x-account-token': authToken } }); } catch { /* bỏ qua */ }
-    authToken = ''; store.set('tqs_auth', ''); account = null; pendingLogout = true;
+    authToken = ''; sess.set('tqs_auth', ''); account = null; pendingLogout = true;
     renderAccount();
     sendHello();
     toast('Đã đăng xuất. Bạn đang chơi như khách.');
   };
 
-  if (myName || authToken) connect();
+  // Mở trang mới (không phải tải lại): về màn hình đăng nhập, chỉ điền sẵn tên khách
+  if (token || authToken) connect();
 })();

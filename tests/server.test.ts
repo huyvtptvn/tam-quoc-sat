@@ -477,3 +477,72 @@ test('API quản trị: danh sách tài khoản (không lộ mật khẩu/mã), 
   assert.equal((await api('/api/admin/account/reset-password?username=khongco', { method: 'POST' })).status, 400);
   c.close();
 });
+
+// ---------- Tắt trang: tự đăng xuất, rời phòng ----------
+const regAcc = async (username: string) => (await api('/api/account/register', { method: 'POST', admin: false, body: JSON.stringify({ username, password: 'matkhau1' }), headers: { 'content-type': 'application/json' } })).body as { token: string };
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+test('tắt trang: sau khoảng chờ thì tự đăng xuất tài khoản và rời phòng chờ; tải lại kịp thì giữ nguyên', async () => {
+  const old = [srv.lobby.graceMs, srv.lobby.gracePlayingMs];
+  srv.lobby.graceMs = 300; srv.lobby.gracePlayingMs = 300;
+  try {
+    const { token: auth } = await regAcc('tat_trang');
+    const a = await new Client().connect('A');
+    a.send({ t: 'hello', name: 'A', token: a.token, auth });
+    await a.wait((m) => m.t === 'welcome' && !!m.account);
+    a.send({ t: 'createRoom', name: 'Phòng tắt trang', seats: 4 });
+    const r = await a.wait((m) => m.t === 'room' && !!m.room) as Extract<ServerMsg, { t: 'room' }>;
+    const b = await new Client().connect('B');
+    b.send({ t: 'joinRoom', roomId: r.room!.id });
+    await b.wait((m) => m.t === 'room' && !!m.room);
+
+    // Tải lại trang (kết nối lại ngay bằng mã phiên): vẫn đăng nhập, vẫn trong phòng
+    a.close();
+    await sleep(50);
+    const a2 = await new Client().connect('A', a.token);
+    a2.send({ t: 'hello', name: 'A', token: a.token, auth });
+    await a2.wait((m) => m.t === 'welcome' && !!m.account);
+    await a2.wait((m) => m.t === 'room' && m.room?.id === r.room!.id);
+    await sleep(500);
+    assert.ok(srv.lobby.rooms.get(r.room!.id)?.humans().length === 2, 'vẫn ngồi trong phòng');
+
+    // Tắt trang: quá khoảng chờ thì đăng xuất + rời phòng, B thành chủ phòng
+    a2.close();
+    await sleep(600);
+    const room = srv.lobby.rooms.get(r.room!.id)!;
+    assert.equal(room.humans().length, 1);
+    assert.equal(room.host.name, 'B');
+    assert.equal((await api('/api/account/me', { admin: false, headers: { 'x-account-token': auth } })).status, 401, 'mã đăng nhập đã bị thu hồi');
+    // Mở trang lại bằng mã phiên cũ: là phiên mới, không còn trong phòng
+    const a3 = await new Client().connect('A', a.token);
+    const w = a3.msgs.find((m) => m.t === 'welcome') as Extract<ServerMsg, { t: 'welcome' }>;
+    assert.notEqual(w.token, a.token);
+    b.send({ t: 'leaveRoom' });
+    await b.wait((m) => m.t === 'room' && m.room === null);
+    assert.equal(srv.lobby.rooms.get(r.room!.id), undefined, 'phòng trống thì bị xóa');
+    a3.close(); b.close();
+  } finally {
+    [srv.lobby.graceMs, srv.lobby.gracePlayingMs] = old;
+  }
+});
+
+test('một tài khoản chỉ ngồi được một phòng (mở 2 tab)', async () => {
+  const { token: auth } = await regAcc('hai_tab');
+  const t1 = await new Client().connect('T1');
+  t1.send({ t: 'hello', name: 'T1', token: t1.token, auth });
+  await t1.wait((m) => m.t === 'welcome' && !!m.account);
+  const t2 = await new Client().connect('T2');
+  t2.send({ t: 'hello', name: 'T2', token: t2.token, auth });
+  await t2.wait((m) => m.t === 'welcome' && !!m.account);
+  t1.send({ t: 'createRoom', name: 'Tab 1', seats: 3 });
+  const r = await t1.wait((m) => m.t === 'room' && !!m.room) as Extract<ServerMsg, { t: 'room' }>;
+  t2.send({ t: 'createRoom', name: 'Tab 2', seats: 3 });
+  await t2.wait((m) => m.t === 'error' && /đang ngồi ở phòng "Tab 1"/.test(m.message));
+  t2.send({ t: 'joinRoom', roomId: r.room!.id });
+  await t2.wait((m) => m.t === 'error' && /đã ngồi trong phòng/.test(m.message));
+  t2.send({ t: 'spectate', roomId: r.room!.id });
+  await t2.wait((m) => m.t === 'room' && m.spectating === true);
+  t1.send({ t: 'leaveRoom' }); t2.send({ t: 'leaveRoom' });
+  await t1.wait((m) => m.t === 'room' && m.room === null);
+  t1.close(); t2.close();
+});

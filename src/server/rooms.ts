@@ -28,6 +28,10 @@ export class PlayerSession {
   username: string | null = null;
   /** Đang theo dõi phòng `roomId` (khán giả), không ngồi ghế. */
   spectating = false;
+  /** Mã đăng nhập tài khoản mà kết nối này dùng (để tự đăng xuất khi người chơi tắt trang). */
+  authToken: string | null = null;
+  /** Hẹn giờ "hết phiên" sau khi mất kết nối. */
+  expireTimer: ReturnType<typeof setTimeout> | null = null;
   constructor(public name: string) {}
 
   get connected(): boolean {
@@ -404,6 +408,12 @@ export class Lobby {
   accounts: AccountStore | null = null;
   /** Độ trễ của bot trong các phòng mới (ms). */
   botDelayMs = 0;
+  /**
+   * Mất kết nối quá lâu (tắt trang) thì hết phiên: tự đăng xuất tài khoản và rời phòng.
+   * Khoảng chờ cho phép tải lại trang / mạng chập chờn. Giữa ván được chờ lâu hơn (khóa màn hình điện thoại...).
+   */
+  graceMs = 30_000;
+  gracePlayingMs = 120_000;
 
   activeGames(): number {
     return [...this.rooms.values()].filter((r) => r.status === 'playing').length;
@@ -454,6 +464,7 @@ export class Lobby {
   attach(ws: WebSocket, msg: Extract<ClientMsg, { t: 'hello' }>): PlayerSession {
     let session = msg.token ? this.byToken.get(msg.token) : undefined;
     if (session) {
+      if (session.expireTimer) { clearTimeout(session.expireTimer); session.expireTimer = null; }
       if (session.ws && session.ws !== ws) session.ws.close(4000, 'Đã kết nối ở nơi khác');
     } else {
       session = new PlayerSession(String(msg.name || 'Người chơi').slice(0, 24));
@@ -462,6 +473,7 @@ export class Lobby {
     // Đăng nhập tài khoản (nếu có mã); không có hoặc sai mã thì chơi như khách
     const acc = this.accounts?.byAuthToken(msg.auth) ?? null;
     if (acc) {
+      session.authToken = String(msg.auth);
       // Đang trong ván thì không đổi chủ ghế giữa chừng
       if (!session.roomId || this.rooms.get(session.roomId)?.status !== 'playing') {
         session.accountId = acc.id; session.username = acc.username; session.name = acc.displayName;
@@ -470,6 +482,7 @@ export class Lobby {
       // Mã sai/hết hạn hoặc đăng xuất: thành khách
       session.accountId = null; session.username = null; session.name = String(msg.name || session.name).slice(0, 24);
     }
+    if (!acc) session.authToken = null;
     session.ws = ws;
     session.send({
       t: 'welcome', playerId: session.id, token: session.token, name: session.name, contentVersion: this.contentVersion,
@@ -491,6 +504,52 @@ export class Lobby {
     session.ws = null;
     const room = session.roomId ? this.rooms.get(session.roomId) : undefined;
     room?.sendRoomState();
+    if (session.expireTimer) clearTimeout(session.expireTimer);
+    const wait = room?.status === 'playing' && !session.spectating ? this.gracePlayingMs : this.graceMs;
+    session.expireTimer = setTimeout(() => this.expire(session), wait);
+    session.expireTimer.unref?.();
+  }
+
+  /** Hết phiên (đã tắt trang): đăng xuất tài khoản, rời phòng (giữa ván thì bot chơi thay), xóa phiên. */
+  expire(session: PlayerSession): void {
+    session.expireTimer = null;
+    if (session.ws) return; // đã kết nối lại
+    if (session.authToken) this.accounts?.logout(session.authToken);
+    session.authToken = null;
+    const room = session.roomId ? this.rooms.get(session.roomId) : undefined;
+    if (room) this.leave(session, room);
+    session.roomId = null;
+    session.accountId = null; session.username = null;
+    this.byToken.delete(session.token);
+  }
+
+  /** Rời phòng (người chơi hoặc người xem). Giữa ván: ghế giao cho bot. */
+  leave(session: PlayerSession, room: Room): void {
+    if (session.spectating) {
+      room.removeSpectator(session);
+      room.sendRoomState();
+      this.broadcastRooms();
+      return;
+    }
+    room.removeHuman(session);
+    session.roomId = null;
+    if (room.humans().length === 0 && room.status !== 'playing') {
+      room.dissolve('không còn người chơi');
+      this.rooms.delete(room.id);
+    } else {
+      if (room.host === session && room.humans()[0]) room.host = room.humans()[0];
+      room.sendRoomState();
+    }
+    this.broadcastRooms();
+  }
+
+  /** Tài khoản này đang ngồi ở phòng nào khác (qua tab/thiết bị khác)? */
+  private seatedElsewhere(session: PlayerSession): Room | null {
+    if (!session.accountId) return null;
+    for (const r of this.rooms.values()) {
+      if (r.humans().some((h) => h !== session && h.accountId === session.accountId)) return r;
+    }
+    return null;
   }
 
   handle(session: PlayerSession, msg: ClientMsg): void {
@@ -503,6 +562,8 @@ export class Lobby {
         return;
       case 'createRoom': {
         if (room) return err('Bạn đang ở trong một phòng');
+        const other = this.seatedElsewhere(session);
+        if (other) return err(`Tài khoản này đang ngồi ở phòng "${other.name}" (tab hoặc thiết bị khác)`);
         // Thảo Phạt: 2–5 người chơi (boss ngồi thêm 1 ghế riêng)
         const seats = Math.min(typeof msg.boss === 'string' && BOSSES[msg.boss] ? 5 : 10, Math.max(2, Math.floor(Number(msg.seats) || 5)));
         const timeoutSec = Math.min(120, Math.max(5, Math.floor(Number(msg.timeoutSec) || 30)));
@@ -529,6 +590,8 @@ export class Lobby {
         if (r.status !== 'waiting') return err('Phòng đang chơi');
         if (r.seats.length >= r.maxSeats) return err('Phòng đã đủ người');
         if (session.accountId && r.humans().some((h) => h.accountId === session.accountId)) return err('Tài khoản này đã ngồi trong phòng');
+        const other = this.seatedElsewhere(session);
+        if (other) return err(`Tài khoản này đang ngồi ở phòng "${other.name}" (tab hoặc thiết bị khác)`);
         r.seats.push({ kind: 'human', session });
         session.roomId = r.id;
         r.sendRoomState();
@@ -559,24 +622,8 @@ export class Lobby {
       }
       case 'leaveRoom': {
         if (!room) return;
-        if (session.spectating) {
-          room.removeSpectator(session);
-          room.sendRoomState();
-          session.send({ t: 'room', room: null, yourSeat: null });
-          this.broadcastRooms();
-          return;
-        }
-        room.removeHuman(session);
-        session.roomId = null;
-        if (room.humans().length === 0 && room.status !== 'playing') {
-          room.dissolve('không còn người chơi');
-          this.rooms.delete(room.id);
-        } else {
-          if (room.host === session && room.humans()[0]) room.host = room.humans()[0];
-          room.sendRoomState();
-        }
+        this.leave(session, room);
         session.send({ t: 'room', room: null, yourSeat: null });
-        this.broadcastRooms();
         return;
       }
       case 'addBot':
