@@ -16,8 +16,8 @@ ENV NODE_ENV=production \
     PORT=3000 \
     DATA_DIR=/data \
     BOT_DELAY_MS=700
-# Tài khoản, lịch sử ván, bảng xếp hạng nằm ở /data: gắn ổ đĩa (volume) để không mất khi cập nhật
-VOLUME ["/data"]
+# Tài khoản, lịch sử ván, bảng xếp hạng nằm ở /data: gắn ổ đĩa vào /data để không mất khi cập nhật
+# (Docker: -v tqs-data:/data; Railway: thêm Volume với Mount path /data — Railway không cho dùng lệnh VOLUME ở đây)
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s CMD wget -qO- http://127.0.0.1:${PORT}/api/status >/dev/null || exit 1

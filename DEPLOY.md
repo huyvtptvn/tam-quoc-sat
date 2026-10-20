@@ -27,6 +27,16 @@ Biến môi trường:
 | `BOT_DELAY_MS` | bot "suy nghĩ" bao lâu (mặc định 700) |
 | `CONTENT_DIR` | (tùy chọn) thư mục nội dung; mặc định `content/` trong code |
 
+### Cách A0 — Railway (khuyên dùng, gói Hobby 5 USD/tháng)
+Repo đã có `railway.json` (build bằng `Dockerfile`, kiểm tra sống qua `/api/status`, tự khởi động lại khi lỗi).
+1. Đăng ký railway.com bằng GitHub → nâng gói **Hobby**.
+2. **New Project → Deploy from GitHub repo →** `huyvtptvn/tam-quoc-sat` (cho phép Railway đọc repo nếu được hỏi).
+3. Trong service: **Variables → New Variable** `ADMIN_TOKEN` = chuỗi bí mật dài.
+4. Chuột phải vào service (hoặc ⌘K / Ctrl+K) → **Volume** → Mount path: `/data`.
+5. **Settings → Networking → Generate Domain** (cổng: để Railway tự nhận, server đọc biến `PORT`).
+6. Mỗi lần push lên `main` Railway tự build lại (~vài phút; repo có ~420 MB ảnh/âm thanh skin).
+Trang quản trị: `https://<tên-miền>/admin.html`, nhập `ADMIN_TOKEN`.
+
 ### Cách A — Render / Railway / Fly.io (dễ nhất, có https sẵn)
 1. Đăng nhập bằng GitHub, chọn repo `huyvtptvn/tam-quoc-sat` (repo private vẫn được).
 2. Chọn kiểu **Docker** (dùng `Dockerfile` có sẵn).
