@@ -204,7 +204,11 @@
     const face = img
       ? `<img class="art-img" src="${esc(img)}" alt="" loading="lazy" draggable="false">`
       : `<span class="wm">${k.glyph}</span><span class="vname">${esc(g.name)}</span>`;
-    return `<div class="portrait k-${g.kingdom}${img ? ' has-img' : ''}${opts.down ? ' face-down' : ''}${opts.removed ? ' removed' : ''} ${opts.cls || ''}" title="${esc(generalTitle(g))}" data-gen="${esc(id)}">
+    // Viền trong theo phe; tướng 2 thế lực: nửa màu mỗi phe
+    const FRAME = { wei: '#3a86ff', shu: '#e0412f', wu: '#34b36a', qun: '#a9a9a9' };
+    const dual = g.kingdoms && g.kingdoms.length > 1 ? g.kingdoms : null;
+    const frame = dual ? ` style="--f1:${FRAME[dual[0]] || '#a9a9a9'};--f2:${FRAME[dual[1]] || '#a9a9a9'}"` : '';
+    return `<div${frame} class="portrait k-${g.kingdom}${img ? ' has-img' : ''}${opts.down ? ' face-down' : ''}${opts.removed ? ' removed' : ''} ${opts.cls || ''}" title="${esc(generalTitle(g))}" data-gen="${esc(id)}">
       ${face}
       <span class="kbadge">${(g.kingdoms && g.kingdoms.length > 1 ? g.kingdoms : [g.kingdom]).map((x) => (KINGDOM[x] || k).glyph).join('')}</span>
       ${img || opts.nameTag ? `<span class="ntag">${esc(g.name)}</span>` : ''}

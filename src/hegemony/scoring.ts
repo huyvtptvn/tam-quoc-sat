@@ -171,6 +171,12 @@ export class ScoreKeeper {
 
   /** Những ghế thắng ván (kể cả đã chết). */
   winners(): Set<number> {
+    const out = this.winnersRaw();
+    for (const s of this.g.surrendered) out.delete(s); // đầu hàng thì không được tính thắng
+    return out;
+  }
+
+  private winnersRaw(): Set<number> {
     const res = this.g.result;
     const out = new Set<number>();
     if (!res?.winner) return out;

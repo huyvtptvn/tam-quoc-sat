@@ -241,3 +241,13 @@
   padding: .1em .45em; border: 2px solid #c74431; color: #f2a596; font-weight: 700; font-size: .78em;
   background: rgba(20, 8, 6, .75); white-space: nowrap; z-index: 3;
 }
+
+/* Viền trong của ô tướng theo phe (Thục đỏ, Ngụy xanh biển, Ngô xanh lá, Quần xám, Dã tâm tím; 2 thế lực: 2 màu) */
+.portrait { --f1: transparent; --f2: var(--f1); }
+.portrait.k-shu { --f1: #e0412f; } .portrait.k-wei { --f1: #3a86ff; } .portrait.k-wu { --f1: #34b36a; }
+.portrait.k-qun { --f1: #a9a9a9; } .portrait.k-ye, .portrait.k-careerist { --f1: #a35ad8; }
+.portrait::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; border-radius: inherit;
+  padding: calc(var(--pw, 90px) * .045); background: linear-gradient(135deg, var(--f1) 0 50%, var(--f2) 50% 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.portrait.hidden-gen::before { display: none; }
+.portrait .kbadge, .portrait .ntag, .portrait .down-tag, .portrait .removed-tag { z-index: 2; }

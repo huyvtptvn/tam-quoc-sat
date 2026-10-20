@@ -55,7 +55,7 @@ export interface GameOptions {
 
 type ResolvedOptions = Required<Omit<GameOptions, 'deck'>>;
 
-export type EndReason = 'victory' | 'deckExhausted' | 'turnLimit';
+export type EndReason = 'victory' | 'deckExhausted' | 'turnLimit' | 'aborted';
 
 /** Sự kiện thống kê để tính điểm (xem src/hegemony/scoring.ts). `by` = người ra tay nếu biết. */
 export type StatEvent =
@@ -691,7 +691,48 @@ export class Game {
     }
   }
 
+  // ---------- Giải tán ván / đầu hàng ----------
+  private aborted = false;
+  private readonly surrenderQueue: number[] = [];
+  private processingSurrender = false;
+  /** Những người đã đầu hàng (không được tính thắng, không hồi sinh). */
+  readonly surrendered = new Set<number>();
+
+  /** Hủy ván (giải tán phòng): ván dừng ở lần hỏi kế tiếp, kết quả 'aborted'. */
+  abort(): void {
+    this.aborted = true;
+  }
+
+  /** `seat` xin đầu hàng: được xử lý ở lần hỏi kế tiếp (tử trận ngay, không ai được thưởng). */
+  requestSurrender(seat: number): boolean {
+    const p = this.state.players[seat];
+    if (!p || !p.alive || this.state.finished || this.surrendered.has(seat) || this.surrenderQueue.includes(seat)) return false;
+    this.surrenderQueue.push(seat);
+    return true;
+  }
+
+  private async processSurrenders(): Promise<void> {
+    this.processingSurrender = true;
+    try {
+      while (this.surrenderQueue.length && !this.state.finished) {
+        const seat = this.surrenderQueue.shift()!;
+        const p = this.player(seat);
+        if (!p.alive) continue;
+        this.surrendered.add(seat);
+        this.say(`🏳 ${p.name} đầu hàng.`);
+        p.hp = Math.min(p.hp, 0);
+        await this.die(seat, null);
+      }
+    } finally {
+      this.processingSurrender = false;
+    }
+  }
+
   async ask(req: Request): Promise<Response> {
+    if (this.aborted) await this.finish(null, 'aborted');
+    if (this.surrenderQueue.length && !this.processingSurrender && this.started) await this.processSurrenders();
+    // Người vừa đầu hàng không được hỏi nữa
+    if (this.surrendered.has(req.seat)) return this.fallback(req);
     const controller = this.controllers[req.seat];
     const view = this.makeView(req.seat, req);
     let pending: Promise<Response> = Promise.resolve().then(() => controller.decide(req, view));
@@ -702,12 +743,15 @@ export class Game {
       });
       pending = Promise.race([pending, timeout]).finally(() => clearTimeout(timer));
     }
+    let res: Response;
     try {
-      const res = await pending;
-      return res && typeof res === 'object' ? res : this.fallback(req);
+      const r = await pending;
+      res = r && typeof r === 'object' ? r : this.fallback(req);
     } catch {
-      return this.fallback(req);
+      res = this.fallback(req);
     }
+    if (this.aborted) await this.finish(null, 'aborted');
+    return res;
   }
 
   /**
@@ -1255,6 +1299,7 @@ export class Game {
       this.state.winner = winner;
       this.result = { winner, reason, turns: this.state.turnCount };
       const msg = reason === 'victory' ? `🏆 Phe ${winner} chiến thắng!`
+        : reason === 'aborted' ? 'Ván bị hủy (phòng giải tán).'
         : reason === 'deckExhausted' ? 'Hết sạch bài, ván hòa.'
         : 'Quá số lượt tối đa, ván hòa.';
       this.say(msg);

@@ -26,6 +26,8 @@
   <a class="btn small ghost hide-sm" href="/ranking.html" target="_blank" rel="noopener">Xếp hạng</a>
   <button id="btnLogout" class="btn small ghost hidden" type="button">Đăng xuất</button>
   <button id="sideToggle" class="btn small ghost" type="button">Nhật ký</button>
+  <button id="btnSurrender" class="btn small ghost hidden" type="button" title="Đầu hàng: tướng của bạn chết ngay, không được tính thắng">🏳 Đầu hàng</button>
+  <button id="btnDissolve" class="btn small ghost hidden" type="button" title="Giải tán phòng: hủy ván (nếu đang chơi), mọi người về sảnh">Giải tán</button>
   <button id="btnLeave" class="btn small ghost hidden" type="button">Rời phòng</button>
 </header>
 
@@ -121,10 +123,12 @@
       <h2 id="roomTitle"></h2>
       <p id="roomSub" class="muted" style="margin:-6px 0 10px"></p>
       <div id="seatGrid" class="seat-grid"></div>
+      <p id="specLine" class="muted hidden" style="margin:8px 0 0"></p>
       <div class="room-actions">
         <button id="btnStart" class="btn primary" type="button">Bắt đầu ván</button>
         <button id="btnAddBot" class="btn" type="button">Thêm bot</button>
         <button id="btnRemoveBot" class="btn" type="button">Bớt bot</button>
+        <button id="btnDissolveRoom" class="btn danger" type="button">Giải tán phòng</button>
       </div>
     </div>
   </div>

@@ -97,6 +97,8 @@ export interface PlayerView {
   recentLog: string[];
   /** Chế độ Thảo Phạt (đánh boss): thông tin boss, công khai cho mọi người. */
   boss?: import('../hegemony/boss.js').BossView;
+  /** Khán giả đang theo dõi (không phải người chơi). */
+  spectator?: boolean;
 }
 
 export function viewFor(game: Game, seat: number, req?: Request): PlayerView {

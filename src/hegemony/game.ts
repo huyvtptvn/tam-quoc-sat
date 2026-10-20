@@ -1400,6 +1400,7 @@ export class HegemonyGame extends Game {
     this.bus.on('death', ({ seat }) => {
       if (isBoss(seat)) return;
       this.bossThreat[seat] = 0;
+      if (this.surrendered.has(seat)) return; // đầu hàng: không hồi sinh
       if (this.bossFood > 0) {
         this.bossFood--;
         this.bossReviving.set(seat, 2);
@@ -1490,6 +1491,37 @@ export class HegemonyGame extends Game {
     const interval = Math.max(1, players.filter((s) => this.player(s).alive).length);
     if (this.bossSince >= interval && this.player(b).alive) return b;
     return nextPlayer(prev);
+  }
+
+  /**
+   * Góc nhìn khán giả (theo dõi ván): không có bài trên tay, không thấy tướng úp của ai,
+   * không có ghi chú riêng hay gợi ý. Bàn được xoay theo ghế 0.
+   */
+  spectatorView(): PlayerView {
+    const v = this.makeView(0);
+    v.myHand = [];
+    v.hints = [];
+    v.responseOptions = [];
+    v.notes = [];
+    delete v.skillHints;
+    delete v.specialSaves;
+    v.players = v.players.map((pp) => {
+      const h = this.heroes[pp.seat];
+      if (!h || !pp.generals) return pp;
+      const dead = !this.player(pp.seat).alive;
+      const sv = (s: HeroSlot): SlotView => ({
+        generalId: s.revealed || s.removed || dead ? s.generalId : null,
+        revealed: s.revealed,
+        ...(s.removed ? { removed: true } : {}),
+      });
+      return {
+        ...pp,
+        generals: { main: sv(h.main), deputy: sv(h.deputy) },
+        ...(pp.generalPiles ? { generalPiles: pp.generalPiles.map(({ name, count }) => ({ name, count })) } : {}),
+      };
+    });
+    v.spectator = true;
+    return v;
   }
 
   bossView(): BossView | undefined {

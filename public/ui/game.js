@@ -23,6 +23,7 @@
   let account = null;       // hồ sơ công khai khi đã đăng nhập
   let room = null;          // RoomInfo
   let mySeat = null;
+  let spectating = false;   // đang vào phòng với tư cách người xem
   let view = null;          // PlayerView mới nhất
   let pending = null;       // { reqId, request, view, timeoutMs, at }
   let sel = emptySel();     // lựa chọn đang làm dở
@@ -141,7 +142,7 @@
         }
         break;
       case 'rooms': renderRooms(m.rooms); break;
-      case 'room': onRoom(m.room, m.yourSeat); break;
+      case 'room': onRoom(m.room, m.yourSeat, !!m.spectating); break;
       case 'state':
         // Đang có câu hỏi: giữ các gợi ý của câu hỏi (lá dùng được, kỹ năng dùng được...) nếu view mới thiếu
         view = pending && view ? {
@@ -180,6 +181,7 @@
   function show(name) {
     for (const id of ['login', 'lobby', 'room', 'game']) $(id).classList.toggle('hidden', id !== name);
     $('btnLeave').classList.toggle('hidden', name !== 'room' && name !== 'game');
+    updateTopButtons(name);
     $('sideToggle').classList.toggle('hidden', name !== 'game');
     if (name === 'game') requestAnimationFrame(layoutSeats);
   }
@@ -196,14 +198,30 @@
         ${r.deckLabel ? `<span class="pill">${esc(r.deckLabel.replace(/ \(.*\)$/, ''))}</span>` : ''}
         ${r.modeLabel && r.mode !== 'normal' ? `<span class="pill">${esc(r.modeLabel)}</span>` : ''}
         <span class="pill ${live ? 'live' : ''}">${live ? 'Đang chơi' : 'Đang chờ'}</span>
+        ${r.spectators?.length ? `<span class="pill" title="${esc(r.spectators.join(', '))}">👁 ${r.spectators.length}</span>` : ''}
         <button class="btn small" data-join="${esc(r.id)}" ${full || live ? 'disabled' : ''}>Vào phòng</button>
+        <button class="btn small ghost" data-watch="${esc(r.id)}" title="Vào xem ván đấu, không tham gia">Xem</button>
       </div>`;
     }).join('');
     el.querySelectorAll('[data-join]').forEach((b) => { b.onclick = () => send({ t: 'joinRoom', roomId: b.dataset.join }); });
+    el.querySelectorAll('[data-watch]').forEach((b) => { b.onclick = () => send({ t: 'spectate', roomId: b.dataset.watch }); });
   }
 
-  function onRoom(r, seat) {
-    room = r; mySeat = seat;
+  /** Nút trên thanh trên cùng: đầu hàng (đang chơi, còn sống), giải tán (chủ phòng), rời/thoát xem. */
+  function updateTopButtons(name) {
+    const screen = name ?? (['room', 'game'].find((id) => !$(id).classList.contains('hidden')) || 'lobby');
+    const inRoom = !!room && (screen === 'room' || screen === 'game');
+    const isHost = inRoom && !spectating && mySeat !== null && room.hostSeat === mySeat;
+    const alive = view && !view.spectator && view.players?.[view.me]?.alive;
+    $('btnSurrender').classList.toggle('hidden', !(inRoom && screen === 'game' && room.status === 'playing' && !spectating && mySeat !== null && alive && !view?.finished));
+    $('btnDissolve').classList.toggle('hidden', !(isHost && screen === 'game'));
+    $('btnDissolveRoom').classList.toggle('hidden', !isHost);
+    $('btnLeave').textContent = spectating ? 'Thoát xem' : 'Rời phòng';
+  }
+
+  function onRoom(r, seat, watching = false) {
+    room = r; mySeat = seat; spectating = !!r && watching;
+    document.body.classList.toggle('spectating', spectating);
     if (!r) { view = null; pending = null; closeModal(); show('lobby'); return; }
     if (autoFillWanted > 0 && r.status === 'waiting') {
       const n = Math.min(autoFillWanted, r.maxSeats - r.seats.length);
@@ -230,7 +248,12 @@
       <div><b>${esc(s.name)}</b><small>${s.kind === 'bot' ? 'Máy' : s.index === mySeat ? 'Bạn' : s.connected ? 'Người chơi' : 'Mất kết nối'}${s.kind === 'human' ? (s.username ? ` · <a class="muted" href="/ranking.html#nguoi-${encodeURIComponent(s.username)}" target="_blank" rel="noopener">@${esc(s.username)}</a>` : ' · khách') : ''}</small></div></div>`);
     for (let i = r.seats.length; i < r.maxSeats; i++) tiles.push(`<div class="seat-tile empty-seat"><span class="no">${i + 1}</span><div>Ghế trống</div></div>`);
     $('seatGrid').innerHTML = tiles.join('');
-    $('btnStart').disabled = r.seats.length < 2;
+    const host = !spectating && mySeat !== null && r.hostSeat === mySeat;
+    $('specLine').classList.toggle('hidden', !spectating && !r.spectators?.length);
+    $('specLine').textContent = spectating ? `👁 Bạn đang xem phòng này. Ván bắt đầu thì bạn sẽ thấy bàn chơi (không thấy bài trên tay ai).${r.spectators?.length > 1 ? ` Người xem: ${r.spectators.join(', ')}.` : ''}`
+      : `👁 Người xem: ${(r.spectators || []).join(', ')}`;
+    for (const id of ['btnStart', 'btnAddBot', 'btnRemoveBot']) $(id).classList.toggle('hidden', spectating);
+    $('btnStart').disabled = r.seats.length < 2 || !host;
     $('btnAddBot').disabled = r.seats.length >= r.maxSeats;
     $('btnRemoveBot').disabled = !r.seats.some((s) => s.kind === 'bot');
   }
@@ -244,6 +267,7 @@
     renderHand();
     renderSkills();
     renderAction();
+    updateTopButtons();
     prev.first = false;
   }
 
@@ -486,6 +510,7 @@
   function renderHand() {
     const box = $('hand');
     const hand = view.myHand;
+    if (view.spectator) { box.innerHTML = `<div class="none">Người xem không thấy bài trên tay. ${esc(me().name)} đang cầm ${me().handCount ?? 0} lá.</div>`; prev.hand = new Set(); return; }
     if (!hand.length) { box.innerHTML = '<div class="none">Không có bài trên tay.</div>'; prev.hand = new Set(); return; }
     const can = selectableCards();
     const chosen = new Set(selectedCards());
@@ -568,7 +593,10 @@
     const buttons = [];
     let prompt = '';
     bar.classList.toggle('asking', !!r);
-    if (!r) {
+    if (view.spectator) {
+      const cur = players()[view.currentSeat];
+      prompt = `<span class="spec-badge">👁 Đang theo dõi</span> <span class="muted">Lượt của <b>${esc(cur?.name ?? '')}</b> — giai đoạn ${esc(PHASE_LABEL[view.phase] ?? '')}. Bấm “Thoát xem” để về sảnh.</span>`;
+    } else if (!r) {
       const cur = players()[view.currentSeat];
       prompt = cur?.seat === view.me ? 'Đang xử lý…' : `<span class="muted">Đang chờ <b>${esc(cur?.name ?? '')}</b> — giai đoạn ${esc(PHASE_LABEL[view.phase] ?? '')}.</span>`;
     } else {
@@ -1042,8 +1070,18 @@
   $('btnStart').onclick = () => send({ t: 'start' });
   $('btnAddBot').onclick = () => send({ t: 'addBot' });
   $('btnRemoveBot').onclick = () => send({ t: 'removeBot' });
+  $('btnSurrender').onclick = () => {
+    if (!confirm('Đầu hàng? Tướng của bạn sẽ chết ngay và không được tính thắng. Bạn vẫn có thể ở lại xem.')) return;
+    send({ t: 'surrender' });
+  };
+  const dissolve = () => {
+    if (!confirm(room?.status === 'playing' ? 'Giải tán phòng? Ván đang chơi sẽ bị hủy (không tính điểm) và mọi người về sảnh.' : 'Giải tán phòng? Mọi người sẽ về sảnh.')) return;
+    send({ t: 'dissolveRoom' });
+  };
+  $('btnDissolve').onclick = dissolve;
+  $('btnDissolveRoom').onclick = dissolve;
   $('btnLeave').onclick = () => {
-    if (room?.status === 'playing' && !confirm('Rời phòng giữa ván? Máy sẽ chơi thay bạn đến hết ván.')) return;
+    if (!spectating && room?.status === 'playing' && !confirm('Rời phòng giữa ván? Máy sẽ chơi thay bạn đến hết ván.')) return;
     send({ t: 'leaveRoom' });
   };
   $('sideToggle').onclick = () => $('side').classList.toggle('open');

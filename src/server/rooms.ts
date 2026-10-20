@@ -26,6 +26,8 @@ export class PlayerSession {
   /** Tài khoản đã đăng nhập (null = khách, không tính xếp hạng). */
   accountId: string | null = null;
   username: string | null = null;
+  /** Đang theo dõi phòng `roomId` (khán giả), không ngồi ghế. */
+  spectating = false;
   constructor(public name: string) {}
 
   get connected(): boolean {
@@ -80,6 +82,11 @@ export class SocketController implements Controller {
     clearTimeout(p.timer);
     this.session?.send({ t: 'requestClosed', reqId, reason: 'timeout' });
     p.resolve(await this.bot.decide(p.req, p.view));
+  }
+
+  /** Trả lời ngay câu hỏi đang chờ bằng bot (ví dụ người chơi vừa đầu hàng). */
+  cancelPending(): void {
+    if (this.pending) void this.expire(this.pending.reqId);
   }
 
   /** Nhận câu trả lời từ client. Engine sẽ tự kiểm tra hợp lệ. */
@@ -169,10 +176,11 @@ export class Room {
 
   info(): RoomInfo {
     return {
-      id: this.id, name: this.name, host: this.host.name, status: this.status,
+      id: this.id, name: this.name, host: this.host.name, hostSeat: this.seatOf(this.host), status: this.status,
       maxSeats: this.maxSeats, timeoutSec: this.timeoutSec,
       deck: this.deck, deckLabel: deckLabel(this.deck),
       mode: this.mode, modeLabel: this.boss ? 'Thảo Phạt' : GAME_MODES[this.mode].label, mulligan: this.mulligan, lord: this.lord,
+      spectators: this.spectators.map((s) => s.name),
       boss: this.boss ? { id: this.boss.id, name: BOSSES[this.boss.id].name, difficulty: this.boss.difficulty, difficultyLabel: BOSS_DIFFICULTY[this.boss.difficulty].label } : null,
       seats: this.seats.map((s, index) => s.kind === 'human'
         ? { index, kind: 'human', name: s.session.name, connected: s.session.connected, ...(s.session.username ? { username: s.session.username } : {}) }
@@ -189,12 +197,58 @@ export class Room {
     return this.seats.flatMap((s) => (s.kind === 'human' ? [s.session] : []));
   }
 
+  /** Khán giả đang theo dõi phòng. */
+  spectators: PlayerSession[] = [];
+  /** Phòng đã bị giải tán (ván đang chạy dừng, không lưu kết quả). */
+  dissolved = false;
+
   broadcast(msg: ServerMsg): void {
     for (const h of this.humans()) h.send(msg);
+    for (const s of this.spectators) s.send(msg);
   }
 
   sendRoomState(): void {
+    if (this.dissolved) return;
     for (const h of this.humans()) h.send({ t: 'room', room: this.info(), yourSeat: this.seatOf(h) });
+    for (const s of this.spectators) s.send({ t: 'room', room: this.info(), yourSeat: null, spectating: true });
+  }
+
+  /** Thêm khán giả; nếu ván đang chạy thì gửi ngay trạng thái bàn chơi. */
+  addSpectator(session: PlayerSession): void {
+    if (!this.spectators.includes(session)) this.spectators.push(session);
+    session.roomId = this.id;
+    session.spectating = true;
+    this.sendRoomState();
+    if (this.game) session.send({ t: 'state', view: this.game.spectatorView(), log: this.game.log.slice(-30) });
+  }
+
+  removeSpectator(session: PlayerSession): void {
+    this.spectators = this.spectators.filter((s) => s !== session);
+    session.spectating = false;
+    session.roomId = null;
+  }
+
+  /**
+   * Giải tán phòng: ván đang chơi bị hủy (không lưu kết quả, không tính điểm), mọi người về sảnh.
+   * `by`: ai giải tán (hiện trong thông báo).
+   */
+  dissolve(by: string): void {
+    if (this.dissolved) return;
+    const everyone = [...this.humans(), ...this.spectators];
+    this.dissolved = true;
+    if (this.game && this.status === 'playing') {
+      this.game.abort();
+      // Trả lời ngay mọi câu hỏi đang chờ người thật để engine chạy tới lần hỏi kế tiếp và dừng
+      for (const c of this.controllers) if (c instanceof SocketController) c.detach();
+    }
+    for (const s of everyone) {
+      s.send({ t: 'notice', text: `Phòng "${this.name}" đã bị giải tán (${by}).` });
+      s.send({ t: 'room', room: null, yourSeat: null });
+      s.roomId = null;
+      s.spectating = false;
+    }
+    this.seats = [];
+    this.spectators = [];
   }
 
   controllerOf(session: PlayerSession): SocketController | null {
@@ -240,6 +294,7 @@ export class Room {
     const game = this.game;
     game.run()
       .then((result) => {
+        if (this.dissolved || result.reason === 'aborted') return; // phòng giải tán: không lưu, không tính điểm
         let scores; let match;
         try {
           scores = this.scorer!.compute();
@@ -262,11 +317,12 @@ export class Room {
         });
       })
       .catch((err) => {
+        if (this.dissolved) return;
         console.error(`[phòng ${this.id}] lỗi engine:`, err);
         this.broadcast({ t: 'error', message: `Ván bị lỗi và đã dừng: ${(err as Error).message}` });
       })
       .finally(() => {
-        this.flush();
+        if (!this.dissolved) this.flush();
         this.status = 'waiting';
         this.game = null;
         this.controllers = [];
@@ -298,10 +354,19 @@ export class Room {
       const req = ctrl instanceof SocketController ? ctrl.pendingRequest() : undefined;
       s.session.send({ t: 'state', view: this.game!.makeView(i, req), log });
     });
+    if (this.spectators.length) {
+      const view = this.game.spectatorView();
+      for (const sp of this.spectators) sp.send({ t: 'state', view, log });
+    }
   }
 
   /** Gửi lại toàn bộ trạng thái cho một người (khi kết nối lại). */
   resync(session: PlayerSession): void {
+    if (this.spectators.includes(session)) {
+      session.send({ t: 'room', room: this.info(), yourSeat: null, spectating: true });
+      if (this.game) session.send({ t: 'state', view: this.game.spectatorView(), log: this.game.log.slice(-30) });
+      return;
+    }
     const i = this.seatOf(session);
     if (i === null) return;
     session.send({ t: 'room', room: this.info(), yourSeat: i });
@@ -348,6 +413,13 @@ export class Lobby {
   whenIdle(cb: () => void): void {
     if (this.activeGames() === 0) cb();
     else this.idleWaiters.push(cb);
+  }
+
+  /** Giải tán phòng (chủ phòng hoặc quản trị viên). */
+  dissolveRoom(room: Room, by: string): void {
+    room.dissolve(by);
+    this.rooms.delete(room.id);
+    this.broadcastRooms();
   }
 
   private onGameEnd = (room: Room) => {
@@ -453,12 +525,43 @@ export class Lobby {
         this.broadcastRooms();
         return;
       }
+      case 'spectate': {
+        if (room) return err('Bạn đang ở trong một phòng');
+        const r = this.rooms.get(msg.roomId);
+        if (!r) return err('Phòng không tồn tại');
+        r.addSpectator(session);
+        this.broadcastRooms();
+        return;
+      }
+      case 'dissolveRoom': {
+        if (!room) return err('Bạn chưa vào phòng');
+        if (room.host !== session || session.spectating) return err('Chỉ chủ phòng (hoặc quản trị viên) mới giải tán được phòng');
+        this.dissolveRoom(room, `chủ phòng ${session.name}`);
+        return;
+      }
+      case 'surrender': {
+        const seat = room?.seatOf(session) ?? null;
+        if (!room || seat === null || !room.game || room.status !== 'playing') return err('Bạn không ở trong ván nào đang chơi');
+        if (!room.game.requestSurrender(seat)) return err('Không thể đầu hàng lúc này');
+        room.controllerOf(session)?.cancelPending();
+        session.send({ t: 'notice', text: 'Bạn đã đầu hàng. Vẫn có thể ở lại xem đến hết ván.' });
+        return;
+      }
       case 'leaveRoom': {
         if (!room) return;
+        if (session.spectating) {
+          room.removeSpectator(session);
+          room.sendRoomState();
+          session.send({ t: 'room', room: null, yourSeat: null });
+          this.broadcastRooms();
+          return;
+        }
         room.removeHuman(session);
         session.roomId = null;
-        if (room.humans().length === 0 && room.status !== 'playing') this.rooms.delete(room.id);
-        else {
+        if (room.humans().length === 0 && room.status !== 'playing') {
+          room.dissolve('không còn người chơi');
+          this.rooms.delete(room.id);
+        } else {
           if (room.host === session && room.humans()[0]) room.host = room.humans()[0];
           room.sendRoomState();
         }
@@ -496,7 +599,7 @@ export class Lobby {
         return;
       }
       case 'chat':
-        if (room) room.broadcast({ t: 'chat', from: session.name, text: String(msg.text).slice(0, 300) });
+        if (room) room.broadcast({ t: 'chat', from: session.spectating ? `${session.name} (xem)` : session.name, text: String(msg.text).slice(0, 300) });
         return;
       default:
         return err('Tin nhắn không hợp lệ');

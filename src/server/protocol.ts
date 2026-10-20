@@ -18,6 +18,12 @@ export type ClientMsg =
       /** Cho đổi chủ tướng thành quân chủ (mặc định có) */ lord?: boolean;
       /** Thảo Phạt: id boss (bỏ trống = ván Quốc Chiến thường) và độ khó normal | hard | nightmare */ boss?: string; bossDifficulty?: string }
   | { t: 'joinRoom'; roomId: string }
+  /** Vào theo dõi một phòng (đang chờ hoặc đang chơi). Thoát bằng 'leaveRoom'. */
+  | { t: 'spectate'; roomId: string }
+  /** Chủ phòng giải tán phòng (ván đang chơi bị hủy). */
+  | { t: 'dissolveRoom' }
+  /** Đầu hàng: tử trận ngay ở lần hỏi kế tiếp, không được tính thắng. */
+  | { t: 'surrender' }
   | { t: 'leaveRoom' }
   | { t: 'addBot' }
   | { t: 'removeBot' }
@@ -39,6 +45,8 @@ export interface RoomInfo {
   id: string;
   name: string;
   host: string;
+  /** Ghế của chủ phòng (để client biết mình có phải chủ phòng). */
+  hostSeat: number | null;
   status: 'waiting' | 'playing' | 'finished';
   maxSeats: number;
   timeoutSec: number;
@@ -52,13 +60,15 @@ export interface RoomInfo {
   lord: boolean;
   /** Thảo Phạt: boss và độ khó (null = ván thường). */
   boss: { id: string; name: string; difficulty: string; difficultyLabel: string } | null;
+  /** Tên các khán giả đang theo dõi. */
+  spectators: string[];
   seats: SeatInfo[];
 }
 
 export type ServerMsg =
   | { t: 'welcome'; playerId: string; token: string; name: string; contentVersion: number; account?: PublicProfile | null }
   | { t: 'rooms'; rooms: RoomInfo[] }
-  | { t: 'room'; room: RoomInfo | null; yourSeat: number | null }
+  | { t: 'room'; room: RoomInfo | null; yourSeat: number | null; /** Bạn đang theo dõi (khán giả). */ spectating?: boolean }
   /** Engine hỏi bạn. Trả lời bằng 'answer' với cùng reqId trước khi hết giờ (hết giờ thì bot trả lời thay). */
   | { t: 'request'; reqId: number; request: Request; view: PlayerView; timeoutMs: number }
   /** Câu hỏi đã hết giờ hoặc không còn hiệu lực. */

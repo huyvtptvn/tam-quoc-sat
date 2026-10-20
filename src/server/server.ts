@@ -211,6 +211,14 @@ export async function startServer(opts: ServerOptions = {}) {
           const buf = await readBuffer(req, MAX_IMAGE_BYTES + 1);
           return json(res, 200, { ok: true, url: images.save(kind, key, buf) });
         }
+        if (action === 'rooms' && req.method === 'GET') return json(res, 200, { rooms: lobby.roomList() });
+        // Giải tán phòng (quản trị viên): POST /api/admin/dissolve?id=<mã phòng>
+        if (action === 'dissolve' && req.method === 'POST') {
+          const room = lobby.rooms.get(url.searchParams.get('id') ?? '');
+          if (!room) return json(res, 404, { error: 'Không có phòng này' });
+          lobby.dissolveRoom(room, 'quản trị viên');
+          return json(res, 200, { ok: true });
+        }
         if (action === 'reload' && req.method === 'POST') return json(res, 200, await content.reload('quản trị bấm nạp lại'));
         if (action === 'simulate' && req.method === 'POST') {
           const body = JSON.parse((await readBody(req)) || '{}');

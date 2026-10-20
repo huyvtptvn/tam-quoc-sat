@@ -100,6 +100,12 @@
     </div>
 
     <div class="panel">
+      <h2>Phòng đang mở <button id="btnRooms" style="float:right">Làm mới</button></h2>
+      <div id="adminRooms" class="muted">(chưa tải)</div>
+      <div class="muted" style="margin-top:4px">Giải tán = hủy ván đang chơi (không tính điểm/Elo), đưa mọi người và người xem về sảnh.</div>
+    </div>
+
+    <div class="panel">
       <h2>Mô phỏng (bot đấu bot)</h2>
       <div>
         Số ván <input id="simGames" type="number" value="100" min="1" max="1000" style="width:80px">
@@ -194,6 +200,21 @@ async function loadCatalog() {
   if (location.hash === '#hinh-anh' && !loadCatalog.scrolled) { loadCatalog.scrolled = true; $('hinh-anh').scrollIntoView(); }
 }
 
+async function loadRooms() {
+  const r = await api('/api/admin/rooms');
+  const rooms = r.rooms || [];
+  $('adminRooms').innerHTML = rooms.length ? rooms.map((x) => `<div style="display:flex;gap:8px;align-items:center;margin:3px 0">
+    <b>${esc(x.name)}</b><span class="muted">${x.seats.length}/${x.maxSeats} · ${x.status === 'waiting' ? 'đang chờ' : 'đang chơi'} · chủ: ${esc(x.host)}${x.spectators?.length ? ` · ${x.spectators.length} người xem` : ''}</span>
+    <button data-dissolve="${esc(x.id)}" style="margin-left:auto">Giải tán</button></div>`).join('') : '<span class="muted">Không có phòng nào.</span>';
+  document.querySelectorAll('[data-dissolve]').forEach((b) => b.onclick = async () => {
+    if (!confirm('Giải tán phòng này?')) return;
+    const res = await api(`/api/admin/dissolve?id=${encodeURIComponent(b.dataset.dissolve)}`, { method: 'POST' });
+    if (res.error) alert(res.error);
+    loadRooms(); refreshStatus();
+  });
+}
+$('btnRooms').onclick = () => loadRooms();
+
 async function loadFiles() {
   const r = await api('/api/admin/files');
   $('files').innerHTML = r.files.map((f) => `<div class="file ${f === current ? 'sel' : ''}" data-f="${esc(f)}">${esc(f)}</div>`).join('') || '<span class="muted">(trống)</span>';
@@ -222,7 +243,7 @@ function showResult(r) {
 
 $('btnLogin').onclick = async () => {
   token = $('token').value.trim(); store.set('tqs_admin', token);
-  try { await loadFiles(); showResult({ ok: true }); $('result').innerHTML = '<div class="msg ok">✓ Đã đăng nhập.</div>'; } catch {}
+  try { await loadFiles(); loadRooms().catch(() => {}); showResult({ ok: true }); $('result').innerHTML = '<div class="msg ok">✓ Đã đăng nhập.</div>'; } catch {}
 };
 $('btnCheck').onclick = async () => showResult(await api('/api/admin/validate', { method: 'POST', body: JSON.stringify({ path: $('path').value, text: $('editor').value }) }));
 $('btnSave').onclick = async () => {
@@ -294,7 +315,7 @@ function showHelp(tab) {
 document.querySelectorAll('#helpTabs button').forEach((b) => b.onclick = () => showHelp(b.dataset.tab));
 
 loadCatalog(); refreshStatus(); setInterval(refreshStatus, 5000);
-if (token) loadFiles().catch(() => {});
+if (token) { loadFiles().catch(() => {}); loadRooms().catch(() => {}); }
 
 // ---------- Hình ảnh ----------
 let imgTab = 'cards';

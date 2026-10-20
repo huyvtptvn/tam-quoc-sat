@@ -362,3 +362,94 @@ test('ván có tài khoản: gửi bảng điểm + Elo, lưu lịch sử, lên 
   }
   a.close(); b.close();
 });
+
+// ---------- Theo dõi / giải tán / đầu hàng ----------
+async function roomWithBots(name: string, seats = 3, bots = seats - 1) {
+  const a = await new Client().connect(name);
+  a.autoplay = false;
+  a.send({ t: 'createRoom', name: `Phòng ${name}`, seats });
+  const r = await a.wait((m) => m.t === 'room' && !!m.room) as Extract<ServerMsg, { t: 'room' }>;
+  for (let i = 0; i < bots; i++) a.send({ t: 'addBot' });
+  await a.wait((m) => m.t === 'room' && m.room?.seats.length === bots + 1);
+  return { a, roomId: r.room!.id };
+}
+
+test('theo dõi: vào xem ván đang chơi, chỉ thấy thông tin công khai, thoát ra khi muốn', async () => {
+  const { a, roomId } = await roomWithBots('Xuân');
+  a.autoplay = true;
+  a.send({ t: 'start' });
+  await a.wait((m) => m.t === 'state');
+  const w = await new Client().connect('Người xem');
+  w.send({ t: 'spectate', roomId });
+  const rm = await w.wait((m) => m.t === 'room' && !!m.room) as Extract<ServerMsg, { t: 'room' }>;
+  assert.equal(rm.yourSeat, null);
+  assert.equal(rm.spectating, true);
+  assert.deepEqual(rm.room!.spectators, ['Người xem']);
+  const st = await w.wait((m) => m.t === 'state') as Extract<ServerMsg, { t: 'state' }>;
+  assert.equal(st.view.spectator, true);
+  assert.equal(st.view.myHand.length, 0, 'người xem không thấy bài trên tay');
+  assert.ok(st.view.players.every((p) => p.handCount >= 0));
+  // Người xem không trả lời / bắt đầu / giải tán được
+  w.send({ t: 'dissolveRoom' });
+  await w.wait((m) => m.t === 'error');
+  w.send({ t: 'chat', text: 'xin chào' });
+  await a.wait((m) => m.t === 'chat' && m.from === 'Người xem (xem)');
+  w.send({ t: 'leaveRoom' });
+  await w.wait((m) => m.t === 'room' && m.room === null);
+  assert.ok(!srv.lobby.rooms.get(roomId)?.info().spectators.length);
+  await a.wait((m) => m.t === 'gameOver', 60000);
+  a.close(); w.close();
+});
+
+test('giải tán phòng: chủ phòng hủy ván đang chơi, mọi người (cả người xem) về sảnh, không tính kết quả', async () => {
+  const { a, roomId } = await roomWithBots('Hạ', 4, 1);
+  const b = await new Client().connect('Bé');
+  b.send({ t: 'joinRoom', roomId });
+  await b.wait((m) => m.t === 'room' && !!m.room);
+  a.send({ t: 'addBot' });
+  a.send({ t: 'start' });
+  await a.wait((m) => m.t === 'request');
+  const w = await new Client().connect('Khán giả');
+  w.send({ t: 'spectate', roomId });
+  await w.wait((m) => m.t === 'state');
+  b.send({ t: 'dissolveRoom' });
+  await b.wait((m) => m.t === 'error' && /chủ phòng/.test(m.message));
+  a.send({ t: 'dissolveRoom' });
+  for (const c of [a, b, w]) {
+    await c.wait((m) => m.t === 'notice' && /giải tán/.test(m.text));
+    await c.wait((m) => m.t === 'room' && m.room === null);
+  }
+  assert.equal(srv.lobby.rooms.get(roomId), undefined);
+  const deadline = Date.now() + 5000;
+  while (srv.lobby.activeGames() > 0 && Date.now() < deadline) await new Promise((r) => setTimeout(r, 20));
+  assert.equal(srv.lobby.activeGames(), 0, 'ván bị hủy');
+  await new Promise((r) => setTimeout(r, 100));
+  assert.ok(!a.msgs.some((m) => m.t === 'gameOver'), 'không có kết quả ván');
+  a.close(); b.close(); w.close();
+});
+
+test('giải tán phòng qua API quản trị', async () => {
+  const { a, roomId } = await roomWithBots('Thu');
+  assert.equal((await api('/api/admin/rooms')).body.rooms.some((r: { id: string }) => r.id === roomId), true);
+  assert.equal((await api(`/api/admin/dissolve?id=${roomId}`, { method: 'POST', admin: false })).status, 401);
+  assert.equal((await api(`/api/admin/dissolve?id=${roomId}`, { method: 'POST' })).status, 200);
+  await a.wait((m) => m.t === 'notice' && /quản trị viên/.test(m.text));
+  assert.equal(srv.lobby.rooms.get(roomId), undefined);
+  assert.equal((await api('/api/admin/dissolve?id=khongco', { method: 'POST' })).status, 404);
+  a.close();
+});
+
+test('đầu hàng: tướng chết ngay, ván vẫn tiếp tục bằng bot, người đầu hàng không thắng', async () => {
+  const { a } = await roomWithBots('Đông', 4);
+  a.autoplay = true;
+  a.send({ t: 'start' });
+  await a.wait((m) => m.t === 'request' && m.request.type === 'play', 30000);
+  a.send({ t: 'surrender' });
+  await a.wait((m) => m.t === 'notice' && /đầu hàng/.test(m.text));
+  const over = await a.wait((m) => m.t === 'gameOver', 60000) as Extract<ServerMsg, { t: 'gameOver' }>;
+  const st = [...a.msgs].reverse().find((m) => m.t === 'state') as Extract<ServerMsg, { t: 'state' }>;
+  assert.equal(st.view.players[0].alive, false);
+  assert.ok(a.msgs.some((m) => m.t === 'state' && m.log.some((l) => /đầu hàng/.test(l))), 'nhật ký ghi đầu hàng');
+  if (over.scores) assert.equal(over.scores.players[0].winner, false);
+  a.close();
+});
