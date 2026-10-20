@@ -26,7 +26,7 @@
 
   const PHASES = [['start', 'Bắt đầu'], ['judge', 'Phán định'], ['draw', 'Bốc bài'], ['play', 'Ra bài'], ['discard', 'Bỏ bài'], ['end', 'Kết thúc']];
   const PHASE_LABEL = Object.fromEntries(PHASES);
-  const SLOTS = [['weapon', 'Vũ khí'], ['armor', 'Giáp'], ['defHorse', 'Ngựa +1'], ['offHorse', 'Ngựa −1'], ['treasure', 'Bảo vật']];
+  const SLOTS = [['weapon', 'Vũ khí'], ['armor', 'Phòng cụ'], ['defHorse', 'Ngựa +1'], ['offHorse', 'Ngựa −1'], ['treasure', 'Bảo vật']];
 
   // ---------- Trạng thái ----------
   let ws = null;
@@ -332,12 +332,14 @@
   }
 
   function eqLine(c, slotLabel) {
-    if (!c) return `<div class="eq empty">${slotLabel}</div>`;
-    return `<div class="eq" title="${esc(C.cardLabel(c) + ' — ' + C.cardDesc(c.name))}"><span>${esc(C.cardLabel(c))}</span><span class="sr ${C.isRed(c) ? 'red' : ''}">${C.SUIT[c.suit]}${C.RANK[c.rank]}</span></div>`;
+    if (!c) return `<div class="eq empty"><span class="sl">${slotLabel}</span></div>`;
+    return `<div class="eq" title="${esc(slotLabel + ': ' + C.cardLabel(c) + ' — ' + C.cardDesc(c.name))}"><span class="cn">${esc(C.cardLabel(c))}</span><span class="sr ${C.isRed(c) ? 'red' : ''}">${C.SUIT[c.suit]}${C.RANK[c.rank]}</span></div>`;
   }
 
   function zonesHTML(p, withEmpty) {
     const eq = SLOTS.map(([k, label]) => (p.equips?.[k] || withEmpty ? eqLine(p.equips?.[k], label) : '')).join('');
+    if (withEmpty === 'slots') return `<div class="eqgrid">${eq}</div>`;
+    if (withEmpty === 'extras') return extrasHTML(p);
     const jd = (p.judgeArea || []).map((c) => `<span class="j" title="${esc(C.cardLabel(c) + ' — ' + C.cardDesc(c.name))}">${esc([...C.glyphOf(c)][0])}</span>`).join('');
     const sp = (p.special || []).length ? `<div class="eq" title="Bài trên tướng">Trên tướng: ${p.special.length} lá</div>` : '';
     const gp = (p.generalPiles || []).map((pile) => {
@@ -345,14 +347,26 @@
       const tip = names.length ? names.join(', ') : 'Tướng úp';
       return `<div class="eq" title="[${esc(pile.name)}] ${esc(tip)}">[${esc(pile.name)}]: ${pile.count} tướng${names.length ? ` <span class="muted">(${esc(names.join(', '))})</span>` : ''}</div>`;
     }).join('');
-    return `${eq}${jd ? `<div class="judges">${jd}</div>` : ''}${sp}${gp}`;
+    return `${withEmpty ? `<div class="eqgrid">${eq}</div>` : eq}${jd ? `<div class="judges">${jd}</div>` : ''}${sp}${gp}`;
+  }
+  /** Phần phụ của ghế người khác: khu phán định, bài trên tướng, chồng tướng. */
+  function extrasHTML(p) {
+    const html = zonesHTML({ ...p, equips: {} }, false);
+    return html;
   }
 
   function gensHTML(p, isMe) {
     const g = p.generals;
     if (!g) return '';
-    const one = (slot) => C.portraitHTML(slot.generalId, { down: !slot.revealed && slot.generalId, nameTag: isMe, removed: slot.removed });
-    return `<div class="gens">${one(g.main)}${one(g.deputy)}</div>`;
+    const one = (slot) => C.portraitHTML(slot.generalId, { down: !slot.revealed && slot.generalId, nameTag: isMe, removed: slot.removed, cls: isMe ? '' : 'no-ntag' });
+    if (isMe) return `<div class="gens">${one(g.main)}${one(g.deputy)}</div>`;
+    // Ghế người khác: tên tướng ghi đầy đủ dưới ảnh (không bị cắt)
+    const nm = (slot) => {
+      if (!slot.generalId) return '<span class="gn muted">Úp</span>';
+      const n = C.general(slot.generalId)?.name ?? slot.generalId;
+      return `<span class="gn${slot.removed ? ' muted' : ''}" title="${esc(n)}">${esc(n)}${!slot.revealed ? ' <i>(úp)</i>' : ''}</span>`;
+    };
+    return `<div class="gens-col"><div class="gens">${one(g.main)}${one(g.deputy)}</div><div class="gnames">${nm(g.main)}${nm(g.deputy)}</div></div>`;
   }
 
   function seatFlags(p, el) {
@@ -397,14 +411,14 @@
       const turn = p.seat === view.currentSeat && p.alive ? `<span class="turn-flag">${esc(PHASE_LABEL[view.phase] ?? '')}</span>` : '';
       const tg = selTargets().includes(s) ? '<span class="target-badge">Mục tiêu</span>' : '';
       el.innerHTML = `${turn}${tg}
-        <div class="seat-head"><span class="who" title="${esc(p.name)}">${esc(p.name)}</span><span class="handcount" title="Số bài trên tay">${p.handCount}</span></div>
+        <div class="seat-head"><span class="who" title="${esc(p.name)}">${esc(p.name)}</span>${p.alive ? hpHTML(p, false) : '<span class="dead-mark">Tử trận</span>'}<span class="handcount" title="Số bài trên tay">${p.handCount}</span></div>
         <div class="seat-body">${gensHTML(p, false)}
           <div class="side">
-            ${p.alive ? hpHTML(p, false) : '<span class="dead-mark">Tử trận</span>'}
             <div class="tags">${kingdomTag(p)}${markTags(p)}</div>
+            ${zonesHTML(p, 'slots')}
           </div>
         </div>
-        <div class="zones">${zonesHTML(p, false)}</div>`;
+        <div class="zones">${zonesHTML(p, 'extras')}</div>`;
       seatFlags(p, el);
     });
     layoutSeats();

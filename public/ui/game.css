@@ -577,3 +577,23 @@ input.field:focus { border-color: var(--rim); outline: none; }
 .btn.danger:hover { background: rgba(184, 67, 58, .45); }
 .spec-badge { display: inline-block; padding: 1px 8px; border-radius: 99px; background: rgba(163, 90, 216, .3); border: 1px solid #a35ad8; font-weight: 600; }
 body.spectating #skills, body.spectating #buttons, body.spectating #timer { display: none; }
+
+/* ---------- Ghế người chơi khác: tên tướng đầy đủ + 5 ô trang bị như ghế mình ---------- */
+.seat { width: 250px; }
+.seat-head .hp { flex: none; flex-wrap: nowrap; }
+.seat-head .hp i { width: 9px; height: 9px; }
+.seat .side { gap: 3px; }
+.seat .gens-col { display: flex; flex-direction: column; gap: 2px; flex: none; }
+.seat .gnames { display: grid; grid-template-columns: repeat(2, var(--pw-seat)); gap: 3px; }
+.seat .gnames .gn { font-size: 10.5px; line-height: 1.15; font-weight: 600; text-align: center; overflow-wrap: anywhere; color: var(--bone); }
+.seat .gnames .gn i { font-style: normal; font-weight: 400; color: var(--bone-2); }
+.portrait.no-ntag .ntag { display: none; }
+.eqgrid { display: grid; gap: 2px; }
+.eq .cn { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.eq.empty { color: rgba(185, 173, 147, .5); background: transparent; border: 1px dashed rgba(197,152,82,.2); }
+.seat .eqgrid { font-size: 11px; }
+.seat .eq { padding: 0 4px; line-height: 14px; }
+.seat .zones:empty { display: none; }
+#seats.dense .seat { width: 236px; }
+#seats.dense .seat .gnames { grid-template-columns: repeat(2, 44px); }
+#seats.dense .seat .eq .sr { display: inline; }
