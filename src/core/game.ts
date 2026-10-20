@@ -650,6 +650,9 @@ export class Game {
       // Chuyển giữa hai khu vực phán định (Xảo Biến...) thì lá vẫn giữ tên cẩm nang trì hoãn đã chuyển hóa
       if (from.kind === 'judge' && to.kind !== 'judge') this.delayedAs.delete(id);
     }
+    // Chia bài và đổi bài khởi đầu nằm ngoài ván (trước lượt đầu tiên): không phải "mất bài"/"nhận bài",
+    // nên không kích hoạt kỹ năng nào (Đồn Điền của Đặng Ngải, các kỹ năng khi nhận/mất bài...).
+    if (reason === 'deal' || reason === 'mulligan') return;
     await this.bus.emit('cardsMoved', { cardIds: [...ids], from, to, reason });
   }
 
