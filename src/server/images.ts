@@ -53,18 +53,25 @@ export class ImageStore {
     for (const kind of IMAGE_KINDS) {
       const d = this.dir(kind);
       if (!existsSync(d)) continue;
-      const add = (sub: string | null) => {
-        const dd = sub ? join(d, sub) : d;
-        for (const f of readdirSync(dd)) {
+      const add = (sub: string | null, depth = 0) => {
+        const dd = sub ? join(d, ...sub.split('/')) : d;
+        for (const f of readdirSync(dd).sort()) {
+          const full = join(dd, f);
+          // Thư mục con: phe (generals/ngo/) hoặc thư mục riêng của tướng (generals/ngo/chengpu/chengpu.png), tối đa 2 cấp
+          if (statSync(full).isDirectory()) {
+            if (depth < 2 && KEY_RE.test(f)) add(sub ? `${sub}/${f}` : f, depth + 1);
+            continue;
+          }
           const ext = extname(f).toLowerCase();
           const key = f.slice(0, -ext.length);
-          if (!IMAGE_EXTS.includes(ext) || !KEY_RE.test(key) || !statSync(join(dd, f)).isFile()) continue;
-          if (sub && out[kind][key]) continue; // ảnh ở thư mục gốc được ưu tiên
-          out[kind][key] = `/images/${kind}/${sub ? `${sub}/` : ''}${f}?v=${Math.round(statSync(join(dd, f)).mtimeMs)}`;
+          if (!IMAGE_EXTS.includes(ext) || !KEY_RE.test(key)) continue;
+          if (sub && out[kind][key]) continue; // ảnh ở thư mục gốc (hoặc gặp trước) được ưu tiên
+          out[kind][key] = `/images/${kind}/${sub ? `${sub}/` : ''}${f}?v=${Math.round(statSync(full).mtimeMs)}`;
         }
       };
-      add(null);
-      for (const sub of readdirSync(d).sort()) if (KEY_RE.test(sub) && statSync(join(d, sub)).isDirectory()) add(sub);
+      // ảnh ở thư mục gốc trước, rồi tới thư mục con
+      add(null, 2);
+      for (const sub of readdirSync(d).sort()) if (KEY_RE.test(sub) && statSync(join(d, sub)).isDirectory()) add(sub, 1);
     }
     return out;
   }
@@ -97,8 +104,9 @@ export class ImageStore {
   resolve(kind: string, file: string, sub?: string): string | null {
     const ext = extname(file).toLowerCase();
     if (!(IMAGE_KINDS as readonly string[]).includes(kind) || !IMAGE_EXTS.includes(ext) || !KEY_RE.test(file.slice(0, -ext.length))) return null;
-    if (sub !== undefined && !KEY_RE.test(sub)) return null;
-    const full = sub ? join(this.dir(kind as ImageKind), sub, file) : join(this.dir(kind as ImageKind), file);
+    const subs = sub === undefined ? [] : sub.split('/');
+    if (subs.length > 2 || subs.some((x) => !KEY_RE.test(x))) return null;
+    const full = join(this.dir(kind as ImageKind), ...subs, file);
     return existsSync(full) ? full : null;
   }
 }

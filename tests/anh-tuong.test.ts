@@ -26,3 +26,14 @@ test('ảnh tướng trong thư mục con theo phe được nhận; ảnh ở th
   assert.equal(store.resolve('generals', 'caoang.png', 'Nguy/../x'), null);
   assert.equal(store.resolve('generals', 'README.txt', 'nguy'), null);
 });
+
+test('ảnh tướng nằm trong thư mục riêng của tướng: generals/ngo/chengpu/chengpu.png', () => {
+  const root = mkdtempSync(join(tmpdir(), 'tqs-img-'));
+  mkdirSync(join(root, 'generals', 'ngo', 'chengpu'), { recursive: true });
+  writeFileSync(join(root, 'generals', 'ngo', 'chengpu', 'chengpu.png'), png);
+  const store = new ImageStore(root);
+  assert.match(store.index().generals.chengpu, /^\/images\/generals\/ngo\/chengpu\/chengpu\.png\?v=/);
+  assert.ok(store.resolve('generals', 'chengpu.png', 'ngo/chengpu'));
+  assert.equal(store.resolve('generals', 'chengpu.png', 'ngo/../ngo'), null);
+  assert.equal(store.resolve('generals', 'chengpu.png', 'a/b/c'), null);
+});
