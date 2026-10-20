@@ -48,7 +48,7 @@ npm run server      # mở http://localhost:3000/game.html
 - **Hình ảnh**: `content/images/cards/<id>.png`, `content/images/generals/<id>.png` (xem `content/images/README.md`),
   hoặc tải lên ở `/admin.html` → mục *Hình ảnh* (kéo-thả). Không có ảnh thì tự vẽ mặt mặc định
 - Font đi kèm trong `public/fonts/` (Noto Serif có tiếng Việt, Ma Shan Zheng rút gọn còn 36 KB) — không cần Internet
-- Bot có nhịp (`BOT_DELAY_MS`, mặc định 700 ms) để người chơi kịp theo dõi
+- Bot có nhịp (`BOT_DELAY_MS`, mặc định 2500 ms) để người chơi kịp theo dõi
 - Lá bài trong `content/cards` nhận thêm `desc` (mô tả) và `glyph` (chữ giữa mặt bài)
 
 ---

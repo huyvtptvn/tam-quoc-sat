@@ -15,7 +15,7 @@ COPY . .
 ENV NODE_ENV=production \
     PORT=3000 \
     DATA_DIR=/data \
-    BOT_DELAY_MS=700
+    BOT_DELAY_MS=2500
 # Tài khoản, lịch sử ván, bảng xếp hạng nằm ở /data: gắn ổ đĩa vào /data để không mất khi cập nhật
 # (Docker: -v tqs-data:/data; Railway: thêm Volume với Mount path /data — Railway không cho dùng lệnh VOLUME ở đây)
 EXPOSE 3000

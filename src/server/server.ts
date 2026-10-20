@@ -40,7 +40,7 @@ export interface ServerOptions {
   publicDir?: string;
   watch?: boolean;
   quiet?: boolean;
-  /** Bot chờ bao lâu trước khi đánh (ms). Mặc định 700, đặt 0 khi chạy test. */
+  /** Bot chờ bao lâu trước khi đánh (ms). Mặc định 2500, đặt 0 khi chạy test. */
   botDelayMs?: number;
   /** Thư mục lưu tài khoản và lịch sử ván. Mặc định ./data (biến môi trường DATA_DIR). */
   dataDir?: string;
@@ -110,7 +110,7 @@ export async function startServer(opts: ServerOptions = {}) {
   const skins = new SkinStore(join(contentDir, 'images', 'hero-skin'), join(contentDir, 'import', 'qsgs-viet.json'));
   let skinsVersion = -1;
   const lobby = new Lobby();
-  lobby.botDelayMs = opts.botDelayMs ?? Number(process.env.BOT_DELAY_MS ?? 700);
+  lobby.botDelayMs = opts.botDelayMs ?? Number(process.env.BOT_DELAY_MS ?? 2500);
   // Mất kết nối bao lâu thì coi như đã tắt trang (tự đăng xuất, rời phòng)
   if (process.env.SESSION_GRACE_MS) lobby.graceMs = Number(process.env.SESSION_GRACE_MS);
   if (process.env.SESSION_GRACE_PLAYING_MS) lobby.gracePlayingMs = Number(process.env.SESSION_GRACE_PLAYING_MS);

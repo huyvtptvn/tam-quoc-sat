@@ -139,7 +139,7 @@ function paced(bot: Controller, delayMs: number): Controller {
     async decide(req, view) {
       const res = await bot.decide(req, view);
       const idle = res.kind === 'pass' || res.kind === 'no' || req.type === 'chooseGenerals';
-      if (!idle) await new Promise((r) => setTimeout(r, req.type === 'play' ? delayMs : Math.round(delayMs * 0.6)));
+      if (!idle) await new Promise((r) => setTimeout(r, delayMs));
       return res;
     },
   };
