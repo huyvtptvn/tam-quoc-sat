@@ -410,7 +410,9 @@ export const SKILLS: Record<string, Skill> = {
             const card = await g.judge(owner, 'Lạc Thần');
             if (isRed(card)) { await g.finishJudge(card); break; }
             blacks.push(card.id);
-            const again = await g.ask({ type: 'confirm', seat: owner, skill: 'lacthan', prompt: 'Lạc Thần: phán định tiếp?', reveal: false });
+            // Hỏi sau MỖI lá Đen: rút tiếp hay dừng (dừng thì thu các lá Đen đã có)
+            const again = await g.ask({ type: 'confirm', seat: owner, skill: 'lacthan', reveal: false,
+              prompt: `Lạc Thần: lật được ${cardLabel(card)} (Đen) — đã có ${blacks.length} lá Đen. Phán định tiếp?` });
             if (again.kind !== 'yes') break;
           }
         } finally {

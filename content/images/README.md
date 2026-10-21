@@ -19,7 +19,7 @@ images/
 
 - Định dạng: PNG, JPG, WEBP, GIF. Tối đa 3 MB. Không nhận SVG.
 - Tỉ lệ đẹp nhất: lá bài **5:7** (ví dụ 500×700), tướng **3:4** (ví dụ 600×800). Ảnh được cắt vừa khung (phần giữa).
-- Ảnh lá bài chỉ là phần **tranh minh họa**: khung, chất/điểm, tên bài, mô tả do game tự vẽ lên trên.
+- Ảnh lá bài là **cả mặt bài** (khung, tên, tranh — như bộ big-card của QSanguosha, tỉ lệ 5:7). Game đặt chất/điểm ở góc trên và tên tiếng Việt trên dải giấy ở chân lá (cẩm nang/trang bị: dải giấy che phần chữ mô tả).
 - Không có ảnh thì game tự vẽ mặt bài / chân dung mặc định.
 - Đổi ảnh không cần khởi động lại server; người chơi tải lại trang là thấy.
 - Chỉ dùng ảnh bạn có quyền sử dụng.

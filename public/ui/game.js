@@ -744,6 +744,12 @@
             buttons.push(btn('Giữ tướng thường', () => answer({ kind: 'no' })));
             break;
           }
+          if (r.skill === 'lacthan' && /Phán định tiếp/.test(r.prompt)) {
+            prompt = esc(r.prompt);
+            buttons.push(btn('Rút tiếp', () => answer({ kind: 'yes' }), 'primary'));
+            buttons.push(btn('Dừng, nhận bài', () => answer({ kind: 'no' }), 'ghost'));
+            break;
+          }
           if (r.skill === 'mark:yinyang-limit') {
             prompt = esc(r.prompt);
             buttons.push(btn('Dùng (+2 giới hạn)', () => answer({ kind: 'yes' }), 'primary'));

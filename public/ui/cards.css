@@ -59,7 +59,21 @@
   border-radius: .25em;
   background: radial-gradient(closest-side, var(--wash), transparent 100%);
 }
-.card.has-img .art { background: #3a2c1c; overflow: hidden; inset: 1.55em .45em 2.45em .45em; }
+/* Ảnh lá bài là cả mặt bài (khung, tên chữ Hán, tranh): phủ kín lá; tên tiếng Việt đặt trên dải giấy ở chân lá */
+.card.has-img { background: #2b2116; }
+.card.has-img::before { display: none; }
+.card.has-img .art { background: none; overflow: hidden; inset: 0; border-radius: inherit; }
+.card.has-img .plate {
+  left: 0; right: 0; bottom: 0;
+  padding: .35em .3em .3em;
+  background: linear-gradient(to bottom, rgba(244, 230, 200, 0), rgba(244, 230, 200, .93) 30%, rgba(236, 219, 184, .97));
+}
+/* Cẩm nang / trang bị: phần chữ Hán mô tả ở nửa dưới được che bằng dải giấy cao hơn */
+.card.has-img.t-trick .plate, .card.has-img.t-delayed .plate, .card.has-img.t-equip .plate {
+  top: 58%; justify-content: center; padding-top: .9em;
+  background: linear-gradient(to bottom, rgba(244, 230, 200, 0), rgba(244, 230, 200, .95) 22%, rgba(236, 219, 184, .98));
+}
+.card.has-img .seal { box-shadow: 0 0 0 .07em rgba(246, 233, 210, .7) inset, 0 .05em .2em rgba(0,0,0,.5); }
 .card .art-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .card .glyph {
   font-family: var(--font-brush);
@@ -251,3 +265,6 @@
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
 .portrait.hidden-gen::before { display: none; }
 .portrait .kbadge, .portrait .ntag, .portrait .down-tag, .portrait .removed-tag { z-index: 2; }
+.card.has-img.t-trick .plate .nm, .card.has-img.t-delayed .plate .nm, .card.has-img.t-equip .plate .nm {
+  white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.1;
+}
