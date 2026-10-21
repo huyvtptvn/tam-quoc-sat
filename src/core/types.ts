@@ -137,7 +137,7 @@ export type Request =
   | { type: 'confirm'; seat: number; skill: string; prompt: string; reveal: boolean }
   // ----- Giai đoạn 3 -----
   /** Chọn 1 trong các phương án (ví dụ Cương Liệt: bỏ 2 lá hay chịu 1 sát thương). */
-  | { type: 'choose'; seat: number; prompt: string; options: string[] }
+  | { type: 'choose'; seat: number; prompt: string; options: string[]; /** Chọn kỹ năng kích hoạt trước: id kỹ năng ứng với từng lựa chọn (null = không kích hoạt). */ skills?: (string | null)[]; skillReveal?: boolean[] }
   /** Chọn từ min đến max người trong danh sách `candidates` (ví dụ Đột Tập, Lôi Kích). */
   | { type: 'chooseTargets'; seat: number; prompt: string; candidates: number[]; min: number; max: number; aim?: 'ally' | 'enemy' }
   // ----- Giai đoạn 4 -----

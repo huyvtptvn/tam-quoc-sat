@@ -106,3 +106,43 @@ test('Âm Dương Ngư: đầu giai đoạn bỏ bài dùng để +2 giới hạ
 test('Đổng Trác có 4 âm dương ngư', () => {
   assert.equal(getGeneral('dongzhuo').halfHp, 4);
 });
+
+test('Nhiều kỹ năng cùng phát động: người chơi chọn kích hoạt cái nào trước, rồi tới cái còn lại', async () => {
+  const { game, ctrls } = makeHG([['zhenji', 'sunjian'], ['caocao', 'xuchu'], ['liubei', 'guanyu']], { mode: 'chaos' });
+  await game.setup();
+  await revealAll(game, 0);
+  game.player(0).hp = game.player(0).maxHp - 1;
+  const seen: (string | null)[][] = [];
+  ctrls[0].skillOrder = (r) => {
+    const x = r as { skills: (string | null)[] };
+    seen.push(x.skills);
+    return { kind: 'choice', index: x.skills.indexOf('yinghun_sunjian') };
+  };
+  ctrls[0].set('confirm', (r) => ({ kind: ['lacthan', 'yinghun_sunjian'].includes((r as { skill: string }).skill) && !/tiếp/.test((r as { prompt: string }).prompt) ? 'yes' : 'no' }))
+    .set('chooseTargets', () => ({ kind: 'targets', targets: [1] }));
+  await game.bus.emit('phaseStart', { seat: 0, phase: 'start' });
+  assert.equal(seen.length, 1, 'được hỏi chọn thứ tự một lần');
+  assert.deepEqual(seen[0], ['lacthan', 'yinghun_sunjian', null]);
+  const iA = game.log.findIndex((l) => /kích hoạt Anh Hồn/.test(l));
+  const iL = game.log.findIndex((l) => /kích hoạt Lạc Thần/.test(l));
+  assert.ok(iA >= 0 && iL > iA, 'Anh Hồn (chọn trước) chạy trước, sau đó được hỏi tiếp Lạc Thần');
+});
+
+test('Thư Hùng Song Cổ Kiếm: chỉ xét giới tính đã lộ (chưa lật tướng thì không hỏi, không lộ giới tính)', async () => {
+  const run = async (revealSrc: boolean, revealTarget: boolean) => {
+    const { game, ctrls } = makeHG([['caocao', 'xuchu'], ['diaochan', 'lvbu'], ['sunquan', 'lvmeng']]);
+    await game.setup();
+    if (revealSrc) await revealAll(game, 0);
+    if (revealTarget) await revealAll(game, 1);
+    await equip(game, 0, 'cixiong');
+    const asked: string[] = [];
+    ctrls[0].set('confirm', (r) => { asked.push((r as { skill: string }).skill); return { kind: 'no' }; });
+    const s = await take(game, 0, (c) => c.name === 'sha');
+    enterPlay(game, 0);
+    await game.useCard(0, s, [1]);
+    return asked.includes('cixiong');
+  };
+  assert.equal(await run(false, true), false, 'mình chưa lật tướng');
+  assert.equal(await run(true, false), false, 'mục tiêu chưa lật tướng');
+  assert.equal(await run(true, true), true, 'cả hai đã lật, khác giới');
+});

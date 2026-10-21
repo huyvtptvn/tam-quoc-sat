@@ -9,10 +9,23 @@ export type Handler = (req: Request, v: PlayerView) => Response;
 /** Controller trả lời theo loại câu hỏi. Mặc định: bỏ qua, không lật, không kích hoạt kỹ năng. */
 export class ByType implements Controller {
   readonly asked: Request[] = [];
+  /** Trả lời câu "chọn kỹ năng kích hoạt trước" (mặc định: hỏi lần lượt như confirm). */
+  skillOrder?: Handler;
   constructor(public handlers: Partial<Record<Request['type'], Handler>> = {}) {}
   set(type: Request['type'], h: Handler): this { this.handlers[type] = h; return this; }
   async decide(req: Request, v: PlayerView): Promise<Response> {
     this.asked.push(req);
+    // Chọn kỹ năng kích hoạt trước (nhiều kỹ năng cùng lúc): hỏi lần lượt như từng câu "confirm",
+    // chọn kỹ năng đầu tiên được đồng ý (giữ nguyên cách các test viết handler cho confirm)
+    if (req.type === 'choose' && Array.isArray(req.skills) && this.skillOrder) return this.skillOrder(req, v);
+    if (req.type === 'choose' && Array.isArray(req.skills)) {
+      for (const [i, sk] of req.skills.entries()) {
+        if (!sk) continue;
+        const r = await this.decide({ type: 'confirm', seat: req.seat, skill: sk, reveal: !!req.skillReveal?.[i], prompt: '' }, v);
+        if (r.kind === 'yes') return { kind: 'choice', index: i };
+      }
+      return { kind: 'choice', index: req.skills.length - 1 };
+    }
     const h = this.handlers[req.type];
     if (h) return h(req, v);
     switch (req.type) {

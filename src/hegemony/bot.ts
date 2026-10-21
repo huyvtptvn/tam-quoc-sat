@@ -41,6 +41,15 @@ export class HegemonyBot extends SimpleBot {
         return { kind: 'yes' };
       }
       case 'choose':
+        // Chọn kỹ năng kích hoạt trước: lấy kỹ năng đầu tiên mà bot đồng ý kích hoạt
+        if (Array.isArray(req.skills)) {
+          for (const [i, sk] of req.skills.entries()) {
+            if (!sk) continue;
+            const r = await this.decide({ type: 'confirm', seat: req.seat, skill: sk, reveal: !!req.skillReveal?.[i], prompt: '' }, v);
+            if (r.kind === 'yes') return { kind: 'choice', index: i };
+          }
+          return { kind: 'choice', index: req.skills.length - 1 };
+        }
         return { kind: 'choice', index: this.chooseOption(req.options, v) };
       case 'chooseTargets': {
         // Kỹ năng có lợi (aim = 'ally'): chọn đồng minh / bản thân, ưu tiên người ít máu ít bài

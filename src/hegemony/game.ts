@@ -485,6 +485,15 @@ export class HegemonyGame extends Game {
     return FEMALE_GENERALS.has(id) || !!getGeneral(id).female;
   }
 
+  /** Giới tính đã lộ: theo chủ tướng nếu đã lật, không thì theo phó tướng đã lật; chưa lật tướng nào -> null. */
+  override visibleGender(seat: number): 'male' | 'female' | null {
+    const h = this.heroes[seat];
+    if (!h) return null;
+    const slot = h.main.revealed && !h.main.removed ? h.main : h.deputy.revealed && !h.deputy.removed ? h.deputy : null;
+    if (!slot) return null;
+    return FEMALE_GENERALS.has(slot.generalId) || getGeneral(slot.generalId).female ? 'female' : 'male';
+  }
+
   isSameFaction(a: number, b: number): boolean {
     const ka = this.shownKingdom(a);
     if (ka === 'careerist') {
@@ -1041,29 +1050,80 @@ export class HegemonyGame extends Game {
     const dead = event === 'death' ? (ctx as { seat: number }).seat : -1;
     if (dead >= 0) seats.unshift(dead);
     for (const seat of seats) {
+      // Duyệt kỹ năng theo thứ tự như cũ (tỏa định kỹ đã lật tự chạy, observer chạy đúng chỗ).
+      // Gặp kỹ năng không bắt buộc mà cùng lúc còn kỹ năng không bắt buộc khác của người này cũng phát động được:
+      // người chơi chọn kích hoạt cái nào trước, lần lượt từng cái (hoặc thôi).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const list: { e: SkillEntry; trig: SkillTrigger<any> }[] = [];
       for (const e of this.skillEntries(seat)) {
-        for (const t of e.skill.triggers ?? []) {
-          if (t.event !== event) continue;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const trig = t as SkillTrigger<any>;
-          if ((!this.player(seat).alive && seat !== dead) || !trig.can(this, ctx, seat)) continue;
-
-          if (!e.slot.revealed || !trig.compulsory) {
-            // Chỉ tra tên tướng khi cần lật (kỹ năng từ trang bị không gắn với tướng nào)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        for (const t of e.skill.triggers ?? []) if (t.event === event) list.push({ e, trig: t as SkillTrigger<any> });
+      }
+      const done = new Set<number>();
+      const alive = () => this.player(seat).alive || seat === dead;
+      const auto = (c: { e: SkillEntry; trig: { compulsory?: boolean } }) => c.e.slot.revealed && !!c.trig.compulsory;
+      for (let idx = 0; idx < list.length; idx++) {
+        if (done.has(idx) || !alive()) continue;
+        const { e, trig } = list[idx];
+        if (!trig.can(this, ctx, seat)) continue;
+        if (auto(list[idx])) { done.add(idx); await this.runTrigger(seat, e, trig, ctx); continue; }
+        // Nhóm các kỹ năng không bắt buộc cùng phát động lúc này (bỏ qua observer và kỹ năng tự chạy)
+        let group = [idx];
+        for (let k = idx + 1; k < list.length; k++) {
+          const c = list[k];
+          if (done.has(k) || c.trig.observer || auto(c) || c.e.skill.id === e.skill.id) continue;
+          if (c.trig.can(this, ctx, seat)) group.push(k);
+        }
+        for (const k of group) done.add(k);
+        if (group.length === 1) {
+          const res = await this.ask({
+            type: 'confirm', seat, skill: e.skill.id, reveal: !e.slot.revealed,
+            prompt: e.slot.revealed ? `Kích hoạt ${e.skill.name}?` : `Lật ${getGeneral(e.slot.generalId).name} để kích hoạt ${e.skill.name}?`,
+          });
+          if (res.kind !== 'yes' || !trig.can(this, ctx, seat)) continue; // trạng thái có thể đã đổi trong lúc chờ
+          await this.runTrigger(seat, e, trig, ctx);
+          continue;
+        }
+        // Chọn lần lượt cho đến khi hết hoặc người chơi thôi
+        while (group.length && alive()) {
+          group = group.filter((k) => k === idx ? true : list[k].trig.can(this, ctx, seat));
+          if (!group.length) break;
+          const opts = group.map((k) => (list[k].e.slot.revealed ? list[k].e.skill.name : `${list[k].e.skill.name} (lật ${getGeneral(list[k].e.slot.generalId).name})`));
+          let pick: number;
+          if (group.length === 1) {
+            const c = list[group[0]];
             const res = await this.ask({
-              type: 'confirm', seat, skill: e.skill.id, reveal: !e.slot.revealed,
-              prompt: e.slot.revealed ? `Kích hoạt ${e.skill.name}?` : `Lật ${getGeneral(e.slot.generalId).name} để kích hoạt ${e.skill.name}?`,
+              type: 'confirm', seat, skill: c.e.skill.id, reveal: !c.e.slot.revealed,
+              prompt: c.e.slot.revealed ? `Kích hoạt ${c.e.skill.name}?` : `Lật ${getGeneral(c.e.slot.generalId).name} để kích hoạt ${c.e.skill.name}?`,
             });
-            if (res.kind !== 'yes') continue;
-            if (!trig.can(this, ctx, seat)) continue; // trạng thái có thể đã đổi trong lúc chờ
-            if (!e.slot.revealed) await this.reveal(seat, e.which);
+            if (res.kind !== 'yes') break;
+            pick = group[0];
+          } else {
+            const res = await this.ask({
+              type: 'choose', seat, prompt: 'Nhiều kỹ năng cùng phát động: chọn kỹ năng kích hoạt trước (bấm ô kỹ năng màu đỏ)',
+              options: [...opts, 'Không kích hoạt thêm'], skills: [...group.map((k) => list[k].e.skill.id), null],
+              skillReveal: [...group.map((k) => !list[k].e.slot.revealed), false],
+            });
+            const i2 = res.kind === 'choice' && Number.isInteger(res.index) ? res.index : group.length;
+            if (i2 < 0 || i2 >= group.length) break;
+            pick = group[i2];
           }
-          this.say(`${this.player(seat).name} kích hoạt ${e.skill.name}.`);
-          if (e.slot.generalId) this.stat({ kind: 'skillUsed', seat, skill: e.skill.id, generalId: e.slot.generalId });
-          await this.asActor(seat, async () => { await trig.run(this, ctx, seat); });
+          group = group.filter((k) => k !== pick);
+          const c = list[pick];
+          if (pick !== idx && !c.trig.can(this, ctx, seat)) continue;
+          if (pick === idx && !trig.can(this, ctx, seat)) continue;
+          await this.runTrigger(seat, c.e, c.trig, ctx);
         }
       }
     }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async runTrigger(seat: number, e: SkillEntry, trig: SkillTrigger<any>, ctx: unknown): Promise<void> {
+    if (!e.slot.revealed) await this.reveal(seat, e.which);
+    this.say(`${this.player(seat).name} kích hoạt ${e.skill.name}.`);
+    if (e.slot.generalId) this.stat({ kind: 'skillUsed', seat, skill: e.skill.id, generalId: e.slot.generalId });
+    await this.asActor(seat, async () => { await trig.run(this, ctx, seat); });
   }
 
   // ---------- Ghi đè các điểm móc của engine lõi ----------

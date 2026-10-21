@@ -20,7 +20,9 @@ export function installEquipment(g: Game): void {
   g.bus.on('slashTargeted', async (ctx) => {
     const src = ctx.source, t = ctx.target;
     if (ctx.cancelled || !g.player(src).alive || g.weaponName(src) !== 'cixiong') return;
-    if (g.isFemale(src) === g.isFemale(t)) return;
+    // Chỉ xét giới tính đã lộ: người chưa lật tướng nào thì không có giới tính (không lộ thông tin tướng úp)
+    const gs = g.visibleGender(src), gt = g.visibleGender(t);
+    if (gs === null || gt === null || gs === gt) return;
     if (!await confirm(g, src, 'cixiong', `Thư Hùng Song Cổ Kiếm: buộc ${name(t)} bỏ 1 lá trên tay hoặc để bạn bốc 1 lá?`)) return;
     g.say(`${name(src)} dùng Thư Hùng Song Cổ Kiếm.`);
     const hand = g.player(t).hand;

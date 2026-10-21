@@ -216,7 +216,7 @@ export function slotOf(g, seat, generalId) {
  * Được gọi cho mọi chủ kỹ năng còn sống, kể cả khi tướng đang úp.
  */
 export function observe(event, fn) {
-  return { event, can: (g, ctx, owner) => { fn(g, ctx, owner); return false; }, run: () => {} };
+  return { event, can: (g, ctx, owner) => { fn(g, ctx, owner); return false; }, run: () => {}, observer: true };
 }
 
 /** Người có ít máu nhất / nhiều máu nhất (trong số còn sống). */

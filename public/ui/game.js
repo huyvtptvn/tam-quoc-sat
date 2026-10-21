@@ -360,8 +360,14 @@
   function gensHTML(p, isMe) {
     const g = p.generals;
     if (!g) return '';
-    const one = (slot) => C.portraitHTML(slot.generalId, { down: !slot.revealed && slot.generalId, nameTag: isMe, removed: slot.removed, cls: isMe ? '' : 'no-ntag' });
-    if (isMe) return `<div class="gens">${one(g.main)}${one(g.deputy)}</div>`;
+    const one = (slot) => C.portraitHTML(slot.generalId, { down: !slot.revealed && slot.generalId, nameTag: isMe, removed: slot.removed, cls: isMe ? '' : 'no-ntag', noTitle: !isMe });
+    // Ghế của mình: mỗi tướng một cột, các kỹ năng của tướng là từng ô ngay dưới ảnh
+    if (isMe) {
+      const mine = (slot) => C.portraitHTML(slot.generalId, { down: !slot.revealed && slot.generalId, removed: slot.removed, cls: 'no-ntag' });
+      const nm = (slot) => (slot.generalId ? esc(C.general(slot.generalId)?.name ?? slot.generalId) : 'Úp');
+      // Ảnh kéo hết chiều cao ô; kỹ năng đè lên ảnh từ dưới lên; tên tướng nằm ngoài ảnh (bên dưới) cho khỏi lẫn với kỹ năng
+      return `<div class="gens">${['main', 'deputy'].map((w) => `<div class="gen-col"><div class="pwrap">${mine(g[w])}${genSkillsHTML(g[w], w)}</div><div class="gname">${nm(g[w])}</div></div>`).join('')}</div>`;
+    }
     // Ghế người khác: tên tướng ghi đầy đủ dưới ảnh (không bị cắt)
     const nm = (slot) => {
       if (!slot.generalId) return '<span class="gn muted">Úp</span>';
@@ -536,6 +542,17 @@
         <div class="slots">${zonesHTML(p, true)}</div>
         ${notes}
       </div>`;
+    el.querySelectorAll('[data-gsk]').forEach((b) => {
+      b.onclick = (e) => {
+        e.stopPropagation();
+        // Ô xám: bấm để xem mô tả (điện thoại không có rê chuột); ô đỏ: kích hoạt
+        if (!b.classList.contains('on')) { showSkillTip(b, true); return; }
+        hideSkillTip();
+        clickGenSkill(b.dataset.gsk, b.dataset.which);
+      };
+      b.onmouseenter = () => showSkillTip(b);
+      b.onmouseleave = () => hideSkillTip();
+    });
   }
 
   /** Lá nào trên tay đang bấm được, theo câu hỏi hiện tại. */
@@ -609,12 +626,121 @@
     return out;
   }
 
+  /** Trạng thái một kỹ năng của mình lúc này: dùng được (đỏ), đang được hỏi, hay không (xám). */
+  function skillState(id, which, revealed) {
+    const r = req();
+    if (!r) return null;
+    if (r.type === 'play') {
+      const h = (view.skillHints || []).find((x) => x.skill === id);
+      if (h) return { kind: 'use' };
+      const rv = !revealed && (view.skillHints || []).find((x) => x.skill === `reveal:${which}`);
+      return rv ? { kind: 'reveal', skill: rv.skill } : null;
+    }
+    if (r.type === 'confirm' && r.skill === id) return { kind: 'confirm' };
+    if (r.type === 'choose' && Array.isArray(r.skills)) {
+      const i = r.skills.indexOf(id);
+      if (i >= 0) return { kind: 'choice', index: i };
+    }
+    return null;
+  }
+
+  function genSkillsHTML(slot, which) {
+    const gen = slot.generalId && C.general(slot.generalId);
+    if (!gen || slot.removed) return '';
+    return `<div class="gskills">${gen.skills.map((id) => {
+      const info = C.catalog.skills[id] || { name: id, desc: '' };
+      const st = skillState(id, which, slot.revealed);
+      const locked = /^Tỏa định kỹ/i.test(info.desc || '');
+      const on = sel.skill?.skill === id ? ' active' : '';
+      const tip = `【${info.name}】${info.desc || ''}${slot.revealed ? '' : '\n(Tướng đang úp: dùng kỹ năng sẽ lật tướng)'}`;
+      const len = [...info.name].length;
+      return `<button type="button" class="gsk${st ? ' on' : ''}${on}${slot.revealed ? '' : ' hidden-gen'}${len > 14 ? ' xlong' : len > 10 ? ' long' : ''}" data-gsk="${esc(id)}" data-which="${which}" data-tip="${esc(tip)}" aria-label="${esc(info.name)}">`
+        + `${locked ? '<span class="ico">锁</span>' : ''}<span class="nm">${esc(info.name)}</span></button>`;
+    }).join('')}</div>`;
+  }
+
+  /** Bảng mô tả kỹ năng khi rê chuột / bấm vào ô kỹ năng. */
+  function showSkillTip(btn, toggle = false) {
+    let tip = $('skTip');
+    if (!tip) { tip = document.createElement('div'); tip.id = 'skTip'; tip.className = 'sk-tip hidden'; document.body.appendChild(tip); }
+    if (toggle && !tip.classList.contains('hidden') && tip.dataset.for === btn.dataset.gsk) { hideSkillTip(); return; }
+    const [head, ...rest] = (btn.dataset.tip || '').split('】');
+    tip.innerHTML = `<b>${esc(head.replace('【', ''))}</b><div>${esc(rest.join('】')).replace(/\n/g, '<br>')}</div>`;
+    tip.dataset.for = btn.dataset.gsk;
+    tip.classList.remove('hidden');
+    const r = btn.getBoundingClientRect();
+    const w = Math.min(320, window.innerWidth - 16);
+    tip.style.width = `${w}px`;
+    const left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left));
+    tip.style.left = `${left}px`;
+    const h = tip.offsetHeight;
+    tip.style.top = `${r.top - h - 8 > 8 ? r.top - h - 8 : r.bottom + 8}px`;
+  }
+  function hideSkillTip() { $('skTip')?.classList.add('hidden'); }
+
+  /** Rê chuột / bấm vào ảnh tướng của người khác: xem đầy đủ các kỹ năng của tướng đó. */
+  function showGenTip(el, toggle = false) {
+    const id = el.dataset.gen;
+    const g = id && C.general(id);
+    if (!g) return;
+    let tip = $('skTip');
+    if (!tip) { tip = document.createElement('div'); tip.id = 'skTip'; tip.className = 'sk-tip hidden'; document.body.appendChild(tip); }
+    const key = `gen:${id}`;
+    if (toggle && !tip.classList.contains('hidden') && tip.dataset.for === key) { hideSkillTip(); return; }
+    const ks = (g.kingdoms && g.kingdoms.length > 1 ? g.kingdoms : [g.kingdom]).map((k) => C.KINGDOM[k]?.label ?? k).join(' / ');
+    const skills = (g.skills || []).map((sid) => {
+      const info = C.catalog.skills[sid] || { name: sid, desc: '' };
+      return `<div class="gt-sk"><b>${esc(info.name)}</b> ${esc(info.desc || '')}</div>`;
+    }).join('');
+    tip.innerHTML = `<b>${esc(g.name)}</b><div class="muted gt-sub">${esc(ks)} · ${g.halfHp} âm dương ngư</div>${skills}`;
+    tip.dataset.for = key;
+    tip.classList.remove('hidden');
+    const r = el.getBoundingClientRect();
+    const w = Math.min(360, window.innerWidth - 16);
+    tip.style.width = `${w}px`;
+    let left = r.right + 8;
+    if (left + w > window.innerWidth - 8) left = r.left - w - 8;
+    tip.style.left = `${Math.max(8, left)}px`;
+    const h = tip.offsetHeight;
+    tip.style.top = `${Math.max(8, Math.min(window.innerHeight - h - 8, r.top))}px`;
+  }
+  document.addEventListener('mouseover', (e) => {
+    const p = e.target.closest?.('#seats .portrait[data-gen]');
+    if (p) showGenTip(p);
+  });
+  document.addEventListener('mouseout', (e) => {
+    const p = e.target.closest?.('#seats .portrait[data-gen]');
+    if (p && !p.contains(e.relatedTarget)) hideSkillTip();
+  });
+  // Bấm ảnh tướng người khác (khi không phải đang chọn mục tiêu): bật/tắt bảng kỹ năng (điện thoại)
+  document.addEventListener('click', (e) => {
+    const p = e.target.closest?.('#seats .portrait[data-gen]');
+    if (!p) return;
+    const seat = Number(p.closest('.seat')?.dataset.seat);
+    if (targetSpec()?.seats.includes(seat)) return;
+    showGenTip(p, true);
+  });
+  document.addEventListener('click', (e) => { if (!e.target.closest?.('.gsk') && !e.target.closest?.('#seats .portrait[data-gen]')) hideSkillTip(); });
+
+  /** Bấm ô kỹ năng dưới ảnh tướng. */
+  function clickGenSkill(id, which) {
+    const slot = me().generals?.[which];
+    const st = skillState(id, which, slot?.revealed);
+    if (!st) return;
+    if (st.kind === 'use') clickSkill(id);
+    else if (st.kind === 'reveal') answer({ kind: 'useSkill', skill: st.skill, cardIds: [], targets: [] });
+    else if (st.kind === 'confirm') answer({ kind: 'yes' });
+    else if (st.kind === 'choice') answer({ kind: 'choice', index: st.index });
+  }
+
   function renderSkills() {
     const hints = req()?.type === 'play' ? view.skillHints || [] : [];
     const usable = new Map(hints.map((h) => [h.skill, h]));
-    const list = myGeneralSkills();
-    // kỹ năng dùng được nhưng không thuộc tướng (trang bị, ký hiệu); nút "lật tướng" vẽ riêng ở dưới
+    // Kỹ năng của tướng nằm dưới ảnh tướng; cột này chỉ còn ký hiệu (Âm Dương Ngư...) và kỹ năng trang bị
+    const list = [];
+    const mine = new Set(myGeneralSkills().map((s) => s.id));
     for (const h of hints) {
+      if (mine.has(h.skill)) continue;
       if (h.skill.startsWith('reveal:') || list.some((s) => s.id === h.skill)) continue;
       list.push({ id: h.skill, name: h.name, gen: h.skill.startsWith('mark:') ? 'Ký hiệu' : 'Trang bị', revealed: true });
     }

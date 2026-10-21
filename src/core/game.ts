@@ -1123,6 +1123,11 @@ export class Game {
     return false;
   }
 
+  /** Giới tính mà mọi người đang thấy được; null = chưa xác định (Quốc Chiến: chưa lật tướng nào). */
+  visibleGender(seat: number): 'male' | 'female' | null {
+    return this.isFemale(seat) ? 'female' : 'male';
+  }
+
   /** Trang bị một lá: lá cũ cùng ô (nếu có) vào chồng bỏ. */
   async equip(seat: number, card: Card): Promise<void> {
     const slot = CARD_INFO[card.name].slot!;

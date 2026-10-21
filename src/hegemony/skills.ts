@@ -22,6 +22,8 @@ export interface SkillTrigger<K extends EventName> {
    * Nếu tướng đang úp, vẫn hỏi người chơi có muốn lật để kích hoạt không.
    */
   compulsory?: boolean;
+  /** Chỉ ghi nhận sự kiện (observe): không bao giờ phát động, không xét khi gom nhóm kỹ năng. */
+  observer?: boolean;
   run: (g: HegemonyGame, ctx: EventMap[K], owner: number) => void | Promise<void>;
 }
 
@@ -1327,7 +1329,7 @@ export const SKILLS: Record<string, Skill> = {
 
 /** "Người quan sát": trigger không bao giờ kích hoạt, chỉ ghi nhận sự kiện (được gọi cả khi tướng đang úp). */
 function observe<K extends EventName>(event: K, fn: (g: HegemonyGame, ctx: EventMap[K], owner: number) => void): AnyTrigger {
-  return on<K>({ event, can: (g, ctx, owner) => { fn(g, ctx, owner); return false; }, run: () => {} });
+  return on<K>({ event, can: (g, ctx, owner) => { fn(g, ctx, owner); return false; }, run: () => {}, observer: true });
 }
 
 /** Dữ liệu riêng của từng ván. */
