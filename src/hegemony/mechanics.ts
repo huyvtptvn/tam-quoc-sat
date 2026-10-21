@@ -124,9 +124,27 @@ export async function askOrder(g: HegemonyGame, issuer: number, target: number, 
 
 // ------------------------------------------------------------ Trận pháp
 
+/**
+ * Vòng ghế dùng cho trận pháp: người còn sống, KHÔNG tính người đang bị Điệu Hổ Ly Sơn
+ * (họ tạm rời bàn trong lượt: không có hàng xóm, không thuộc đội hình, không vây/bị vây).
+ */
+export function tableRing(g: HegemonyGame): number[] {
+  return g.alivePlayers().map((p) => p.seat).filter((s) => !g.isLured(s));
+}
+
+/** Người kế tiếp `seat` theo chiều lượt trên vòng ghế (bỏ qua người bị Điệu Hổ). */
+export function nextOnTable(g: HegemonyGame, seat: number): number | null {
+  const n = g.state.players.length;
+  for (let k = 1; k < n; k++) {
+    const s = (seat + k) % n;
+    if (g.player(s).alive && !g.isLured(s)) return s;
+  }
+  return null;
+}
+
 /** Hai người kề bên còn sống của `seat`: [trước, sau]. Bàn dưới 3 người thì không có. */
 export function neighbors(g: HegemonyGame, seat: number): number[] {
-  const ring = g.alivePlayers().map((p) => p.seat);
+  const ring = tableRing(g);
   const i = ring.indexOf(seat);
   if (i < 0 || ring.length < 3) return [];
   return [ring[(i - 1 + ring.length) % ring.length], ring[(i + 1) % ring.length]];
@@ -146,9 +164,9 @@ export function besiegers(g: HegemonyGame, target: number): [number, number] | n
 
 /** Đội hình (队列): các người ngồi liền nhau cùng thế lực với `seat` (gồm cả `seat`). */
 export function formation(g: HegemonyGame, seat: number): number[] {
-  const ring = g.alivePlayers().map((p) => p.seat);
+  const ring = tableRing(g);
   const out = new Set([seat]);
-  if (g.shownKingdom(seat) === null) return [...out];
+  if (g.shownKingdom(seat) === null || !ring.includes(seat)) return [...out];
   const n = ring.length, i = ring.indexOf(seat);
   for (const dir of [1, -1]) {
     for (let k = 1; k < n; k++) {

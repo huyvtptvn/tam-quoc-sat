@@ -328,6 +328,7 @@
       m.pair ? `<span class="tag" title="Châu Liên Bích Hợp ×${m.pair}: bốc 2 lá hoặc dùng như Đào">Châu Liên${m.pair > 1 ? ` ×${m.pair}` : ''}</span>` : '',
       m.ambition ? `<span class="tag k-ye" title="Dã Tâm Gia ×${m.ambition}: dùng thay Âm Dương Ngư, Tiên Khu hoặc Châu Liên Bích Hợp">Dã Tâm${m.ambition > 1 ? ` ×${m.ambition}` : ''}</span>` : '',
       p.chained ? '<span class="tag chain" title="Đang bị xích">Xích</span>' : '',
+      p.lured ? '<span class="tag lured" title="Bị Điệu Hổ Ly Sơn: lượt này tạm rời bàn — không tính khoảng cách và trận pháp, không dùng/đánh bài, không bị chọn làm mục tiêu, máu không đổi">Điệu Hổ</span>' : '',
       p.faceDown ? '<span class="tag facedown" title="Bị lật úp: bỏ qua lượt kế tiếp">Lật úp</span>' : '',
       p.lord ? '<span class="tag" title="Quân chủ của thế lực">Quân chủ</span>' : '',
     ].join('');
@@ -383,6 +384,7 @@
     const chosen = selTargets().includes(p.seat);
     el.classList.toggle('current', p.seat === view.currentSeat && p.alive);
     el.classList.toggle('dead', !p.alive);
+    el.classList.toggle('lured-seat', !!p.lured && p.alive);
     el.classList.toggle('targetable', !!can && !chosen);
     el.classList.toggle('targeted', !!chosen);
     // hiệu ứng mất / hồi máu

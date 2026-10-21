@@ -1272,6 +1272,7 @@ export class Game {
     for (const helperSeat of this.aliveSeatsFrom(this.state.currentSeat)) {
       const helper = this.player(helperSeat);
       if (!this.canSave(helperSeat, seat)) continue;
+      if (this.isLured(helperSeat)) continue; // bị Điệu Hổ Ly Sơn: tạm rời bàn, không dùng được bài
       // Một người có thể dùng nhiều Đào liên tiếp nếu cần hồi nhiều máu
       while (p.alive && p.hp <= 0 && helper.alive) {
         const res = await this.ask({ type: 'save', seat: helperSeat, dying: seat, need: 1 - p.hp });

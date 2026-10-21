@@ -10,7 +10,7 @@ import { pickCardFrom, registerTrick } from '../core/tricks.js';
 import { EQUIP_SLOTS, type Card, type CardName } from '../core/types.js';
 import type { HegemonyGame } from './game.js';
 import type { Kingdom } from './generals.js';
-import { formation } from './mechanics.js';
+import { formation, nextOnTable } from './mechanics.js';
 import { EQUIP_SKILLS, GLOBAL_SKILLS, SKILLS } from './skills.js';
 
 const hg = (g: Game) => g as HegemonyGame;
@@ -48,8 +48,9 @@ async function discardOwn(g: Game, seat: number, n: number, prompt: string, with
 registerTrick({
   name: 'huoshao', targeting: 'custom', harmful: true,
   autoTargets: (g, user) => {
-    const next = g.nextAliveSeat(user);
-    if (next === user) return [];
+    // Người kế tiếp trên bàn (người bị Điệu Hổ Ly Sơn tạm rời bàn: bỏ qua, và không thuộc đội hình nào)
+    const next = nextOnTable(hg(g), user);
+    if (next === null || next === user) return [];
     return formation(hg(g), next).filter((s) => s !== user);
   },
   effect: async (g, user, t, card) => {

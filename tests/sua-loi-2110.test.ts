@@ -146,3 +146,28 @@ test('Thư Hùng Song Cổ Kiếm: chỉ xét giới tính đã lộ (chưa lậ
   assert.equal(await run(true, false), false, 'mục tiêu chưa lật tướng');
   assert.equal(await run(true, true), true, 'cả hai đã lật, khác giới');
 });
+
+test('Điệu Hổ Ly Sơn: người bị điệu tạm rời bàn — không thuộc đội hình, không vây/bị vây, không là mục tiêu Hỏa Thiêu / Nam Man', async () => {
+  const { game, ctrls } = makeHG([['caocao', 'xuchu'], ['sunquan', 'lvmeng'], ['zhouyu', 'xiaoqiao'], ['liubei', 'guanyu'], ['lvbu', 'pangde']]);
+  await game.setup();
+  await revealAll(game, 0, 1, 2, 3, 4);
+  assert.deepEqual(game.formation(1).sort(), [1, 2], 'Ngô ở ghế 1-2 là một đội hình');
+  const dh = await take(game, 0, (c) => c.name === 'diaohu');
+  enterPlay(game, 0);
+  await game.useCard(0, dh, [1]);
+  assert.ok(game.isLured(1));
+  assert.deepEqual(game.formation(2), [2], 'người bị điệu không còn trong đội hình');
+  assert.deepEqual(game.neighbors(2), [0, 3], 'hàng xóm bỏ qua người bị điệu');
+  // Hỏa Thiêu Liên Doanh: người kế tiếp trên bàn là ghế 2 (bỏ qua ghế 1)
+  const hp1 = game.player(1).hp, hp2 = game.player(2).hp;
+  const hs = await take(game, 0, (c) => c.name === 'huoshao');
+  await game.useCard(0, hs, []);
+  assert.equal(game.player(1).hp, hp1, 'ghế 1 bị điệu: không bị đốt');
+  assert.equal(game.player(2).hp, hp2 - 1, 'ghế 2 bị đốt');
+  // Nam Man: không hỏi người bị điệu
+  const asked1 = ctrls[1].asked.length;
+  const nm = await take(game, 0, (c) => c.name === 'nanman');
+  await game.useCard(0, nm, []);
+  assert.ok(!ctrls[1].asked.slice(asked1).some((r) => r.type === 'respond'), 'không hỏi đánh Sát');
+  assert.equal(game.player(1).hp, hp1);
+});

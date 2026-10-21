@@ -29,6 +29,8 @@ export interface PublicPlayer {
   /** Cẩm nang trì hoãn đang chờ phán định (ngửa). */
   judgeArea: Card[];
   chained: boolean;
+  /** Bị Điệu Hổ Ly Sơn trong lượt này (tạm rời bàn). */
+  lured?: boolean;
   /** Đang bị lật úp (bỏ qua lượt kế tiếp). */
   faceDown?: boolean;
   // ----- Chỉ có ở chế độ Quốc Chiến -----
@@ -123,6 +125,7 @@ export function viewFor(game: Game, seat: number, req?: Request): PlayerView {
     }),
     faceDown: !!p.faceDown,
     chained: p.chained,
+    ...(p.flags.turn_lured ? { lured: true } : {}),
   }));
 
   const hints: UseHint[] = [];

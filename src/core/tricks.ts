@@ -414,6 +414,7 @@ export async function askNullify(
     for (const seat of g.aliveSeatsFrom(g.state.currentSeat)) {
       // Chỉ hỏi người đang có lá Vô Giải (đỡ phải hỏi cả bàn mỗi lần)
       if (!g.player(seat).hand.some((id) => g.cardCountsAs(seat, g.card(id)).includes('wuxie'))) continue;
+      if (g.isLured(seat)) continue; // bị Điệu Hổ Ly Sơn: không thể dùng/đánh bài
       const prompt = cancelled
         ? `${label} lên ${name(g, target)} đang bị Vô Giải chặn. Dùng Vô Giải để hóa giải?`
         : `Dùng Vô Giải chặn ${label} lên ${name(g, target)}?`;
@@ -439,7 +440,9 @@ export async function askNullify(
 
 export async function resolveTrick(g: Game, user: number, card: Card, cardName: CardName, chosen: number[]): Promise<void> {
   const def = TRICK_DEFS[cardName]!;
-  const targets = def.targeting === 'one' ? (def.expandTargets ? def.expandTargets(g, user, chosen) : chosen) : autoTargets(g, def, user);
+  // Người bị Điệu Hổ Ly Sơn không phải mục tiêu hợp lệ của lá bài (Nam Man, Vạn Tiễn, Đào Viên, Lục Lực Đồng Tâm...)
+  const targets = (def.targeting === 'one' ? (def.expandTargets ? def.expandTargets(g, user, chosen) : chosen) : autoTargets(g, def, user))
+    .filter((t) => t === user || !g.isLured(t));
   const skip = new Set<number>();
   if (def.before) await def.before(g, user, targets, card);
   try {

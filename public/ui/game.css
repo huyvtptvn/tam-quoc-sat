@@ -652,3 +652,6 @@ body.spectating #skills, body.spectating #buttons, body.spectating #timer { disp
 .sk-tip .gt-sub { font-size: 12px; margin: -2px 0 6px; }
 .sk-tip .gt-sk { margin-top: 5px; }
 .sk-tip .gt-sk b { display: inline; color: #f3a58f; font-size: 13px; margin: 0; }
+
+.tag.lured { background: rgba(214, 140, 40, .55); }
+.seat.lured-seat { opacity: .55; filter: saturate(.4); }
