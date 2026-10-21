@@ -68,7 +68,7 @@ export interface EventMap {
   /** Một tướng bị loại bỏ khỏi ván (Quốc Chiến: 移除武将牌). */
   generalRemoved: { seat: number; generalId: string };
   /** Hợp Tung: `seat` sắp bốc 1 lá; kỹ năng có thể đổi người bốc (Hoằng Viện của Gia Cát Cẩn). */
-  transferDraw: { seat: number; drawer: number; target: number };
+  transferDraw: { seat: number; drawer: number; target: number; /** số lá rút lại (= số lá đã giao) */ count: number };
   /** Một người vừa đổi phó tướng (变更副将). */
   deputyTransformed: { seat: number; oldGeneral: string; newGeneral: string };
   /** Một tướng vừa được lật (Quốc Chiến). */

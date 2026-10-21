@@ -884,22 +884,21 @@ export class HegemonyGame extends Game {
     return !!this.card(id).transferable || this.player(seat).flags[`turn_transfer_${id}`] === 1;
   }
 
-  /** Người nhận được Hợp Tung: chưa có thế lực, hoặc (nếu mình đã có thế lực) khác phe với mình. */
+  /** Người nhận được Hợp Tung: người khác KHÔNG cùng thế lực với bạn, hoặc chưa xác định thế lực. */
   transferTargets(seat: number): number[] {
-    const mine = this.isRevealedAny(seat);
     return this.alivePlayers().map((p) => p.seat).filter((t) => t !== seat && this.canTarget(seat, t)
-      && (!this.isRevealedAny(t) || (mine && !this.isSameFaction(seat, t))));
+      && (!this.isRevealedAny(t) || !this.isSameFaction(seat, t)));
   }
 
-  /** Hợp Tung: giao lá cho `target`; nếu người nhận đã có thế lực thì bạn bốc 1 lá. */
-  async doTransfer(seat: number, cardId: number, target: number): Promise<void> {
-    this.player(seat).flags.transferUsed = 1;
+  /** Hợp Tung: giao 1–3 lá cho `target`; nếu người nhận đã xác định thế lực thì bạn rút lại số lá tương đương. */
+  async doTransfer(seat: number, cardIds: number[], target: number): Promise<void> {
+    this.player(seat).flags.turn_transferUsed = 1;
     const draw = this.isRevealedAny(target);
-    await this.moveCards([cardId], { kind: 'hand', seat }, { kind: 'hand', seat: target }, 'transfer');
-    this.say(`${this.player(seat).name} Hợp Tung: giao 1 lá cho ${this.player(target).name}.`);
+    await this.moveCards([...cardIds], { kind: 'hand', seat }, { kind: 'hand', seat: target }, 'transfer');
+    this.say(`${this.player(seat).name} Hợp Tung: giao ${cardIds.length} lá cho ${this.player(target).name}.`);
     if (!draw) return;
-    const ctx = await this.bus.emit('transferDraw', { seat, drawer: seat, target });
-    if (this.player(ctx.drawer).alive) await this.draw(ctx.drawer, 1, 'transfer');
+    const ctx = await this.bus.emit('transferDraw', { seat, drawer: seat, target, count: cardIds.length });
+    if (this.player(ctx.drawer).alive) await this.draw(ctx.drawer, ctx.count, 'transfer');
   }
 
   // ---------- Chồng tướng riêng (Hồn, Lục...) ----------
@@ -1379,12 +1378,12 @@ export class HegemonyGame extends Game {
       return null;
     }
     if (res.skill === 'transfer') {
-      if (p.flags.transferUsed) return 'Mỗi giai đoạn ra bài chỉ Hợp Tung một lần';
-      const [cid] = res.cardIds;
+      if (p.flags.turn_transferUsed) return 'Mỗi giai đoạn ra bài chỉ Hợp Tung một lần';
+      const ids = [...new Set(res.cardIds)];
       const [t] = res.targets;
-      if (res.cardIds.length !== 1 || !p.hand.includes(cid) || !this.isTransferable(seat, cid)) return 'Cần chọn 1 lá có dấu Hợp';
+      if (ids.length < 1 || ids.length > 3 || ids.some((id) => !p.hand.includes(id) || !this.isTransferable(seat, id))) return 'Chọn 1–3 lá có dấu Hợp Tung trên tay';
       if (res.targets.length !== 1 || !this.transferTargets(seat).includes(t)) return 'Mục tiêu Hợp Tung không hợp lệ';
-      await this.doTransfer(seat, cid, t);
+      await this.doTransfer(seat, ids, t);
       return null;
     }
     if (res.skill === 'reveal:main' || res.skill === 'reveal:deputy') {
@@ -1756,11 +1755,11 @@ export class HegemonyGame extends Game {
     if ((h?.marks.pioneer || h?.marks.ambition) && this.player(seat).hand.length < 4) {
       out.push({ skill: MARK_SKILL.pioneer, name: `Tiên Khu (bốc đến 4 lá)${h.marks.pioneer ? '' : amb}`, cards: 'none', targets: [], needsTarget: false, reveals: false });
     }
-    // Hợp Tung (合纵): mỗi giai đoạn ra bài một lần, giao 1 lá có dấu "Hợp" cho người khác phe / chưa có thế lực
+    // Hợp Tung (合纵): mỗi giai đoạn ra bài một lần, giao tối đa 3 lá có dấu "Hợp Tung" cho người không cùng thế lực / chưa xác định thế lực
     const tCards = this.player(seat).hand.filter((id) => this.isTransferable(seat, id));
     const tTargets = this.transferTargets(seat);
-    if (!this.player(seat).flags.transferUsed && tCards.length && tTargets.length) {
-      out.push({ skill: 'transfer', name: 'Hợp Tung', cards: 'one', targets: tTargets, needsTarget: true, reveals: false, minCards: 1, maxCards: 1, validCards: tCards });
+    if (!this.player(seat).flags.turn_transferUsed && tCards.length && tTargets.length) {
+      out.push({ skill: 'transfer', name: 'Hợp Tung (giao tối đa 3 lá)', cards: 'any', targets: tTargets, needsTarget: true, reveals: false, minCards: 1, maxCards: Math.min(3, tCards.length), validCards: tCards });
     }
     // Trong lượt của mình: lật tướng đang úp bất cứ lúc nào (để kỹ năng tỏa định / bị động có hiệu lực ngay)
     if (h && this.canReveal(seat)) {

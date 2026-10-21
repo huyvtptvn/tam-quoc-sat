@@ -73,7 +73,7 @@ test('Hiệp Thiên Tử: tiểu thế lực không dùng được, đại thế
   assert.equal(game.checkUse(0, b, []), null);
 });
 
-test('Hợp Tung: giao lá có dấu Hợp cho người chưa có thế lực thì không bốc; cho người khác phe thì bốc 1', async () => {
+test('Hợp Tung: giao lá có dấu Hợp cho người chưa có thế lực thì không bốc; cho người khác phe thì bốc lại bằng số lá đã giao', async () => {
   const { game } = makeHG(WEI3_SHU2);
   await game.setup();
   await revealAll(game, 0, 3);
@@ -84,11 +84,11 @@ test('Hợp Tung: giao lá có dấu Hợp cho người chưa có thế lực th
   assert.ok(game.transferTargets(0).includes(4), 'người chưa lộ nhận được');
   assert.ok(!game.transferTargets(0).includes(0));
   const before = game.player(0).hand.length;
-  await game.doTransfer(0, ids[0], 4);
+  await game.doTransfer(0, [ids[0]], 4);
   assert.equal(game.player(0).hand.length, before - 1);
   assert.ok(game.player(4).hand.includes(ids[0]));
-  game.player(0).flags.transferUsed = 0;
-  await game.doTransfer(0, ids[1], 3);
+  game.player(0).flags.turn_transferUsed = 0;
+  await game.doTransfer(0, [ids[1]], 3);
   assert.equal(game.player(0).hand.length, before - 1, 'giao 1, bốc 1');
 });
 
@@ -195,4 +195,27 @@ test('Bot bỏ bài: giữ Đào, Vô Giải Khả Kích, Thiểm, Rượu', asy
   assert.equal(res.kind, 'discard');
   const names = (res as { cardIds: number[] }).cardIds.map((i) => game.card(i).name).sort();
   assert.ok(!names.some((n) => ['tao', 'wuxie', 'shan', 'jiu'].includes(n)), `bot bỏ nhầm: ${names}`);
+});
+
+test('Hợp Tung: giao tối đa 3 lá, rút lại bằng số lá đã giao; mỗi giai đoạn ra bài 1 lần (lượt sau dùng lại được); người cùng thế lực không nhận được', async () => {
+  const { game } = makeHG(WEI3_SHU2);
+  await game.setup();
+  await revealAll(game, 0, 1, 3);
+  const ids = game.state.drawPile.filter((i) => game.card(i).transferable).slice(0, 4);
+  assert.equal(ids.length, 4);
+  await game.moveCards(ids, { kind: 'draw' }, { kind: 'hand', seat: 0 }, 'test');
+  assert.ok(!game.transferTargets(0).includes(1), 'cùng thế lực (Ngụy) không nhận');
+  assert.ok(game.transferTargets(0).includes(3) && game.transferTargets(0).includes(4));
+  game.state.currentSeat = 0; game.state.phase = 'play';
+  const before = game.player(0).hand.length;
+  const use = (cardIds: number[], t: number) => (game as unknown as { useSkillAction(s: number, r: unknown): Promise<string | null> })
+    .useSkillAction(0, { kind: 'useSkill', skill: 'transfer', cardIds, targets: [t] });
+  assert.notEqual(await use(ids.slice(0, 4), 3), null, 'không cho giao 4 lá');
+  assert.equal(await use(ids.slice(0, 3), 3), null);
+  assert.equal(game.player(3).hand.filter((i) => ids.includes(i)).length, 3);
+  assert.equal(game.player(0).hand.length, before, 'giao 3, rút lại 3');
+  assert.notEqual(await use([ids[3]], 4), null, 'mỗi giai đoạn ra bài chỉ 1 lần');
+  await game.bus.emit('turnEnd', { seat: 0 });
+  for (const k of Object.keys(game.player(0).flags)) if (k.startsWith('turn_')) delete game.player(0).flags[k];
+  assert.equal(await use([ids[3]], 4), null, 'lượt sau dùng lại được');
 });

@@ -89,7 +89,7 @@ test('Hoằng Viện: bốc bài Hợp Tung được chuyển cho đồng minh',
   await revealAll(game, 0, 1, 2);
   ctrls[0].set('confirm', onlySkill('hongyuan')).set('chooseTargets', pickTargets(1));
   const h0 = game.player(0).hand.length, h1 = game.player(1).hand.length;
-  await game.doTransfer(0, game.player(0).hand[0], 2);
+  await game.doTransfer(0, [game.player(0).hand[0]], 2);
   assert.equal(game.player(0).hand.length, h0 - 1);
   assert.equal(game.player(1).hand.length, h1 + 1);
 });

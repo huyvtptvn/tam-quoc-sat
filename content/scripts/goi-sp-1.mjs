@@ -114,7 +114,7 @@ export default {
         on('turnStart', (g, ctx, o) => ctx.seat === o && g.player(o).alive, async (g, _ctx, o) => {
           await g.runExtraPhase(o, 'play');
           const f = g.player(o).flags;
-          f.shaUsed = 0; f.transferUsed = 0; // giai đoạn ra bài chính vẫn được Sát / Hợp Tung như thường
+          f.shaUsed = 0; f.turn_transferUsed = 0; // giai đoạn ra bài chính vẫn được Sát / Hợp Tung như thường
         }, { compulsory: true }),
       ],
     },
