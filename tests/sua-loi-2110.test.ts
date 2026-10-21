@@ -171,3 +171,27 @@ test('Điệu Hổ Ly Sơn: người bị điệu tạm rời bàn — không th
   assert.ok(!ctrls[1].asked.slice(asked1).some((r) => r.type === 'respond'), 'không hỏi đánh Sát');
   assert.equal(game.player(1).hp, hp1);
 });
+
+test('Công cụ ảo (Ngọc Tỷ coi như dùng Tri Kỷ Tri Bỉ) là phi chuyển hóa: Tập Trí, Túc Trí rút 1; lá chuyển hóa thì không', async () => {
+  const { game, ctrls } = makeHG([['huangyueying', 'liubei'], ['caocao', 'xuchu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0, 1, 2);
+  ctrls[0].set('confirm', (r) => ({ kind: (r as { skill: string }).skill === 'jizhi' ? 'yes' : 'no' }));
+  game.state.currentSeat = 0; game.state.phase = 'play';
+  let n = game.player(0).hand.length;
+  await game.useCardAs(0, 'zhiji', [1], [], { label: 'Ngọc Tỷ' });
+  assert.equal(game.player(0).hand.length, n + 1, 'lá ảo: Tập Trí rút 1');
+  // Chuyển hóa 1 lá Sát thành Tri Kỷ Tri Bỉ: không rút
+  const sha = await take(game, 0, (c) => c.name === 'sha');
+  n = game.player(0).hand.length;
+  await game.useCardAs(0, 'zhiji', [2], [sha], { label: 'chuyển hóa' });
+  assert.equal(game.player(0).hand.length, n - 1, 'lá chuyển hóa: không rút');
+
+  const t2 = makeHG([['simazhao', 'caocao'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng']], { mode: 'chaos' });
+  await t2.game.setup();
+  await revealAll(t2.game, 0, 1, 2);
+  t2.game.state.currentSeat = 0; t2.game.state.phase = 'play';
+  const m = t2.game.player(0).hand.length;
+  await t2.game.useCardAs(0, 'zhiji', [1], [], { label: 'Ngọc Tỷ' });
+  assert.equal(t2.game.player(0).hand.length, m + 1, 'Tư Mã Chiêu (Túc Trí, trong lượt): rút 1');
+});

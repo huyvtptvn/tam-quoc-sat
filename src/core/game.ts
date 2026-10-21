@@ -1063,8 +1063,10 @@ export class Game {
     if (!p.alive) return;
     const from: Zone = opts.from ?? { kind: 'hand', seat };
     if (cardIds.length) await this.moveCards(cardIds, from, { kind: 'processing' }, 'use');
-    const card = cardIds.length === 1 ? { ...this.card(cardIds[0]), name } as Card
-      : this.virtualCard(name, cardIds.length ? this.card(cardIds[0]) : undefined);
+    // Dùng lá thật làm lá khác = chuyển hóa; không dùng lá nào = lá ảo "phi chuyển hóa" (Ngọc Tỷ...)
+    const card = cardIds.length === 1 ? { ...this.card(cardIds[0]), name, converted: this.card(cardIds[0]).name !== name } as Card
+      : cardIds.length ? { ...this.virtualCard(name, this.card(cardIds[0])), converted: true } as Card
+        : this.virtualCard(name);
     try {
       const info = CARD_INFO[name];
       const tgt = targets.map((t) => this.player(t).name).join(', ');

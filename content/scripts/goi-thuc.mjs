@@ -18,7 +18,8 @@ export default {
       id: 'jizhi', name: 'Tập Trí',
       desc: 'Khi bạn sử dụng công cụ phổ thông không phải chuyển hóa, bạn có thể rút 1 lá.',
       triggers: [
-        on('cardUsed', (g, ctx, o) => ctx.seat === o && !ctx.card.virtual && ctx.as === ctx.card.name && g.cardInfo(ctx.as)?.type === 'trick',
+        // Công cụ phi chuyển hóa: lá thật dùng đúng tên, hoặc lá ảo không dùng lá thật nào (Ngọc Tỷ coi như dùng Tri Kỷ Tri Bỉ)
+        on('cardUsed', (g, ctx, o) => ctx.seat === o && !ctx.card.converted && ctx.as === ctx.card.name && g.cardInfo(ctx.as)?.type === 'trick',
           async (g, _ctx, o) => { await g.draw(o, 1); }),
       ],
     },

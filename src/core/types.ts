@@ -49,6 +49,11 @@ export interface Card {
   readonly nature?: 'fire' | 'thunder';
   /** Lá ảo ("coi như dùng một lá ..."): không nằm ở vùng nào, id âm. */
   readonly virtual?: boolean;
+  /**
+   * Lá được CHUYỂN HÓA từ lá thật (Hỏa Kế, Loạn Kích, kỹ năng "coi như dùng" bằng bài...).
+   * Lá ảo không dùng lá thật nào (Ngọc Tỷ coi như dùng Tri Kỷ Tri Bỉ, Thần Tốc) không phải chuyển hóa.
+   */
+  readonly converted?: boolean;
   /** Lá có dấu "Hợp" (合): dùng được cho hành động Hợp Tung. */
   readonly transferable?: boolean;
   /** Lá để riêng ngoài ván lúc đầu (Chiếu Thư, cẩm nang thế lực): nằm ở vùng "removed" cho đến khi được đưa vào. */

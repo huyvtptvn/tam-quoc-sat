@@ -437,7 +437,7 @@ export default {
         on('beforeDamage', (g, ctx, o) => ctx.source === o && ctx.target !== o && !ctx.cancelled && g.state.currentSeat === o
           && (ctx.cardAs === 'sha' || ctx.cardAs === 'juedou') && counter(g, 'suzhi', o, turnKey(g)).n < 3,
           (g, ctx, o) => { counter(g, 'suzhi', o, turnKey(g)).n++; ctx.amount += 1; }, { compulsory: true }),
-        on('cardUsed', (g, ctx, o) => ctx.seat === o && g.state.currentSeat === o && ctx.card.id >= 0 && ctx.as === ctx.card.name
+        on('cardUsed', (g, ctx, o) => ctx.seat === o && g.state.currentSeat === o && !ctx.card.converted && ctx.as === ctx.card.name
           && ['trick', 'delayed'].includes(g.cardInfo(ctx.as)?.type) && counter(g, 'suzhi', o, turnKey(g)).n < 3,
           async (g, _ctx, o) => { counter(g, 'suzhi', o, turnKey(g)).n++; await g.draw(o, 1); }, { compulsory: true }),
         on('cardsMoved', (g, ctx, o) => g.state.currentSeat === o && isDiscardMove(ctx) && ctx.from.seat !== o

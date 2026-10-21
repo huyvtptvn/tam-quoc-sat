@@ -230,6 +230,19 @@ export class HegemonyBot extends SimpleBot {
       if (cheap.length === 2) return { kind: 'useSkill', skill: 'zhangba', cardIds: cheap, targets: [zbTarget.seat] };
     }
 
+    // Hợp Tung: giao tối đa 3 lá có dấu Hợp (lá ít giá trị nhất) cho người đã xác định thế lực — để được rút lại bằng số lá.
+    // Ưu tiên người ít máu nhất, rồi thế lực có ít người đã lật tướng nhất (giúp thế lực yếu, kìm đại thế lực).
+    const ht = usable.find((s) => s.skill === 'transfer');
+    if (ht) {
+      const alive = v.players.filter((p) => p.alive);
+      const factionSize = (p: PublicPlayer) => (p.kingdom === 'careerist' ? 1 : alive.filter((q) => q.kingdom != null && q.kingdom === p.kingdom).length);
+      const target = ht.targets.map((t) => v.players[t]).filter((p) => p.kingdom != null)
+        .sort((a, b) => a.hp - b.hp || factionSize(a) - factionSize(b) || a.handCount - b.handCount)[0];
+      const give = (ht.validCards ?? []).map((id) => v.myHand.find((c) => c.id === id)!).filter(Boolean)
+        .sort((a, b) => cardValue(a) - cardValue(b)).slice(0, Math.min(3, ht.maxCards ?? 3)).map((c) => c.id);
+      if (target && give.length) return { kind: 'useSkill', skill: 'transfer', cardIds: give, targets: [target.seat] };
+    }
+
     // Kỹ năng chủ động viết bằng JSON: làm theo gợi ý "bot" trong file nội dung
     for (const s of usable) {
       const hint = SKILLS[s.skill]?.bot;
