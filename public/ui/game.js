@@ -423,6 +423,9 @@
       el.classList.remove('hurt', 'heal');
       void el.offsetWidth;
       el.classList.add(cls);
+      // Gỡ lớp hiệu ứng khi chạy xong để không bị rung lại khi ghế được vẽ/di chuyển
+      const done = (e) => { if (e.target !== el) return; el.classList.remove('hurt', 'heal'); el.removeEventListener('animationend', done); };
+      el.addEventListener('animationend', done);
     }
     prev.hp.set(p.seat, p.hp);
   }
@@ -460,8 +463,10 @@
         <div class="zones">${zonesHTML(p, 'extras')}</div>`;
       seatFlags(p, el);
     });
-    // Thứ tự phần tử phải đúng thứ tự lượt (sau ván mới / đổi chỗ ngồi, phần tử cũ có thể nằm sai chỗ)
-    for (const s of order) box.appendChild(box.querySelector(`[data-seat="${s}"]`));
+    // Thứ tự phần tử phải đúng thứ tự lượt (sau ván mới / đổi chỗ ngồi, phần tử cũ có thể nằm sai chỗ).
+    // Chỉ di chuyển khi sai thứ tự: chuyển chỗ phần tử trong DOM làm hiệu ứng rung (mất máu) chạy lại.
+    const cur = [...box.children].map((e) => e.dataset.seat).join(',');
+    if (cur !== order.join(',')) for (const s of order) box.appendChild(box.querySelector(`[data-seat="${s}"]`));
     layoutSeats();
   }
 
@@ -562,6 +567,8 @@
     const before = prev.hp.get(p.seat);
     if (!prev.first && before !== undefined && before !== p.hp) {
       el.classList.remove('hurt', 'heal'); void el.offsetWidth; el.classList.add(p.hp < before ? 'hurt' : 'heal');
+      const done = (e) => { if (e.target !== el) return; el.classList.remove('hurt', 'heal'); el.removeEventListener('animationend', done); };
+      el.addEventListener('animationend', done);
     }
     prev.hp.set(p.seat, p.hp);
     const notes = (view.notes || []).slice(-2).map((n) => `<div class="notes">${esc(n)}</div>`).join('');

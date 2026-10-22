@@ -237,3 +237,13 @@ test('Bảng xem bài/tướng: Tri Kỷ Tri Bỉ gửi các lá (hoặc tướn
   assert.deepEqual(r[0].cards!.map((c) => c.id).sort(), [...game.player(1).hand].sort());
   assert.equal(game.makeView(2).reveals!.length, 0, 'người khác không thấy');
 });
+
+test('Ván 2 người cùng thế lực: lật tướng xong mà mọi người còn sống đều cùng thế lực thì ván kết thúc ngay', async () => {
+  const { game } = makeHG([['lord_caocao', 'dengai'], ['yujin', 'guojia']]); // có quân chủ Ngụy: người Ngụy thứ 2 không thành dã tâm gia
+  await game.setup();
+  await revealAll(game, 0);
+  assert.ok(!game.state.finished);
+  try { await game.reveal(1, 'main'); } catch { /* ván kết thúc */ }
+  assert.equal(game.state.finished, true);
+  assert.equal(game.state.winner, 'Ngụy');
+});

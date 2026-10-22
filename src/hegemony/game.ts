@@ -635,6 +635,13 @@ export class HegemonyGame extends Game {
     }
     await this.bus.emit('generalRevealed', { seat, generalId: slot.generalId, first });
     if (exposedNow) await this.offerRecruit(seat);
+    // Lật tướng làm mọi người còn sống đã cùng một thế lực (ví dụ ván 2 người, cả hai đều Ngụy): ván kết thúc ngay,
+    // không cần đợi có người chết. Chỉ xét khi mọi người còn sống đều đã xác định thế lực.
+    if (first && p.alive && !this.state.finished && this.started && this.bossSeat === null
+      && this.alivePlayers().every((q) => this.isRevealedAny(q.seat))) {
+      const w = this.checkWinner();
+      if (w !== null) await this.finish(w, 'victory');
+    }
   }
 
   // ---------- Tướng tím (Dã tâm gia, 野心家) ----------
