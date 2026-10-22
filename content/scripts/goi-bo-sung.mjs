@@ -8,6 +8,25 @@ import {
   sameFactionSeats, slotOf, store, usedThisTurn, oncePerTurn,
 } from './lib/tro-giup.mjs';
 
+/** Cận Hãm: mọi người ở khoảng cách ≤1 tính từ Bành Dạng (gồm cả Bành Dạng). */
+async function jinxianRun(g, o) {
+  for (const t of g.aliveSeatsFrom(o)) {
+    if (!g.player(t).alive || (t !== o && g.distance(o, t) > 1)) continue;
+    const h = g.hero(t);
+    const live = ['main', 'deputy'].filter((w) => !h[w].removed);
+    if (live.some((w) => !h[w].revealed)) {
+      await discardN(g, t, 2, 'Cận Hãm: bỏ 2 lá');
+    } else {
+      let can = live.filter((w) => !(w === 'main' && g.isLord(t)));
+      if (!can.length) continue;
+      // Chính Bành Dạng: đưa Bành Dạng lên đầu danh sách (úp lại để lần sau mở ra phát động tiếp)
+      if (t === o) can = [...can].sort((a, b) => (h[b].generalId === 'pengyang') - (h[a].generalId === 'pengyang'));
+      const i = can.length > 1 ? await g.choose(t, 'Cận Hãm: úp 1 tướng', can.map((w) => g.generalName(h[w].generalId))) : 0;
+      g.hideGeneral(t, can[i]);
+    }
+  }
+}
+
 // ---------------- Hàm trợ giúp riêng ----------------
 
 const isBlackCard = (c) => (c.suit === 'spade' || c.suit === 'club') && !(c.virtual && !c.rank);
@@ -347,22 +366,19 @@ export default {
     },
     {
       id: 'jinxian', name: 'Cận Hãm',
-      desc: 'Sau khi bạn mở tướng này, bạn lệnh tất cả người ở khoảng cách ≤1 thực hiện: nếu họ đã mở tất cả tướng: họ úp 1 tướng; nếu có tướng úp: họ bỏ 2 lá.',
+      desc: 'Sau khi bạn mở tướng này, bạn lệnh tất cả người ở khoảng cách ≤1 (KỂ CẢ BẠN — khoảng cách tới chính mình là 0) thực hiện: '
+        + 'nếu họ đã mở tất cả tướng: họ úp 1 tướng; nếu có tướng úp: họ bỏ 2 lá. '
+        + '(Mẹo: mở cả 2 tướng cùng lúc, hoặc mở tướng kia trước, rồi chọn úp lại Bành Dạng để lần sau mở ra phát động tiếp.)',
       triggers: [
         on('generalRevealed', (g, ctx, o) => ctx.seat === o && ctx.generalId === 'pengyang' && g.player(o).alive, async (g, _ctx, o) => {
-          for (const t of g.aliveSeatsFrom(o)) {
-            if (t === o || g.distance(o, t) > 1 || !g.player(t).alive) continue;
-            const h = g.hero(t);
-            const live = ['main', 'deputy'].filter((w) => !h[w].removed);
-            if (live.some((w) => !h[w].revealed)) {
-              await discardN(g, t, 2, 'Cận Hãm: bỏ 2 lá');
-            } else {
-              const can = live.filter((w) => !(w === 'main' && g.isLord(t)));
-              if (!can.length) continue;
-              const i = can.length > 1 ? await g.choose(t, 'Cận Hãm: úp 1 tướng', can.map((w) => g.generalName(h[w].generalId))) : 0;
-              g.hideGeneral(t, can[i]);
-            }
-          }
+          // Đang mở cả 2 tướng cùng lúc mà tướng kia chưa kịp lật: chờ lật xong cả hai rồi mới phát động
+          const h = g.hero(o);
+          if (g.isRevealBatch(o) && ['main', 'deputy'].some((w) => !h[w].removed && !h[w].revealed)) { store(g)[`jinxian:${o}`] = 1; return; }
+          await jinxianRun(g, o);
+        }, { compulsory: true }),
+        on('revealBatchDone', (g, ctx, o) => ctx.seat === o && !!store(g)[`jinxian:${o}`] && g.player(o).alive, async (g, _ctx, o) => {
+          store(g)[`jinxian:${o}`] = 0;
+          await jinxianRun(g, o);
         }, { compulsory: true }),
       ],
     },

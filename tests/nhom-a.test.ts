@@ -142,11 +142,27 @@ test('Cận Hãm: mở tướng -> người khoảng cách 1 đã mở hết th�
   await revealAll(game, 1);
   await game.reveal(2, 'main');
   const h2 = game.player(2).hand.length;
+  const h0 = game.player(0).hand.length;
   await game.reveal(0, 'deputy');
   const h = game.hero(1);
   assert.equal(h.main.revealed && h.deputy.revealed, false, 'P1 phải úp 1 tướng');
   assert.equal(game.player(2).hand.length, h2 - 2);
+  assert.equal(game.player(0).hand.length, h0 - 2, 'Bành Dạng cũng là mục tiêu: chủ tướng còn úp -> tự bỏ 2 lá');
   totalOk(game);
+});
+
+test('Cận Hãm: mở cả 2 tướng cùng lúc -> Bành Dạng không tự bỏ bài mà úp 1 tướng (chọn úp lại Bành Dạng để phát động tiếp)', async () => {
+  const { game, ctrls } = makeHG([['liubei', 'pengyang'], ['caocao', 'xuchu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  const h0 = game.player(0).hand.length;
+  let opts: string[] = [];
+  ctrls[0].set('reveal', () => ({ kind: 'reveal', main: true, deputy: true }))
+    .set('choose', (r) => { opts = (r as { options: string[] }).options; return { kind: 'choice', index: 0 }; });
+  await (game as unknown as { askRevealAtTurnStart(s: number): Promise<void> }).askRevealAtTurnStart(0);
+  assert.equal(game.player(0).hand.length, h0, 'không tự bỏ bài');
+  assert.equal(opts[0], 'Bành Dạng', 'Bành Dạng đứng đầu lựa chọn úp');
+  assert.equal(game.hero(0).deputy.revealed, false, 'đã úp lại Bành Dạng');
+  assert.equal(game.hero(0).main.revealed, true);
 });
 
 test('Thông Linh: sau khi gây sát thương cho A, người cùng thế lực dùng Sát vào A trúng -> rút 2 lá', async () => {

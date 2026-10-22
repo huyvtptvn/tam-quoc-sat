@@ -691,8 +691,24 @@ export class HegemonyGame extends Game {
     if ((!canMain && !canDeputy) || !this.canReveal(seat)) return;
     const res = await this.ask({ type: 'reveal', seat, canMain, canDeputy });
     if (res.kind !== 'reveal') return;
+    // Lật cả hai tướng cùng lúc: kỹ năng "sau khi mở tướng" xét trạng thái sau khi CẢ HAI đã lật (Cận Hãm...)
+    if (res.main && res.deputy) {
+      this.revealBatch.add(seat);
+      try {
+        await this.reveal(seat, 'main');
+        await this.reveal(seat, 'deputy');
+      } finally { this.revealBatch.delete(seat); }
+      await this.bus.emit('revealBatchDone', { seat });
+      return;
+    }
     if (res.main) await this.reveal(seat, 'main');
     if (res.deputy) await this.reveal(seat, 'deputy');
+  }
+
+  private readonly revealBatch = new Set<number>();
+  /** `seat` đang lật cả hai tướng cùng lúc (tướng còn lại sẽ lật ngay sau). */
+  isRevealBatch(seat: number): boolean {
+    return this.revealBatch.has(seat);
   }
 
   /** Lật hết tướng mà không phát sự kiện (dùng khi ván kết thúc). */
