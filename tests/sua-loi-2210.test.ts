@@ -2,7 +2,7 @@
 // kỹ năng đổi tướng chỉ 1 lần, Hư Thực chặn mọi loại bài.
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
-import { isRed } from '../src/core/cards.js';
+import { CARD_INFO, isRed } from '../src/core/cards.js';
 import type { Card } from '../src/core/types.js';
 import { loadContent } from '../src/content/loader.js';
 import type { HegemonyGame } from '../src/hegemony/game.js';
@@ -85,3 +85,20 @@ for (const kind of ['sha', 'lebu', 'guohe'] as const) {
     assert.ok(game.state.discardPile.includes(c), 'lá bị hủy vào chồng bỏ');
   });
 }
+
+test('Tật Lê (Sa Ma Kha): X là tầm đánh TRƯỚC khi lắp — lắp tầm 2 (lá 1) rút 1, rồi lắp tầm 3 (lá 2) rút 2', async () => {
+  const { game, ctrls } = makeHG([['shamoke', 'liubei'], ['caocao', 'xuchu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0);
+  ctrls[0].set('confirm', () => ({ kind: 'yes' }));
+  for (const id of [...game.player(0).hand]) await game.moveCards([id], { kind: 'hand', seat: 0 }, { kind: 'discard' }, 'test');
+  const w2 = await take(game, 0, (c) => CARD_INFO[c.name].slot === 'weapon' && CARD_INFO[c.name].range === 2);
+  const w3 = await take(game, 0, (c) => CARD_INFO[c.name].slot === 'weapon' && CARD_INFO[c.name].range === 3);
+  enterPlay(game, 0);
+  assert.equal(game.attackRange(0), 1, 'tầm đánh gốc là 1');
+  await game.useCard(0, w2, []);
+  assert.equal(game.player(0).hand.length, 1 + 1, 'còn Thanh Long + rút 1');
+  await game.useCard(0, w3, []);
+  assert.equal(game.player(0).hand.length, 1 + 2, 'rút thêm 2');
+  assert.equal(game.attackRange(0), 3);
+});

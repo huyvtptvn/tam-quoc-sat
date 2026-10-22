@@ -517,7 +517,8 @@ export default {
     // ---------------- Sa Ma Kha ----------------
     {
       id: 'jili', name: 'Tật Lê',
-      desc: 'Khi bạn sử dụng/đánh ra bài, nếu lá này là lá thứ X mà bạn sử dụng/đánh ra trong lượt này, bạn có thể rút X lá (X là tầm đánh của bạn).',
+      desc: 'Khi bạn sử dụng/đánh ra bài, nếu lá này là lá thứ X mà bạn sử dụng/đánh ra trong lượt này, bạn có thể rút X lá '
+        + '(X là tầm đánh của bạn lúc dùng lá; tầm đánh gốc là 1; lá trang bị tính theo tầm đánh trước khi lắp).',
       triggers: [
         ...['cardUsed', 'cardResponded'].map((ev) => observe(ev, (g, ctx, o) => {
           if (ctx.seat !== o) return;
@@ -526,8 +527,8 @@ export default {
           store(g)[k] = { turn: g.state.turnCount, n: (prev?.turn === g.state.turnCount ? prev.n : 0) + 1 };
         })),
         ...['cardUsed', 'cardResponded'].map((ev) => on(ev, (g, ctx, o) => ctx.seat === o && g.player(o).alive
-          && store(g)[`jili:${o}`]?.turn === g.state.turnCount && store(g)[`jili:${o}`].n === g.attackRange(o),
-          async (g, _ctx, o) => { await g.draw(o, g.attackRange(o)); })),
+          && store(g)[`jili:${o}`]?.turn === g.state.turnCount && store(g)[`jili:${o}`].n === jiliRange(g, ctx, o),
+          async (g, ctx, o) => { await g.draw(o, jiliRange(g, ctx, o)); })),
       ],
     },
 
@@ -591,4 +592,9 @@ function qianceTargets(g, ctx) {
 function baolieCard(g, s, id) {
   const c = g.card(id);
   return g.player(s).hand.includes(id) && !g.cardBlocked(s, c) && g.cardCountsAs(s, c).includes('sha');
+}
+
+/** Tật Lê: X = tầm đánh lúc dùng lá (lá trang bị: tầm đánh trước khi lắp). */
+function jiliRange(g, ctx, o) {
+  return typeof ctx.rangeBefore === 'number' ? ctx.rangeBefore : g.attackRange(o);
 }

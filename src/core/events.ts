@@ -31,7 +31,8 @@ export interface EventMap {
   /** Sửa count để thay đổi số lá bốc trong giai đoạn bốc bài. */
   drawPhase: { seat: number; count: number };
   cardsMoved: { cardIds: number[]; from: Zone; to: Zone; reason: string };
-  cardUsed: { seat: number; card: Card; as: CardName; targets: number[] };
+  /** `rangeBefore`: với lá trang bị, tầm đánh của người dùng ngay TRƯỚC khi lắp (Tật Lê tính X lúc dùng lá). */
+  cardUsed: { seat: number; card: Card; as: CardName; targets: number[]; rangeBefore?: number };
   cardResponded: { seat: number; card: Card; as: CardName; reason: string };
   /**
    * Đặt cancelled = true để Sát mất hiệu lực với mục tiêu này.

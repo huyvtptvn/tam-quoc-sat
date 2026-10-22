@@ -1157,6 +1157,7 @@ export class Game {
   async equip(seat: number, card: Card): Promise<void> {
     const slot = CARD_INFO[card.name].slot!;
     const p = this.player(seat);
+    const rangeBefore = this.attackRange(seat); // lúc dùng lá, trang bị chưa có hiệu lực
     // Lục Long Tham Giá: bỏ cả ngựa +1 đang lắp
     if (card.name === 'liulong' && p.equips.defHorse.length) {
       await this.moveCards([...p.equips.defHorse], { kind: 'equip', seat, slot: 'defHorse' }, { kind: 'discard' }, 'replace');
@@ -1169,7 +1170,7 @@ export class Game {
     if (!p.hand.includes(card.id)) { this.say(`${p.name} không còn ${cardLabel(card)} để trang bị.`); return; }
     await this.moveCards([card.id], { kind: 'hand', seat }, { kind: 'equip', seat, slot }, 'equip');
     this.say(`${p.name} trang bị ${cardLabel(card)} (${EQUIP_SLOT_LABEL[slot]}).`);
-    await this.bus.emit('cardUsed', { seat, card, as: card.name, targets: [seat] });
+    await this.bus.emit('cardUsed', { seat, card, as: card.name, targets: [seat], rangeBefore });
   }
 
   /** Đặt cẩm nang trì hoãn vào khu vực phán định của mục tiêu (Thiểm Điện: của chính mình). */
