@@ -16,6 +16,18 @@
     get(k) { try { return sessionStorage.getItem(k); } catch { return null; } },
     set(k, v) { try { if (v) sessionStorage.setItem(k, v); else sessionStorage.removeItem(k); } catch { /* bỏ qua */ } },
   };
+  // ---------- Giao diện Máy tính / Điện thoại (chọn ở màn hình vào game, lưu trên máy này) ----------
+  const autoMobile = (() => { try { return matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 700; } catch { return false; } })();
+  let uiMode = store.get('tqs_ui') || (autoMobile ? 'mobile' : 'pc');
+  function applyUiMode() {
+    document.body.classList.toggle('ui-mobile', uiMode === 'mobile');
+    document.querySelectorAll('input[name="uimode"]').forEach((r) => { r.checked = r.value === uiMode; });
+    const b = document.getElementById('btnUiMode');
+    if (b) { b.textContent = uiMode === 'mobile' ? '💻 Giao diện máy tính' : '📱'; b.title = uiMode === 'mobile' ? 'Chuyển sang giao diện máy tính' : 'Chuyển sang giao diện điện thoại'; }
+    requestAnimationFrame(() => { try { layoutSeats(); } catch { /* chưa vào bàn */ } });
+  }
+  function setUiMode(m) { uiMode = m === 'mobile' ? 'mobile' : 'pc'; store.set('tqs_ui', uiMode); applyUiMode(); }
+
   // Bản cũ lưu mã đăng nhập lâu dài trong localStorage: thu hồi rồi xóa
   try {
     const old = localStorage.getItem('tqs_auth');
@@ -194,6 +206,7 @@
   // ---------- Màn hình ----------
   function show(name) {
     for (const id of ['login', 'lobby', 'room', 'game']) $(id).classList.toggle('hidden', id !== name);
+    document.body.classList.toggle('in-game', name === 'game');
     $('btnLeave').classList.toggle('hidden', name !== 'room' && name !== 'game');
     updateTopButtons(name);
     $('sideToggle').classList.toggle('hidden', name !== 'game');
@@ -481,6 +494,14 @@
     const els = [...box.children];
     const center = $('center');
     if (!els.length) return;
+    // Điện thoại cầm dọc: các ghế xếp thành danh sách 2 cột phía trên, không đặt quanh bàn
+    const list = document.body.classList.contains('ui-mobile') && window.matchMedia('(orientation: portrait)').matches;
+    table.classList.toggle('listmode', list);
+    if (list) {
+      els.forEach((el) => { el.style.left = el.style.top = el.style.scale = el.style.transformOrigin = ''; });
+      center.style.left = center.style.top = center.style.width = '';
+      return;
+    }
     const W = table.clientWidth, H = table.clientHeight;
     const m = els.length;
     box.classList.toggle('dense', m >= 6 || H < 470 || W < 700);
@@ -715,6 +736,24 @@
     tip.style.top = `${r.top - h - 8 > 8 ? r.top - h - 8 : r.bottom + 8}px`;
   }
   function hideSkillTip() { $('skTip')?.classList.add('hidden'); }
+
+  /** Bảng mô tả theo thuộc tính title (lá bài, ô trang bị) — dùng khi chạm giữ trên điện thoại. */
+  function showTitleTip(el) {
+    const t = el.getAttribute('title') || '';
+    if (!t) return;
+    let tip = $('skTip');
+    if (!tip) { tip = document.createElement('div'); tip.id = 'skTip'; tip.className = 'sk-tip hidden'; document.body.appendChild(tip); }
+    const [head, ...rest] = t.split('\n');
+    tip.innerHTML = `<b>${esc(head)}</b><div>${esc(rest.join('\n')).replace(/\n/g, '<br>')}</div>`;
+    tip.dataset.for = 'title';
+    tip.classList.remove('hidden');
+    const r = el.getBoundingClientRect();
+    const w = Math.min(300, window.innerWidth - 16);
+    tip.style.width = `${w}px`;
+    tip.style.left = `${Math.max(8, Math.min(window.innerWidth - w - 8, r.left))}px`;
+    const h = tip.offsetHeight;
+    tip.style.top = `${r.top - h - 8 > 8 ? r.top - h - 8 : Math.min(window.innerHeight - h - 8, r.bottom + 8)}px`;
+  }
 
   /** Rê chuột / bấm vào ảnh tướng của người khác: xem đầy đủ các kỹ năng của tướng đó. */
   function showGenTip(el, toggle = false) {
@@ -1427,5 +1466,37 @@
   };
 
   // Mở trang mới (không phải tải lại): về màn hình đăng nhập, chỉ điền sẵn tên khách
+  // ---------- Giao diện điện thoại: menu ☰, nhắc xoay ngang, chạm giữ để xem lá bài ----------
+  document.querySelectorAll('input[name="uimode"]').forEach((r) => { r.onchange = () => { if (r.checked) setUiMode(r.value); }; });
+  $('btnUiMode').onclick = () => { setUiMode(uiMode === 'mobile' ? 'pc' : 'mobile'); document.body.classList.remove('menu-open'); };
+  $('btnMenu').onclick = (e) => {
+    e.stopPropagation();
+    const open = document.body.classList.toggle('menu-open');
+    $('btnMenu').setAttribute('aria-expanded', String(open));
+  };
+  document.addEventListener('click', (e) => {
+    if (!document.body.classList.contains('menu-open')) return;
+    if (e.target.closest?.('#tbActions .btn') || !e.target.closest?.('#tbActions')) document.body.classList.remove('menu-open');
+  });
+  $('rotateHintX').onclick = () => { $('rotateHint').classList.add('dismissed'); };
+  $('rotateHint').classList.remove('hidden');
+  // Chạm giữ (điện thoại) một lá bài / ô trang bị: xem mô tả
+  let lpTimer = null, lpFired = false;
+  document.addEventListener('pointerdown', (e) => {
+    if (!document.body.classList.contains('ui-mobile')) return;
+    const el = e.target.closest?.('.card[title], .eq[title], .ip-cards .card');
+    if (!el) return;
+    lpFired = false;
+    clearTimeout(lpTimer);
+    lpTimer = setTimeout(() => { lpFired = true; showTitleTip(el); }, 450);
+  });
+  for (const ev of ['pointerup', 'pointercancel', 'pointermove']) {
+    document.addEventListener(ev, (e) => { if (ev !== 'pointermove' || Math.abs(e.movementX) + Math.abs(e.movementY) > 6) clearTimeout(lpTimer); });
+  }
+  // Chạm giữ xong thì không tính là chạm để chọn lá
+  document.addEventListener('click', (e) => { if (lpFired) { lpFired = false; e.stopPropagation(); e.preventDefault(); } }, true);
+  document.addEventListener('contextmenu', (e) => { if (document.body.classList.contains('ui-mobile') && e.target.closest?.('.card, .eq')) e.preventDefault(); });
+  applyUiMode();
+
   if (token || authToken) connect();
 })();

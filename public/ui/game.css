@@ -671,3 +671,122 @@ body.spectating #skills, body.spectating #buttons, body.spectating #timer { disp
 .ip-gen .portrait { --pw: 120px; }
 .ip-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
 @media (max-width: 560px) { .ip-cards .card { --cw: 74px; } .ip-gen .portrait { --pw: 96px; } }
+
+/* ============================================================
+   Giao diện ĐIỆN THOẠI (chỉ khi người chơi chọn "Điện thoại": body.ui-mobile)
+   ============================================================ */
+.ui-choice { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 12px; font-size: 14px; }
+.ui-choice label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+#btnMenu { display: none; }
+#rotateHint { display: none; }
+
+body.ui-mobile { --pw-me: 56px; --cw-hand: 54px; --pw-seat: 34px; }
+/* Thanh trên: gom nút vào menu ☰ */
+body.ui-mobile .topbar { height: 34px; padding: 0 6px; gap: 6px; }
+body.ui-mobile .topbar .brand span:not(.mark), body.ui-mobile #connState, body.ui-mobile .acc-badge { display: none; }
+body.ui-mobile #btnMenu { display: inline-flex; margin-left: auto; font-size: 16px; padding: 2px 10px; }
+body.ui-mobile .tb-actions {
+  display: none; position: absolute; right: 6px; top: 36px; z-index: 50;
+  flex-direction: column; align-items: stretch; gap: 4px; padding: 6px; min-width: 190px;
+  background: rgba(14, 10, 7, .97); border: 1px solid var(--rim); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,.6);
+}
+body.ui-mobile.menu-open .tb-actions { display: flex; }
+body.ui-mobile .tb-actions .btn { justify-content: flex-start; padding: 8px 10px; font-size: 14px; }
+body.ui-mobile .tb-actions .hidden { display: none; }
+body.ui-mobile .tb-actions .hide-sm { display: inline-flex; }
+body.ui-mobile #btnSound .lbl { display: inline; }
+body.ui-mobile #sideToggle { display: inline-flex; }
+body.ui-mobile .screen { min-height: calc(100dvh - 34px); }
+body.ui-mobile #game { grid-template-columns: 1fr; height: calc(100dvh - 34px); }
+body.ui-mobile #side {
+  position: fixed; right: 0; top: 34px; bottom: 0; width: min(320px, 85vw); z-index: 30;
+  transform: translateX(100%); transition: transform .2s ease; background: rgba(8, 6, 4, .97);
+}
+body.ui-mobile #side.open { transform: none; }
+
+/* Bàn: ghế người khác gọn lại */
+body.ui-mobile .seat, body.ui-mobile #seats.dense .seat { width: 172px; padding: 3px 5px 4px; border-radius: 8px; }
+body.ui-mobile .seat .gens .portrait, body.ui-mobile #seats.dense .seat .gens .portrait { --pw: var(--pw-seat); }
+body.ui-mobile .seat .gnames, body.ui-mobile #seats.dense .seat .gnames { grid-template-columns: repeat(2, var(--pw-seat)); }
+body.ui-mobile .seat .gnames .gn { font-size: 8.5px; overflow-wrap: normal; word-break: normal; line-height: 1.1; }
+body.ui-mobile .seat-head { margin-bottom: 2px; gap: 4px; }
+body.ui-mobile .seat .who { font-size: 11.5px; }
+body.ui-mobile .seat-head .hp i { width: 7px; height: 7px; }
+body.ui-mobile .handcount { font-size: 11px; }
+body.ui-mobile .seatno { min-width: 14px; height: 14px; font-size: 9.5px; }
+body.ui-mobile .seat .side .tags { display: flex; font-size: 9.5px; }
+body.ui-mobile .seat .zones { display: grid; }
+body.ui-mobile .seat .eqgrid { font-size: 9.5px; gap: 1px; }
+body.ui-mobile .seat .eq { line-height: 12px; padding: 0 3px; }
+body.ui-mobile .seat .eq.empty { display: none; }  /* chỉ hiện trang bị đang lắp */
+body.ui-mobile .seat .turn-flag { font-size: 9.5px; }
+body.ui-mobile #phaseStrip { display: none; }
+body.ui-mobile #turnLine { font-size: 11px; }
+body.ui-mobile #played { min-height: calc(50px * 1.4); }
+body.ui-mobile #played .card, body.ui-mobile #center.tight #played .card { --cw: 50px; margin: 0 -6px; }
+body.ui-mobile #narrate { font-size: 11px; min-height: 0; }
+body.ui-mobile #narrate .old { display: none; }
+body.ui-mobile #center { gap: 2px; }
+
+/* Khu của mình: ảnh nhỏ, trang bị gọn, bài trên tay vuốt ngang */
+body.ui-mobile #mine { grid-template-columns: auto minmax(0, 1fr) auto; gap: 6px; padding: 3px 6px 4px; align-items: end; }
+body.ui-mobile .myseat { padding: 4px; gap: 5px; align-self: end; }
+body.ui-mobile .myseat .side { width: 104px; gap: 2px; }
+body.ui-mobile .myseat .who { font-size: 12px; }
+body.ui-mobile .myseat .hp i { width: 9px; height: 9px; }
+body.ui-mobile .myseat .tags { font-size: 10px; flex-wrap: wrap; }
+body.ui-mobile .myseat .tags .tag { max-width: 100%; }
+body.ui-mobile .myseat .slots { font-size: 10px; gap: 1px; }
+body.ui-mobile .myseat .slots .eq { line-height: 13px; padding: 0 3px; }
+body.ui-mobile .myseat .slots .eq.empty { display: flex; }
+body.ui-mobile .myseat .notes { display: none; }
+body.ui-mobile .myseat .gname { font-size: 9.5px; }
+body.ui-mobile .gsk { height: 13px; font-size: 8.5px; padding: 0 1px; letter-spacing: -.2px; }
+body.ui-mobile .gsk.long { font-size: 8px; }
+body.ui-mobile .gsk.xlong { font-size: 7.5px; }
+body.ui-mobile .myseat .pwrap { min-height: calc(var(--pw-me) * 4 / 3); }
+body.ui-mobile #play { gap: 3px; }
+body.ui-mobile #actionbar { min-height: 32px; padding: 3px 6px; gap: 6px; }
+body.ui-mobile #prompt { font-size: 12px; line-height: 1.3; flex-basis: 180px; }
+body.ui-mobile #buttons .btn { padding: 4px 10px; font-size: 12.5px; }
+body.ui-mobile #hand { min-height: calc(var(--cw-hand) * 1.4 + 12px); padding: 12px 4px 2px; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
+body.ui-mobile #hand .card + .card { margin-left: 3px; }
+body.ui-mobile #hand .card.playable { transform: translateY(-4px); }
+body.ui-mobile #hand .card.playable:hover { transform: translateY(-4px); }
+body.ui-mobile #hand .card.selected { transform: translateY(-10px); }
+body.ui-mobile #skills { flex-direction: column; flex-wrap: nowrap; order: 0; gap: 3px; max-height: 100%; overflow-y: auto; }
+body.ui-mobile #skills .skill-btn { padding: 4px 6px; font-size: 11.5px; }
+body.ui-mobile #skills .skill-btn small { display: none; }
+body.ui-mobile .card { -webkit-touch-callout: none; user-select: none; }
+body.ui-mobile .sk-tip { font-size: 12.5px; }
+
+/* Cầm dọc: nhắc xoay ngang; ghế thành danh sách 2 cột, bàn cuộn được */
+@media (orientation: portrait) {
+  body.ui-mobile.in-game #rotateHint:not(.dismissed) {
+    display: flex; align-items: center; gap: 8px; justify-content: center;
+    position: fixed; left: 50%; transform: translateX(-50%); top: 38px; z-index: 40; padding: 5px 8px 5px 12px; border-radius: 20px; white-space: nowrap;
+    background: rgba(240, 192, 105, .95); color: #2a1c0c; font-weight: 700; font-size: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.5);
+  }
+  body.ui-mobile #rotateHint button { border: 0; background: none; font-size: 20px; line-height: 1; cursor: pointer; color: inherit; }
+  body.ui-mobile { --pw-me: 56px; --cw-hand: 56px; }
+  body.ui-mobile #board { grid-template-rows: minmax(0, 1fr) auto; }
+  body.ui-mobile #table.listmode { overflow-y: auto; display: flex; flex-direction: column; }
+  body.ui-mobile #table.listmode::before { display: none; }
+  body.ui-mobile #table.listmode #seats { position: static; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; }
+  body.ui-mobile #table.listmode .seat { position: relative; left: auto !important; top: auto !important; transform: none; width: auto; scale: none; }
+  body.ui-mobile #table.listmode #center { position: static; transform: none; width: auto; padding: 4px; order: 2; }
+  body.ui-mobile #table.listmode #seats { order: 1; padding-top: 30px; }
+  body.ui-mobile #mine { grid-template-columns: auto minmax(0, 1fr); }
+  body.ui-mobile #mine #play { grid-column: 1 / -1; grid-row: 2; }
+  body.ui-mobile #mine #skills { flex-direction: row; flex-wrap: wrap; }
+}
+/* Danh sách phòng trên màn hẹp: xuống dòng thay vì tràn ngang (tràn ngang làm cả trang bị thu nhỏ) */
+@media (max-width: 640px) {
+  .room-row { flex-wrap: wrap; row-gap: 6px; }
+  .room-row .nm { flex-basis: 100%; }
+}
+
+/* Nhóm nút trên thanh trên (máy tính: nằm ngang như cũ; điện thoại: thành menu ☰) */
+.tb-actions { display: flex; align-items: center; gap: 12px; }
+@media (max-width: 640px) { .tb-actions { gap: 6px; } }
+.myseat .tags { flex-wrap: wrap; }

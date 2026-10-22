@@ -22,6 +22,8 @@
   <span id="connState" class="muted"></span>
   <span class="spacer"></span>
   <span id="accBadge" class="acc-badge hidden"></span>
+  <button id="btnMenu" class="btn small ghost" type="button" aria-label="Menu" aria-expanded="false">☰</button>
+  <div id="tbActions" class="tb-actions">
   <button id="btnSound" class="btn small ghost" type="button">🔊 Tiếng</button>
   <a class="btn small ghost hide-sm" href="/ranking.html" target="_blank" rel="noopener">Xếp hạng</a>
   <button id="btnLogout" class="btn small ghost hidden" type="button">Đăng xuất</button>
@@ -29,7 +31,10 @@
   <button id="btnSurrender" class="btn small ghost hidden" type="button" title="Đầu hàng: tướng của bạn chết ngay, không được tính thắng">🏳 Đầu hàng</button>
   <button id="btnDissolve" class="btn small ghost hidden" type="button" title="Giải tán phòng: hủy ván (nếu đang chơi), mọi người về sảnh">Giải tán</button>
   <button id="btnLeave" class="btn small ghost hidden" type="button">Rời phòng</button>
+  <button id="btnUiMode" class="btn small ghost" type="button" title="Đổi giao diện máy tính / điện thoại">📱 Giao diện</button>
+  </div>
 </header>
+<div id="rotateHint" class="hidden"><span>📱↻ Xoay ngang điện thoại để chơi thoải mái hơn</span><button type="button" id="rotateHintX" aria-label="Ẩn">×</button></div>
 
 <!-- Vào game -->
 <section id="login" class="screen">
@@ -38,6 +43,11 @@
     <div>
       <h1>Tam Quốc Sát<br>Quốc Chiến</h1>
       <p>Chọn hai tướng cùng thế lực, giấu mặt đến phút quyết định. Bàn có bot ngồi sẵn, vào là chơi được.</p>
+      <div class="ui-choice" role="radiogroup" aria-label="Giao diện">
+        <span class="muted">Giao diện:</span>
+        <label><input type="radio" name="uimode" value="pc"> 💻 Máy tính</label>
+        <label><input type="radio" name="uimode" value="mobile"> 📱 Điện thoại</label>
+      </div>
       <div class="login-tabs" role="tablist">
         <button type="button" class="on" data-ltab="guest" role="tab">Chơi như khách</button>
         <button type="button" data-ltab="account" role="tab">Tài khoản (có xếp hạng)</button>
