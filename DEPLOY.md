@@ -25,6 +25,7 @@ Biến môi trường:
 | `ADMIN_TOKEN` | mã vào trang quản trị — **bắt buộc đặt** chuỗi dài, bí mật |
 | `SESSION_GRACE_MS` | (tùy chọn) mất kết nối bao lâu thì coi như đã tắt trang: tự đăng xuất, rời phòng. Mặc định `30000` (30 giây) |
 | `SESSION_GRACE_PLAYING_MS` | (tùy chọn) như trên nhưng khi đang trong ván (sau đó bot chơi thay). Mặc định `120000` |
+| `BOT_ONLY_CLOSE_MS` | (tùy chọn) phòng chỉ còn bot (không người chơi nào ngồi ghế) quá bao lâu thì tự đóng, ván bị hủy. Mặc định `300000` (5 phút) |
 | `DATA_DIR` | thư mục lưu tài khoản, lịch sử ván (gắn ổ đĩa) |
 | `BOT_DELAY_MS` | bot "suy nghĩ" bao lâu mỗi hành động, ms (mặc định 2500) |
 | `CONTENT_DIR` | (tùy chọn) thư mục nội dung; mặc định `content/` trong code |

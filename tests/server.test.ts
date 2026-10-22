@@ -548,3 +548,23 @@ test('một tài khoản chỉ ngồi được một phòng (mở 2 tab)', async
   await t1.wait((m) => m.t === 'room' && m.room === null);
   t1.close(); t2.close();
 });
+
+test('phòng chỉ còn bot quá 5 phút thì tự đóng (người xem được báo, ván bị hủy)', async () => {
+  const { a, roomId } = await roomWithBots('Bot', 3);
+  a.send({ t: 'start' });
+  await a.wait((m) => m.t === 'request');
+  const w = await new Client().connect('Xem bot');
+  w.send({ t: 'spectate', roomId });
+  await w.wait((m) => m.t === 'room' && m.spectating === true);
+  a.send({ t: 'leaveRoom' });
+  await a.wait((m) => m.t === 'room' && m.room === null);
+  const t0 = Date.now();
+  srv.lobby.sweepBotOnlyRooms(t0);
+  assert.ok(srv.lobby.rooms.get(roomId), 'chưa đủ 5 phút: phòng còn');
+  srv.lobby.sweepBotOnlyRooms(t0 + srv.lobby.botOnlyCloseMs - 1000);
+  assert.ok(srv.lobby.rooms.get(roomId));
+  srv.lobby.sweepBotOnlyRooms(t0 + srv.lobby.botOnlyCloseMs);
+  assert.equal(srv.lobby.rooms.get(roomId), undefined, 'đủ 5 phút: phòng bị đóng');
+  await w.wait((m) => m.t === 'notice' && /chỉ còn bot/.test(m.text));
+  a.close(); w.close();
+});

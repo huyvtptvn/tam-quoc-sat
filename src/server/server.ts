@@ -40,6 +40,8 @@ export interface ServerOptions {
   publicDir?: string;
   watch?: boolean;
   quiet?: boolean;
+  /** Phòng chỉ còn bot quá bao lâu thì tự đóng (ms). Mặc định 5 phút. */
+  botOnlyCloseMs?: number;
   /** Bot chờ bao lâu trước khi đánh (ms). Mặc định 2500, đặt 0 khi chạy test. */
   botDelayMs?: number;
   /** Thư mục lưu tài khoản và lịch sử ván. Mặc định ./data (biến môi trường DATA_DIR). */
@@ -111,6 +113,10 @@ export async function startServer(opts: ServerOptions = {}) {
   let skinsVersion = -1;
   const lobby = new Lobby();
   lobby.botDelayMs = opts.botDelayMs ?? Number(process.env.BOT_DELAY_MS ?? 2500);
+  // Phòng chỉ còn bot quá 5 phút thì tự đóng (đổi bằng BOT_ONLY_CLOSE_MS)
+  if (opts.botOnlyCloseMs !== undefined) lobby.botOnlyCloseMs = opts.botOnlyCloseMs;
+  else if (process.env.BOT_ONLY_CLOSE_MS) lobby.botOnlyCloseMs = Number(process.env.BOT_ONLY_CLOSE_MS);
+  lobby.startSweeper();
   // Mất kết nối bao lâu thì coi như đã tắt trang (tự đăng xuất, rời phòng)
   if (process.env.SESSION_GRACE_MS) lobby.graceMs = Number(process.env.SESSION_GRACE_MS);
   if (process.env.SESSION_GRACE_PLAYING_MS) lobby.gracePlayingMs = Number(process.env.SESSION_GRACE_PLAYING_MS);
@@ -312,6 +318,7 @@ export async function startServer(opts: ServerOptions = {}) {
     content,
     accounts,
     close: () => new Promise<void>((r) => {
+      lobby.stopSweeper();
       content.close();
       for (const c of wss.clients) c.terminate();
       wss.close();

@@ -424,6 +424,37 @@ export class Lobby {
    */
   graceMs = 30_000;
   gracePlayingMs = 120_000;
+  /** Phòng chỉ còn bot (không người chơi nào ngồi ghế) quá thời gian này thì tự đóng, ván bị hủy. */
+  botOnlyCloseMs = 5 * 60_000;
+  private readonly botOnlySince = new Map<string, number>();
+  private sweepTimer: ReturnType<typeof setInterval> | null = null;
+
+  /** Bắt đầu quét định kỳ các phòng chỉ còn bot. */
+  startSweeper(): void {
+    if (this.sweepTimer) return;
+    const every = Math.max(200, Math.min(30_000, Math.floor(this.botOnlyCloseMs / 5)));
+    this.sweepTimer = setInterval(() => this.sweepBotOnlyRooms(), every);
+    this.sweepTimer.unref?.();
+  }
+
+  stopSweeper(): void {
+    if (this.sweepTimer) clearInterval(this.sweepTimer);
+    this.sweepTimer = null;
+  }
+
+  /** Đóng các phòng đã chỉ có bot ngồi liên tục quá botOnlyCloseMs. */
+  sweepBotOnlyRooms(now = Date.now()): void {
+    for (const room of [...this.rooms.values()]) {
+      if (room.humans().length > 0) { this.botOnlySince.delete(room.id); continue; }
+      const since = this.botOnlySince.get(room.id);
+      if (since === undefined) { this.botOnlySince.set(room.id, now); continue; }
+      if (now - since >= this.botOnlyCloseMs) {
+        this.botOnlySince.delete(room.id);
+        this.dissolveRoom(room, `phòng chỉ còn bot quá ${Math.round(this.botOnlyCloseMs / 60_000)} phút`);
+      }
+    }
+    for (const id of [...this.botOnlySince.keys()]) if (!this.rooms.has(id)) this.botOnlySince.delete(id);
+  }
 
   activeGames(): number {
     return [...this.rooms.values()].filter((r) => r.status === 'playing').length;
