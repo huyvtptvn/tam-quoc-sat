@@ -195,3 +195,31 @@ test('Công cụ ảo (Ngọc Tỷ coi như dùng Tri Kỷ Tri Bỉ) là phi chu
   await t2.game.useCardAs(0, 'zhiji', [1], [], { label: 'Ngọc Tỷ' });
   assert.equal(t2.game.player(0).hand.length, m + 1, 'Tư Mã Chiêu (Túc Trí, trong lượt): rút 1');
 });
+
+test('Thế lực chốt khi lật tướng: bị úp lại tướng / đổi phó tướng vẫn giữ thế lực đã xác định', async () => {
+  const { game } = makeHG([['lvbu', 'pangde'], ['caocao', 'xuchu'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0);
+  assert.equal(game.shownKingdom(0), 'qun');
+  game.hideGeneral(0, 'main');
+  game.hideGeneral(0, 'deputy');
+  assert.equal(game.shownKingdom(0), 'qun', 'úp cả 2 tướng vẫn là Quần Hùng');
+  assert.ok(game.isRevealedAny(0));
+  game.hero(0).deputy = { generalId: 'jiaxu', revealed: false };
+  assert.equal(game.shownKingdom(0), 'qun', 'đổi phó tướng vẫn giữ thế lực');
+  const pioneer = game.hero(0).marks.pioneer;
+  await game.reveal(0, 'main');
+  assert.equal(game.hero(0).marks.pioneer, pioneer, 'lật lại không tính là lật lần đầu');
+});
+
+test('Dã tâm gia xét theo số người ĐANG cùng thế lực lúc lật: người đã thành dã tâm gia không còn tính vào Quần Hùng', async () => {
+  const { game } = makeHG([['lvbu', 'pangde'], ['simazhao', 'jiaxu'], ['zhangjiao', 'diaochan'], ['caocao', 'xuchu']]);
+  await game.setup();
+  await revealAll(game, 0); // A: Quần
+  await game.reveal(1, 'deputy'); // B: Quần (chủ tướng tím còn úp)
+  assert.equal(game.shownKingdom(1), 'qun');
+  await game.reveal(1, 'main'); // B lật tướng tím -> dã tâm gia
+  assert.equal(game.shownKingdom(1), 'careerist');
+  await game.reveal(2, 'main'); // C: Quần — chỉ có A đang là Quần -> 2 người, không quá nửa (4)
+  assert.equal(game.shownKingdom(2), 'qun', 'C thuộc Quần Hùng, không phải dã tâm gia');
+});

@@ -43,6 +43,11 @@ export interface HeroState {
   marks: { yinyang: number; pioneer: number; pair: number; ambition: number };
   /** Đã xử lý phần thưởng khi lật đủ 2 tướng chưa. */
   bothRevealedHandled: boolean;
+  /**
+   * Thế lực đã được xác định (chốt ở lần lật tướng đầu tiên). Sau đó dù tướng bị úp lại (Trần Đăng, Cận Hãm...)
+   * hay đổi phó tướng, người này vẫn giữ thế lực đã xác định.
+   */
+  fixedKingdom?: Kingdom;
 }
 
 export type SlotKey = 'main' | 'deputy';
@@ -452,6 +457,8 @@ export class HegemonyGame extends Game {
     if (this.bossSeat !== null) return seat === this.bossSeat ? 'qun' : 'shu';
     const h = this.hero(seat);
     const km = getGeneral(h.main.generalId).kingdom;
+    // Đã xác định thế lực: giữ nguyên (trừ khi chính chủ tướng tím vừa lộ -> dã tâm gia, xử lý bằng cờ careerist)
+    if (h.fixedKingdom && !(km === 'ye' && h.main.revealed)) return h.fixedKingdom;
     if (km !== 'ye' || h.main.revealed) return km;
     const kd = kingdomsOf(h.deputy.generalId);
     return kd.length === 1 && kd[0] !== 'ye' ? kd[0] : 'ye';
@@ -464,15 +471,16 @@ export class HegemonyGame extends Game {
     return k === 'careerist' ? `c${this.heroes[seat]?.careeristGroup ?? seat}` : k;
   }
 
+  /** Đã xác định thế lực (đã từng lật tướng; úp lại sau đó vẫn giữ thế lực). */
   isRevealedAny(seat: number): boolean {
     const h = this.hero(seat);
-    return h.main.revealed || h.deputy.revealed;
+    return h.main.revealed || h.deputy.revealed || !!h.fixedKingdom;
   }
 
-  /** Thế lực mà mọi người nhìn thấy. null = chưa lật tướng nào. */
+  /** Thế lực mà mọi người nhìn thấy. null = chưa xác định (chưa từng lật tướng nào). */
   shownKingdom(seat: number): Kingdom | 'careerist' | null {
     const h = this.heroes[seat];
-    if (!h || !(h.main.revealed || h.deputy.revealed)) return null;
+    if (!h || !(h.main.revealed || h.deputy.revealed || h.fixedKingdom)) return null;
     return h.careerist ? 'careerist' : this.realKingdom(seat);
   }
 
@@ -583,6 +591,7 @@ export class HegemonyGame extends Game {
       const already = this.state.players.filter((q) => q.seat !== seat && this.shownKingdom(q.seat) === k).length;
       if (lordDead || k === 'ye') h.careerist = true;
       else if (lordAlive === null && already + 1 > this.state.players.length / 2) h.careerist = true;
+      h.fixedKingdom = k; // chốt thế lực tại thời điểm lật
       p.team = this.teamLabel(seat);
     }
     // Quân chủ lật tướng: người cùng thế lực đang là dã tâm gia được trở lại thế lực
