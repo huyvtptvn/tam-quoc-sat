@@ -448,7 +448,7 @@ export function installQcCards(g: HegemonyGame): void {
 export async function halberdTargets(g: HegemonyGame, seat: number, targets: number[]): Promise<number[]> {
   g.player(seat).flags.halberdUsed = 0;
   if (g.weaponName(seat) !== 'fangtian_qc' || !targets.length) return targets;
-  const legal = g.alivePlayers().map((p) => p.seat).filter((t) => !targets.includes(t) && t !== seat && g.canTarget(seat, t)
+  const legal = g.alivePlayers().map((p) => p.seat).filter((t) => !targets.includes(t) && t !== seat && g.canTargetWithCard(seat, t)
     && g.canBeSlashTarget(seat, t) && g.distance(seat, t) <= g.attackRange(seat));
   const usedKingdoms = new Set(targets.map((t) => g.factionKeyOf(t)).filter((k): k is string => k !== null));
   const cands = legal.filter((t) => g.factionKeyOf(t) === null || !usedKingdoms.has(g.factionKeyOf(t)!));

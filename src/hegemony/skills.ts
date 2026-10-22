@@ -675,7 +675,7 @@ export const SKILLS: Record<string, Skill> = {
       run: async (g, seat, _cards, [t]) => {
         g.player(seat).flags.khieuhan = 1;
         const me = nameOf(g, seat);
-        const picked = g.canTarget(t, seat) && g.canBeSlashTarget(t, seat)
+        const picked = g.canTargetWithCard(t, seat) && g.canBeSlashTarget(t, seat)
           ? await g.pickResponse(t, ['sha'], `${me} khiêu khích: dùng Sát vào ${me}? (không thì ${me} bỏ 1 lá của bạn)`, seat, { kind: 'provoke', by: seat })
           : null;
         if (picked) {
@@ -1165,7 +1165,7 @@ export const SKILLS: Record<string, Skill> = {
           if (!g.player(t).alive) continue;
           const others = g.alivePlayers().map((p) => p.seat).filter((s) => s !== t && Number.isFinite(g.distance(t, s)));
           const min = Math.min(...others.map((s) => g.distance(t, s)));
-          const nearest = others.filter((s) => g.distance(t, s) === min && g.canTarget(t, s) && g.canBeSlashTarget(t, s));
+          const nearest = others.filter((s) => g.distance(t, s) === min && g.canTargetWithCard(t, s) && g.canBeSlashTarget(t, s));
           const picked = nearest.length
             ? await g.pickResponse(t, ['sha'], `Loạn Vũ: dùng Sát vào người gần nhất (${nearest.map((s) => nameOf(g, s)).join(', ')}), nếu không bạn mất 1 máu`, seat)
             : null;
@@ -1537,7 +1537,7 @@ export async function runGrantedNow<K extends EventName>(g: HegemonyGame, seat: 
 
 function duelExtra(g: HegemonyGame, owner: number, current: number[]): number[] {
   return g.alivePlayers().map((p) => p.seat)
-    .filter((t) => t !== owner && !current.includes(t) && g.canTarget(owner, t) && g.canBeSlashTarget(owner, t));
+    .filter((t) => t !== owner && !current.includes(t) && g.canTargetWithCard(owner, t) && g.canBeSlashTarget(owner, t));
 }
 function chuliCands(g: HegemonyGame, seat: number): number[] {
   return g.alivePlayers().map((p) => p.seat).filter((t) => t !== seat && g.cardCount(t) > 0 && g.canTarget(seat, t));
@@ -1551,7 +1551,7 @@ function doanBinhCandidates(g: HegemonyGame, owner: number, current: number[]): 
   return g.alivePlayers()
     .map((p) => p.seat)
     .filter((t) => t !== owner && !current.includes(t) && g.distance(owner, t) <= 1
-      && g.canTarget(owner, t) && g.canBeSlashTarget(owner, t));
+      && g.canTargetWithCard(owner, t) && g.canBeSlashTarget(owner, t));
 }
 
 export function getSkill(id: string): Skill {

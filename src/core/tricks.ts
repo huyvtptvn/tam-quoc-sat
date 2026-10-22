@@ -58,7 +58,7 @@ const name = (g: Game, seat: number) => g.player(seat).name;
 /** Những người `a` có thể dùng Sát vào (trong tầm đánh) — mục tiêu B của Tá Đao Sát Nhân. */
 function jiedaoVictims(g: Game, a: number): number[] {
   return g.alivePlayers().map((p) => p.seat)
-    .filter((b) => b !== a && g.canTarget(a, b) && g.canBeSlashTarget(a, b) && g.distance(a, b) <= g.attackRange(a));
+    .filter((b) => b !== a && g.canTargetWithCard(a, b) && g.canBeSlashTarget(a, b) && g.distance(a, b) <= g.attackRange(a));
 }
 
 /** Các lá Ngũ Cốc đang lật (dạng ngăn xếp phòng trường hợp lồng nhau). */
@@ -364,7 +364,7 @@ export function checkTrickUse(g: Game, seat: number, card: Card, cardName: CardN
       return cardName === 'shandian' ? 'Thiểm Điện đặt vào khu vực của chính bạn' : `${label} cần đúng 1 mục tiêu`;
     }
     if (!g.isAliveSeat(t) || !delayed.validTarget(g, seat, t)) return 'Mục tiêu không hợp lệ';
-    if (t !== seat && !g.canTarget(seat, t)) return 'Không thể chọn mục tiêu này';
+    if (t !== seat && !g.canTargetWithCard(seat, t)) return 'Không thể chọn mục tiêu này';
     if (g.player(t).judgeArea.some((id) => g.delayedName(id) === cardName)) return `Mục tiêu đã có ${label}`;
     return null;
   }
@@ -378,7 +378,7 @@ export function checkTrickUse(g: Game, seat: number, card: Card, cardName: CardN
     if (targets.length > 0) return `${label} không cần chọn mục tiêu`;
     const auto = autoTargets(g, def, seat);
     if (auto.length === 0) return 'Không có mục tiêu hợp lệ';
-    if (auto.some((t) => t !== seat && !g.canTarget(seat, t))) return 'Không thể chọn mục tiêu này';
+    if (auto.some((t) => t !== seat && !g.canTargetWithCard(seat, t))) return 'Không thể chọn mục tiêu này';
     return null;
   }
 
@@ -388,7 +388,7 @@ export function checkTrickUse(g: Game, seat: number, card: Card, cardName: CardN
   if (targets.length < min || targets.length > max) return min === max ? `${label} cần đúng ${min} mục tiêu` : `${label} cần ${min}–${max} mục tiêu`;
   for (const t of targets) {
     if (!g.isAliveSeat(t) || !def.validTarget?.(g, seat, t, card)) return 'Mục tiêu không hợp lệ';
-    if (t !== seat && !g.canTarget(seat, t)) return 'Không thể chọn mục tiêu này';
+    if (t !== seat && !g.canTargetWithCard(seat, t)) return 'Không thể chọn mục tiêu này';
   }
   return null;
 }

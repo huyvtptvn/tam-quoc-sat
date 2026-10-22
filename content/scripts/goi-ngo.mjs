@@ -37,7 +37,7 @@ export default {
       active: {
         cards: 'none', target: 'one',
         available: (g, s) => inMyPlay(g, s) && guoseEquips(g, s).length > 0,
-        validTarget: (g, s, t) => t !== s && g.isAliveSeat(t) && !hasLebu(g, t) && g.canTarget(s, t),
+        validTarget: (g, s, t) => t !== s && g.isAliveSeat(t) && !hasLebu(g, t) && g.canTargetWithCard(s, t),
         run: async (g, s, _c, [t]) => {
           const ids = guoseEquips(g, s);
           if (!ids.length || hasLebu(g, t)) return;
@@ -754,7 +754,7 @@ export default {
 function liuliTargets(g, ctx, o) {
   const used = store(g).liuliTargets ?? [];
   return g.alivePlayers().map((p) => p.seat).filter((x) => x !== o && x !== ctx.source && !used.includes(x)
-    && g.distance(o, x) <= g.attackRange(o) && g.canTarget(ctx.source, x) && g.canBeSlashTarget(ctx.source, x));
+    && g.distance(o, x) <= g.attackRange(o) && g.canTargetWithCard(ctx.source, x) && g.canBeSlashTarget(ctx.source, x));
 }
 
 function guzhengCards(g, seat) {

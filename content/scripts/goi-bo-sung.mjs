@@ -106,14 +106,14 @@ function usableVs(g, user, target) {
     if (g.cardBlocked(user, card)) continue;
     for (const as of new Set(g.cardCountsAs(user, card))) {
       if (as === 'sha') {
-        if (target !== user && g.canTarget(user, target) && g.canBeSlashTarget(user, target)
+        if (target !== user && g.canTargetWithCard(user, target) && g.canBeSlashTarget(user, target)
           && g.distance(user, target) <= g.attackRange(user)) out.push({ id, as });
         continue;
       }
       if (g.cardInfo(as)?.type !== 'trick') continue;
       const def = g.trickDef(as);
       if (!def || def.targeting !== 'one' || def.expandTargets || def.canUse?.(g, user)) continue;
-      if (def.validTarget?.(g, user, target, card) && (target === user || g.canTarget(user, target))) out.push({ id, as });
+      if (def.validTarget?.(g, user, target, card) && (target === user || g.canTargetWithCard(user, target))) out.push({ id, as });
     }
   }
   return out;
@@ -216,7 +216,7 @@ export default {
             const current = effectiveTargets(g, ctx);
             const canAdd = ctx.as === 'sha' || (def && def.targeting === 'one' && !def.expandTargets);
             const addCands = !canAdd ? [] : g.alivePlayers().map((p) => p.seat).filter((t) => t !== user && t !== o && !current.includes(t)
-              && g.canTarget(user, t) && (ctx.as === 'sha' ? g.canBeSlashTarget(user, t) : (def.validTarget ? def.validTarget(g, user, t, ctx.card) : true)));
+              && g.canTargetWithCard(user, t) && (ctx.as === 'sha' ? g.canBeSlashTarget(user, t) : (def.validTarget ? def.validTarget(g, user, t, ctx.card) : true)));
             const harmful = harmfulAs(g, ctx.as);
             const friendly = (t) => t === o || g.isSameFaction(t, o);
             const opts = [];
@@ -939,5 +939,5 @@ function noJade(g) {
 }
 
 function guowuExtra(g, o, current) {
-  return g.alivePlayers().map((p) => p.seat).filter((t) => t !== o && !current.includes(t) && g.canTarget(o, t) && g.canBeSlashTarget(o, t));
+  return g.alivePlayers().map((p) => p.seat).filter((t) => t !== o && !current.includes(t) && g.canTargetWithCard(o, t) && g.canBeSlashTarget(o, t));
 }

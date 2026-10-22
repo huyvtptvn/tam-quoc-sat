@@ -491,9 +491,18 @@ export class Game {
     return teams.size === 1 ? [...teams][0] : null;
   }
 
-  /** `source` có được chọn `target` làm mục tiêu không (bất kỳ lá/kỹ năng nào). Ví dụ Tự Thủ. */
-  canTarget(_source: number, target: number): boolean {
-    return !this.isLured(target);
+  /**
+   * `source` có được chọn `target` làm mục tiêu không (bất kỳ lá/kỹ năng nào). Ví dụ Tự Thủ.
+   * Người bị Điệu Hổ Ly Sơn VẪN có thể bị kỹ năng tác động (Di Kế giao bài...) — chỉ không thể là mục tiêu của LÁ BÀI
+   * (xem `canTargetWithCard`).
+   */
+  canTarget(_source: number, _target: number): boolean {
+    return true;
+  }
+
+  /** `target` có thể là mục tiêu của một lá bài do `source` dùng không (Điệu Hổ Ly Sơn: không). */
+  canTargetWithCard(source: number, target: number): boolean {
+    return !this.isLured(target) && this.canTarget(source, target);
   }
 
   /**
@@ -507,6 +516,11 @@ export class Game {
   /** `target` có thể bị `source` chọn làm mục tiêu của Sát không. Ví dụ Không Thành. */
   canBeSlashTarget(_source: number, _target: number): boolean {
     return true;
+  }
+
+  /** Sát (lá bài) chọn được `target` không: Điệu Hổ Ly Sơn + kỹ năng miễn Sát. Các kỹ năng gọi `canBeSlashTarget` đều là dùng Sát. */
+  private slashTargetOk(source: number, target: number): boolean {
+    return !this.isLured(target) && this.canBeSlashTarget(source, target);
   }
 
   /** `helper` có được dùng Đào cứu `dying` không. Ví dụ Hoàn Sát của Giả Hủ. */
@@ -610,8 +624,8 @@ export class Game {
           if (!this.isAliveSeat(t)) return 'Mục tiêu không hợp lệ';
           if (t === seat) return 'Không thể Sát chính mình';
           if (this.distance(seat, t) > this.attackRange(seat) && !this.slashRangeExempt(seat, t, card)) return 'Mục tiêu ngoài tầm đánh';
-          if (!this.canTarget(seat, t)) return 'Không thể chọn mục tiêu này';
-          if (!this.canBeSlashTarget(seat, t)) return 'Mục tiêu không thể bị Sát';
+          if (!this.canTargetWithCard(seat, t)) return 'Không thể chọn mục tiêu này';
+          if (!this.slashTargetOk(seat, t)) return 'Mục tiêu không thể bị Sát';
         }
         return null;
       }
@@ -968,7 +982,7 @@ export class Game {
    */
   async slashOutOfTurn(source: number, target: number, card: Card, as: CardName): Promise<void> {
     const p = this.player(source);
-    if (!p.alive || !this.isAliveSeat(target) || target === source || !p.hand.includes(card.id)) return;
+    if (!p.alive || !this.isAliveSeat(target) || target === source || !p.hand.includes(card.id) || this.isLured(target)) return;
     this.noteUseAs(source, card, as);
     await this.moveCards([card.id], { kind: 'hand', seat: source }, { kind: 'processing' }, 'use');
     try {
@@ -1073,10 +1087,10 @@ export class Game {
       if (!def) return [];
       if (def.targeting !== 'one') return [];
       return this.alivePlayers().map((p) => p.seat)
-        .filter((t) => def.validTarget?.(this, seat, t, fake) && (t === seat || this.canTarget(seat, t)));
+        .filter((t) => def.validTarget?.(this, seat, t, fake) && (t === seat || this.canTargetWithCard(seat, t)));
     }
     if (name === 'sha') {
-      return this.alivePlayers().map((p) => p.seat).filter((t) => t !== seat && this.canTarget(seat, t)
+      return this.alivePlayers().map((p) => p.seat).filter((t) => t !== seat && this.canTargetWithCard(seat, t)
         && this.canBeSlashTarget(seat, t) && (ignoreRange || this.distance(seat, t) <= this.attackRange(seat) || this.slashRangeExempt(seat, t, null)));
     }
     return [];
@@ -1096,6 +1110,11 @@ export class Game {
     opts: { from?: Zone; countSlash?: boolean; label?: string; nature?: 'fire' | 'thunder' }): Promise<void> {
     const p = this.player(seat);
     if (!p.alive) return;
+    // Điệu Hổ Ly Sơn: người bị điệu hổ không thể là mục tiêu của lá bài (kể cả lá "xem như dùng" bởi kỹ năng)
+    if (targets.some((t) => t !== seat && this.isLured(t))) {
+      targets = targets.filter((t) => t === seat || !this.isLured(t));
+      if (!targets.length && (name === 'sha' || TRICK_DEFS[name]?.targeting === 'one')) return;
+    }
     const from: Zone = opts.from ?? { kind: 'hand', seat };
     if (cardIds.length) await this.moveCards(cardIds, from, { kind: 'processing' }, 'use');
     // Dùng lá thật làm lá khác = chuyển hóa; không dùng lá nào = lá ảo "phi chuyển hóa" (Ngọc Tỷ...)

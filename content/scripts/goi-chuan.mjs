@@ -56,7 +56,7 @@ export default {
       active: {
         cards: 'none', target: 'one',
         available: (g, s) => inMyPlay(g, s) && !g.player(s).flags.turn_duanliangOff && duanliangCards(g, s).length > 0,
-        validTarget: (g, s, t) => t !== s && g.player(t).alive && !hasBingliang(g, t),
+        validTarget: (g, s, t) => t !== s && g.player(t).alive && !hasBingliang(g, t) && g.canTargetWithCard(s, t),
         run: async (g, s, _c, [t]) => {
           const ids = duanliangCards(g, s);
           if (!ids.length || hasBingliang(g, t)) return;

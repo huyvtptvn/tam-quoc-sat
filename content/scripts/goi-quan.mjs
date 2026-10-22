@@ -185,7 +185,7 @@ export default {
               return;
             }
             const cands = [t, ...others(g, o, (s) => s !== t && g.isSameFaction(s, t))]
-              .filter((x) => x !== o && g.player(x).alive && g.canTarget(o, x) && g.canBeSlashTarget(o, x));
+              .filter((x) => x !== o && g.player(x).alive && g.canTargetWithCard(o, x) && g.canBeSlashTarget(o, x));
             const [x] = await g.chooseTargets(o, 'Song Nhận: coi như dùng Sát vào ai', cands, 1, 1, 'enemy');
             if (x !== undefined) await g.useCardAs(o, 'sha', [x], [], { label: 'Song Nhận' });
           }),
@@ -648,7 +648,7 @@ export default {
       bot: { confirm: (v, h) => !h.isAlly(v.currentSeat) },
       triggers: [
         on('phaseStart', (g, ctx, o) => ctx.seat !== o && ctx.phase === 'start' && equipsOf(g, o).length > 0
-          && g.canTarget(o, ctx.seat) && g.canBeSlashTarget(o, ctx.seat),
+          && g.canTargetWithCard(o, ctx.seat) && g.canBeSlashTarget(o, ctx.seat),
           async (g, ctx, o) => {
             const t = ctx.seat;
             for (let i = 0; i < 6; i++) {

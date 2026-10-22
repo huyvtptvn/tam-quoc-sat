@@ -406,7 +406,7 @@ export default {
       bot: { confirm: (v, h) => !h.isAlly(v.currentSeat) },
       triggers: [
         on('phaseStart', (g, ctx, o) => ctx.seat !== o && ctx.phase === 'end' && g.player(ctx.seat).alive
-          && (g.player(ctx.seat).flags.stat_dmg ?? 0) > 0 && g.canTarget(o, ctx.seat) && g.canBeSlashTarget(o, ctx.seat)
+          && (g.player(ctx.seat).flags.stat_dmg ?? 0) > 0 && g.canTargetWithCard(o, ctx.seat) && g.canBeSlashTarget(o, ctx.seat)
           && hand(g, o).some((id) => g.cardCountsAs(o, g.card(id)).includes('sha')),
           async (g, ctx, o) => {
             const picked = await g.pickResponse(o, ['sha'], `Tru Hại: dùng Sát vào ${name(g, ctx.seat)}`, ctx.seat);
@@ -546,7 +546,7 @@ export default {
             for (const s of others(g, o, (x) => g.isDifferentFaction(x, o) && g.distance(x, o) <= g.attackRange(x))) {
               if (!g.player(o).alive) return;
               const picked = await g.pickResponse(s, ['sha'], `Báo Liệt của ${name(g, o)}: dùng Sát vào ${name(g, o)}? (không thì bị bỏ 1 lá)`, o);
-              if (picked && g.canTarget(s, o)) await g.slashOutOfTurn(s, o, picked.card, picked.as);
+              if (picked && g.canTargetWithCard(s, o)) await g.slashOutOfTurn(s, o, picked.card, picked.as);
               else if (allCards(g, s).length) await discardFrom(g, o, s, 'Báo Liệt: chọn lá để bỏ');
             }
           }, { compulsory: true }),

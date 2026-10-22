@@ -732,9 +732,9 @@ export default {
           if (d) g.say(`Ngư Lân: giới hạn trữ bài của ${name(g, s)} ${d > 0 ? '+1' : '−1'} lượt này.`);
         }, { compulsory: true }),
         on('phaseStart', (g, ctx, o) => ctx.seat === o && ctx.phase === 'end' && !!g.besiegers(o)
-          && g.besiegers(o).some((t) => g.player(t).alive && g.canTarget(o, t) && g.canBeSlashTarget(o, t)),
+          && g.besiegers(o).some((t) => g.player(t).alive && g.canTargetWithCard(o, t) && g.canBeSlashTarget(o, t)),
           async (g, _ctx, o) => {
-            const cands = g.besiegers(o).filter((t) => g.player(t).alive && g.canTarget(o, t) && g.canBeSlashTarget(o, t));
+            const cands = g.besiegers(o).filter((t) => g.player(t).alive && g.canTargetWithCard(o, t) && g.canBeSlashTarget(o, t));
             const [t] = await g.chooseTargets(o, 'Ngư Lân: chọn người vây công để xem như dùng Sát', cands, 1, 1, 'enemy');
             if (t !== undefined) await g.useCardAs(o, 'sha', [t], [], { label: 'Ngư Lân' });
           }, { compulsory: true }),

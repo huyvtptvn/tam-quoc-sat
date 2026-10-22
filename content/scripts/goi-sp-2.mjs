@@ -555,7 +555,7 @@ export default {
         validTarget: (g, s, t) => g.targetsAs(s, 'sha').includes(t),
         run: async (g, s, ids, [t]) => {
           let targets = [t];
-          const far = aliveSeats(g).filter((x) => x !== s && g.canTarget(s, x) && g.canBeSlashTarget(s, x) && g.distance(s, x) > g.attackRange(s));
+          const far = aliveSeats(g).filter((x) => x !== s && g.canTargetWithCard(s, x) && g.canBeSlashTarget(s, x) && g.distance(s, x) > g.attackRange(s));
           if (far.length) {
             const i = await g.choose(s, 'Khẩn Thương: đổi mục tiêu?', ['Giữ mục tiêu',
               `Đổi thành mọi người ngoài tầm đánh: ${far.map((x) => name(g, x)).join(', ')}`]);
@@ -808,13 +808,13 @@ export default {
             && hand(g, o).length === 0) store(g)[`nizhan:${o}`] = T(g);
         }),
         on('turnEnd', (g, ctx, o) => ctx.seat !== o && g.player(o).alive && g.isAliveSeat(ctx.seat) && store(g)[`nizhan:${o}`] === T(g)
-          && (g.cardCount(ctx.seat) > 0 || (g.canTarget(o, ctx.seat) && g.canBeSlashTarget(o, ctx.seat))),
+          && (g.cardCount(ctx.seat) > 0 || (g.canTargetWithCard(o, ctx.seat) && g.canBeSlashTarget(o, ctx.seat))),
           async (g, ctx, o) => {
             store(g)[`nizhan:${o}`] = -1;
             const t = ctx.seat;
             const opts = [];
             if (g.cardCount(t) > 0) opts.push(['take', `Thu lấy 1 lá của ${name(g, t)}`]);
-            if (g.canTarget(o, t) && g.canBeSlashTarget(o, t)) opts.push(['sha', `Xem như dùng Sát (bỏ qua phòng cụ) với ${name(g, t)}`]);
+            if (g.canTargetWithCard(o, t) && g.canBeSlashTarget(o, t)) opts.push(['sha', `Xem như dùng Sát (bỏ qua phòng cụ) với ${name(g, t)}`]);
             if (!opts.length) return;
             const i = opts.length > 1 ? await g.choose(o, 'Nghịch Trảm: chọn 1 mục', opts.map((x) => x[1])) : 0;
             if (opts[i][0] === 'take') { await takeFrom(g, o, t, `Nghịch Trảm: chọn lá của ${name(g, t)}`); return; }

@@ -249,3 +249,35 @@ test('Nhóm Dã tâm gia (cùng người cầm đầu) là 1 phe và được t�
   assert.equal(game.factionSizeOf(3), 3);
   assert.ok(game.isBig(1) && !game.isBig(0), 'nhóm 3 người là đại thế lực duy nhất');
 });
+
+// ---------------- Điệu Hổ Ly Sơn: kỹ năng vẫn tác động được ----------------
+
+test('Điệu Hổ: người bị điệu hổ vẫn bị kỹ năng chọn (Nhân Đức giao bài), nhưng không là mục tiêu của lá bài', async () => {
+  const { game, ctrls } = makeHG([['liubei', 'guanyu'], ['caocao', 'xuchu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0);
+  const dh = await take(game, 0, (c) => c.name === 'diaohu');
+  ctrls[0].set('chooseTargets', () => ({ kind: 'targets', targets: [] }));
+  enterPlay(game, 0);
+  const r = await game.useCard(0, dh, [1]);
+  assert.ok(r.ok, String((r as { reason?: string }).reason));
+  assert.ok(game.isLured(1), 'P1 bị điệu hổ');
+  // Lá bài: không chọn được
+  const sha = await take(game, 0, (c) => c.name === 'sha');
+  assert.equal((await game.useCard(0, sha, [1])).ok, false, 'không Sát được người bị điệu hổ');
+  assert.ok(!game.targetsAs(0, 'guohe').includes(1), 'không là mục tiêu Quá Hà');
+  // Kỹ năng: vẫn tác động
+  assert.ok(game.canTarget(0, 1));
+  const give = game.player(0).hand.find((id) => id !== sha)!;
+  const n = game.player(1).hand.length;
+  assert.equal(await useSkill(game, 0, 'nhanduc', [give], [1]), null);
+  assert.equal(game.player(1).hand.length, n + 1, 'Nhân Đức giao bài cho người bị điệu hổ');
+  // Máu không đổi
+  const hp = game.player(1).hp;
+  await game.loseHp(1, 1);
+  assert.equal(game.player(1).hp, hp);
+  // "Xem như dùng" lá bởi kỹ năng cũng không nhắm được
+  const before = game.log.length;
+  await game.useCardAs(0, 'sha', [1], [], { label: 'thử' });
+  assert.ok(!game.log.slice(before).some((l) => l.includes('dùng Sát')), 'Sát ảo không nhắm người bị điệu hổ');
+});

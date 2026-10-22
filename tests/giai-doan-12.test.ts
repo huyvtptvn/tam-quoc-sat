@@ -121,7 +121,7 @@ test('Điệu Hổ Ly Sơn: người bị điệu không tính khoảng cách, k
   assert.ok(game.isLured(1));
   assert.equal(game.distance(0, 1), Infinity);
   assert.equal(game.distance(0, 2), 1, 'ghế 1 bị bỏ khỏi vòng nên ghế 2 sát cạnh ghế 0');
-  assert.equal(game.canTarget(0, 1), false);
+  assert.equal(game.canTargetWithCard(0, 1), false); // không là mục tiêu của lá bài (kỹ năng vẫn chọn được)
   const hp = game.player(1).hp;
   await game.damage({ source: 3, target: 1, amount: 1, card: null, cancelled: false });
   assert.equal(game.player(1).hp, hp);

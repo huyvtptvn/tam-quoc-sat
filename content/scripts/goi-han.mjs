@@ -320,7 +320,7 @@ export default {
               const [id] = await g.chooseCards(t, `Mưu Tru: giao 1 lá trên tay cho ${name(g, s)}`, [...hand(g, t)], 1, 1);
               if (id !== undefined) await give(g, t, s, [id]);
             }
-            if (hand(g, t).length >= hand(g, s).length || !g.canTarget(t, s) || !g.canBeSlashTarget(t, s)) continue;
+            if (hand(g, t).length >= hand(g, s).length || !g.canTargetWithCard(t, s) || !g.canBeSlashTarget(t, s)) continue;
             const res = await g.ask({ type: 'confirm', seat: t, skill: 'mouzhu', reveal: false, prompt: `Mưu Tru: xem như dùng Sát hoặc Quyết Đấu với ${name(g, s)}?` });
             if (res.kind !== 'yes') continue;
             const i = await g.choose(t, 'Mưu Tru: xem như dùng', ['Sát', 'Quyết Đấu']);
@@ -388,7 +388,7 @@ export default {
           const cands = others(g, o, (s) => received(g, s) > 0);
           const [p] = await g.chooseTargets(o, 'Định Trứ: chọn người xem như dùng Quyết Đấu', cands, 1, 1, 'enemy');
           if (p === undefined) return;
-          const targets = g.alivePlayers().map((q) => q.seat).filter((x) => x !== p && g.canTarget(p, x) && g.canBeSlashTarget(p, x));
+          const targets = g.alivePlayers().map((q) => q.seat).filter((x) => x !== p && g.canTargetWithCard(p, x) && g.canBeSlashTarget(p, x));
           const [x] = await g.chooseTargets(o, `Định Trứ: ${name(g, p)} Quyết Đấu với ai`, targets, 0, 1, 'enemy');
           if (x !== undefined) await g.useCardAs(p, 'juedou', [x], [], { label: 'Định Trứ' });
         }),
@@ -624,7 +624,7 @@ export default {
           g.cancelledJudges.add(ctx.card.id);
           g.say(`Định Loạn: lần phán xét của ${name(g, ctx.seat)} bị chặn.`);
           const t = ctx.seat;
-          if (t === o || !alive(g, t) || !g.canBeSlashTarget(o, t) || !g.canTarget(o, t)) return;
+          if (t === o || !alive(g, t) || !g.canBeSlashTarget(o, t) || !g.canTargetWithCard(o, t)) return;
           const i = await g.choose(o, `Định Loạn: xem như dùng Hỏa Sát với ${name(g, t)}?`, ['Không', 'Dùng Hỏa Sát']);
           if (i === 1) await useSha(g, o, [t], { nature: 'fire', label: 'Định Loạn' });
         }),
