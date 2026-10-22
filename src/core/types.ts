@@ -139,7 +139,9 @@ export type Request =
   /** Đầu lượt: có lật tướng đang úp không. */
   | { type: 'reveal'; seat: number; canMain: boolean; canDeputy: boolean }
   /** Hỏi có kích hoạt kỹ năng không. `reveal` = true nghĩa là phải lật tướng để dùng. */
-  | { type: 'confirm'; seat: number; skill: string; prompt: string; reveal: boolean }
+  | { type: 'confirm'; seat: number; skill: string; prompt: string; reveal: boolean;
+      /** Hỏi xem như dùng một lá để đáp lại (Thao Loạn): lá cần đáp và ngữ cảnh, cho bot quyết định. */
+      respond?: { accept: CardName[]; context?: RespondContext } }
   // ----- Giai đoạn 3 -----
   /** Chọn 1 trong các phương án (ví dụ Cương Liệt: bỏ 2 lá hay chịu 1 sát thương). */
   | { type: 'choose'; seat: number; prompt: string; options: string[]; /** Chọn kỹ năng kích hoạt trước: id kỹ năng ứng với từng lựa chọn (null = không kích hoạt). */ skills?: (string | null)[]; skillReveal?: boolean[] }

@@ -8,7 +8,7 @@ import { CARD_INFO, cardLabel, isRed } from '../core/cards.js';
 import { pickCardFrom } from '../core/tricks.js';
 import type { PlayerView } from '../core/view.js';
 import type { EventMap, EventName } from '../core/events.js';
-import { EQUIP_SLOTS, type Card, type CardName, type RespondContext, type Zone } from '../core/types.js';
+import { EQUIP_SLOTS, type Card, type CardName, type Request, type RespondContext, type Zone } from '../core/types.js';
 import type { HegemonyGame, SlotKey } from './game.js';
 import { getGeneral } from './generals.js';
 
@@ -46,6 +46,8 @@ export interface ActiveSkill {
   /** Một lá có được chọn không (để UI/bot biết lá nào hợp lệ). */
   cardOk?: (g: HegemonyGame, seat: number, cardId: number) => boolean;
   run: (g: HegemonyGame, seat: number, cardIds: number[], targets: number[]) => Promise<void>;
+  /** true: không tự lật tướng trước khi chạy — `run` tự lật khi chắc chắn dùng (Thao Loạn: chọn xong lá/mục tiêu mới lật). */
+  revealInRun?: boolean;
 }
 
 export interface Skill {
@@ -54,6 +56,11 @@ export interface Skill {
   desc: string;
   triggers?: AnyTrigger[];
   active?: ActiveSkill;
+  /**
+   * Xem như dùng một lá để đáp lại / cứu người (Thao Loạn): trả về các loại lá kỹ năng cho phép lúc này.
+   * `accept`: các lá đang cần; `dying`: người hấp hối khi đang hỏi cứu (Đào/Rượu).
+   */
+  virtualRespond?: (g: HegemonyGame, owner: number, accept: CardName[], ctx: { context?: RespondContext; dying?: number }) => CardName[];
   /** Chuyển hóa: lá này còn được tính như những loại nào (Long Đảm, Võ Thánh, Cấp Cứu). */
   convert?: (g: HegemonyGame, seat: number, card: Card) => CardName[];
   /** Số lần Sát tối đa mỗi lượt (Bào Hao = Infinity). */
@@ -128,7 +135,7 @@ export interface BotHint {
   use?: 'always' | 'never' | 'wounded' | 'healthy';
   target?: 'enemy' | 'ally' | 'any';
   /** Bot có đồng ý kích hoạt không. Hàm: quyết định theo view (ví dụ chỉ khi người đang trong lượt là kẻ địch). */
-  confirm?: boolean | ((v: PlayerView, h: { isAlly: (seat: number) => boolean }) => boolean);
+  confirm?: boolean | ((v: PlayerView, h: { isAlly: (seat: number) => boolean }, req?: Extract<Request, { type: 'confirm' }>) => boolean);
 }
 
 /**
@@ -1059,9 +1066,8 @@ export const SKILLS: Record<string, Skill> = {
         const picked = await g.chooseTargets(seat, 'Trừ Lệ: chọn tối đa 3 người có thế lực khác nhau', chuliCands(g, seat), 1, 3, 'enemy');
         const seen = new Set<string>();
         const targets = picked.filter((t) => {
-          const k = g.shownKingdom(t);
-          if (k === null) return true;
-          const key = k === 'careerist' ? `c${t}` : k;
+          const key = g.factionKeyOf(t); // nhóm Dã tâm gia chung khóa
+          if (key === null) return true;
           if (seen.has(key)) return false;
           seen.add(key);
           return true;
@@ -1693,8 +1699,7 @@ Object.assign(SKILLS, {
       event: 'phaseStart',
       can: (_g, ctx, owner) => ctx.seat === owner && ctx.phase === 'draw',
       run: async (g, _ctx, owner) => {
-        const k = g.shownKingdom(owner);
-        const x = k && k !== 'careerist' ? g.factionSize(k) : 1;
+        const x = g.factionSizeOf(owner) || 1;
         await arrangeTop(g, owner, Math.max(1, x), false, 'Ngộ Tâm');
       },
     })],

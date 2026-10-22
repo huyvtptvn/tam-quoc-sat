@@ -36,7 +36,7 @@ export class HegemonyBot extends SimpleBot {
         if (req.skill === 'loay' && !hasSha) return { kind: 'no' };
         const c = SKILLS[req.skill]?.bot?.confirm;
         if (c === false) return { kind: 'no' };
-        if (typeof c === 'function' && !c(v, { isAlly: (s) => this.isAlly(v, v.players[s]) })) return { kind: 'no' };
+        if (typeof c === 'function' && !c(v, { isAlly: (s) => this.isAlly(v, v.players[s]) }, req)) return { kind: 'no' };
         if (req.skill === 'tuthu' && hasSha) return { kind: 'no' };
         return { kind: 'yes' };
       }

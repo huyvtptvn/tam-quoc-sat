@@ -744,7 +744,7 @@ void limitedUsed; void markLimited;
 
 /** Số thế lực đã lộ nhìn từ view của bot. */
 function viewFactions(v) {
-  return new Set(v.players.filter((p) => p.alive && p.kingdom).map((p) => (p.kingdom === 'careerist' ? `c${p.seat}` : p.kingdom))).size;
+  return new Set(v.players.filter((p) => p.alive && p.kingdom).map((p) => (p.kingdom === 'careerist' ? `c${p.careeristGroup ?? p.seat}` : p.kingdom))).size;
 }
 
 /** "Giảm 0.5 máu gốc": tướng ở vị trí `which` bớt 1 âm dương ngư khi tính máu đầu ván (chỉ áp dụng một lần). */

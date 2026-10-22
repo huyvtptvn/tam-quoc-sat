@@ -71,7 +71,7 @@ const receiveObserver = () => observe('cardsMoved', (g, ctx) => trackReceive(g, 
 /** Thế lực của một người (dã tâm gia mỗi người một thế lực riêng), null nếu chưa lộ. */
 function factionKey(g, s, assumeRevealed = false) {
   const k = g.shownKingdom(s) ?? (assumeRevealed ? (g.hero(s).careerist || g.realKingdom(s) === 'ye' ? 'careerist' : g.realKingdom(s)) : null);
-  return k === 'careerist' ? `c${s}` : k;
+  return k === 'careerist' ? `c${g.hero(s).careeristGroup ?? s}` : k; // nhóm Dã tâm gia chung khóa
 }
 
 /** Tập con các lá có tổng điểm đúng `sum` (ít lá nhất, rẻ nhất). null nếu không có. */
@@ -128,16 +128,17 @@ function trickOptions(g, s) {
 }
 
 /** `seat` chọn targets cho một lá "xem như dùng" `n`; trả về null nếu bỏ. */
-async function pickTargetsFor(g, s, n, prompt) {
+async function pickTargetsFor(g, s, n, prompt, allowCancel = false) {
+  const min = allowCancel ? 0 : 1; // allowCancel: không chọn ai = thôi
   if (n === 'sha') {
-    const t = await g.chooseTargets(s, prompt, g.targetsAs(s, 'sha'), 1, 1, 'enemy');
+    const t = await g.chooseTargets(s, prompt + (allowCancel ? ' (bỏ trống = thôi)' : ''), g.targetsAs(s, 'sha'), min, 1, 'enemy');
     return t.length ? t : null;
   }
   if (n === 'tao' || n === 'jiu') return [s];
   const def = g.trickDef(n);
   if (def?.targeting === 'one') {
     const cands = g.targetsAs(s, n);
-    const t = await g.chooseTargets(s, prompt, cands, 1, Math.min(def.max ?? 1, cands.length), def.harmful ? 'enemy' : 'ally');
+    const t = await g.chooseTargets(s, prompt + (allowCancel ? ' (bỏ trống = thôi)' : ''), cands, min, Math.min(def.max ?? 1, cands.length), def.harmful ? 'enemy' : 'ally');
     return t.length ? t : null;
   }
   return [];
@@ -225,34 +226,63 @@ export default {
       id: 'taoluan', name: 'Thao Loạn',
       desc: 'Khi bạn cần sử dụng 1 lá cơ bản/công cụ phổ thông, bạn có thể mở tướng này, xem như sử dụng lá đó. Khi kết thúc lượt này, nếu bạn đã mở tất cả tướng, '
         + 'bạn chọn tối đa 3 người khác đã trở thành mục tiêu của lá đó và có bài trên tay: lần lượt họ mở 1 lá trên tay và giao cho bạn; '
-        + 'trong các lá đã mở, nếu số lá Đỏ > Đen, bạn úp tướng này. (đơn giản hóa: chỉ dùng chủ động trong giai đoạn ra bài, không dùng để đáp lại như Thiểm/Vô Giải)',
-      bot: { use: 'always' },
+        + 'trong các lá đã mở, nếu số lá Đỏ > Đen, bạn úp tướng này. '
+        + '(Trong giai đoạn ra bài: bấm nút kỹ năng. Ngoài ra còn dùng được như Thiểm, Vô Giải, Đào cứu người hấp hối, Rượu tự cứu.)',
+      bot: {
+        use: 'always',
+        // Đáp lại: luôn xem như Thiểm; Vô Giải chỉ để chặn cẩm nang hại đồng minh (hoặc gỡ Vô Giải chặn cẩm nang của đồng minh)
+        confirm: (v, h, req) => {
+          const r = req?.respond;
+          if (!r) return true;
+          if (r.accept.includes('shan')) return true;
+          const c = r.context;
+          if (!c || c.kind !== 'nullify') return false;
+          const harmful = TAOLUAN_HARMFUL.has(c.trick);
+          if (!c.cancelled) return harmful ? h.isAlly(c.target) && !h.isAlly(c.user) : !h.isAlly(c.target) && !h.isAlly(c.user);
+          return harmful ? h.isAlly(c.user) && !h.isAlly(c.target) : h.isAlly(c.target);
+        },
+      },
+      virtualRespond: (g, s, accept, ctx) => {
+        if (!taoluanHidden(g, s)) return [];
+        const out = [];
+        // "sử dụng": Thiểm (đáp Sát/Vạn Tiễn), Vô Giải; Đào cứu người, Rượu tự cứu. (Sát đánh ra đáp Nam Man/Quyết Đấu là "đánh ra", không tính.)
+        if (accept.includes('shan')) out.push('shan');
+        if (accept.includes('wuxie')) out.push('wuxie');
+        if (ctx.dying !== undefined && accept.includes('tao')) out.push('tao');
+        if (ctx.dying === s && accept.includes('jiu')) out.push('jiu');
+        return out;
+      },
       active: {
-        cards: 'none', target: 'none',
-        available: (g, s) => { const w = slotOf(g, s, 'zhangrang'); return !!w && !g.hero(s)[w].revealed && taoluanOptions(g, s).length > 0; },
+        cards: 'none', target: 'none', revealInRun: true,
+        available: (g, s) => taoluanHidden(g, s) && g.canReveal(s) && taoluanOptions(g, s).length > 0,
         run: async (g, s) => {
           const opts = taoluanOptions(g, s);
-          const labels = opts.map((n) => g.cardInfo(n).label);
-          if (labels.length === 4) labels.push('Không dùng'); // (tránh đúng 4 phương án)
+          const labels = [...opts.map((o) => o.label), 'Không dùng'];
           const i = await g.choose(s, 'Thao Loạn: xem như sử dụng lá nào', labels);
-          const n = opts[i];
-          if (!n) return;
-          const targets = await pickTargetsFor(g, s, n, `Thao Loạn: chọn mục tiêu cho ${g.cardInfo(n).label}`);
-          if (!targets) return;
-          const hit = n === 'sha' || g.trickDef(n)?.targeting === 'one' ? targets : g.autoTargetsOf(s, n);
+          const o = opts[i];
+          if (!o) return;
+          const targets = await pickTargetsFor(g, s, o.name, `Thao Loạn: chọn mục tiêu cho ${o.label}`, true);
+          if (!targets) return; // hủy: chưa lật tướng
+          const w = slotOf(g, s, 'zhangrang');
+          if (!w || !taoluanHidden(g, s)) return;
+          await g.reveal(s, w);
+          g.say(`${name(g, s)} dùng Thao Loạn.`);
+          const hit = taoluanHit(g, s, o.name, targets);
           store(g)[`taoluan:${s}`] = { turn: g.state.turnCount, targets: hit.filter((t) => t !== s) };
-          await g.useCardAs(s, n, targets, [], { countSlash: n === 'sha', label: 'Thao Loạn' });
+          await g.useCardAs(s, o.name, targets, [], { countSlash: o.name === 'sha', label: 'Thao Loạn', ...(o.nature ? { nature: o.nature } : {}) });
         },
       },
       triggers: [
         on('turnEnd', (g, ctx, o) => {
           const st = store(g)[`taoluan:${o}`];
-          return ctx.seat === o && !!st && st.turn === g.state.turnCount;
+          if (!st || st.turn !== g.state.turnCount) return false;
+          const h = g.hero(o);
+          if (!['main', 'deputy'].every((w) => h[w].revealed || h[w].removed)) { delete store(g)[`taoluan:${o}`]; return false; }
+          if (!st.targets.some((t) => alive(g, t) && hand(g, t).length > 0)) { delete store(g)[`taoluan:${o}`]; return false; }
+          return true;
         }, async (g, _ctx, o) => {
           const st = store(g)[`taoluan:${o}`];
           delete store(g)[`taoluan:${o}`];
-          const h = g.hero(o);
-          if (!['main', 'deputy'].every((w) => h[w].revealed || h[w].removed)) return;
           const cands = st.targets.filter((t) => alive(g, t) && hand(g, t).length > 0);
           const picked = cands.length ? await g.chooseTargets(o, 'Thao Loạn: chọn tối đa 3 người giao bài cho bạn', cands, 0, Math.min(3, cands.length), 'enemy') : [];
           let red = 0, black = 0;
@@ -841,15 +871,38 @@ function noHorse(g, o) {
 function taoluanOptions(g, s) {
   const basics = basicOptions(g, s);
   const tricks = trickOptions(g, s);
+  const L = (n) => g.cardInfo(n).label;
   // Ưu tiên cho bot (chọn phương án đầu): Đào khi mất máu, Vô Trung, Sát, rồi các cẩm nang khác
   const out = [];
-  if (basics.includes('tao')) out.push('tao');
-  if (tricks.includes('wuzhong')) out.push('wuzhong');
-  if (basics.includes('sha')) out.push('sha');
-  for (const n of tricks) if (!out.includes(n)) out.push(n);
-  if (basics.includes('jiu')) out.push('jiu');
+  if (basics.includes('tao')) out.push({ name: 'tao', label: L('tao') });
+  if (tricks.includes('wuzhong')) out.push({ name: 'wuzhong', label: L('wuzhong') });
+  if (basics.includes('sha')) {
+    out.push({ name: 'sha', label: L('sha') });
+    // Hỏa Sát / Lôi Sát cũng là lá cơ bản (nếu bộ bài ván này có)
+    const natures = new Set([...g.cards.values()].filter((c) => !c.virtual && c.name === 'sha' && c.nature).map((c) => c.nature));
+    if (natures.has('fire')) out.push({ name: 'sha', nature: 'fire', label: 'Hỏa Sát' });
+    if (natures.has('thunder')) out.push({ name: 'sha', nature: 'thunder', label: 'Lôi Sát' });
+  }
+  for (const n of tricks) if (!out.some((o) => o.name === n)) out.push({ name: n, label: L(n) });
+  if (basics.includes('jiu')) out.push({ name: 'jiu', label: L('jiu') });
   return out;
 }
+
+/** Trương Nhượng đang úp (Thao Loạn dùng được). */
+function taoluanHidden(g, s) {
+  const w = slotOf(g, s, 'zhangrang');
+  return !!w && !g.hero(s)[w].revealed && !g.hero(s)[w].removed;
+}
+
+/** Những người "trở thành mục tiêu" của lá Thao Loạn (Tá Đao: chỉ người cầm vũ khí, không tính người bị Sát). */
+function taoluanHit(g, s, n, targets) {
+  if (n === 'jiedao') return targets.slice(0, 1);
+  return n === 'sha' || g.trickDef(n)?.targeting === 'one' ? targets : g.autoTargetsOf(s, n);
+}
+
+/** Cẩm nang gây hại cho mục tiêu (bot dùng Vô Giải qua Thao Loạn). */
+const TAOLUAN_HARMFUL = new Set(['juedou', 'nanman', 'wanjian', 'guohe', 'shunshou', 'huogong', 'shuiyan', 'huoshao', 'jiedao', 'tiesuo',
+  'diaohu', 'xietianzi', 'wenhe', 'lebu', 'bingliang', 'shandian']);
 
 /** Các nhóm thế lực (đã lộ) của người khác cho Bà Vương. */
 function powangGroups(g, s) {

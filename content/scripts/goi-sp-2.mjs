@@ -20,8 +20,9 @@ const PHASE_NAMES = { start: 'chuẩn bị', judge: 'phán định', draw: 'rút
 function allyOf(g, a, o) {
   if (a === o) return true;
   const ka = g.shownKingdom(a);
-  if (ka === null || ka === 'careerist') return false;
-  if (g.isRevealedAny(o)) return g.isSameFaction(a, o);
+  if (ka === null) return false;
+  if (g.isRevealedAny(o)) return g.isSameFaction(a, o); // nhóm Dã tâm gia cùng phe
+  if (ka === 'careerist') return false;
   return g.realKingdom(o) === ka;
 }
 

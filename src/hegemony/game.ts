@@ -538,9 +538,34 @@ export class HegemonyGame extends Game {
       const k = this.shownKingdom(jade.seat);
       return [k === 'careerist' ? `seat:${this.heroes[jade.seat]?.careeristGroup ?? jade.seat}` : String(k)];
     }
-    const sizes = KINGDOMS.map((k) => [k, this.factionSize(k)] as const).filter(([, n]) => n >= 2);
-    const max = Math.max(0, ...sizes.map(([, n]) => n));
-    return sizes.filter(([, n]) => n === max).map(([k]) => k);
+    const sizes: (readonly [string, number])[] = KINGDOMS.map((k) => [k, this.factionSize(k)] as const);
+    // Nhóm Dã tâm gia (người cầm đầu + đồng minh Lạp Long Nhân Tâm) cũng là một thế lực, khóa "seat:<người cầm đầu>"
+    for (const [g, n] of this.careeristGroupSizes()) sizes.push([`seat:${g}`, n]);
+    const big = sizes.filter(([, n]) => n >= 2);
+    const max = Math.max(0, ...big.map(([, n]) => n));
+    return big.filter(([, n]) => n === max).map(([k]) => k);
+  }
+
+  /** Số người còn sống trong mỗi nhóm Dã tâm gia đã lộ (khóa = ghế người cầm đầu). */
+  private careeristGroupSizes(): Map<number, number> {
+    const m = new Map<number, number>();
+    for (const p of this.alivePlayers()) {
+      if (this.shownKingdom(p.seat) !== 'careerist') continue;
+      const g = this.heroes[p.seat]?.careeristGroup ?? p.seat;
+      m.set(g, (m.get(g) ?? 0) + 1);
+    }
+    return m;
+  }
+
+  /**
+   * Số người cùng thế lực với `seat` (kể cả `seat`, chỉ tính người đã lộ còn sống; cộng thêm từ kỹ năng như Thiên Binh).
+   * Dã tâm gia: số người trong nhóm Dã tâm gia của họ. Chưa có thế lực: 0.
+   */
+  factionSizeOf(seat: number): number {
+    const k = this.shownKingdom(seat);
+    if (k === null) return 0;
+    if (k === 'careerist') return this.careeristGroupSizes().get(this.heroes[seat]?.careeristGroup ?? seat) ?? 1;
+    return this.factionSize(k);
   }
 
   /** `seat` thuộc đại thế lực. */
@@ -1468,15 +1493,66 @@ export class HegemonyGame extends Game {
     const err = this.checkActiveArgs(seat, a, res.cardIds, res.targets);
     if (err) return err;
 
-    if (!e.slot.revealed) await this.reveal(seat, e.which);
-    this.say(`${p.name} dùng ${e.skill.name}.`);
+    if (!a.revealInRun) {
+      if (!e.slot.revealed) await this.reveal(seat, e.which);
+      this.say(`${p.name} dùng ${e.skill.name}.`);
+    }
     if (e.slot.generalId) this.stat({ kind: 'skillUsed', seat, skill: e.skill.id, generalId: e.slot.generalId });
     await this.asActor(seat, () => a.run(this, seat, res.cardIds, res.targets));
     return null;
   }
 
+  // ---------- Xem như dùng một lá để đáp lại / cứu người (Thao Loạn) ----------
+
+  /** Các kỹ năng (kèm loại lá) cho `seat` xem như dùng một lá trong `accept` lúc này. Tướng úp thì phải lật được. */
+  private virtualOptions(seat: number, accept: CardName[], ctx: { context?: RespondContext; dying?: number }): { e: SkillEntry; as: CardName }[] {
+    const out: { e: SkillEntry; as: CardName }[] = [];
+    if (!this.player(seat).alive || this.isLured(seat)) return out;
+    for (const e of this.skillEntries(seat)) {
+      if (!e.skill.virtualRespond) continue;
+      if (!e.slot.revealed && !this.canReveal(seat)) continue;
+      const names = e.skill.virtualRespond(this, seat, accept, ctx);
+      for (const as of accept) if (names.includes(as)) out.push({ e, as });
+    }
+    return out;
+  }
+
+  override canVirtualRespond(seat: number, name: CardName): boolean {
+    return this.virtualOptions(seat, [name], {}).length > 0;
+  }
+
+  /** Dùng kỹ năng xem như dùng lá `as` (lật tướng nếu đang úp), trả về lá ảo. */
+  private async useVirtual(seat: number, e: SkillEntry, as: CardName): Promise<Card> {
+    if (!e.slot.revealed) await this.reveal(seat, e.which);
+    if (e.slot.generalId) this.stat({ kind: 'skillUsed', seat, skill: e.skill.id, generalId: e.slot.generalId });
+    this.say(`${this.player(seat).name} dùng ${e.skill.name}, xem như dùng ${this.cardInfo(as).label}.`);
+    return this.virtualCard(as);
+  }
+
+  protected override async virtualResponse(seat: number, accept: CardName[], reason: string, _source: number | null,
+    context?: RespondContext): Promise<Card | null> {
+    for (const { e, as } of this.virtualOptions(seat, accept, { context })) {
+      const res = await this.ask({ type: 'confirm', seat, skill: e.skill.id, reveal: !e.slot.revealed,
+        prompt: `${e.skill.name}: ${e.slot.revealed ? '' : 'lật tướng, '}xem như dùng ${this.cardInfo(as).label}?`, respond: { accept, context } });
+      if (res.kind !== 'yes') continue;
+      const card = await this.useVirtual(seat, e, as);
+      await this.bus.emit('cardResponded', { seat, card, as, reason });
+      return card;
+    }
+    return null;
+  }
+
   /** Dùng ký hiệu Châu Liên Bích Hợp như Đào để cứu người hấp hối. */
   protected override async specialSave(helper: number, dying: number, res: Extract<Response, { kind: 'useSkill' }>): Promise<boolean> {
+    const vm = /^virtual:(.+):(tao|jiu)$/.exec(res.skill);
+    if (vm) {
+      const as = vm[2] as CardName;
+      const opt = this.virtualOptions(helper, [as], { dying }).find((o) => o.e.skill.id === vm[1]);
+      if (!opt || (as === 'jiu' && helper !== dying)) return false;
+      await this.useVirtual(helper, opt.e, as);
+      await this.recover(dying, 1, helper);
+      return true;
+    }
     const h = this.heroes[helper];
     if (res.skill !== MARK_SKILL.pairTao || !h || !this.useMark(h, 'pair')) return false;
     this.say(`${this.player(helper).name} dùng ký hiệu Châu Liên Bích Hợp như Đào cứu ${this.player(dying).name}.`);
@@ -1777,8 +1853,16 @@ export class HegemonyGame extends Game {
     });
     if (this.bossSeat !== null) v.boss = this.bossView();
     if (req?.type === 'play') v.skillHints = this.skillHints(seat);
-    if (req?.type === 'save' && ((this.heroes[seat]?.marks.pair ?? 0) + (this.heroes[seat]?.marks.ambition ?? 0)) > 0) {
-      v.specialSaves = [{ skill: MARK_SKILL.pairTao, name: 'Châu Liên Bích Hợp (dùng như Đào)' }];
+    if (req?.type === 'save') {
+      const saves: { skill: string; name: string }[] = [];
+      if (((this.heroes[seat]?.marks.pair ?? 0) + (this.heroes[seat]?.marks.ambition ?? 0)) > 0) {
+        saves.push({ skill: MARK_SKILL.pairTao, name: 'Châu Liên Bích Hợp (dùng như Đào)' });
+      }
+      const accept: CardName[] = req.dying === seat ? ['tao', 'jiu'] : ['tao'];
+      for (const { e, as } of this.virtualOptions(seat, accept, { dying: req.dying })) {
+        saves.push({ skill: `virtual:${e.skill.id}:${as}`, name: `${e.skill.name} (${e.slot.revealed ? '' : 'lật tướng, '}xem như dùng ${this.cardInfo(as).label})` });
+      }
+      if (saves.length) v.specialSaves = saves;
     }
     return v;
   }

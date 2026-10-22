@@ -549,6 +549,13 @@ export class Game {
    */
   protected noteUseAs(_seat: number, _card: Card, _as: CardName): void {}
 
+  /** Người chơi không đánh lá thật: kỹ năng có thể cho "xem như dùng" một lá trong `accept`. Luật cơ bản: không. */
+  protected async virtualResponse(_seat: number, _accept: CardName[], _reason: string, _source: number | null,
+    _context?: RespondContext): Promise<Card | null> { return null; }
+
+  /** `seat` có kỹ năng xem như dùng được lá `name` để đáp lại không (để hỏi Vô Giải cả người không có lá). */
+  canVirtualRespond(_seat: number, _name: CardName): boolean { return false; }
+
   /** Gọi ngay khi một người vừa chết, trước khi ghi log và bỏ bài (Quốc Chiến: lật hết tướng). */
   protected async beforeDeath(_seat: number): Promise<void> {}
 
@@ -799,7 +806,12 @@ export class Game {
     }
     await this.bus.emit('beforeRespond', { seat, accept, source });
     const picked = await this.pickResponse(seat, accept, reason, source, context);
-    if (!picked) return accept.includes('sha') ? tryZhangbaResponse(this, seat, reason) : null;
+    if (!picked) {
+      // Kỹ năng "xem như dùng" một lá để đáp lại (Thao Loạn: Thiểm, Vô Giải)
+      const virtual = await this.virtualResponse(seat, accept, reason, source, context);
+      if (virtual) return virtual;
+      return accept.includes('sha') ? tryZhangbaResponse(this, seat, reason) : null;
+    }
     const { card, as } = picked;
     const p = this.player(seat);
 
@@ -1076,26 +1088,28 @@ export class Game {
    * Không tính vào số lần Sát của lượt trừ khi countSlash = true.
    */
   async useCardAs(seat: number, name: CardName, targets: number[], cardIds: number[] = [],
-    opts: { from?: Zone; countSlash?: boolean; label?: string } = {}): Promise<void> {
+    opts: { from?: Zone; countSlash?: boolean; label?: string; nature?: 'fire' | 'thunder' } = {}): Promise<void> {
     return this.asActor(seat, () => this.useCardAsInner(seat, name, targets, cardIds, opts));
   }
 
   private async useCardAsInner(seat: number, name: CardName, targets: number[], cardIds: number[],
-    opts: { from?: Zone; countSlash?: boolean; label?: string }): Promise<void> {
+    opts: { from?: Zone; countSlash?: boolean; label?: string; nature?: 'fire' | 'thunder' }): Promise<void> {
     const p = this.player(seat);
     if (!p.alive) return;
     const from: Zone = opts.from ?? { kind: 'hand', seat };
     if (cardIds.length) await this.moveCards(cardIds, from, { kind: 'processing' }, 'use');
     // Dùng lá thật làm lá khác = chuyển hóa; không dùng lá nào = lá ảo "phi chuyển hóa" (Ngọc Tỷ...)
-    const card = cardIds.length === 1 ? { ...this.card(cardIds[0]), name, converted: this.card(cardIds[0]).name !== name } as Card
+    const card0 = cardIds.length === 1 ? { ...this.card(cardIds[0]), name, converted: this.card(cardIds[0]).name !== name } as Card
       : cardIds.length ? { ...this.virtualCard(name, this.card(cardIds[0])), converted: true } as Card
         : this.virtualCard(name);
+    const card = opts.nature ? { ...card0, nature: opts.nature } as Card : card0;
     try {
       const info = CARD_INFO[name];
       const tgt = targets.map((t) => this.player(t).name).join(', ');
       const via = opts.label ? ` (${opts.label})` : '';
       if (info.type === 'trick' && targets.length === 0 && TRICK_DEFS[name]?.targeting === 'one') return;
-      this.say(`${p.name} dùng ${CARD_INFO[name].label}${via}${tgt ? ` vào ${tgt}` : ''}.`);
+      const lbl = name === 'sha' && card.nature ? (card.nature === 'fire' ? 'Hỏa Sát' : 'Lôi Sát') : CARD_INFO[name].label;
+      this.say(`${p.name} dùng ${lbl}${via}${tgt ? ` vào ${tgt}` : ''}.`);
       await this.bus.emit('cardUsed', { seat, card, as: name, targets });
       if (info.type === 'trick') {
         await resolveTrick(this, seat, card, name, targets);

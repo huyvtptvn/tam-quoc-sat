@@ -450,15 +450,15 @@ export async function halberdTargets(g: HegemonyGame, seat: number, targets: num
   if (g.weaponName(seat) !== 'fangtian_qc' || !targets.length) return targets;
   const legal = g.alivePlayers().map((p) => p.seat).filter((t) => !targets.includes(t) && t !== seat && g.canTarget(seat, t)
     && g.canBeSlashTarget(seat, t) && g.distance(seat, t) <= g.attackRange(seat));
-  const usedKingdoms = new Set(targets.map((t) => g.shownKingdom(t)).filter((k) => k !== null).map(String));
-  const cands = legal.filter((t) => g.shownKingdom(t) === null || !usedKingdoms.has(String(g.shownKingdom(t))));
+  const usedKingdoms = new Set(targets.map((t) => g.factionKeyOf(t)).filter((k): k is string => k !== null));
+  const cands = legal.filter((t) => g.factionKeyOf(t) === null || !usedKingdoms.has(g.factionKeyOf(t)!));
   if (!cands.length) return targets;
   const extra = await g.chooseTargets(seat, 'Phương Thiên Họa Kích: thêm mục tiêu (mỗi thế lực khác 1 người, người chưa có thế lực tùy ý)', cands, 0, cands.length, 'enemy');
   const out = [...targets];
   for (const t of extra) {
-    const k = g.shownKingdom(t);
-    if (k !== null && k !== 'careerist' && usedKingdoms.has(k)) continue;
-    if (k !== null && k !== 'careerist') usedKingdoms.add(k);
+    const k = g.factionKeyOf(t); // mỗi thế lực (kể cả mỗi nhóm Dã tâm gia) 1 người
+    if (k !== null && usedKingdoms.has(k)) continue;
+    if (k !== null) usedKingdoms.add(k);
     out.push(t);
   }
   if (out.length > targets.length) {
@@ -477,8 +477,6 @@ export function sixSwordsBonus(g: HegemonyGame, seat: number): number {
 /** Thái Bình Yêu Thuật: giới hạn bài trên tay +X (X = số người cùng thế lực). */
 export function peaceSpellBonus(g: HegemonyGame, seat: number): number {
   if (g.armorOf(seat) !== 'taiping') return 0;
-  const k = g.shownKingdom(seat);
-  if (k === null) return 0;
-  return k === 'careerist' ? 1 : g.factionSize(k);
+  return g.factionSizeOf(seat);
 }
 

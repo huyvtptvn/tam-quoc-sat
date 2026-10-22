@@ -146,3 +146,106 @@ test('Liệt Nhận (Chúc Dung): chỉ đấu điểm với mục tiêu của S
   assert.ok(lines.some((l) => l.includes(game.player(t).name)), 'vẫn đấu điểm với mục tiêu của Sát');
   assert.ok(!lines.some((l) => l.includes(otherName)), `không đấu điểm với người bị lan xích: ${lines.join(' | ')}`);
 });
+
+// ---------------- Thao Loạn (Trương Nhượng) ----------------
+
+test('Thao Loạn: có "Không dùng", có Hỏa/Lôi Sát; hủy chọn mục tiêu thì KHÔNG lật tướng', async () => {
+  const { game, ctrls } = makeHG([['zhangrang', 'hejin'], ['caocao', 'xuchu'], ['liubei', 'guanyu']]);
+  await game.setup();
+  let opts: string[] = [];
+  ctrls[0].set('choose', (r) => { opts = (r as unknown as { options: string[] }).options; return { kind: 'choice', index: opts.indexOf('Sát') }; })
+    .set('chooseTargets', () => ({ kind: 'targets', targets: [] }));
+  enterPlay(game, 0);
+  assert.equal(await useSkill(game, 0, 'taoluan'), null);
+  assert.equal(opts[opts.length - 1], 'Không dùng');
+  assert.ok(opts.includes('Hỏa Sát') && opts.includes('Lôi Sát'), opts.join(','));
+  assert.equal(game.heroes[0].main.revealed, false, 'hủy thì tướng vẫn úp');
+});
+
+test('Thao Loạn: Lôi Sát ảo gây sát thương lôi', async () => {
+  const { game, ctrls } = makeHG([['zhangrang', 'hejin'], ['caocao', 'xuchu'], ['liubei', 'guanyu']]);
+  await game.setup();
+  ctrls[0].set('choose', (r) => ({ kind: 'choice', index: (r as unknown as { options: string[] }).options.indexOf('Lôi Sát') }))
+    .set('chooseTargets', (r) => ({ kind: 'targets', targets: [(r as unknown as { candidates: number[] }).candidates[0]] }));
+  enterPlay(game, 0);
+  await useSkill(game, 0, 'taoluan');
+  assert.ok(game.heroes[0].main.revealed);
+  assert.ok(game.log.some((l) => l.includes('Lôi Sát (Thao Loạn)')));
+  assert.ok(game.log.some((l) => l.includes('sát thương lôi')), 'sát thương lôi');
+});
+
+test('Thao Loạn: xem như Thiểm khi bị Sát (lật tướng)', async () => {
+  const { game, ctrls } = makeHG([['caocao', 'xuchu'], ['zhangrang', 'hejin'], ['liubei', 'guanyu']]);
+  await game.setup();
+  await revealAll(game, 0);
+  const sha = await take(game, 0, (c) => c.name === 'sha' && !c.nature);
+  ctrls[1].set('confirm', (r) => ({ kind: (r as { skill: string }).skill === 'taoluan' ? 'yes' : 'no' }));
+  const hp = game.player(1).hp;
+  enterPlay(game, 0);
+  game.player(0).flags = {};
+  const t = game.distance(0, 1) <= game.attackRange(0) ? 1 : null;
+  if (t === null) return; // không trong tầm (ngồi ngẫu nhiên)
+  await game.useCard(0, sha, [1]);
+  assert.ok(game.heroes[1].main.revealed, 'Trương Nhượng lật');
+  assert.equal(game.player(1).hp, hp, 'không mất máu');
+});
+
+test('Thao Loạn: xem như Vô Giải (được hỏi dù không có lá Vô Giải)', async () => {
+  const { game, ctrls } = makeHG([['caocao', 'xuchu'], ['zhangrang', 'hejin'], ['liubei', 'guanyu']]);
+  await game.setup();
+  await revealAll(game, 0);
+  for (const id of [...game.player(1).hand]) await game.moveCards([id], { kind: 'hand', seat: 1 }, { kind: 'discard' }, 'test');
+  const gh = await take(game, 0, (c) => c.name === 'guohe');
+  const victim = await take(game, 2, (c) => c.name === 'tao');
+  ctrls[1].set('confirm', (r) => ({ kind: (r as { skill: string }).skill === 'taoluan' ? 'yes' : 'no' }));
+  ctrls[0].set('chooseCards', () => ({ kind: 'cards', cardIds: [victim] }));
+  enterPlay(game, 0);
+  await game.useCard(0, gh, [2]);
+  assert.ok(game.heroes[1].main.revealed);
+  assert.ok(game.log.some((l) => l.includes('bị Vô Giải chặn')), 'Quá Hà bị chặn');
+});
+
+test('Thao Loạn: xem như Đào cứu người hấp hối', async () => {
+  const { game, ctrls } = makeHG([['caocao', 'xuchu'], ['zhangrang', 'hejin'], ['liubei', 'guanyu']]);
+  await game.setup();
+  await revealAll(game, 2);
+  ctrls[1].set('save', (_r, v) => {
+    const s = (v as { specialSaves?: { skill: string }[] }).specialSaves?.find((x) => x.skill === 'virtual:taoluan:tao');
+    return s ? { kind: 'useSkill', skill: s.skill, cardIds: [], targets: [] } : { kind: 'pass' };
+  });
+  game.player(2).hp = 1;
+  await game.loseHp(2, 1);
+  assert.ok(game.player(2).alive, 'được cứu');
+  assert.equal(game.player(2).hp, 1);
+  assert.ok(game.heroes[1].main.revealed, 'Trương Nhượng lật');
+});
+
+test('Thao Loạn: cuối lượt chưa lật hết tướng thì không kích hoạt (không ghi log thừa)', async () => {
+  const { game, ctrls } = makeHG([['zhangrang', 'hejin'], ['caocao', 'xuchu'], ['liubei', 'guanyu']]);
+  await game.setup();
+  ctrls[0].set('choose', (r) => ({ kind: 'choice', index: (r as unknown as { options: string[] }).options.indexOf('Nam Man Nhập Xâm') }));
+  enterPlay(game, 0);
+  await useSkill(game, 0, 'taoluan');
+  const n = game.log.length;
+  await game.bus.emit('turnEnd', { seat: 0 } as never);
+  assert.ok(!game.log.slice(n).some((l) => l.includes('Thao Loạn')));
+});
+
+// ---------------- Nhóm Dã tâm gia ----------------
+
+test('Nhóm Dã tâm gia (cùng người cầm đầu) là 1 phe và được tính đại/tiểu thế lực', async () => {
+  const { game } = makeHG([['caocao', 'xuchu'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng'], ['zhangjiao', 'yuanshao'], ['zhenji', 'xiahoudun']]);
+  await game.setup();
+  await revealAll(game, 0, 1, 2, 3, 4);
+  for (const s of [1, 2]) { game.heroes[s].careerist = true; game.heroes[s].careeristGroup = 1; }
+  assert.ok(game.isSameFaction(1, 2), 'cùng nhóm = cùng phe');
+  assert.ok(!game.isSameFaction(1, 0));
+  assert.equal(game.factionSizeOf(1), 2);
+  // Ngụy có 2 người (0, 4), nhóm Dã tâm gia 2 người -> cả hai là đại thế lực
+  assert.ok(game.isBig(1) && game.isBig(2), 'nhóm Dã tâm gia là đại thế lực');
+  assert.ok(game.isBig(0));
+  assert.ok(game.isSmall(3));
+  game.heroes[3].careerist = true; game.heroes[3].careeristGroup = 1;
+  assert.equal(game.factionSizeOf(3), 3);
+  assert.ok(game.isBig(1) && !game.isBig(0), 'nhóm 3 người là đại thế lực duy nhất');
+});

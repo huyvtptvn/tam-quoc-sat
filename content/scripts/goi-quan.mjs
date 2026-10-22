@@ -122,10 +122,10 @@ export default {
           for (const t of sameFactionSeats(g, s)) await g.draw(t, 3);
           const counts = new Map();
           for (const p of g.alivePlayers()) {
-            const k = g.shownKingdom(p.seat);
-            if (k) counts.set(k === 'careerist' ? `c${p.seat}` : k, (counts.get(k === 'careerist' ? `c${p.seat}` : k) ?? 0) + 1);
+            const k = g.factionKeyOf(p.seat); // nhóm Dã tâm gia chung khóa
+            if (k) counts.set(k, (counts.get(k) ?? 0) + 1);
           }
-          const mine = g.shownKingdom(s) === 'careerist' ? `c${s}` : g.shownKingdom(s);
+          const mine = g.factionKeyOf(s);
           if (counts.get(mine) === Math.min(...counts.values())) await g.recover(s, 1, s);
         },
       },
@@ -758,6 +758,7 @@ async function qingchengHide(g, s, t) {
 function wouldDiffer(g, t, o) {
   const kt = g.shownKingdom(t);
   if (kt === null) return false;
+  if (g.isRevealedAny(o)) return !g.isSameFaction(t, o); // nhóm Dã tâm gia cùng phe
   const ko = g.shownKingdom(o) ?? g.realKingdom(o);
   return kt === 'careerist' || ko === 'careerist' || kt !== ko;
 }

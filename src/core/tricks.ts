@@ -413,7 +413,7 @@ export async function askNullify(
     let played: Card | null = null;
     for (const seat of g.aliveSeatsFrom(g.state.currentSeat)) {
       // Chỉ hỏi người đang có lá Vô Giải (đỡ phải hỏi cả bàn mỗi lần)
-      if (!g.player(seat).hand.some((id) => g.cardCountsAs(seat, g.card(id)).includes('wuxie'))) continue;
+      if (!g.player(seat).hand.some((id) => g.cardCountsAs(seat, g.card(id)).includes('wuxie')) && !g.canVirtualRespond(seat, 'wuxie')) continue;
       if (g.isLured(seat)) continue; // bị Điệu Hổ Ly Sơn: không thể dùng/đánh bài
       const prompt = cancelled
         ? `${label} lên ${name(g, target)} đang bị Vô Giải chặn. Dùng Vô Giải để hóa giải?`

@@ -52,6 +52,7 @@ function diffFaction(g, o, x) {
   if (x === o || !g.isRevealedAny(x)) return false;
   if (g.isRevealedAny(o)) return !g.isSameFaction(o, x);
   const k = g.shownKingdom(x);
+  if (k === 'careerist' && g.hero(o).careerist && g.hero(o).careeristGroup !== undefined && g.hero(x).careeristGroup === g.hero(o).careeristGroup) return false;
   return k === 'careerist' || k !== g.realKingdom(o);
 }
 const dmg = (g, source, target, amount = 1) => g.damage({ source, target, amount, card: null, cancelled: false });
@@ -73,8 +74,8 @@ function woundedFactions(g) {
   const ks = new Set();
   for (const p of g.alivePlayers()) {
     if (p.hp >= p.maxHp) continue;
-    const k = g.shownKingdom(p.seat);
-    if (k !== null) ks.add(k === 'careerist' ? `c${p.seat}` : k);
+    const k = g.factionKeyOf(p.seat); // nhóm Dã tâm gia chung khóa
+    if (k !== null) ks.add(k);
   }
   return ks.size;
 }
