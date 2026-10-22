@@ -102,10 +102,24 @@ export const GENERALS: General[] = [
  * Danh sách mang tính tham khảo, hãy chỉnh theo bộ luật bạn chọn.
  */
 export const PAIRS: [string, string][] = [
-  ['caocao', 'dianwei'], ['caocao', 'xuchu'],
-  ['liubei', 'guanyu'], ['liubei', 'zhangfei'], ['liubei', 'zhugeliang'], ['zhugeliang', 'jiangwei'],
-  ['sunce', 'zhouyu'], ['sunquan', 'zhoutai'],
-  ['lvbu', 'diaochan'],
+  // Theo danh sách Châu Liên Bích Hợp chính thức của Tam Quốc Sát Quốc Chiến (sanguosha.cn)
+  // Ngụy
+  ['caopi', 'zhenji'], ['caocao', 'bianhuanghou'], ['caocao', 'xuchu'], ['caocao', 'dianwei'], ['zhangliao', 'zangba'],
+  ['lidian', 'yuejin'], ['caopi', 'cuiyanmaojie'], ['yujin', 'xiahoudun'], ['caohong', 'caoren'], ['xiahoudun', 'xiahouyuan'],
+  ['xunyou', 'xunyu'],
+  // Thục (zhugeliang = Gia Cát Lượng, wolong = Khổng Minh / Ngọa Long)
+  ['zhugeliang', 'huangyueying'], ['wolong', 'huangyueying'], ['liubei', 'ganfuren'], ['menghuo', 'zhurong'], ['liubei', 'fazheng'],
+  ['zhugeliang', 'jiangwanfeiyi'], ['zhugeliang', 'jiangwei'], ['weiyan', 'huangzhong'], ['jiangwanfeiyi', 'wangping'],
+  ['liubei', 'guanyu'], ['liubei', 'zhangfei'], ['machao', 'madai'], ['liushan', 'zhaoyun'], ['wolong', 'pang_tong'],
+  // Ngô
+  ['sunce', 'daqiao'], ['zhouyu', 'xiaoqiao'], ['sunjian', 'wuguotai'], ['sunquan', 'zhoutai'], ['jiangqin', 'zhoutai'],
+  ['xusheng', 'dingfeng'], ['ganning', 'lingtong'], ['sunce', 'taishi_ci'], ['zhouyu', 'sunce'], ['daqiao', 'xiaoqiao'],
+  ['zhouyu', 'huanggai'], ['lukang', 'luxun'],
+  // Quần
+  ['lvbu', 'diaochan'], ['yuanshao', 'yanliangwenchou'], ['yuanshu', 'jiling'], ['zhangxiu', 'jiaxu'], ['jiaxu', 'lijueguosi'],
+  ['new_zuoci', 'yuji'],
+  // Cặp riêng của game (không có trong bản gốc)
+  ['liubei', 'zhugeliang'],
 ];
 
 export function isPair(a: string, b: string): boolean {
