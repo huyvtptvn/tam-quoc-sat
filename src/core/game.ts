@@ -543,6 +543,12 @@ export class Game {
    */
   protected async onCardUsedAs(_seat: number, _card: Card, _as: CardName, _mode: UseMode): Promise<void> {}
 
+  /**
+   * Gọi ngay TRƯỚC khi lá rời tay để được dùng/đánh như `as` (lúc kỹ năng chuyển hóa vẫn còn kiểm tra được
+   * "lá trên tay"). Quốc Chiến ghi nhớ kỹ năng chuyển hóa để `onCardUsedAs` lật đúng tướng.
+   */
+  protected noteUseAs(_seat: number, _card: Card, _as: CardName): void {}
+
   /** Gọi ngay khi một người vừa chết, trước khi ghi log và bỏ bài (Quốc Chiến: lật hết tướng). */
   protected async beforeDeath(_seat: number): Promise<void> {}
 
@@ -797,6 +803,7 @@ export class Game {
     const { card, as } = picked;
     const p = this.player(seat);
 
+    this.noteUseAs(seat, card, as);
     await this.moveCards([card.id], { kind: 'hand', seat }, { kind: 'processing' }, 'respond');
     try {
       await this.onCardUsedAs(seat, card, as, 'respond');
@@ -950,6 +957,7 @@ export class Game {
   async slashOutOfTurn(source: number, target: number, card: Card, as: CardName): Promise<void> {
     const p = this.player(source);
     if (!p.alive || !this.isAliveSeat(target) || target === source || !p.hand.includes(card.id)) return;
+    this.noteUseAs(source, card, as);
     await this.moveCards([card.id], { kind: 'hand', seat: source }, { kind: 'processing' }, 'use');
     try {
       await this.onCardUsedAs(source, card, as, 'respond');
@@ -986,6 +994,7 @@ export class Game {
     if (info.type === 'equip' && name === card.name) return this.equip(seat, card);
     if (info.type === 'delayed') return this.placeDelayed(seat, card, targets, name);
 
+    this.noteUseAs(seat, card, name);
     await this.moveCards([cardId], { kind: 'hand', seat }, { kind: 'processing' }, 'use');
     try {
       await this.onCardUsedAs(seat, card, name, 'use');
@@ -1304,6 +1313,7 @@ export class Game {
           : helperSeat === seat && names.includes('jiu') ? 'jiu' : null; // Rượu chỉ tự cứu mình
         if (!savedAs) break;
 
+        this.noteUseAs(helperSeat, card, savedAs);
         await this.moveCards([card.id], { kind: 'hand', seat: helperSeat }, { kind: 'processing' }, 'save');
         try {
           await this.onCardUsedAs(helperSeat, card, savedAs, 'save');

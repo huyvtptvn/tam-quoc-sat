@@ -87,6 +87,9 @@ export const GAME_MODES: Record<GameMode, { label: string; desc: string }> = {
   chaos: { label: 'Loạn tướng', desc: 'Chia 3 tướng ngẫu nhiên, chọn 2 tướng bất kỳ, không cần cùng thế lực. Thế lực theo chủ tướng.' },
 };
 
+/** Kỹ năng cho phép đổi tướng: `owner` là người sở hữu kỹ năng, `skill` là id kỹ năng. */
+export interface TransformGrant { owner: number; skill: string }
+
 interface SkillEntry {
   skill: Skill;
   which: SlotKey;
@@ -1009,16 +1012,18 @@ export class HegemonyGame extends Game {
    * lật phó tướng (nếu đang úp), bỏ nó ra khỏi ván, rồi nhận ngẫu nhiên một tướng cùng thế lực với chủ tướng
    * làm phó tướng mới ở trạng thái ÚP. Máu và giới hạn máu không đổi. Trả về true nếu đổi được.
    */
-  async transformDeputy(seat: number): Promise<boolean> {
+  async transformDeputy(seat: number, grant?: TransformGrant): Promise<boolean> {
     const h = this.heroes[seat];
     const p = this.player(seat);
     if (!h || !p.alive || h.deputy.removed) return false;
+    if (grant && this.transformGrantUsed(grant)) return false;
     const pool = this.transformCandidates(seat);
     if (!pool.length) { this.say(`${p.name} không còn tướng cùng thế lực để đổi phó tướng.`); return false; }
     if (!h.deputy.revealed) await this.reveal(seat, 'deputy');
     const old = h.deputy.generalId;
     const next = pool[this.randomInt(pool.length)];
     this.transformedOut.add(old);
+    if (grant) this.transformGrants.add(`${grant.owner}:${grant.skill}`);
     h.deputy = { generalId: next, revealed: false };
     this.player(seat).team = this.teamLabel(seat);
     this.say(`${p.name} đổi phó tướng: ${getGeneral(old).name} rời ván, nhận một phó tướng mới (đang úp).`);
@@ -1029,12 +1034,19 @@ export class HegemonyGame extends Game {
   }
 
   /** Hỏi `seat` có muốn đổi phó tướng không (dùng trong Kỳ Sách, Chế Man, Điển Tài...). */
-  async askTransform(seat: number, reason: string): Promise<boolean> {
+  async askTransform(seat: number, reason: string, grant?: TransformGrant): Promise<boolean> {
     const h = this.heroes[seat];
     if (!h || h.deputy.removed || !this.transformCandidates(seat).length) return false;
+    if (grant && this.transformGrantUsed(grant)) return false;
     const res = await this.ask({ type: 'confirm', seat, skill: 'transform', prompt: `${reason}: đổi phó tướng?`, reveal: !h.deputy.revealed });
     if (res.kind !== 'yes') return false;
-    return this.transformDeputy(seat);
+    return this.transformDeputy(seat, grant);
+  }
+
+  /** Mỗi kỹ năng cho đổi tướng (của mỗi người sở hữu) chỉ được dùng để đổi tướng 1 lần mỗi ván. */
+  private readonly transformGrants = new Set<string>();
+  transformGrantUsed(grant: TransformGrant): boolean {
+    return this.transformGrants.has(`${grant.owner}:${grant.skill}`);
   }
 
   /** Úp lại một tướng đã lật (暗置), ví dụ Khuynh Thành. */
@@ -1321,10 +1333,20 @@ export class HegemonyGame extends Game {
   }
 
   /** Lá được chuyển hóa bằng kỹ năng của tướng úp -> lật tướng đó. Sát vượt giới hạn nhờ Bào Hao úp -> lật. */
+  /** Kỹ năng chuyển hóa tính lúc lá còn trên tay (Khán Phá "lá Đen trên tay"...), trước khi lá vào vùng xử lý. */
+  private pendingConvert = new Map<number, SkillEntry[]>();
+  protected override noteUseAs(seat: number, card: Card, as: CardName): void {
+    if (as === card.name) return;
+    this.pendingConvert.set(card.id, this.skillEntries(seat).filter((e) => e.skill.convert?.(this, seat, card).includes(as)));
+  }
+
   protected override async onCardUsedAs(seat: number, card: Card, as: CardName, mode: UseMode): Promise<void> {
     const name = this.player(seat).name;
+    const noted = this.pendingConvert.get(card.id);
+    this.pendingConvert.delete(card.id);
     if (as !== card.name) {
-      const providers = this.skillEntries(seat).filter((e) => e.skill.convert?.(this, seat, card).includes(as));
+      const now = this.skillEntries(seat).filter((e) => e.skill.convert?.(this, seat, card).includes(as));
+      const providers = now.length ? now : (noted ?? []);
       const e = providers.find((x) => x.slot.revealed) ?? providers[0];
       if (e) {
         if (!e.slot.revealed) await this.reveal(seat, e.which);

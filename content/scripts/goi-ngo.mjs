@@ -341,7 +341,7 @@ export default {
           && store(g)[`diancai:${o}`].n >= Math.max(1, g.player(o).hp) && hand(g, o).length < g.player(o).maxHp,
           async (g, _ctx, o) => {
             await g.draw(o, g.player(o).maxHp - hand(g, o).length);
-            await g.askTransform(o, 'Điển Tài');
+            await g.askTransform(o, 'Điển Tài', { owner: o, skill: 'diancai' });
           }),
       ],
     },

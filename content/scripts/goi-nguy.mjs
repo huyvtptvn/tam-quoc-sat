@@ -438,7 +438,7 @@ export default {
             if (!targets.length) return;
           }
           await g.useCardAs(s, n, targets, [...hand(g, s)], { label: 'Kỳ Sách' });
-          if (g.player(s).alive) await g.askTransform(s, 'Kỳ Sách');
+          if (g.player(s).alive) await g.askTransform(s, 'Kỳ Sách', { owner: s, skill: 'qice' });
         },
       },
     },

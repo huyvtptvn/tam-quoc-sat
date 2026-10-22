@@ -669,10 +669,10 @@ export default {
           (_g, ctx) => { ctx.noDodge = true; }, { compulsory: true }),
         observe('death', (g, ctx, o) => { if (ctx.killer === o && store(g)[`xishe:${o}`]) store(g)[`xishe:kill:${o}`] = g.state.turnCount; }),
         on('turnEnd', (g, _ctx, o) => store(g)[`xishe:kill:${o}`] === g.state.turnCount && g.player(o).alive && !g.hero(o).deputy.removed
-          && g.transformCandidates(o).length > 0,
+          && g.transformCandidates(o).length > 0 && !g.transformGrantUsed({ owner: o, skill: 'xishe' }),
           async (g, _ctx, o) => {
             delete store(g)[`xishe:kill:${o}`];
-            await g.transformDeputy(o);
+            await g.transformDeputy(o, { owner: o, skill: 'xishe' });
           }),
       ],
     },

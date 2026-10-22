@@ -34,6 +34,17 @@ function singleOtherTarget(g, ctx) {
   return !!def && def.targeting === 'one' && !def.expandTargets;
 }
 
+/** Mục tiêu duy nhất của một lá bất kỳ do người khác dùng (Hư Thực): Sát, cẩm nang 1 mục tiêu, cẩm nang trì hoãn... */
+function soleTargetAnyCard(g, ctx) {
+  if (ctx.targets.length !== 1 || ctx.targets[0] === ctx.seat) return false;
+  const type = g.cardInfo(ctx.as)?.type;
+  if (type === 'trick') {
+    const def = g.trickDef(ctx.as);
+    return !!def && !def.expandTargets; // lá tự mở rộng mục tiêu (Lục Lực Đồng Tâm...) không phải "mục tiêu duy nhất"
+  }
+  return true;
+}
+
 /** Hủy bỏ một mục tiêu của lá vừa dùng (engine đang duyệt chính mảng ctx.targets) + cờ phòng hờ. */
 function cancelTarget(g, ctx, t) {
   const i = ctx.targets.indexOf(t);
@@ -695,21 +706,26 @@ export default {
             const i = await g.choose(o, 'Hào Khôi: úp tướng Trần Đăng?', ['Úp tướng này', 'Không']);
             if (i === 0) g.hideGeneral(o, which);
           }
+          if (g.transformGrantUsed({ owner: o, skill: 'haokui' })) return; // mỗi ván chỉ cho đổi tướng 1 lần
           const [t] = await g.chooseTargets(o, 'Hào Khôi: chọn 1 người cùng thế lực có thể đổi phó tướng (bỏ trống = thôi)',
             sameFactionSeats(g, o).filter((s) => g.transformCandidates(s).length > 0 && !g.hero(s).deputy.removed), 0, 1, 'ally');
-          if (t !== undefined) await g.askTransform(t, `Hào Khôi của ${name(g, o)}`);
+          if (t !== undefined) await g.askTransform(t, `Hào Khôi của ${name(g, o)}`, { owner: o, skill: 'haokui' });
         }),
       ],
     },
     {
       id: 'xushi', name: 'Hư Thực',
-      desc: 'Khi bạn trở thành mục tiêu duy nhất của bài do người khác sử dụng, nếu tướng này đang úp, bạn có thể hủy bỏ mục tiêu đối với bạn; '
-        + '▷ Bạn lệnh họ bỏ 1 lá. (Đơn giản hóa: chỉ áp dụng cho Sát và cẩm nang thường; phát động thì lật tướng này như mọi kỹ năng.)',
+      desc: 'Khi bạn trở thành mục tiêu duy nhất của bài do người khác sử dụng (mọi loại bài: Sát, cẩm nang, cẩm nang trì hoãn...), '
+        + 'nếu tướng này đang úp, bạn có thể lật tướng này để hủy bỏ mục tiêu đối với bạn; ▷ Bạn lệnh họ bỏ 1 lá.',
       bot: { confirm: (v, h) => !h.isAlly(v.currentSeat) },
       triggers: [
         ...CANCEL_OBSERVERS,
-        on('cardUsed', (g, ctx, o) => ctx.seat !== o && singleOtherTarget(g, ctx) && ctx.targets[0] === o && chendengHidden(g, o),
+        on('cardUsed', (g, ctx, o) => ctx.seat !== o && soleTargetAnyCard(g, ctx) && ctx.targets[0] === o && chendengHidden(g, o),
           async (g, ctx, o) => {
+            // Cẩm nang trì hoãn đã nằm trong khu phán định của bạn: bỏ nó đi
+            if (g.cardInfo(ctx.as)?.type === 'delayed' && g.player(o).judgeArea.includes(ctx.card.id)) {
+              await g.moveCards([ctx.card.id], { kind: 'judge', seat: o }, { kind: 'discard' }, 'xushi');
+            }
             cancelTarget(g, ctx, o);
             g.say(`${name(g, o)} hủy bỏ mục tiêu ${g.cardInfo(ctx.as).label} đối với mình.`);
             if (g.player(ctx.seat).alive && g.cardCount(ctx.seat) > 0) await discardFrom(g, o, ctx.seat, `Hư Thực: bỏ 1 lá của ${name(g, ctx.seat)}`);
@@ -933,7 +949,8 @@ function haokuiCards(g, hk) {
 }
 /** Người nhận Hào Khôi: người khác đã có thế lực; ưu tiên đại thế lực, rồi người nhiều máu nhất. */
 function haokuiReceivers(g, o) {
-  const det = aliveSeats(g).filter((s) => s !== o && g.isRevealedAny(s));
+  // Người thế lực xác định KHÁC bạn (không cùng phe)
+  const det = aliveSeats(g).filter((s) => s !== o && g.isRevealedAny(s) && !g.isSameFaction(o, s));
   const big = det.filter((s) => g.isBig(s));
   if (big.length) return big;
   const top = Math.max(...det.map((s) => g.player(s).hp));
@@ -972,5 +989,5 @@ async function zhuhuRun(g, o) {
     g.player(o).chained = false;
     g.say(`${name(g, o)} thoát trạng thái xích.`);
   }
-  await g.transformDeputy(o);
+  await g.transformDeputy(o, { owner: o, skill: 'zhuhu' });
 }

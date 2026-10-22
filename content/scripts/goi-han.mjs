@@ -710,8 +710,9 @@ export default {
         on('turnStart', (g, ctx, o) => {
           const w = slotOf(g, o, 'wuding');
           const st = store(g)[`bianhua:${o}`];
-          return ctx.seat === o && !!w && g.hero(o)[w].revealed && !!st && st.skills.length === 0 && g.transformCandidates(o).length > 0;
-        }, async (g, _ctx, o) => { await g.transformDeputy(o); }, { compulsory: true }),
+          return ctx.seat === o && !!w && g.hero(o)[w].revealed && !!st && st.skills.length === 0 && g.transformCandidates(o).length > 0
+            && !g.transformGrantUsed({ owner: o, skill: 'bianhua' });
+        }, async (g, _ctx, o) => { await g.transformDeputy(o, { owner: o, skill: 'bianhua' }); }, { compulsory: true }),
       ],
     },
 

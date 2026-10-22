@@ -473,7 +473,7 @@ export default {
           && g.player(o).alive, async (g, ctx, o) => {
           const p = g.player(ctx.seat);
           if (p.hp < 1) await g.recover(ctx.seat, 1 - p.hp, o);
-          if (g.player(o).alive) await g.transformDeputy(o);
+          if (g.player(o).alive) await g.transformDeputy(o, { owner: o, skill: 'jujian' });
         }),
       ],
     },
@@ -505,9 +505,10 @@ export default {
           g.say(`${name(g, o)} ngăn sát thương lên ${name(g, ctx.target)}.`);
           await takeFrom(g, o, ctx.target, 'Chế Man: chọn lá để lấy', { hand: false, equip: true, judge: true });
           const t = ctx.target;
-          if (g.player(t).alive && g.isSameFaction(t, o) && g.transformCandidates(t).length && !g.hero(t).deputy.removed) {
+          if (g.player(t).alive && g.isSameFaction(t, o) && g.transformCandidates(t).length && !g.hero(t).deputy.removed
+            && !g.transformGrantUsed({ owner: o, skill: 'zhiman' })) {
             const ok = await g.choose(o, `Chế Man: lệnh ${name(g, t)} đổi phó tướng?`, ['Không', 'Có']);
-            if (ok === 1) await g.transformDeputy(t);
+            if (ok === 1) await g.transformDeputy(t, { owner: o, skill: 'zhiman' });
           }
         }),
       ],
