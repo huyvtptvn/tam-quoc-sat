@@ -80,7 +80,7 @@ export class SimpleBot implements Controller {
     const hints = v.hints;
     const of = (n: CardName) => hints.filter((h) => this.nameOf(v, h) === n);
     const use = (h: UseHint, targets: number[] = []): Response => ({ kind: 'useCard', cardId: h.cardId, targets, as: h.as });
-    const enemies = (ts: number[]) => ts.map((t) => v.players[t]).filter((p) => !this.isAlly(v, p))
+    const enemies = (ts: number[]) => ts.map((t) => v.players[t]).filter((p) => this.attackable(v, p))
       .sort((a, b) => this.targetScore(v, a) - this.targetScore(v, b));
 
     // 1. Mất máu thì ăn Đào
@@ -115,10 +115,7 @@ export class SimpleBot implements Controller {
     if (jd && jdTarget && shaCount >= 1) return use(jd, [jdTarget.seat]);
     for (const n of ['nanman', 'wanjian'] as CardName[]) {
       const h = of(n)[0];
-      if (!h) continue;
-      const rest = v.players.filter((p) => p.alive && p.seat !== v.me);
-      const allies = rest.filter((p) => this.isAlly(v, p)).length;
-      if (rest.length - allies > allies) return use(h);
+      if (h && this.aoeWorth(v)) return use(h);
     }
     // Cẩm nang Quốc Chiến (giai đoạn 12)
     for (const n of ['xietianzi', 'guguo'] as CardName[]) { const h = of(n)[0]; if (h) return use(h); }
@@ -141,11 +138,7 @@ export class SimpleBot implements Controller {
       if (pick.length) return use(h, pick);
     }
     const wh = of('wenhe')[0];
-    if (wh) {
-      const rest = v.players.filter((p) => p.alive && p.seat !== v.me);
-      const allies = rest.filter((p) => this.isAlly(v, p)).length;
-      if (rest.length - allies > allies) return use(wh);
-    }
+    if (wh && this.aoeWorth(v)) return use(wh);
     const hg = of('huogong')[0];
     const hgTarget = hg ? enemies(hg.targets)[0] : undefined;
     if (hg && hgTarget && v.myHand.length >= 3) return use(hg, [hgTarget.seat]);
@@ -168,6 +161,18 @@ export class SimpleBot implements Controller {
       if (h) return use(h, []);
     }
     return { kind: 'endPlay' };
+  }
+
+  /** Có nên tấn công người này không (mặc định: không phải đồng minh). */
+  protected attackable(v: PlayerView, p: PublicPlayer): boolean {
+    return !this.isAlly(v, p);
+  }
+
+  /** Cẩm nang đánh cả bàn (Nam Man, Vạn Tiễn...) có lợi không: kẻ địch nhiều hơn đồng minh. */
+  protected aoeWorth(v: PlayerView): boolean {
+    const rest = v.players.filter((p) => p.alive && p.seat !== v.me);
+    const allies = rest.filter((p) => this.isAlly(v, p)).length;
+    return rest.length - allies > allies;
   }
 
   /** Điểm càng thấp càng nên đánh trước. */

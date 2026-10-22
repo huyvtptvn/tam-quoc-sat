@@ -7,9 +7,35 @@ import type { PlayerView, PublicPlayer } from '../core/view.js';
 import { cardValue } from '../agents/bot.js';
 import { getGeneral, isDualGeneral, kingdomsOf, type Kingdom } from './generals.js';
 import { SKILLS } from './skills.js';
+import { BotBrain, keyOf, realKingdomOf } from './bot-brain.js';
 
 export class HegemonyBot extends SimpleBot {
+  /** Bộ não chiến thuật (đánh giá sức mạnh phe, ưu tiên mục tiêu, xác suất đồng minh của người chưa lộ). */
+  protected readonly brain = new BotBrain();
+
+  /** Khóa phe của mình: phe đã lộ, hoặc thế lực thật (mình biết tướng của mình). */
+  protected myKey(v: PlayerView): string | null {
+    const me = v.players?.[v.me];
+    if (!me) return null;
+    return keyOf(me) ?? realKingdomOf(v);
+  }
+
+  private amCareerist(v: PlayerView): boolean {
+    const me = v.players[v.me];
+    if (me.kingdom === 'careerist') return true;
+    if (me.kingdom != null) return false;
+    return !this.safeToReveal(v); // lật ra sẽ thành dã tâm gia
+  }
+
+  /** Xác suất `p` là đồng minh (người đã lộ: 0/1; chưa lộ: ước lượng). */
+  protected allyProb(v: PlayerView, p: PublicPlayer): number {
+    if (this.isAlly(v, p)) return 1;
+    if (v.boss) return 0;
+    return this.brain.allyProb(v, p, this.myKey(v), realKingdomOf(v), this.amCareerist(v));
+  }
+
   override async decide(req: Request, v: PlayerView): Promise<Response> {
+    if (!v.boss && v.players?.[v.me]) this.brain.observe(v, this.myKey(v));
     switch (req.type) {
       case 'chooseGenerals':
         return this.choose(req.candidates, !!req.anyKingdom);
@@ -30,7 +56,8 @@ export class HegemonyBot extends SimpleBot {
           const mates = v.players.filter((p) => p.alive && p.seat !== v.me && p.kingdom === k).length;
           return { kind: mates === 0 && v.players[v.me].hp <= 2 ? 'yes' : 'no' };
         }
-        if (req.reveal && !this.safeToReveal(v)) return { kind: 'no' };
+        // Điều 17: không giữ tướng úp đến chết — sắp chết thì chấp nhận lật (kể cả thành dã tâm gia) nếu kỹ năng giúp sống sót
+        if (req.reveal && !this.safeToReveal(v) && !(v.players[v.me].hp <= 1 && req.respond)) return { kind: 'no' };
         const hasSha = v.myHand.some((c) => c.name === 'sha');
         // Lõa Y: chỉ bốc ít đi khi có Sát để tận dụng; Tự Thủ: chỉ khi không định tấn công ai
         if (req.skill === 'loay' && !hasSha) return { kind: 'no' };
@@ -71,7 +98,7 @@ export class HegemonyBot extends SimpleBot {
       }
       case 'save': {
         const dying = v.players[req.dying];
-        const shouldSave = req.dying === v.me || this.isAlly(v, dying);
+        const shouldSave = req.dying === v.me || (this.isAlly(v, dying) && this.worthSaving(v, dying, req.need));
         if (shouldSave && v.responseOptions.length === 0 && v.specialSaves?.length) {
           return { kind: 'useSkill', skill: v.specialSaves[0].skill, cardIds: [], targets: [] };
         }
@@ -152,9 +179,45 @@ export class HegemonyBot extends SimpleBot {
     return p.kingdom != null && p.kingdom === this.myKingdom(v);
   }
 
-  /** Ưu tiên kẻ địch đã lộ, sau đó tới người chưa rõ phe; trong cùng nhóm thì đánh người ít máu. */
-  protected override targetScore(_v: PlayerView, p: PublicPlayer): number {
-    return (p.kingdom == null ? 100 : 0) + p.hp;
+  /** Điểm càng thấp càng nên đánh trước: âm của điểm ưu tiên chiến thuật (Điều 8–9, 28–32). */
+  protected override targetScore(v: PlayerView, p: PublicPlayer): number {
+    if (v.boss) return p.hp;
+    return -this.brain.targetPriority(v, p, { myKey: this.myKey(v), allyP: this.allyProb(v, p), dmg: true });
+  }
+
+  /** Điều 32/37: không tấn công người chưa lộ có khả năng cao là đồng đội (trừ khi đó là kẻ địch đã xác nhận). */
+  protected override attackable(v: PlayerView, p: PublicPlayer): boolean {
+    if (this.isAlly(v, p)) return false;
+    if (v.boss || p.kingdom != null) return true;
+    return this.allyProb(v, p) < 0.5;
+  }
+
+  /** Cẩm nang cả bàn: tổng thiệt hại kỳ vọng lên kẻ địch phải lớn hơn lên đồng minh (tính cả xác suất người chưa lộ). */
+  protected override aoeWorth(v: PlayerView): boolean {
+    if (v.boss) return super.aoeWorth(v);
+    let enemy = 0, ally = 0;
+    for (const p of v.players) {
+      if (!p.alive || p.seat === v.me || p.lured) continue;
+      const a = this.allyProb(v, p);
+      const w = p.hp <= 1 ? 1.6 : 1; // người sắp chết bị ảnh hưởng nặng hơn
+      ally += a * w;
+      enemy += (1 - a) * w;
+    }
+    return enemy > ally * 1.2;
+  }
+
+  /**
+   * Điều 22: cứu đồng đội có giá trị, nhưng không lãng phí khi không cứu nổi
+   * và không tự đẩy mình vào chỗ chết khi mình cũng sắp chết.
+   */
+  private worthSaving(v: PlayerView, dying: PublicPlayer, need: number): boolean {
+    const me = v.players[v.me];
+    const mySaves = v.responseOptions.length + (v.specialSaves?.length ?? 0);
+    const otherHelpers = v.players.filter((p) => p.alive && p.seat !== v.me && p.seat !== dying.seat && this.isAlly(v, p)).length;
+    if (need > mySaves && otherHelpers === 0) return false; // không đủ để cứu sống
+    // Mình chỉ còn 1 máu và chỉ có đúng 1 Đào: giữ cho mình nếu phe còn người khác cứu được
+    if (me.hp <= 1 && mySaves <= 1 && otherHelpers > 0) return false;
+    return true;
   }
 
   protected override play(v: PlayerView): Response {
