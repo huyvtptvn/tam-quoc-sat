@@ -374,14 +374,14 @@ export default {
         validTarget: (g, s, t) => t !== s,
         run: async (g, s, _c, [t]) => {
           g.player(s).flags.shangyi = 1;
-          g.tell(t, `Bài trên tay ${name(g, s)}: ${hand(g, s).map((id) => label(g, id)).join(', ') || '(không có)'}`);
+          g.showInfo(t, { title: `Thượng Nghĩa — ${name(g, s)} cho bạn xem bài trên tay`, cardIds: [...hand(g, s)] });
           const h = g.hero(t);
           const hidden = ['main', 'deputy'].filter((w) => !h[w].revealed && !h[w].removed);
           const opts = ['Xem bài trên tay và bỏ 1 lá đen', ...(hidden.length ? ['Xem các tướng đang úp'] : [])];
           const i = opts.length > 1 ? await g.choose(s, `Thượng Nghĩa với ${name(g, t)}`, opts) : 0;
           if (i === 0) {
             const blacks = hand(g, t).filter((id) => !isRed(g.card(id)));
-            g.tell(s, `Bài trên tay ${name(g, t)}: ${hand(g, t).map((id) => label(g, id)).join(', ') || '(không có)'}`);
+            g.showInfo(s, { title: `Thượng Nghĩa — bài trên tay của ${name(g, t)}`, cardIds: [...hand(g, t)] });
             if (blacks.length) {
               const [id] = await g.chooseCards(s, `Thượng Nghĩa: bỏ 1 lá đen của ${name(g, t)}`, blacks, 1, 1, true);
               if (id !== undefined) {
@@ -390,10 +390,8 @@ export default {
               }
             }
           } else {
-            for (const w of hidden) {
-              g.learnGeneral(s, h[w].generalId);
-              g.tell(s, `Tướng úp của ${name(g, t)}: ${g.generalName(h[w].generalId)}`);
-            }
+            for (const w of hidden) g.learnGeneral(s, h[w].generalId);
+            g.showInfo(s, { title: `Thượng Nghĩa — tướng đang úp của ${name(g, t)}`, generals: hidden.map((w) => h[w].generalId) });
           }
         },
       },
@@ -513,7 +511,7 @@ export default {
           async (g, ctx, o) => {
             const top = g.state.drawPile.slice(-2).reverse();
             const fit = top.filter((id) => ctx.accept.some((n) => g.cardCountsAs(o, g.card(id)).includes(n)));
-            g.tell(o, `Ngạo Tài: 2 lá trên cùng là ${top.map((id) => label(g, id)).join(', ')}`);
+            g.showInfo(o, { title: 'Ngạo Tài — 2 lá trên cùng chồng bài', cardIds: [...top] });
             if (!fit.length) { g.say(`${name(g, o)} không tìm được lá phù hợp.`); return; }
             const [id] = await g.chooseCards(o, 'Ngạo Tài: lấy lá nào để dùng', fit, 0, 1, true);
             if (id !== undefined) await g.moveCards([id], { kind: 'draw' }, { kind: 'hand', seat: o }, 'aocai');

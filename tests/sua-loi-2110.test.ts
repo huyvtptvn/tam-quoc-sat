@@ -223,3 +223,17 @@ test('Dã tâm gia xét theo số người ĐANG cùng thế lực lúc lật: n
   await game.reveal(2, 'main'); // C: Quần — chỉ có A đang là Quần -> 2 người, không quá nửa (4)
   assert.equal(game.shownKingdom(2), 'qun', 'C thuộc Quần Hùng, không phải dã tâm gia');
 });
+
+test('Bảng xem bài/tướng: Tri Kỷ Tri Bỉ gửi các lá (hoặc tướng) cho riêng người xem trong view.reveals', async () => {
+  const { game, ctrls } = makeHG([['caocao', 'xuchu'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0);
+  ctrls[0].set('choose', () => ({ kind: 'choice', index: 0 })); // xem bài trên tay
+  const zj = await take(game, 0, (c) => c.name === 'zhiji');
+  enterPlay(game, 0);
+  await game.useCard(0, zj, [1]);
+  const r = game.makeView(0).reveals!;
+  assert.equal(r.length, 1);
+  assert.deepEqual(r[0].cards!.map((c) => c.id).sort(), [...game.player(1).hand].sort());
+  assert.equal(game.makeView(2).reveals!.length, 0, 'người khác không thấy');
+});

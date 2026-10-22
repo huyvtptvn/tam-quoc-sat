@@ -75,6 +75,15 @@ export interface SkillHint {
   validCards?: number[];
 }
 
+/** Một lần xem thông tin riêng: các lá bài và/hoặc tướng (chụp lại lúc xem). */
+export interface RevealInfo {
+  id: number;
+  title: string;
+  cards?: Card[];
+  generals?: string[];
+  text?: string;
+}
+
 export interface PlayerView {
   me: number;
   myHand: Card[];
@@ -94,6 +103,8 @@ export interface PlayerView {
   skillHints?: SkillHint[];
   /** Ghi chú riêng tư chỉ mình bạn thấy (ví dụ kết quả Tri Kỷ Tri Bỉ). */
   notes: string[];
+  /** Thông tin riêng vừa được xem (bài trên tay người khác, tướng úp...): client hiện bảng xem với nút đóng. */
+  reveals?: RevealInfo[];
   /** Chỉ có khi được hỏi 'save': các cách cứu không dùng lá bài (gửi lại dạng useSkill). */
   specialSaves?: { skill: string; name: string }[];
   recentLog: string[];
@@ -173,6 +184,7 @@ export function viewFor(game: Game, seat: number, req?: Request): PlayerView {
     hints,
     responseOptions,
     notes: game.notes[seat].slice(-10),
+    reveals: (game.reveals[seat] ?? []).slice(-5),
     recentLog: game.log.slice(-10),
   };
 }

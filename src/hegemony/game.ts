@@ -1358,6 +1358,11 @@ export class HegemonyGame extends Game {
     return null;
   }
 
+  /** Bảng xem tướng: ghi chú kèm tên tướng. */
+  override showInfo(seat: number, info: { title: string; cardIds?: number[]; generals?: string[]; text?: string; noteText?: string }): void {
+    super.showInfo(seat, { ...info, noteText: info.noteText ?? (info.generals?.length ? info.generals.map((id) => getGeneral(id).name).join(', ') : undefined) });
+  }
+
   /** Âm Dương Ngư (hoặc dấu Dã Tâm Gia): đầu giai đoạn bỏ bài, nếu phải bỏ bài thì có thể tiêu để +2 giới hạn trữ bài lượt này. */
   protected override async beforeDiscardPhase(seat: number): Promise<void> {
     const h = this.heroes[seat];
@@ -1617,6 +1622,7 @@ export class HegemonyGame extends Game {
     v.hints = [];
     v.responseOptions = [];
     v.notes = [];
+    v.reveals = [];
     delete v.skillHints;
     delete v.specialSaves;
     v.players = v.players.map((pp) => {

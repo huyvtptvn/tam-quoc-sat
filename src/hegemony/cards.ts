@@ -2,11 +2,9 @@
 // Cẩm nang riêng của Quốc Chiến (cần khái niệm thế lực và tướng úp).
 // Được đăng ký vào TRICK_DEFS khi import module này.
 // ============================================================
-import { cardLabel } from '../core/cards.js';
 import type { Game } from '../core/game.js';
 import { registerTrick } from '../core/tricks.js';
 import type { HegemonyGame } from './game.js';
-import { getGeneral } from './generals.js';
 
 const hg = (g: Game) => g as HegemonyGame;
 const name = (g: Game, seat: number) => g.player(seat).name;
@@ -27,7 +25,7 @@ registerTrick({
     if (g.player(t).hand.length > 0) {
       options.push({
         label: 'Xem bài trên tay',
-        run: () => g.tell(user, `Bài trên tay của ${name(g, t)}: ${g.player(t).hand.map((id) => cardLabel(g.card(id))).join(', ')}.`),
+        run: () => g.showInfo(user, { title: `Tri Kỷ Tri Bỉ — bài trên tay của ${name(g, t)}`, cardIds: [...g.player(t).hand] }),
       });
     }
     for (const which of ['main', 'deputy'] as const) {
@@ -37,7 +35,7 @@ registerTrick({
           label: which === 'main' ? 'Xem chủ tướng đang úp' : 'Xem phó tướng đang úp',
           run: () => {
             hg(g).learnGeneral(user, slot.generalId);
-            g.tell(user, `${which === 'main' ? 'Chủ tướng' : 'Phó tướng'} của ${name(g, t)} là ${getGeneral(slot.generalId).name}.`);
+            g.showInfo(user, { title: `Tri Kỷ Tri Bỉ — ${which === 'main' ? 'chủ tướng' : 'phó tướng'} đang úp của ${name(g, t)}`, generals: [slot.generalId] });
           },
         });
       }

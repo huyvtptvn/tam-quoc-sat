@@ -166,6 +166,7 @@
           specialSaves: m.view.specialSaves ?? view.specialSaves,
         } : m.view;
         for (const line of m.log) addLog(line);
+        if (!$('game').classList.contains('hidden')) checkReveals();
         if (!pending) renderGame();
         break;
       case 'request':
@@ -234,7 +235,7 @@
 
   function onRoom(r, seat, watching = false) {
     // Ván mới bắt đầu: xóa nội dung trò chuyện của ván trước
-    if (r && r.status === 'playing' && room?.status !== 'playing') $('chatLog').innerHTML = '';
+    if (r && r.status === 'playing' && room?.status !== 'playing') { $('chatLog').innerHTML = ''; revealSeen = 0; revealQueue.length = 0; }
     room = r; mySeat = seat; spectating = !!r && watching;
     document.body.classList.toggle('spectating', spectating);
     if (!r) { view = null; pending = null; closeModal(); show('lobby'); return; }
@@ -274,8 +275,36 @@
   }
 
   // ---------- Bàn chơi ----------
+  // ---------- Bảng xem bài / xem tướng (Tri Kỷ Tri Bỉ, Thượng Nghĩa...) ----------
+  let revealSeen = null;      // id lớn nhất đã xem; null = chưa nhận view nào (mở lại trang: không bật lại cái cũ)
+  const revealQueue = [];
+  function checkReveals() {
+    const list = view?.reveals || [];
+    const maxId = list.reduce((m, r) => Math.max(m, r.id), 0);
+    if (revealSeen === null) { revealSeen = maxId; return; }
+    for (const r of list) if (r.id > revealSeen) revealQueue.push(r);
+    revealSeen = Math.max(revealSeen, maxId);
+    if (revealQueue.length && $('infoPop').classList.contains('hidden')) showRevealPop();
+  }
+  function showRevealPop() {
+    const r = revealQueue.shift();
+    if (!r) { $('infoPop').classList.add('hidden'); return; }
+    const cards = r.cards ? (r.cards.length ? `<div class="ip-cards">${r.cards.map((c) => C.cardHTML(c)).join('')}</div>` : '<p class="muted">Không có lá bài nào.</p>') : '';
+    const gens = r.generals?.length ? `<div class="ip-gens">${r.generals.map((id) => `<div class="ip-gen">${C.portraitHTML(id, { nameTag: true })}</div>`).join('')}</div>` : '';
+    $('infoPop').innerHTML = `<div class="ip-box" role="dialog" aria-label="${esc(r.title)}">
+      <div class="ip-head"><b>${esc(r.title)}</b><button type="button" class="ip-x" aria-label="Đóng">×</button></div>
+      ${cards}${gens}${r.text ? `<p>${esc(r.text)}</p>` : ''}
+      <div class="ip-foot"><span class="muted">Chỉ mình bạn thấy${revealQueue.length ? ` · còn ${revealQueue.length} bảng nữa` : ''}</span><button type="button" class="btn primary ip-ok">Đóng</button></div>
+    </div>`;
+    $('infoPop').classList.remove('hidden');
+    const close = () => showRevealPop();
+    $('infoPop').querySelector('.ip-x').onclick = close;
+    $('infoPop').querySelector('.ip-ok').onclick = close;
+  }
+
   function renderGame() {
     if (!view || $('game').classList.contains('hidden')) return;
+    checkReveals();
     renderSeats();
     renderCenter();
     renderMine();

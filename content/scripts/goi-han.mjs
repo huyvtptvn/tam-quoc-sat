@@ -608,7 +608,7 @@ export default {
         on('damageDealt', (g, ctx, o) => ctx.source === o && ctx.target !== o && (ctx.nature ?? 'normal') !== 'normal' && alive(g, ctx.target)
           && hand(g, ctx.target).length > 0 && g.alivePlayers().some((p) => p.seat !== o && p.hand.length > hand(g, o).length), async (g, ctx, o) => {
           const t = ctx.target;
-          g.tell(o, `Bài trên tay ${name(g, t)}: ${hand(g, t).map((id) => label(g, id)).join(', ')}.`);
+          g.showInfo(o, { title: `Thế Kích — bài trên tay của ${name(g, t)}`, cardIds: [...hand(g, t)] });
           const reds = hand(g, t).filter((id) => isRed(g.card(id)));
           const ids = reds.length ? await g.chooseCards(o, `Thế Kích: bỏ tối đa 2 lá Đỏ của ${name(g, t)}`, reds, 0, Math.min(2, reds.length), true) : [];
           if (!ids.length) return;

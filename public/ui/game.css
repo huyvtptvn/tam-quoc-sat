@@ -655,3 +655,19 @@ body.spectating #skills, body.spectating #buttons, body.spectating #timer { disp
 
 .tag.lured { background: rgba(214, 140, 40, .55); }
 .seat.lured-seat { opacity: .55; filter: saturate(.4); }
+
+/* Bảng xem bài / xem tướng */
+#infoPop { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; background: rgba(0,0,0,.45); padding: 16px; }
+#infoPop.hidden { display: none; }
+.ip-box { width: min(760px, 100%); max-height: calc(100vh - 32px); overflow: auto; background: var(--panel, #1d1813); border: 1px solid var(--rim, #c59852);
+  border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,.6); padding: 12px 14px; }
+.ip-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.ip-head b { flex: 1; font-size: 16px; color: #f0c069; }
+.ip-x { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--rim-dim, #6a5130); background: rgba(0,0,0,.3); color: var(--bone, #eadfc4); font-size: 20px; line-height: 1; cursor: pointer; }
+.ip-x:hover { border-color: var(--rim, #c59852); }
+.ip-cards { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.ip-cards .card { --cw: 104px; }
+.ip-gens { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 6px; }
+.ip-gen .portrait { --pw: 120px; }
+.ip-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+@media (max-width: 560px) { .ip-cards .card { --cw: 74px; } .ip-gen .portrait { --pw: 96px; } }

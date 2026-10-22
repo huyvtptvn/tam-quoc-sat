@@ -199,6 +199,20 @@ export class Game {
     this.notes[seat].push(msg);
   }
 
+  /** Thông tin riêng đã xem của từng người (bảng xem bài / xem tướng). */
+  readonly reveals: { id: number; title: string; cards?: Card[]; generals?: string[]; text?: string }[][] = [];
+  private revealSeq = 0;
+  /**
+   * Cho `seat` xem các lá bài (`cardIds`, chụp lại lúc xem) và/hoặc tướng: client hiện bảng xem có nút đóng.
+   * Đồng thời ghi một dòng ghi chú như tell().
+   */
+  showInfo(seat: number, info: { title: string; cardIds?: number[]; generals?: string[]; text?: string; noteText?: string }): void {
+    const cards = info.cardIds?.map((id) => ({ ...this.card(id) }));
+    (this.reveals[seat] ??= []).push({ id: ++this.revealSeq, title: info.title, ...(cards ? { cards } : {}), ...(info.generals ? { generals: info.generals } : {}), ...(info.text ? { text: info.text } : {}) });
+    const parts = [cards?.length ? cards.map((c) => cardLabel(c)).join(', ') : cards ? '(không có lá nào)' : '', info.noteText ?? '', info.text ?? ''].filter(Boolean);
+    this.tell(seat, `${info.title}${parts.length ? `: ${parts.join(' — ')}` : ''}`);
+  }
+
   // ==========================================================
   // API công khai
   // ==========================================================
