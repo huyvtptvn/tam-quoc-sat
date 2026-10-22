@@ -182,7 +182,7 @@ export default {
       id: 'lieren', name: 'Liệt Nhận',
       desc: 'Sau khi bạn gây sát thương cho mục tiêu của [Sát], bạn có thể tiến hành đấu điểm với họ, nếu bạn thắng, bạn thu lấy 1 lá của mục tiêu.',
       triggers: [
-        on('damaged', (g, ctx, o) => ctx.source === o && ctx.target !== o && ctx.cardAs === 'sha' && hand(g, o).length > 0 && hand(g, ctx.target).length > 0,
+        on('damaged', (g, ctx, o) => ctx.source === o && ctx.target !== o && ctx.cardAs === 'sha' && !ctx.chainTransmit && hand(g, o).length > 0 && hand(g, ctx.target).length > 0,
           async (g, ctx, o) => {
             const r = await pindian(g, o, ctx.target, 'Liệt Nhận');
             if (r?.win && g.player(ctx.target).alive) await takeFrom(g, o, ctx.target, 'Liệt Nhận: chọn lá để lấy');

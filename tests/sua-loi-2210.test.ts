@@ -102,3 +102,47 @@ test('Tật Lê (Sa Ma Kha): X là tầm đánh TRƯỚC khi lắp — lắp t�
   assert.equal(game.player(0).hand.length, 1 + 2, 'rút thêm 2');
   assert.equal(game.attackRange(0), 3);
 });
+
+const useSkill = (game: HegemonyGame, seat: number, skill: string, cardIds: number[] = [], targets: number[] = []) =>
+  (game as unknown as { useSkillAction: (s: number, r: object) => Promise<string | null> })
+    .useSkillAction(seat, { kind: 'useSkill', skill, cardIds, targets });
+
+test('Quốc Sắc (Đại Kiều): dùng lá Rô đang trang bị làm Lạc Bất Tư Thục', async () => {
+  const { game, ctrls } = makeHG([['daqiao', 'sunquan'], ['caocao', 'xuchu'], ['liubei', 'guanyu']]);
+  await game.setup();
+  await revealAll(game, 0);
+  const id = game.state.drawPile.find((i) => game.card(i).suit === 'diamond' && CARD_INFO[game.card(i).name].type === 'equip')!;
+  assert.ok(id !== undefined);
+  const slot = CARD_INFO[game.card(id).name].slot!;
+  await game.moveCards([id], { kind: 'draw' }, { kind: 'equip', seat: 0, slot }, 'test');
+  ctrls[0].set('chooseCards', (r) => ({ kind: 'cards', cardIds: [(r as unknown as { cardIds: number[] }).cardIds[0]] }));
+  enterPlay(game, 0);
+  assert.equal(await useSkill(game, 0, 'guose', [], [1]), null);
+  assert.ok(game.player(1).judgeArea.includes(id), 'lá trang bị Rô nằm trong khu phán định của mục tiêu');
+  assert.equal(game.delayedName(id), 'lebu');
+  assert.ok(!game.player(0).equips[slot].includes(id));
+  assert.notEqual(await useSkill(game, 0, 'guose', [], [2]), null, 'hết lá Rô trang bị thì không dùng được');
+});
+
+test('Liệt Nhận (Chúc Dung): chỉ đấu điểm với mục tiêu của Sát, không với người bị lan xích', async () => {
+  const { game, ctrls } = makeHG([['zhurong', 'menghuo'], ['caocao', 'xuchu'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0);
+  game.player(1).chained = true; game.player(2).chained = true;
+  const fire = game.state.drawPile.find((i) => game.card(i).name === 'sha' && game.card(i).nature === 'fire')!;
+  assert.ok(fire !== undefined, 'có Hỏa Sát');
+  await game.moveCards([fire], { kind: 'draw' }, { kind: 'hand', seat: 0 }, 'test');
+  const pinned: number[] = [];
+  ctrls[0].set('confirm', (r) => ({ kind: (r as { skill: string }).skill === 'lieren' ? 'yes' : 'no' }));
+  game.bus.on('pindianStart' as never, ((ctx: { to: number }) => { pinned.push(ctx.to); }) as never);
+  const before = game.log.length;
+  enterPlay(game, 0);
+  const t = game.distance(0, 1) <= game.attackRange(0) ? 1 : 3;
+  game.player(t).chained = true;
+  await game.useCard(0, fire, [t]);
+  const lines = game.log.slice(before).filter((l) => /đấu điểm/i.test(l));
+  const other = [1, 2].find((s) => s !== t)!;
+  const otherName = game.player(other).name;
+  assert.ok(lines.some((l) => l.includes(game.player(t).name)), 'vẫn đấu điểm với mục tiêu của Sát');
+  assert.ok(!lines.some((l) => l.includes(otherName)), `không đấu điểm với người bị lan xích: ${lines.join(' | ')}`);
+});

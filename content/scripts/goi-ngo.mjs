@@ -4,10 +4,13 @@
 import {
   allCards, askOrder, besiegers, chooseOwn, discardFrom, discardOwn, drawOrder, give, hand, isBasic, isEquip, isFemale, isRed,
   label, limitedUsed, lostHp, markLimited, name, observe, on, oncePerTurn, others, pickCard, putEquip, sameFactionSeats,
-  slotOf, store, zoneOf, SLOTS,
+  inMyPlay, slotOf, store, zoneOf, SLOTS,
 } from './lib/tro-giup.mjs';
 
 const equipsOf = (g, s) => SLOTS.flatMap((sl) => g.player(s).equips[sl]);
+/** Quốc Sắc: lá Rô đang trang bị. */
+const guoseEquips = (g, s) => equipsOf(g, s).filter((id) => g.card(id).suit === 'diamond');
+const hasLebu = (g, t) => g.player(t).judgeArea.some((id) => g.delayedName(id) === 'lebu');
 const emptySlot = (g, s, slot) => g.player(s).equips[slot].length === 0;
 /** Lá có khả năng gây sát thương (Trác Vi, Phong Thế). */
 const DAMAGE_CARDS = new Set(['sha', 'juedou', 'nanman', 'wanjian', 'huogong', 'shandian', 'huoshao', 'shuiyan', 'wenhe']);
@@ -26,8 +29,27 @@ export default {
     // ---------------- Đại Kiều ----------------
     {
       id: 'guose', name: 'Quốc Sắc',
-      desc: 'Giai đoạn ra bài, bạn có thể chuyển hóa sử dụng lá RÔ thành [Lạc Bất Tư Thục].',
+      desc: 'Giai đoạn ra bài, bạn có thể chuyển hóa sử dụng lá RÔ (trên tay hoặc trang bị đang lắp) thành [Lạc Bất Tư Thục]. '
+        + '(Lá Rô trên tay: kéo/chọn như bình thường; lá Rô đang trang bị: bấm nút kỹ năng Quốc Sắc.)',
       convert: (_g, _s, c) => (c.suit === 'diamond' ? ['lebu'] : []),
+      bot: { use: 'always', target: 'enemy' },
+      // Phần chủ động: dùng lá Rô ĐANG TRANG BỊ làm Lạc Bất Tư Thục (lá trên tay đã đi qua `convert`)
+      active: {
+        cards: 'none', target: 'one',
+        available: (g, s) => inMyPlay(g, s) && guoseEquips(g, s).length > 0,
+        validTarget: (g, s, t) => t !== s && g.isAliveSeat(t) && !hasLebu(g, t) && g.canTarget(s, t),
+        run: async (g, s, _c, [t]) => {
+          const ids = guoseEquips(g, s);
+          if (!ids.length || hasLebu(g, t)) return;
+          const [id] = ids.length === 1 ? ids : await g.chooseCards(s, `Quốc Sắc: chọn lá Rô đang trang bị dùng như Lạc Bất Tư Thục lên ${name(g, t)}`, ids, 1, 1);
+          const z = id === undefined ? null : zoneOf(g, s, id);
+          if (!z) return;
+          await g.moveCards([id], z, { kind: 'judge', seat: t }, 'delayed');
+          g.markDelayedAs(id, 'lebu');
+          g.say(`${name(g, s)} đặt ${g.labelAs(g.card(id), 'lebu')} vào khu vực phán định của ${name(g, t)} (Quốc Sắc).`);
+          await g.bus.emit('cardUsed', { seat: s, card: g.card(id), as: 'lebu', targets: [t] });
+        },
+      },
     },
     {
       id: 'liuli', name: 'Lưu Ly',
