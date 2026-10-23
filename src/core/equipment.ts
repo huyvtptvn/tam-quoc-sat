@@ -30,7 +30,7 @@ export function installEquipment(g: Game): void {
       : await g.choose(t, `Thư Hùng Song Cổ Kiếm của ${name(src)}`, ['Bỏ 1 lá trên tay', `Để ${name(src)} bốc 1 lá`]);
     if (i === 0) await g.forceDiscard(t, 1, 'cixiong');
     else await g.draw(src, 1);
-  }, 110);
+  }, -10); // vũ khí phát động SAU khi mục tiêu đã chốt (kỹ năng chuyển/hủy mục tiêu như Lưu Ly, Hư Thực chạy trước)
 
   // ---------- Giáp khi trở thành mục tiêu của Sát (chạy trước kỹ năng) ----------
   g.bus.on('slashTargeted', (ctx) => {

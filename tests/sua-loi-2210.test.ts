@@ -281,3 +281,41 @@ test('Điệu Hổ: người bị điệu hổ vẫn bị kỹ năng chọn (Nh�
   await game.useCardAs(0, 'sha', [1], [], { label: 'thử' });
   assert.ok(!game.log.slice(before).some((l) => l.includes('dùng Sát')), 'Sát ảo không nhắm người bị điệu hổ');
 });
+
+// ---------------- 23/10: vũ khí phát động sau khi chốt mục tiêu; Mễ Đạo đặt cả trang bị ----------------
+
+test('Thư Hùng phát động sau khi Lưu Ly chuyển mục tiêu: không hỏi với Đại Kiều, xét người nhận mới', async () => {
+  const { game, ctrls } = makeHG([['caocao', 'xuchu'], ['daqiao', 'sunquan'], ['liubei', 'guanyu'], ['sunjian', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0, 1, 2, 3);
+  const w = game.state.drawPile.find((i) => game.card(i).name === 'cixiong')!;
+  await game.moveCards([w], { kind: 'draw' }, { kind: 'equip', seat: 0, slot: 'weapon' }, 'test');
+  const asked: string[] = [];
+  ctrls[0].set('confirm', (r) => { asked.push((r as { skill: string }).skill); return { kind: 'yes' }; });
+  ctrls[1].set('confirm', (r) => ({ kind: (r as { skill: string }).skill === 'liuli' ? 'yes' : 'no' }))
+    .set('chooseTargets', (r) => ({ kind: 'targets', targets: [(r as unknown as { candidates: number[] }).candidates[0]] }))
+    .set('chooseCards', (r) => ({ kind: 'cards', cardIds: [(r as unknown as { cardIds: number[] }).cardIds[0]] }));
+  const sha = await take(game, 0, (c) => c.name === 'sha' && !c.nature);
+  enterPlay(game, 0);
+  assert.ok(game.targetsAs(0, 'sha').includes(1), 'Đại Kiều trong tầm');
+  await game.useCard(0, sha, [1]);
+  assert.ok(game.log.some((l) => l.includes('Sát được chuyển sang')), 'Lưu Ly đã chuyển');
+  assert.ok(!game.log.some((l) => l.includes('dùng Thư Hùng Song Cổ Kiếm')), 'không dùng Thư Hùng lên Đại Kiều (nam -> nam sau khi chuyển)');
+  assert.ok(!asked.includes('cixiong'));
+});
+
+test('Mễ Đạo (Trương Lỗ): được chọn cả bài trên tay lẫn trang bị để đặt làm [Mễ]', async () => {
+  const { game, ctrls } = makeHG([['caocao', 'zhanglu'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0);
+  const eq = game.state.drawPile.find((i) => CARD_INFO[game.card(i).name].slot === 'armor')!;
+  await game.moveCards([eq], { kind: 'draw' }, { kind: 'equip', seat: 0, slot: 'armor' }, 'test');
+  let offered: number[] = [];
+  ctrls[0].set('confirm', () => ({ kind: 'yes' }))
+    .set('chooseCards', (r) => { offered = (r as unknown as { cardIds: number[] }).cardIds; return { kind: 'cards', cardIds: [eq, game.player(0).hand[0]] }; });
+  game.state.currentSeat = 0;
+  await game.bus.emit('phaseStart', { seat: 0, phase: 'end' });
+  assert.ok(offered.includes(eq), 'trang bị nằm trong danh sách chọn');
+  assert.ok(!game.player(0).equips.armor.includes(eq), 'trang bị đã thành [Mễ]');
+  assert.ok(game.player(0).special.includes(eq));
+});

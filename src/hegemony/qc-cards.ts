@@ -309,8 +309,9 @@ export function installQcCards(g: HegemonyGame): void {
   // ---------- Thanh Long Yển Nguyệt Đao (Quốc Chiến): mục tiêu không thể lật tướng đến khi Sát xử lý xong ----------
   g.bus.on('slashTargeted', (ctx) => {
     if (g.weaponName(ctx.source) !== 'qinglong_qc') return;
+    if (ctx.cancelled) return;
     g.player(ctx.target).flags.qinglongLock = (g.player(ctx.target).flags.qinglongLock ?? 0) + 1;
-  }, 120);
+  }, -10); // sau khi mục tiêu đã chốt (chuyển/hủy mục tiêu)
   g.bus.on('slashEnd', (ctx) => {
     const f = g.player(ctx.target).flags;
     if (f.qinglongLock) f.qinglongLock -= 1;
@@ -321,7 +322,7 @@ export function installQcCards(g: HegemonyGame): void {
     if (ctx.cancelled || g.weaponName(ctx.source) !== 'feilong' || g.cardCount(ctx.target) === 0) return;
     if (!await confirm(g, ctx.source, 'feilong', `Phi Long Đoạt Phượng: buộc ${nameOf(g, ctx.target)} bỏ 1 lá?`)) return;
     await discardOwn(g, ctx.target, 1, 'Phi Long Đoạt Phượng: chọn 1 lá để bỏ');
-  }, 90);
+  }, -10); // sau khi mục tiêu đã chốt (chuyển/hủy mục tiêu)
   let feilongHit: { source: number; target: number } | null = null;
   g.bus.on('damageDealt', (ctx) => {
     feilongHit = ctx.source !== null && ctx.cardAs === 'sha' && g.weaponName(ctx.source) === 'feilong' ? { source: ctx.source, target: ctx.target } : null;

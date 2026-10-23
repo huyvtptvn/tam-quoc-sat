@@ -199,16 +199,17 @@ export default {
     },
     {
       id: 'midao', name: 'Mễ Đạo',
-      desc: 'Khi bắt đầu giai đoạn kết thúc, nếu không có [Mễ], bạn có thể rút 2 lá, sau đó đặt 2 lá lên tướng này, gọi là [Mễ]. '
+      desc: 'Khi bắt đầu giai đoạn kết thúc, nếu không có [Mễ], bạn có thể rút 2 lá, sau đó đặt 2 lá (bài trên tay hoặc trang bị) lên tướng này, gọi là [Mễ]. '
         + 'Khi phán xét của 1 người có hiệu lực, bạn có thể đánh ra 1 [Mễ] để thay đổi kết quả phán xét, sau đó thu lấy lá phán xét ban đầu.',
       bot: { confirm: (v) => v.phase === 'end' },
       triggers: [
         on('phaseStart', (g, ctx, o) => ctx.seat === o && ctx.phase === 'end' && pileOf(g, o, 'Mễ').length === 0,
           async (g, _ctx, o) => {
             await g.draw(o, 2);
-            const n = Math.min(2, hand(g, o).length);
+            const pool = allCards(g, o); // bài trên tay + trang bị
+            const n = Math.min(2, pool.length);
             if (!n) return;
-            const ids = await g.chooseCards(o, 'Mễ Đạo: chọn 2 lá đặt lên tướng làm [Mễ]', [...hand(g, o)], n, n);
+            const ids = await g.chooseCards(o, 'Mễ Đạo: chọn 2 lá (trên tay hoặc trang bị) đặt lên tướng làm [Mễ]', pool, n, n);
             await toPile(g, o, 'Mễ', ids, 'midao');
           }),
         on('judged', (g, ctx, o) => pileOf(g, o, 'Mễ').length > 0 && g.state.processing.includes(ctx.card.id),
