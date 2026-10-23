@@ -458,3 +458,26 @@ test('Cận Hãm (Bành Dạng) lật cả 2 tướng đầu lượt: người x
   const log = game.log.join('\n');
   assert.ok(log.indexOf('P0 úp lại phó tướng Bành Dạng') > log.indexOf('P2 bỏ'), 'Bành Dạng úp sau cùng');
 });
+
+test('Dịch Quỷ: Hồn 2 thế lực được hỏi chọn thế lực; người chưa lật tướng luôn là mục tiêu hợp lệ', async () => {
+  const { game, ctrls } = makeHG([['new_zuoci', 'lvbu'], ['liubei', 'guanyu'], ['yuanshao', 'yanliangwenchou'], ['caocao', 'xuchu']]);
+  await game.setup();
+  await revealAll(game, 1, 2);
+  await game.reveal(0, 'main');
+  for (const id of game.generalPile(0, 'Hồn')) game.removeFromGeneralPile(0, 'Hồn', [id]);
+  game.addGeneralPile(0, 'Hồn', ['pengyang']); // Thục/Quần
+  let kdPrompt: string[] = [];
+  let targets: number[] = [];
+  ctrls[0].set('choose', (r) => {
+    const x = r as unknown as { prompt: string; options: string[] };
+    if (x.prompt.includes('lá nào')) return { kind: 'choice', index: Math.max(0, x.options.indexOf('Quá Hà Sách Kiều')) };
+    if (x.prompt.includes('thế lực nào')) { kdPrompt = x.options; return { kind: 'choice', index: x.options.findIndex((o) => o.startsWith('Quần')) }; }
+    return { kind: 'choice', index: 0 };
+  }).set('chooseTargets', (r) => { targets = (r as unknown as { candidates: number[] }).candidates; return { kind: 'targets', targets: [targets[0]] }; });
+  enterPlay(game, 0);
+  assert.equal(await useSkill(game, 0, 'yigui'), null);
+  assert.equal(kdPrompt.length, 2, `hỏi chọn Thục hoặc Quần: ${kdPrompt.join(' | ')}`);
+  assert.ok(targets.includes(2), 'chọn Quần: được nhắm người Quần');
+  assert.ok(targets.includes(3), 'người chưa xác định thế lực luôn hợp lệ');
+  assert.ok(!targets.includes(1), 'không nhắm người Thục khi đã chọn Quần');
+});

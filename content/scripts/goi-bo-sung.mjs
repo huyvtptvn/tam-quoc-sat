@@ -127,12 +127,20 @@ function usableVs(g, user, target) {
 
 const YIGUI_NAMES = ['tao', 'jiu', 'sha', 'wuzhong', 'shunshou', 'guohe', 'juedou', 'huogong', 'shuiyan', 'jiedao', 'tiesuo', 'zhiji', 'yuanjiao', 'diaohu'];
 
-/** Người `t` có thế lực trùng với thế lực của [Hồn] (người chưa có thế lực coi như khác mọi thế lực). */
+/** Các thế lực của một [Hồn] (tướng 2 thế lực có 2). */
+function hunKingdoms(g, id) {
+  const info = g.generalInfo(id);
+  if (!info) return [];
+  return Array.isArray(info.kingdoms) && info.kingdoms.length > 1 ? [...info.kingdoms] : [info.kingdom];
+}
+/** Người `t` là mục tiêu hợp lệ của [Hồn] thế lực `kingdom`: cùng thế lực với [Hồn], hoặc CHƯA xác định thế lực. */
 function hunAllows(g, kingdom, t) {
   const k = g.shownKingdom(t);
-  if (k === null) return false;
+  if (k === null) return true;
   return k === kingdom || (k === 'careerist' && kingdom === 'ye');
 }
+/** [Hồn] `id` (theo 1 trong các thế lực của nó) cho phép chọn `t`. */
+const hunAllowsAny = (g, id, t) => hunKingdoms(g, id).some((k) => hunAllows(g, k, t));
 function yiguiUsed(g, s) {
   const st = store(g);
   const k = `yigui:used:${s}`;
@@ -160,7 +168,7 @@ function yiguiCombos(g, s) {
     if (used.includes(n) || !g.cardInfo(n)) continue;
     const cands = yiguiCandidates(g, s, n);
     if (!cands.length) continue;
-    const huns = pile.filter((id) => cands.some((t) => hunAllows(g, kingdomOf(g, id), t)));
+    const huns = pile.filter((id) => cands.some((t) => hunAllowsAny(g, id, t)));
     if (huns.length) out.push({ n, huns, cands });
   }
   return out;
@@ -170,7 +178,8 @@ async function gainHun(g, s, n) {
   if (!ids.length) { g.say('Chồng bài tướng đã hết.'); return; }
   g.addGeneralPile(s, 'Hồn', ids);
 }
-const hunLabel = (g, id) => `${g.generalName(id)} (${({ wei: 'Ngụy', shu: 'Thục', wu: 'Ngô', qun: 'Quần', ye: 'Dã' })[kingdomOf(g, id)] ?? '?'})`;
+const KD_LABEL = { wei: 'Ngụy', shu: 'Thục', wu: 'Ngô', qun: 'Quần', ye: 'Dã tâm' };
+const hunLabel = (g, id) => `${g.generalName(id)} (${hunKingdoms(g, id).map((k) => KD_LABEL[k] ?? '?').join('/')})`;
 
 // ---------------- Nam Hoa Lão Tiên: Kinh Hợp ----------------
 
@@ -539,8 +548,8 @@ export default {
       id: 'yigui', name: 'Dịch Quỷ',
       desc: '• Sau khi bạn mở tướng này lần đầu tiên, bạn nhận 2 lá từ chồng bài tướng đặt lên tướng này, gọi là [Hồn]. '
         + '• Khi bạn cần sử dụng lá cơ bản hoặc công cụ phổ thông có mục tiêu, nếu bạn chưa sử dụng lá đó bằng kỹ năng này trong lượt này, '
-        + 'bạn có thể bỏ 1 [Hồn], xem như bạn sử dụng lá đó; bạn không thể chỉ định người có thế lực khác với [Hồn] làm mục tiêu của lá này '
-        + '(người chưa có thế lực coi như khác mọi thế lực). '
+        + 'bạn có thể bỏ 1 [Hồn], xem như bạn sử dụng lá đó; mục tiêu của lá này chỉ có thể là người cùng thế lực với [Hồn] vừa bỏ '
+        + 'hoặc người chưa xác định thế lực ([Hồn] là tướng 2 thế lực: chọn 1 trong 2 thế lực). '
         + '(Dùng chủ động trong giai đoạn ra bài; dùng như Đào khi có người hấp hối; khi cần đáp lại có thể bỏ 1 [Hồn] bất kỳ để xem như dùng [Thiểm] hoặc [Vô Giải].)',
       bot: {
         use: 'always',
@@ -576,7 +585,14 @@ export default {
           const { n, huns, cands } = combos[ci];
           const hi = huns.length > 1 ? await g.choose(s, 'Dịch Quỷ: bỏ 1 [Hồn]', huns.map((id) => hunLabel(g, id))) : 0;
           const hun = huns[hi];
-          const k = kingdomOf(g, hun);
+          // [Hồn] 2 thế lực: hỏi dùng theo thế lực nào (mục tiêu: người thế lực đó hoặc chưa xác định thế lực)
+          let kds = hunKingdoms(g, hun).filter((k) => cands.some((t) => hunAllows(g, k, t)));
+          let k = kds[0];
+          if (kds.length > 1 && n !== 'tao' && n !== 'jiu') {
+            const ki = await g.choose(s, `Dịch Quỷ: [Hồn] ${g.generalName(hun)} có 2 thế lực — tác động lên thế lực nào? (kèm người chưa xác định thế lực)`,
+              kds.map((x) => `${KD_LABEL[x] ?? x} (${cands.filter((t) => hunAllows(g, x, t)).map((t) => name(g, t)).join(', ')})`));
+            k = kds[ki] ?? kds[0];
+          }
           const ok = cands.filter((t) => hunAllows(g, k, t));
           let targets;
           const def = g.trickDef(n);
@@ -598,9 +614,9 @@ export default {
             await gainHun(g, o, 2);
           }, { compulsory: true }),
         on('dying', (g, ctx, o) => g.player(ctx.seat).alive && g.player(ctx.seat).hp <= 0 && g.player(o).alive && g.canSave(o, ctx.seat)
-          && !yiguiUsed(g, o).includes('tao') && g.generalPile(o, 'Hồn').some((id) => hunAllows(g, kingdomOf(g, id), ctx.seat)),
+          && !yiguiUsed(g, o).includes('tao') && g.generalPile(o, 'Hồn').some((id) => hunAllowsAny(g, id, ctx.seat)),
           async (g, ctx, o) => {
-            const huns = g.generalPile(o, 'Hồn').filter((id) => hunAllows(g, kingdomOf(g, id), ctx.seat));
+            const huns = g.generalPile(o, 'Hồn').filter((id) => hunAllowsAny(g, id, ctx.seat));
             if (!huns.length) return;
             const hi = huns.length > 1 ? await g.choose(o, 'Dịch Quỷ: bỏ 1 [Hồn] để dùng như Đào', huns.map((id) => hunLabel(g, id))) : 0;
             yiguiUsed(g, o).push('tao');
