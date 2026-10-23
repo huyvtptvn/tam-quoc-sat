@@ -1775,15 +1775,29 @@ export class HegemonyGame extends Game {
       return;
     }
 
+    // Nạn nhân đã lật hết tướng khi chết (beforeDeath) -> thế lực cuối cùng (có thể đã thành Dã tâm gia)
     if (this.isSameFaction(killer, victim)) {
-      this.say(`${k.name} giết người cùng phe, phải bỏ toàn bộ bài trên tay.`);
-      await this.moveCards([...k.hand], { kind: 'hand', seat: killer }, { kind: 'discard' }, 'penalty');
+      // Giết người cùng thế lực: bỏ toàn bộ bài trên tay và vùng trang bị (giữ vùng phán định)
+      this.say(`${k.name} giết người cùng phe, phải bỏ toàn bộ bài trên tay và trang bị.`);
+      const equips = EQUIP_SLOTS.flatMap((sl) => k.equips[sl]);
+      if (k.hand.length) await this.moveCards([...k.hand], { kind: 'hand', seat: killer }, { kind: 'discard' }, 'penalty');
+      for (const sl of EQUIP_SLOTS) {
+        const ids = k.equips[sl].filter((id) => equips.includes(id));
+        if (ids.length) await this.moveCards(ids, { kind: 'equip', seat: killer, slot: sl }, { kind: 'discard' }, 'penalty');
+      }
       return;
     }
-    const vk = this.shownKingdom(victim);
-    const n = vk === 'careerist' ? 1 : this.state.players.filter((p) => this.shownKingdom(p.seat) === vk).length;
+    // Giết người khác phe: Dã tâm gia luôn bốc 3; người thường bốc (số người còn sống đã lộ của phe nạn nhân + 1 người vừa chết)
+    const n = this.shownKingdom(killer) === 'careerist' ? 3 : this.killReward(victim);
     this.say(`${k.name} hạ gục người khác phe, được bốc ${n} lá.`);
     await this.draw(killer, n, 'reward');
+  }
+
+  /** Thưởng khi hạ `victim`: số người còn sống đã lộ cùng phe với nạn nhân (nhóm Dã tâm gia tính chung) + 1 (nạn nhân). */
+  killReward(victim: number): number {
+    const key = this.factionKeyOf(victim);
+    if (key === null) return 1;
+    return 1 + this.alivePlayers().filter((p) => p.seat !== victim && this.factionKeyOf(p.seat) === key).length;
   }
 
   override checkWinner(): string | null {

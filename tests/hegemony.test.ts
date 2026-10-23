@@ -456,3 +456,50 @@ test('view: tướng úp của người khác bị ẩn; của mình và của n
   assert.equal(v.players[2].kingdom, null);
   assert.equal(v.players[1].kingdom, 'shu');
 });
+
+// ---------- Thưởng phạt 23/10 ----------
+
+test('thưởng: chỉ đếm người còn sống đã lộ của phe nạn nhân + nạn nhân (không đếm người đã chết trước)', async () => {
+  const { game } = makeHG([['zhangfei', 'zhaoyun'], ['caocao', 'xuchu'], ['guojia', 'simayi'], ['xiahoudun', 'zhangliao'], ['lvmeng', 'luxun'], ['sunquan', 'zhoutai']]);
+  await game.reveal(0, 'main');
+  await game.reveal(2, 'main');
+  await game.reveal(3, 'main');
+  game.player(3).alive = false; // người Ngụy đã chết từ trước: không tính
+  game.player(1).hp = 1;
+  await give(game, 0, 'sha');
+  enterPlay(game, 0);
+  await sha(game, 0, 1);
+  assert.equal(game.player(1).alive, false);
+  assert.equal(game.player(0).hand.length, 2, 'P2 còn sống đã lộ + nạn nhân = 2');
+});
+
+test('phạt giết người cùng phe: bỏ cả bài trên tay và trang bị, giữ vùng phán định', async () => {
+  const { game } = makeHG([['zhangfei', 'zhaoyun'], ['guanyu', 'zhugeliang'], ['lvmeng', 'luxun'], ['caocao', 'xuchu']]);
+  await game.reveal(0, 'main');
+  await game.reveal(1, 'main');
+  game.player(1).hp = 1;
+  await give(game, 0, 'sha', 'shan');
+  const w = game.state.drawPile.find((i) => game.card(i).name === 'qinggang')!;
+  await game.moveCards([w], { kind: 'draw' }, { kind: 'equip', seat: 0, slot: 'weapon' }, 'test');
+  const lb = game.state.drawPile.find((i) => game.card(i).name === 'lebu')!;
+  await game.moveCards([lb], { kind: 'draw' }, { kind: 'judge', seat: 0 }, 'test');
+  enterPlay(game, 0);
+  await sha(game, 0, 1);
+  assert.equal(game.player(1).alive, false);
+  assert.equal(game.player(0).hand.length, 0);
+  assert.equal(game.player(0).equips.weapon.length, 0, 'mất trang bị');
+  assert.ok(game.player(0).judgeArea.includes(lb), 'giữ vùng phán định');
+});
+
+test('Dã tâm gia giết người khác phe luôn bốc 3 lá', async () => {
+  const { game } = makeHG([['caocao', 'simayi'], ['guojia', 'xuchu'], ['zhangfei', 'zhaoyun']]);
+  await game.reveal(0, 'main');
+  await game.reveal(1, 'main'); // dã tâm gia (Ngụy vượt một nửa)
+  assert.equal(game.shownKingdom(1), 'careerist');
+  game.player(2).hp = 1;
+  await give(game, 1, 'sha');
+  enterPlay(game, 1);
+  await sha(game, 1, 2);
+  assert.equal(game.player(2).alive, false);
+  assert.equal(game.player(1).hand.length, 3);
+});

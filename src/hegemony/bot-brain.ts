@@ -157,6 +157,11 @@ export class BotBrain {
     // 6) Tài nguyên (5) và vị trí (5)
     score += 5 * Math.min(1, (Object.keys(t.equips).length + t.handCount) / 6);
     score += reach ? 5 : 2;
+    // Điều 7: phần thưởng khi hạ gục (người khác phe: số người còn sống đã lộ của phe nạn nhân + 1; Dã tâm gia luôn 3)
+    if (ctx.dmg && t.hp <= 1 && fac && ctx.myKey && fac.key !== ctx.myKey) {
+      const reward = ctx.myKey.startsWith('c') ? 3 : fac.members.length;
+      score += Math.min(8, reward * 2);
+    }
 
     // ---- Ngoại lệ ưu tiên cao ----
     // Điều 29: cơ hội thắng tức thời — hạ người này khiến chỉ còn phe mình
