@@ -1160,6 +1160,9 @@
         : 'Chọn 2 tướng cùng thế lực. Tướng chọn trước là chủ tướng. Cả hai sẽ được úp cho đến khi bạn lật.';
     const subRules = ' Tướng tím (Dã tâm gia) chỉ làm chủ tướng. Tướng 2 thế lực chỉ làm phó tướng, chủ tướng phải thuộc 1 trong 2 thế lực của nó.';
 
+    /** Các tướng ghép cặp Châu Liên Bích Hợp với `id` (bỏ tướng đang tắt / không có trong danh mục). */
+    const pairPartners = (id) => [...new Set((C.catalog.pairs || []).flatMap(([a, b]) => (a === id ? [b] : b === id ? [a] : [])))]
+      .filter((x) => C.general(x) && !C.general(x).disabled);
     const optHTML = (id) => {
       const g = C.general(id) || { name: id, skills: [], halfHp: 0 };
       const role = chosen[0] === id ? 'Chủ tướng' : chosen[1] === id ? 'Phó tướng' : '';
@@ -1172,6 +1175,13 @@
       const kLabel = kingdomsOf(id).map((k) => C.KINGDOM[k]?.label ?? k).join('/');
       const note = isDual(id) ? ' · chỉ làm phó tướng' : kingdomOf(id) === 'ye' ? ' · tướng tím, chỉ làm chủ tướng' : '';
       const sk = g.skills.map((x) => `<div class="sk"><b>${esc(C.catalog.skills[x]?.name ?? x)}</b> ${esc(C.catalog.skills[x]?.desc ?? '')}</div>`).join('');
+      // Hảo cặp (Châu Liên Bích Hợp): tướng ghép cặp; tô đậm tướng đang có trong danh sách chọn, đánh dấu nếu tạo cặp với tướng đã chọn
+      const partners = pairPartners(id);
+      const pairWithChosen = chosen.length === 1 && chosen[0] !== id && partners.includes(chosen[0]);
+      const pairLine = partners.length ? `<div class="pair-line${pairWithChosen ? ' hit' : ''}" title="Lật đủ 2 tướng là một cặp: nhận 1 ký hiệu Châu Liên Bích Hợp (bốc 2 lá hoặc dùng như Đào)">🤝 Hảo cặp: ${partners.map((x) => {
+        const nm = esc(C.general(x)?.name ?? x);
+        return r.candidates.includes(x) ? `<b>${nm}</b>` : nm;
+      }).join(', ')}${pairWithChosen ? ' — <b>tạo cặp với tướng đã chọn!</b>' : ''}</div>` : '';
       const skinList = C.skinsOf(id);
       const cur = C.currentSkin(id);
       const skinCtl = skinList.length > 1
@@ -1179,7 +1189,7 @@
         : '';
       return `<button type="button" class="gen-opt ${role ? 'sel' : ''} ${off ? 'off' : ''}" data-id="${esc(id)}" ${off ? 'disabled' : ''}>
         <span class="gen-face">${C.portraitHTML(id)}${skinCtl}</span>
-        <div class="info"><b class="nm">${esc(g.name)}</b><span class="muted">${esc(kLabel)} · ${g.halfHp} âm dương ngư${note}</span>${role ? `<br><span class="role">${role}</span>` : ''}${sk}</div>
+        <div class="info"><b class="nm">${esc(g.name)}</b><span class="muted">${esc(kLabel)} · ${g.halfHp} âm dương ngư${note}</span>${role ? `<br><span class="role">${role}</span>` : ''}${pairLine}${sk}</div>
       </button>`;
     };
 
