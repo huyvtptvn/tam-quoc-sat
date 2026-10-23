@@ -1,0 +1,27 @@
+# Tự deploy lên Fly.io mỗi khi push lên main (giống Railway).
+# Cần thêm secret FLY_API_TOKEN trong GitHub: Settings → Secrets and variables → Actions.
+# Chưa có secret thì workflow tự bỏ qua, không báo lỗi.
+name: Deploy Fly.io
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: fly-deploy
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+    steps:
+      - name: Kiểm tra token
+        id: tok
+        run: |
+          if [ -z "$FLY_API_TOKEN" ]; then echo "Chưa có FLY_API_TOKEN — bỏ qua deploy Fly.io"; echo "skip=1" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        if: steps.tok.outputs.skip != '1'
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+        if: steps.tok.outputs.skip != '1'
+      - run: flyctl deploy --remote-only
+        if: steps.tok.outputs.skip != '1'

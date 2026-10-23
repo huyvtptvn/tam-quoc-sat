@@ -40,6 +40,23 @@ Repo đã có `railway.json` (build bằng `Dockerfile`, kiểm tra sống qua `
 6. Mỗi lần push lên `main` Railway tự build lại (~vài phút; repo có ~420 MB ảnh/âm thanh skin).
 Trang quản trị: `https://<tên-miền>/admin.html`, nhập `ADMIN_TOKEN`.
 
+### Cách A1 — Fly.io (rẻ nhất, khoảng 3,5–4 USD/tháng, máy ở Singapore)
+Repo đã có `fly.toml` (Singapore, máy 512 MB, ổ đĩa `/data`, không tự tắt máy) và workflow `.github/workflows/fly-deploy.yml`
+(tự deploy khi push lên `main`, chỉ chạy khi đã thêm secret `FLY_API_TOKEN`).
+1. Cài flyctl: Windows PowerShell `iwr https://fly.io/install.ps1 -useb | iex` → `fly auth signup` (hoặc `fly auth login`), thêm thẻ thanh toán.
+2. Trong thư mục repo: `fly launch --no-deploy --copy-config` (giữ `fly.toml` có sẵn; nếu tên `tam-quoc-sat` đã có người dùng thì đặt tên khác và sửa dòng `app`).
+3. Tạo ổ đĩa: `fly volumes create tqs_data --region sin --size 1`.
+4. Mã quản trị: `fly secrets set ADMIN_TOKEN=<chuỗi-bí-mật-dài>`.
+5. `fly deploy` → địa chỉ `https://<app>.fly.dev`.
+6. (Tùy chọn) Tự deploy khi push: `fly tokens create deploy` → dán vào GitHub repo **Settings → Secrets and variables → Actions → New secret** tên `FLY_API_TOKEN`.
+
+**Chuyển tài khoản + Elo từ Railway sang Fly:** dữ liệu nằm trong 2 file `accounts.json` và `matches.jsonl` ở `/data`.
+1. Tải về từ Railway (cài Railway CLI, `railway login`, `railway link` chọn project): `railway volume files --help` để xem lệnh tải
+   (hoặc `railway volume browse` để chọn file tải bằng giao diện). Cách khác: `railway ssh -- cat /data/accounts.json` (chạy trong **cmd**, không dùng PowerShell 5 để chuyển hướng `>` vì sẽ hỏng mã hóa).
+2. Đưa lên Fly: `fly ssh sftp shell` → `put accounts.json /data/accounts.json` → `put matches.jsonl /data/matches.jsonl` → thoát.
+3. `fly apps restart <app>` để server đọc lại dữ liệu. Vào `/ranking.html` kiểm tra bảng xếp hạng.
+Làm trước khi báo bạn bè địa chỉ mới (nếu có người đăng ký trên Fly trước khi chép, file sẽ bị ghi đè).
+
 ### Cách A — Render / Railway / Fly.io (dễ nhất, có https sẵn)
 1. Đăng nhập bằng GitHub, chọn repo `huyvtptvn/tam-quoc-sat` (repo private vẫn được).
 2. Chọn kiểu **Docker** (dùng `Dockerfile` có sẵn).
