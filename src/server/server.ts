@@ -269,7 +269,19 @@ export async function startServer(opts: ServerOptions = {}) {
   });
 
   // ---------- WebSocket ----------
-  const wss = new WebSocketServer({ server: http, path: '/ws' });
+  // Nén WebSocket (permessage-deflate, giữ ngữ cảnh giữa các tin): các tin trạng thái bàn chơi gần giống nhau
+  // nên giảm ~96% băng thông. Chỉ nén tin từ 512 byte; giới hạn số tác vụ nén chạy song song.
+  // Tắt bằng biến môi trường WS_COMPRESS=0.
+  const wsCompress = process.env.WS_COMPRESS !== '0';
+  const wss = new WebSocketServer({
+    server: http, path: '/ws',
+    perMessageDeflate: wsCompress ? {
+      zlibDeflateOptions: { level: 6, memLevel: 8 },
+      zlibInflateOptions: { chunkSize: 16 * 1024 },
+      threshold: 512,
+      concurrencyLimit: 10,
+    } : false,
+  });
   wss.on('connection', (ws: WebSocket) => {
     let session: PlayerSession | null = null;
     ws.on('message', (raw) => {
