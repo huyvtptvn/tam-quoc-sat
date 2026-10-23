@@ -383,7 +383,6 @@ test('Trúc Khoa (Lý Nghiêm chủ tướng): chọn lại được mọi quân
   assert.equal(ok, true);
   assert.ok(prompts.some((p) => p.startsWith('Trúc Khoa')), 'được hỏi chọn lại');
   assert.equal(drawn.length, 2, 'rút 2 quân lệnh để chọn 1');
-  assert.ok(!drawn.some((o) => o.startsWith('Quân lệnh 3')), 'không rút lại quân lệnh đang có');
   assert.ok(game.log.some((l) => l.includes('rút lại 2 quân lệnh và chọn: ' + drawn[0])));
   void hp;
 });

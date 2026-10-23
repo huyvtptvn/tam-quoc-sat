@@ -92,10 +92,10 @@ export async function reselectOrder(g: HegemonyGame, target: number, order: numb
     [`Giữ: ${ORDERS[order]}`, 'Rút 2 quân lệnh mới']);
   if (go !== 1) return order;
   if (!zk.slot.revealed) await g.reveal(target, zk.which);
-  // Rút ngẫu nhiên 2 quân lệnh khác quân lệnh đang có, chọn 1
-  const rest = [0, 1, 2, 3, 4, 5].filter((x) => x !== order);
-  const a = rest.splice(g.randomInt(rest.length), 1)[0];
-  const b = rest[g.randomInt(rest.length)];
+  // Rút ngẫu nhiên 2 quân lệnh (khác nhau) trong cả 6 — có thể trùng quân lệnh đang có — rồi chọn 1
+  const pool = [0, 1, 2, 3, 4, 5];
+  const a = pool.splice(g.randomInt(pool.length), 1)[0];
+  const b = pool[g.randomInt(pool.length)];
   const i = await g.choose(target, 'Trúc Khoa: chọn 1 trong 2 quân lệnh để chấp hành', [ORDERS[a], ORDERS[b]]);
   const next = i === 1 ? b : a;
   g.say(`${nameOf(g, target)} dùng Trúc Khoa, rút lại 2 quân lệnh và chọn: ${ORDERS[next]}.`);
