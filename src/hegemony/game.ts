@@ -1400,8 +1400,9 @@ export class HegemonyGame extends Game {
   // ---------- Kỹ năng chủ động và ký hiệu ----------
 
   private checkActiveArgs(seat: number, a: ActiveSkill, cardIds: number[], targets: number[]): string | null {
-    const hand = this.player(seat).hand;
-    if (new Set(cardIds).size !== cardIds.length || !cardIds.every((id) => hand.includes(id))) return 'Lá bài không hợp lệ';
+    const p0 = this.player(seat);
+    const own = a.equipCards ? [...p0.hand, ...EQUIP_SLOTS.flatMap((sl) => p0.equips[sl])] : p0.hand;
+    if (new Set(cardIds).size !== cardIds.length || !cardIds.every((id) => own.includes(id))) return 'Lá bài không hợp lệ';
     if (a.cards === 'none' && cardIds.length !== 0) return 'Kỹ năng này không cần chọn bài';
     if (a.cards === 'one' && cardIds.length !== 1) return 'Cần chọn đúng 1 lá';
     if (a.cards === 'any' && cardIds.length < 1) return 'Cần chọn ít nhất 1 lá';
@@ -1890,7 +1891,8 @@ export class HegemonyGame extends Game {
         ? this.alivePlayers().map((p) => p.seat).filter((t) => a.validTarget?.(this, seat, t) && this.canTarget(seat, t))
         : [];
       if (a.target === 'one' && targets.length === 0) continue;
-      const hand = this.player(seat).hand;
+      const pp = this.player(seat);
+      const hand = a.equipCards ? [...pp.hand, ...EQUIP_SLOTS.flatMap((sl) => pp.equips[sl])] : pp.hand;
       const validCards = a.cards === 'none' ? [] : hand.filter((id) => !a.cardOk || a.cardOk(this, seat, id));
       const minCards = a.minCards ?? (a.cards === 'none' ? 0 : 1);
       if (validCards.length < minCards) continue;

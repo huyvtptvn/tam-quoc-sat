@@ -319,3 +319,30 @@ test('Mễ Đạo (Trương Lỗ): được chọn cả bài trên tay lẫn tra
   assert.ok(!game.player(0).equips.armor.includes(eq), 'trang bị đã thành [Mễ]');
   assert.ok(game.player(0).special.includes(eq));
 });
+
+test('Chế Hành (Tôn Quyền) và Định Lan Dạ Minh Châu: bỏ được cả trang bị', async () => {
+  const { game } = makeHG([['sunquan', 'zhoutai'], ['caocao', 'xuchu'], ['liubei', 'guanyu']]);
+  await game.setup();
+  await revealAll(game, 0);
+  const w = game.state.drawPile.find((i) => CARD_INFO[game.card(i).name].slot === 'weapon')!;
+  await game.moveCards([w], { kind: 'draw' }, { kind: 'equip', seat: 0, slot: 'weapon' }, 'test');
+  enterPlay(game, 0);
+  const hint = (game as unknown as { skillHints: (s: number) => { skill: string; validCards?: number[] }[] }).skillHints(0).find((h) => h.skill === 'chehoanh');
+  assert.ok(hint?.validCards?.includes(w), 'gợi ý cho chọn trang bị');
+  const h0 = game.player(0).hand[0];
+  const n = game.cardCount(0);
+  assert.equal(await useSkill(game, 0, 'chehoanh', [w, h0]), null);
+  assert.equal(game.player(0).equips.weapon.length, 0, 'vũ khí đã bỏ');
+  assert.equal(game.cardCount(0), n, 'bỏ 2 rút 2');
+  // Minh Châu (tướng không có Chế Hành)
+  const { game: g2 } = makeHG([['caocao', 'xuchu'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng']]);
+  await g2.setup();
+  const mz = g2.state.drawPile.find((i) => g2.card(i).name === 'mingzhu');
+  assert.ok(mz !== undefined, 'bộ bài có Minh Châu');
+  await g2.moveCards([mz], { kind: 'draw' }, { kind: 'equip', seat: 0, slot: 'treasure' }, 'test');
+  const w2 = g2.state.drawPile.find((i) => CARD_INFO[g2.card(i).name].slot === 'armor')!;
+  await g2.moveCards([w2], { kind: 'draw' }, { kind: 'equip', seat: 0, slot: 'armor' }, 'test');
+  enterPlay(g2, 0);
+  assert.equal(await useSkill(g2, 0, 'mingzhu', [w2]), null);
+  assert.equal(g2.player(0).equips.armor.length, 0);
+});

@@ -405,7 +405,7 @@
 
   function eqLine(c, slotLabel) {
     if (!c) return `<div class="eq empty"><span class="sl">${slotLabel}</span></div>`;
-    return `<div class="eq" title="${esc(slotLabel + ': ' + C.cardLabel(c) + ' — ' + C.cardDesc(c.name))}"><span class="cn">${esc(C.cardLabel(c))}</span><span class="sr ${C.isRed(c) ? 'red' : ''}">${C.SUIT[c.suit]}${C.RANK[c.rank]}</span></div>`;
+    return `<div class="eq" data-eqcard="${c.id}" title="${esc(slotLabel + ': ' + C.cardLabel(c) + ' — ' + C.cardDesc(c.name))}"><span class="cn">${esc(C.cardLabel(c))}</span><span class="sr ${C.isRed(c) ? 'red' : ''}">${C.SUIT[c.suit]}${C.RANK[c.rank]}</span></div>`;
   }
 
   function zonesHTML(p, withEmpty) {
@@ -666,7 +666,7 @@
     const box = $('hand');
     const hand = view.myHand;
     if (view.spectator) { box.innerHTML = `<div class="none">Người xem không thấy bài trên tay. ${esc(me().name)} đang cầm ${me().handCount ?? 0} lá.</div>`; prev.hand = new Set(); return; }
-    if (!hand.length) { box.innerHTML = '<div class="none">Không có bài trên tay.</div>'; prev.hand = new Set(); return; }
+    if (!hand.length) { box.innerHTML = '<div class="none">Không có bài trên tay.</div>'; prev.hand = new Set(); decorateMyEquips(selectableCards(), new Set(selectedCards())); return; }
     const can = selectableCards();
     const chosen = new Set(selectedCards());
     const asking = !!req();
@@ -679,12 +679,23 @@
       return C.cardHTML(c, { cls, as: asOf(c.id) });
     }).join('');
     prev.hand = new Set(hand.map((c) => c.id));
+    decorateMyEquips(can, chosen);
     box.querySelectorAll('.card').forEach((el) => {
       const id = Number(el.dataset.card);
       el.onclick = () => clickCard(id);
       el.ondblclick = () => dblCard(id);
     });
     fitHand();
+  }
+
+  /** Trang bị của mình cũng chọn được khi câu hỏi cho phép (Chế Hành, bỏ bài kèm trang bị...). */
+  function decorateMyEquips(can, chosen) {
+    document.querySelectorAll('#myseat .eq[data-eqcard]').forEach((el) => {
+      const id = Number(el.dataset.eqcard);
+      el.classList.toggle('playable', can.has(id) && !chosen.has(id));
+      el.classList.toggle('selected', chosen.has(id));
+      el.onclick = can.has(id) || chosen.has(id) ? (e) => { e.stopPropagation(); clickCard(id); } : null;
+    });
   }
 
   function fitHand() {

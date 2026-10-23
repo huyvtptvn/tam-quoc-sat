@@ -790,3 +790,7 @@ body.ui-mobile .sk-tip { font-size: 12.5px; }
 .tb-actions { display: flex; align-items: center; gap: 12px; }
 @media (max-width: 640px) { .tb-actions { gap: 6px; } }
 .myseat .tags { flex-wrap: wrap; }
+
+/* Trang bị của mình chọn được (Chế Hành, bỏ bài kèm trang bị...) */
+#myseat .eq.playable { cursor: pointer; border-color: var(--act); box-shadow: 0 0 0 1px rgba(224, 83, 63, .5); }
+#myseat .eq.selected { cursor: pointer; border-color: var(--warn); background: rgba(227, 168, 69, .22); transform: translateY(-2px); }

@@ -6,7 +6,7 @@
 import type { Game } from '../core/game.js';
 import type { HegemonyGame } from './game.js';
 import { getGeneral } from './generals.js';
-import { EQUIP_SKILLS, SKILLS, type AnyTrigger, type SkillTrigger } from './skills.js';
+import { discardOwnCards, EQUIP_SKILLS, SKILLS, type AnyTrigger, type SkillTrigger } from './skills.js';
 import type { EventName } from '../core/events.js';
 
 const on = <K extends EventName>(t: SkillTrigger<K>) => t as unknown as AnyTrigger;
@@ -173,11 +173,12 @@ SKILLS.mingzhu = {
     cards: 'any',
     target: 'none',
     minCards: 1,
-    available: (g, seat) => !ownsZhiheng(g as HegemonyGame, seat) && !g.player(seat).flags.chehoanh && g.player(seat).hand.length > 0,
+    equipCards: true,
+    available: (g, seat) => !ownsZhiheng(g as HegemonyGame, seat) && !g.player(seat).flags.chehoanh && g.cardCount(seat) > 0,
     checkCards: (g, seat, ids) => (ids.length <= g.player(seat).maxHp ? null : `Chỉ được bỏ tối đa ${g.player(seat).maxHp} lá`),
     run: async (g, seat, cardIds) => {
       g.player(seat).flags.chehoanh = 1;
-      await g.moveCards(cardIds, { kind: 'hand', seat }, { kind: 'discard' }, 'chehoanh');
+      await discardOwnCards(g as HegemonyGame, seat, cardIds, 'chehoanh');
       await g.draw(seat, cardIds.length);
     },
   },

@@ -46,6 +46,8 @@ export interface ActiveSkill {
   /** Một lá có được chọn không (để UI/bot biết lá nào hợp lệ). */
   cardOk?: (g: HegemonyGame, seat: number, cardId: number) => boolean;
   run: (g: HegemonyGame, seat: number, cardIds: number[], targets: number[]) => Promise<void>;
+  /** true: được chọn cả lá trong vùng trang bị (Chế Hành, Định Lan Dạ Minh Châu). */
+  equipCards?: boolean;
   /** true: không tự lật tướng trước khi chạy — `run` tự lật khi chắc chắn dùng (Thao Loạn: chọn xong lá/mục tiêu mới lật). */
   revealInRun?: boolean;
 }
@@ -792,16 +794,17 @@ export const SKILLS: Record<string, Skill> = {
     id: 'chehoanh',
     name: 'Chế Hành',
     desc: 'Một lần trong giai đoạn ra bài, bạn có thể bỏ tối đa X lá (X là giới hạn máu của bạn), bạn rút số lá tương ứng. '
-      + 'Đang lắp Định Lan Dạ Minh Châu thì không giới hạn số lá. (Đơn giản hóa: chỉ bỏ bài trên tay.)',
+      + 'Đang lắp Định Lan Dạ Minh Châu thì không giới hạn số lá. (Bỏ được cả bài trên tay lẫn trang bị.)',
     active: {
       cards: 'any',
       target: 'none',
-      available: (g, seat) => !g.player(seat).flags.chehoanh && handOf(g, seat).length > 0,
+      equipCards: true,
+      available: (g, seat) => !g.player(seat).flags.chehoanh && g.cardCount(seat) > 0,
       checkCards: (g, seat, ids) => (g.equipOf(seat, 'treasure')?.name === 'mingzhu' || ids.length <= g.player(seat).maxHp
         ? null : `Chỉ được bỏ tối đa ${g.player(seat).maxHp} lá (lắp Định Lan Dạ Minh Châu thì không giới hạn)`),
       run: async (g, seat, cardIds) => {
         g.player(seat).flags.chehoanh = 1;
-        await g.moveCards(cardIds, { kind: 'hand', seat }, { kind: 'discard' }, 'chehoanh');
+        await discardOwnCards(g, seat, cardIds, 'chehoanh');
         await g.draw(seat, cardIds.length);
       },
     },
@@ -1381,7 +1384,8 @@ async function chooseOwn(g: HegemonyGame, seat: number, prompt: string, min: num
   const ids = await g.chooseCards(seat, prompt, pool, Math.min(min, pool.length), Math.min(max, pool.length), true);
   return ids.length ? ids : pool.slice(0, Math.min(min, pool.length));
 }
-async function discardOwnCards(g: HegemonyGame, seat: number, ids: number[], reason: string): Promise<void> {
+/** Bỏ các lá của chính mình (trên tay hoặc trong vùng trang bị) vào chồng bỏ. */
+export async function discardOwnCards(g: HegemonyGame, seat: number, ids: number[], reason: string): Promise<void> {
   const done: number[] = [];
   for (const id of ids) {
     const z = zoneOfOwn(g, seat, id);
@@ -2129,3 +2133,4 @@ function lianziX(g: HegemonyGame, seat: number): number {
   return fire + g.alivePlayers().filter((p) => g.shownKingdom(p.seat) === 'wu').reduce((n, p) => n + g.equipCount(p.seat), 0)
     + (g.shownKingdom(seat) === 'wu' ? 0 : g.equipCount(seat));
 }
+
