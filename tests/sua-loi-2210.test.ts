@@ -443,3 +443,18 @@ test('Dịch Quỷ (Tả Từ): bỏ 1 [Hồn] bất kỳ để xem như dùng T
   assert.equal(game.player(1).hp, hp, 'né được bằng Hồn');
   assert.equal(game.generalPile(1, 'Hồn').length, huns.length - 1, 'đã bỏ 1 Hồn');
 });
+
+test('Cận Hãm (Bành Dạng) lật cả 2 tướng đầu lượt: người xung quanh bị tác động trước, Bành Dạng úp tướng sau cùng', async () => {
+  const { game, ctrls } = makeHG([['liubei', 'pengyang'], ['caocao', 'xuchu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 1);
+  ctrls[0].set('reveal', () => ({ kind: 'reveal', main: true, deputy: true }))
+    .set('choose', (r) => { const o = (r as unknown as { options: string[] }).options; return { kind: 'choice', index: Math.max(0, o.indexOf('Bành Dạng')) }; });
+  const h2 = game.player(2).hand.length;
+  await (game as unknown as { askRevealAtTurnStart: (s: number) => Promise<void> }).askRevealAtTurnStart(0);
+  assert.ok(!(game.heroes[1].main.revealed && game.heroes[1].deputy.revealed), 'P1 (lật hết tướng) bị úp 1 tướng');
+  assert.equal(game.player(2).hand.length, h2 - 2, 'P2 (có tướng úp) bỏ 2 lá');
+  assert.equal(game.heroes[0].deputy.revealed, false, 'Bành Dạng úp lại');
+  const log = game.log.join('\n');
+  assert.ok(log.indexOf('P0 úp lại phó tướng Bành Dạng') > log.indexOf('P2 bỏ'), 'Bành Dạng úp sau cùng');
+});

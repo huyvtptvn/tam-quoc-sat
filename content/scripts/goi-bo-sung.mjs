@@ -10,8 +10,12 @@ import {
 
 /** Cận Hãm: mọi người ở khoảng cách ≤1 tính từ Bành Dạng (gồm cả Bành Dạng). */
 async function jinxianRun(g, o) {
-  for (const t of g.aliveSeatsFrom(o)) {
-    if (!g.player(t).alive || (t !== o && g.distance(o, t) > 1)) continue;
+  // Xét người khác trước (theo thứ tự ghế), chính Bành Dạng sau cùng: việc Bành Dạng úp lại tướng không làm mất hiệu lực với người khác
+  const order = [...g.aliveSeatsFrom(o).filter((t) => t !== o), o];
+  const affected = order.filter((t) => t === o || g.distance(o, t) <= 1);
+  g.say(`Cận Hãm tác động: ${affected.map((t) => name(g, t)).join(', ')}.`);
+  for (const t of affected) {
+    if (!g.player(t).alive) continue;
     const h = g.hero(t);
     const live = ['main', 'deputy'].filter((w) => !h[w].removed);
     if (live.some((w) => !h[w].revealed)) {
