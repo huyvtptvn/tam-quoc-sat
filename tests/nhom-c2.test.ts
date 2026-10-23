@@ -169,13 +169,16 @@ test('Lý Nghiêm: Trúc Khoa giảm 1 âm dương ngư khi là chủ tướng; 
   ctrls[0].set('confirm', onlySkill('jinwu')).set('chooseTargets', pickSeat(1));
   ctrls[0].set('choose', (req) => {
     const r = req as { prompt: string; options: string[] };
-    if (r.prompt.startsWith('Trúc Khoa')) return { kind: 'choice', index: r.options.findIndex((o) => o.includes('Quân lệnh 2:')) };
-    return { kind: 'choice', index: 0 };
+    if (r.prompt.startsWith('Trúc Khoa: chọn lại')) { reselect = true; return { kind: 'choice', index: 1 }; }
+    const i = r.options.findIndex((o) => o.includes('Quân lệnh 2:'));
+    return { kind: 'choice', index: i >= 0 ? i : 0 };
   });
+  let reselect = false;
   game.state.currentSeat = 0;
-  const n0 = game.player(0).hand.length, hp1 = game.player(1).hp;
+  const hp1 = game.player(1).hp;
   await game.bus.emit('phaseStart', { seat: 0, phase: 'play' });
-  assert.equal(game.player(0).hand.length, n0 + 1, 'quân lệnh 2 với chính mình: bốc 1 lá');
+  assert.ok(reselect, 'được hỏi chọn lại quân lệnh (Trúc Khoa)');
+  assert.ok(game.log.some((l) => l.includes('rút lại 2 quân lệnh')), 'rút 2 quân lệnh mới');
   assert.equal(game.player(1).hp, hp1 - 1, 'Sát của Căng Võ trúng');
   assert.ok(!game.player(0).flags.endPlay);
 });
