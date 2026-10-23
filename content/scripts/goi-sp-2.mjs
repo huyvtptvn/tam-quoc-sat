@@ -477,7 +477,7 @@ export default {
       id: 'zhuke', name: 'Trúc Khoa', position: 'main',
       desc: 'Chủ tướng kỹ, Giảm 0.5 máu gốc: • Sau khi bạn chọn chấp hành quân lệnh, bạn có thể chọn lại quân lệnh để chấp hành. '
         + '• Khi bạn nhận trạng thái xích hoặc trạng thái chồng tướng, bạn có thể lệnh 1 người cùng thế lực với bạn hồi 1 máu. '
-        + '(Chọn lại áp dụng cho mọi quân lệnh: Căng Võ, Hiệu Lệnh Thiên Hạ, kỹ năng ra quân lệnh của người khác...)',
+        + '(Chọn lại = rút ngẫu nhiên 2 quân lệnh mới và chọn 1; áp dụng cho mọi quân lệnh: Căng Võ, Hiệu Lệnh Thiên Hạ, kỹ năng ra quân lệnh của người khác...)',
       triggers: [
         ...halfHpObservers('liyan'),
         ...['cardsMoved', 'phaseStart', 'phaseEnd', 'turnEnd', 'damaged'].map((ev) => on(ev, (g, ctx, o) => zhukeCheck(g, ctx, o),

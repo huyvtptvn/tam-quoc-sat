@@ -88,13 +88,18 @@ export async function reselectOrder(g: HegemonyGame, target: number, order: numb
   const zk = g.skillEntries(target).find((e) => e.skill.id === 'zhuke');
   if (!zk || !g.player(target).alive) return order;
   if (!zk.slot.revealed && !g.canReveal(target)) return order;
-  const rest = [0, 1, 2, 3, 4, 5].filter((x) => x !== order);
-  const j = await g.choose(target, `Trúc Khoa${zk.slot.revealed ? '' : ' (lật tướng)'}: có thể chọn lại quân lệnh để chấp hành`,
-    [`Giữ: ${ORDERS[order]}`, ...rest.map((x) => ORDERS[x])]);
-  if (j <= 0) return order;
+  const go = await g.choose(target, `Trúc Khoa${zk.slot.revealed ? '' : ' (lật tướng)'}: chọn lại quân lệnh? (rút ngẫu nhiên 2 quân lệnh mới, chọn 1 để chấp hành)`,
+    [`Giữ: ${ORDERS[order]}`, 'Rút 2 quân lệnh mới']);
+  if (go !== 1) return order;
   if (!zk.slot.revealed) await g.reveal(target, zk.which);
-  g.say(`${nameOf(g, target)} dùng Trúc Khoa, chọn lại: ${ORDERS[rest[j - 1]]}.`);
-  return rest[j - 1];
+  // Rút ngẫu nhiên 2 quân lệnh khác quân lệnh đang có, chọn 1
+  const rest = [0, 1, 2, 3, 4, 5].filter((x) => x !== order);
+  const a = rest.splice(g.randomInt(rest.length), 1)[0];
+  const b = rest[g.randomInt(rest.length)];
+  const i = await g.choose(target, 'Trúc Khoa: chọn 1 trong 2 quân lệnh để chấp hành', [ORDERS[a], ORDERS[b]]);
+  const next = i === 1 ? b : a;
+  g.say(`${nameOf(g, target)} dùng Trúc Khoa, rút lại 2 quân lệnh và chọn: ${ORDERS[next]}.`);
+  return next;
 }
 
 /** Hỏi `target` có thực hiện quân lệnh không; thực hiện nếu đồng ý. Trả về true nếu đã thực hiện. */

@@ -373,15 +373,19 @@ test('Trúc Khoa (Lý Nghiêm chủ tướng): chọn lại được mọi quân
   ctrls[1].set('choose', (r) => {
     const x = r as unknown as { prompt: string; options: string[] };
     prompts.push(x.prompt);
-    if (x.prompt.startsWith('Trúc Khoa')) return { kind: 'choice', index: x.options.findIndex((o) => o.startsWith('Quân lệnh 4')) };
+    if (x.prompt.startsWith('Trúc Khoa: chọn lại')) return { kind: 'choice', index: 1 };
+    if (x.prompt.startsWith('Trúc Khoa: chọn 1 trong 2')) { drawn = x.options; return { kind: 'choice', index: 0 }; }
     return { kind: 'choice', index: 0 };
   });
+  let drawn: string[] = [];
   const hp = game.player(1).hp;
   const ok = await game.askOrder(0, 1, 2); // Quân lệnh 3: mất 1 máu
   assert.equal(ok, true);
   assert.ok(prompts.some((p) => p.startsWith('Trúc Khoa')), 'được hỏi chọn lại');
-  assert.equal(game.player(1).hp, hp, 'đổi sang quân lệnh 4: không mất máu');
-  assert.equal(game.player(1).flags.turn_banHand, 1);
+  assert.equal(drawn.length, 2, 'rút 2 quân lệnh để chọn 1');
+  assert.ok(!drawn.some((o) => o.startsWith('Quân lệnh 3')), 'không rút lại quân lệnh đang có');
+  assert.ok(game.log.some((l) => l.includes('rút lại 2 quân lệnh và chọn: ' + drawn[0])));
+  void hp;
 });
 
 test('Độc Tửu (Hà Thái Hậu): lượt người khác -> họ xem như dùng Tửu rồi chịu 1 sát thương; lượt mình -> chỉ dùng Tửu', async () => {
