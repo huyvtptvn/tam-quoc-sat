@@ -883,6 +883,10 @@ export class HegemonyGame extends Game {
   }
 
   /** Hỏi `target` có thực hiện quân lệnh không; true nếu đã thực hiện. */
+  /** Trúc Khoa: chọn lại quân lệnh để chấp hành. */
+  reselectOrder(target: number, order: number): Promise<number> {
+    return mech.reselectOrder(this, target, order);
+  }
   askOrder(issuer: number, target: number, order: number): Promise<boolean> {
     return mech.askOrder(this, issuer, target, order);
   }
@@ -1146,7 +1150,7 @@ export class HegemonyGame extends Game {
         if (group.length === 1) {
           const res = await this.ask({
             type: 'confirm', seat, skill: e.skill.id, reveal: !e.slot.revealed,
-            prompt: e.slot.revealed ? `Kích hoạt ${e.skill.name}?` : `Lật ${getGeneral(e.slot.generalId).name} để kích hoạt ${e.skill.name}?`,
+            prompt: (e.slot.revealed ? `Kích hoạt ${e.skill.name}` : `Lật ${getGeneral(e.slot.generalId).name} để kích hoạt ${e.skill.name}`) + promptDetail(trig, this, ctx, seat) + '?',
           });
           if (res.kind !== 'yes' || !trig.can(this, ctx, seat)) continue; // trạng thái có thể đã đổi trong lúc chờ
           await this.runTrigger(seat, e, trig, ctx);
@@ -1156,13 +1160,13 @@ export class HegemonyGame extends Game {
         while (group.length && alive()) {
           group = group.filter((k) => k === idx ? true : list[k].trig.can(this, ctx, seat));
           if (!group.length) break;
-          const opts = group.map((k) => (list[k].e.slot.revealed ? list[k].e.skill.name : `${list[k].e.skill.name} (lật ${getGeneral(list[k].e.slot.generalId).name})`));
+          const opts = group.map((k) => (list[k].e.slot.revealed ? list[k].e.skill.name : `${list[k].e.skill.name} (lật ${getGeneral(list[k].e.slot.generalId).name})`) + promptDetail(list[k].trig, this, ctx, seat));
           let pick: number;
           if (group.length === 1) {
             const c = list[group[0]];
             const res = await this.ask({
               type: 'confirm', seat, skill: c.e.skill.id, reveal: !c.e.slot.revealed,
-              prompt: c.e.slot.revealed ? `Kích hoạt ${c.e.skill.name}?` : `Lật ${getGeneral(c.e.slot.generalId).name} để kích hoạt ${c.e.skill.name}?`,
+              prompt: (c.e.slot.revealed ? `Kích hoạt ${c.e.skill.name}` : `Lật ${getGeneral(c.e.slot.generalId).name} để kích hoạt ${c.e.skill.name}`) + promptDetail(c.trig, this, ctx, seat) + '?',
             });
             if (res.kind !== 'yes') break;
             pick = group[0];
@@ -1523,7 +1527,8 @@ export class HegemonyGame extends Game {
   }
 
   /** Dùng kỹ năng xem như dùng lá `as` (lật tướng nếu đang úp), trả về lá ảo. */
-  private async useVirtual(seat: number, e: SkillEntry, as: CardName): Promise<Card> {
+  private async useVirtual(seat: number, e: SkillEntry, as: CardName): Promise<Card | null> {
+    if (e.skill.payVirtual && !(await e.skill.payVirtual(this, seat, as))) return null;
     if (!e.slot.revealed) await this.reveal(seat, e.which);
     if (e.slot.generalId) this.stat({ kind: 'skillUsed', seat, skill: e.skill.id, generalId: e.slot.generalId });
     this.say(`${this.player(seat).name} dùng ${e.skill.name}, xem như dùng ${this.cardInfo(as).label}.`);
@@ -1537,6 +1542,7 @@ export class HegemonyGame extends Game {
         prompt: `${e.skill.name}: ${e.slot.revealed ? '' : 'lật tướng, '}xem như dùng ${this.cardInfo(as).label}?`, respond: { accept, context } });
       if (res.kind !== 'yes') continue;
       const card = await this.useVirtual(seat, e, as);
+      if (!card) continue;
       await this.bus.emit('cardResponded', { seat, card, as, reason });
       return card;
     }
@@ -1550,7 +1556,7 @@ export class HegemonyGame extends Game {
       const as = vm[2] as CardName;
       const opt = this.virtualOptions(helper, [as], { dying }).find((o) => o.e.skill.id === vm[1]);
       if (!opt || (as === 'jiu' && helper !== dying)) return false;
-      await this.useVirtual(helper, opt.e, as);
+      if (!(await this.useVirtual(helper, opt.e, as))) return false;
       await this.recover(dying, 1, helper);
       return true;
     }
@@ -1936,4 +1942,12 @@ export class HegemonyGame extends Game {
 /** Tỏa định kỹ (không bị Thiết Kỵ vô hiệu): không có phần chủ động / chuyển hóa và mọi trigger đều là tỏa định. */
 function isLockedSkill(skill: Skill): boolean {
   return !skill.active && !skill.convert && (skill.triggers ?? []).every((t) => t.compulsory);
+}
+
+/** Phần mô tả thêm của câu hỏi kích hoạt kỹ năng (trigger.prompt), dạng " — ...". */
+function promptDetail(trig: { prompt?: (g: HegemonyGame, ctx: never, owner: number) => string }, g: HegemonyGame, ctx: unknown, owner: number): string {
+  try {
+    const t = trig.prompt?.(g, ctx as never, owner);
+    return t ? ` — ${t}` : '';
+  } catch { return ''; }
 }

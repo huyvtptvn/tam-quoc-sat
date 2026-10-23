@@ -464,16 +464,7 @@ export default {
             return;
           }
           // Trúc Khoa (chủ tướng): được chọn lại quân lệnh để chấp hành
-          const zk = g.skillEntries(o).find((e) => e.skill.id === 'zhuke');
-          if (zk) {
-            const rest = [0, 1, 2, 3, 4, 5].filter((x) => x !== order);
-            const j = await g.choose(o, 'Trúc Khoa: có thể chọn lại quân lệnh để chấp hành', [`Giữ: ${ORDER_SHORT[order]}`, ...rest.map((x) => ORDER_SHORT[x])]);
-            if (j > 0) {
-              if (!zk.slot.revealed) await g.reveal(o, zk.which);
-              order = rest[j - 1];
-              g.say(`${name(g, o)} dùng Trúc Khoa, chọn lại: ${ORDER_SHORT[order]}.`);
-            }
-          }
+          order = await g.reselectOrder(o, order);
           await doOrder(g, o, o, order);
           if (!g.player(o).alive) return;
           const ts = g.targetsAs(o, 'sha');
@@ -486,7 +477,7 @@ export default {
       id: 'zhuke', name: 'Trúc Khoa', position: 'main',
       desc: 'Chủ tướng kỹ, Giảm 0.5 máu gốc: • Sau khi bạn chọn chấp hành quân lệnh, bạn có thể chọn lại quân lệnh để chấp hành. '
         + '• Khi bạn nhận trạng thái xích hoặc trạng thái chồng tướng, bạn có thể lệnh 1 người cùng thế lực với bạn hồi 1 máu. '
-        + '(Đơn giản hóa: chọn lại quân lệnh chỉ áp dụng cho quân lệnh của Căng Võ.)',
+        + '(Chọn lại áp dụng cho mọi quân lệnh: Căng Võ, Hiệu Lệnh Thiên Hạ, kỹ năng ra quân lệnh của người khác...)',
       triggers: [
         ...halfHpObservers('liyan'),
         ...['cardsMoved', 'phaseStart', 'phaseEnd', 'turnEnd', 'damaged'].map((ev) => on(ev, (g, ctx, o) => zhukeCheck(g, ctx, o),

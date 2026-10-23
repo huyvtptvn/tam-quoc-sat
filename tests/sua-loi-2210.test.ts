@@ -346,3 +346,100 @@ test('Chế Hành (Tôn Quyền) và Định Lan Dạ Minh Châu: bỏ được 
   assert.equal(await useSkill(g2, 0, 'mingzhu', [w2]), null);
   assert.equal(g2.player(0).equips.armor.length, 0);
 });
+
+// ---------------- 23/10 tối ----------------
+
+test('Chế Man (Mã Tắc): chỉ chặn sát thương khi mục tiêu có trang bị hoặc lá phán xét', async () => {
+  const { game, ctrls } = makeHG([['masu', 'liubei'], ['caocao', 'xuchu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0);
+  const asked: string[] = [];
+  ctrls[0].set('confirm', (r) => { asked.push((r as { skill: string }).skill); return { kind: 'no' }; });
+  for (const sl of ['weapon', 'armor', 'defHorse', 'offHorse', 'treasure'] as const) game.player(1).equips[sl] = [];
+  game.player(1).judgeArea = [];
+  await game.damage({ source: 0, target: 1, amount: 1, card: null, cancelled: false });
+  assert.ok(!asked.includes('zhiman'), 'không có trang bị / phán xét: không hỏi Chế Man');
+  const w = game.state.drawPile.find((i) => CARD_INFO[game.card(i).name].slot === 'weapon')!;
+  await game.moveCards([w], { kind: 'draw' }, { kind: 'equip', seat: 1, slot: 'weapon' }, 'test');
+  await game.damage({ source: 0, target: 1, amount: 1, card: null, cancelled: false });
+  assert.ok(asked.includes('zhiman'), 'có trang bị: được hỏi');
+});
+
+test('Trúc Khoa (Lý Nghiêm chủ tướng): chọn lại được mọi quân lệnh, kể cả do người khác ra', async () => {
+  const { game, ctrls } = makeHG([['caocao', 'xuchu'], ['liyan', 'liubei'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 1);
+  const prompts: string[] = [];
+  ctrls[1].set('choose', (r) => {
+    const x = r as unknown as { prompt: string; options: string[] };
+    prompts.push(x.prompt);
+    if (x.prompt.startsWith('Trúc Khoa')) return { kind: 'choice', index: x.options.findIndex((o) => o.startsWith('Quân lệnh 4')) };
+    return { kind: 'choice', index: 0 };
+  });
+  const hp = game.player(1).hp;
+  const ok = await game.askOrder(0, 1, 2); // Quân lệnh 3: mất 1 máu
+  assert.equal(ok, true);
+  assert.ok(prompts.some((p) => p.startsWith('Trúc Khoa')), 'được hỏi chọn lại');
+  assert.equal(game.player(1).hp, hp, 'đổi sang quân lệnh 4: không mất máu');
+  assert.equal(game.player(1).flags.turn_banHand, 1);
+});
+
+test('Độc Tửu (Hà Thái Hậu): lượt người khác -> họ xem như dùng Tửu rồi chịu 1 sát thương; lượt mình -> chỉ dùng Tửu', async () => {
+  const { game, ctrls } = makeHG([['hetaihou', 'lvbu'], ['caocao', 'xuchu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0);
+  const prompts: string[] = [];
+  ctrls[0].set('confirm', (r) => { const x = r as { skill: string; prompt: string }; if (x.skill === 'zhendu') prompts.push(x.prompt); return { kind: x.skill === 'zhendu' ? 'yes' : 'no' }; });
+  enterPlay(game, 1);
+  const hp = game.player(1).hp;
+  await game.bus.emit('phaseStart', { seat: 1, phase: 'play' });
+  assert.equal(game.player(1).flags.jiuBuff, 1, 'P1 xem như dùng Tửu');
+  assert.equal(game.player(1).hp, hp - 1, 'P1 chịu 1 sát thương');
+  assert.ok(prompts[0]?.includes(game.player(1).name), 'câu hỏi nêu tên người đang có lượt');
+  enterPlay(game, 0);
+  const hp0 = game.player(0).hp;
+  await game.bus.emit('phaseStart', { seat: 0, phase: 'play' });
+  assert.equal(game.player(0).flags.jiuBuff, 1);
+  assert.equal(game.player(0).hp, hp0, 'lượt mình: không tự gây sát thương');
+});
+
+test('Thích Loạn: rút X (số người trận vong lượt này) + 2 cho mỗi người do mình giết', async () => {
+  const { game, ctrls } = makeHG([['hetaihou', 'lvbu'], ['caocao', 'xuchu'], ['sunquan', 'lvmeng'], ['liubei', 'guanyu'], ['zhangjiao', 'yuanshao']]);
+  await game.setup();
+  ctrls[0].set('confirm', (r) => ({ kind: (r as { skill: string }).skill === 'qiluan' ? 'yes' : 'no' }));
+  game.state.currentSeat = 1;
+  await game.bus.emit('death', { seat: 2, killer: 0 } as never);
+  await game.bus.emit('death', { seat: 3, killer: 1 } as never);
+  const n = game.player(0).hand.length;
+  await game.bus.emit('turnEnd', { seat: 1 } as never);
+  assert.equal(game.player(0).hand.length, n + 2 + 2, '2 người chết + 2 (1 người do mình giết)');
+});
+
+test('Bi Ca: câu hỏi kích hoạt nêu rõ ai phán xét', async () => {
+  const { game, ctrls } = makeHG([['caiwenji', 'diaochan'], ['caocao', 'xuchu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0);
+  let prompt = '';
+  ctrls[0].set('confirm', (r) => { const x = r as { skill: string; prompt: string }; if (x.skill === 'beige') prompt = x.prompt; return { kind: 'no' }; });
+  const sha = game.state.drawPile.find((i) => game.card(i).name === 'sha')!;
+  await game.damage({ source: 2, target: 1, amount: 1, card: game.card(sha), cardAs: 'sha', cancelled: false } as never);
+  assert.ok(prompt.includes(game.player(1).name) && prompt.includes(game.player(2).name), prompt);
+});
+
+test('Dịch Quỷ (Tả Từ): bỏ 1 [Hồn] bất kỳ để xem như dùng Thiểm', async () => {
+  const { game, ctrls } = makeHG([['caocao', 'xuchu'], ['new_zuoci', 'lvbu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0);
+  await game.reveal(1, 'main');
+  const huns = game.generalPile(1, 'Hồn');
+  assert.ok(huns.length >= 1, 'đã nhận Hồn');
+  for (const id of [...game.player(1).hand]) await game.moveCards([id], { kind: 'hand', seat: 1 }, { kind: 'discard' }, 'test');
+  ctrls[1].set('confirm', (r) => ({ kind: (r as { skill: string }).skill === 'yigui' ? 'yes' : 'no' })).set('choose', () => ({ kind: 'choice', index: 0 }));
+  const s = await take(game, 0, (c) => c.name === 'sha' && !c.nature);
+  const hp = game.player(1).hp;
+  enterPlay(game, 0);
+  assert.ok(game.targetsAs(0, 'sha').includes(1));
+  await game.useCard(0, s, [1]);
+  assert.equal(game.player(1).hp, hp, 'né được bằng Hồn');
+  assert.equal(game.generalPile(1, 'Hồn').length, huns.length - 1, 'đã bỏ 1 Hồn');
+});

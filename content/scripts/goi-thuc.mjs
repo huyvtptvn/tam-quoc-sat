@@ -3,7 +3,7 @@
 // ============================================================
 import {
   allCards, askOrder, chooseOwn, clearProcessing, discardFrom, discardOwn, drawOrder, give, hand, isBasic, isRed, label,
-  limitedUsed, lostHp, markLimited, maxHp, name, observe, on, others, pindian, revealTop, sameFactionSeats, slotOf, store, takeFrom,
+  limitedUsed, lostHp, markLimited, maxHp, name, observe, on, others, pindian, revealTop, sameFactionSeats, slotOf, store, takeFrom, SLOTS,
 } from './lib/tro-giup.mjs';
 
 const isHand = (g, s, c) => g.player(s).hand.includes(c.id);
@@ -500,7 +500,9 @@ export default {
         + 'hoặc phán xét của họ; nếu họ cùng thế lực với bạn, bạn có thể lệnh họ đổi Phó tướng.',
       bot: { confirm: false },
       triggers: [
-        on('beforeDamage', (g, ctx, o) => ctx.source === o && ctx.target !== o && g.player(ctx.target).alive, async (g, ctx, o) => {
+        // Chỉ chặn được khi người bị đánh có lá trong vùng trang bị hoặc vùng phán xét (để thu lấy)
+        on('beforeDamage', (g, ctx, o) => ctx.source === o && ctx.target !== o && g.player(ctx.target).alive && !ctx.cancelled
+          && (SLOTS.some((sl) => g.player(ctx.target).equips[sl].length > 0) || g.player(ctx.target).judgeArea.length > 0), async (g, ctx, o) => {
           ctx.cancelled = true;
           g.say(`${name(g, o)} ngăn sát thương lên ${name(g, ctx.target)}.`);
           await takeFrom(g, o, ctx.target, 'Chế Man: chọn lá để lấy', { hand: false, equip: true, judge: true });

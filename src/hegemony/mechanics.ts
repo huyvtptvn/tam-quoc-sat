@@ -80,11 +80,29 @@ function zoneOfOwn(g: HegemonyGame, seat: number, id: number): Zone | null {
   return null;
 }
 
+/**
+ * Trúc Khoa (Lý Nghiêm, chủ tướng kỹ): sau khi chọn chấp hành quân lệnh, có thể chọn lại quân lệnh để chấp hành.
+ * Trả về quân lệnh sẽ chấp hành (0..5).
+ */
+export async function reselectOrder(g: HegemonyGame, target: number, order: number): Promise<number> {
+  const zk = g.skillEntries(target).find((e) => e.skill.id === 'zhuke');
+  if (!zk || !g.player(target).alive) return order;
+  if (!zk.slot.revealed && !g.canReveal(target)) return order;
+  const rest = [0, 1, 2, 3, 4, 5].filter((x) => x !== order);
+  const j = await g.choose(target, `Trúc Khoa${zk.slot.revealed ? '' : ' (lật tướng)'}: có thể chọn lại quân lệnh để chấp hành`,
+    [`Giữ: ${ORDERS[order]}`, ...rest.map((x) => ORDERS[x])]);
+  if (j <= 0) return order;
+  if (!zk.slot.revealed) await g.reveal(target, zk.which);
+  g.say(`${nameOf(g, target)} dùng Trúc Khoa, chọn lại: ${ORDERS[rest[j - 1]]}.`);
+  return rest[j - 1];
+}
+
 /** Hỏi `target` có thực hiện quân lệnh không; thực hiện nếu đồng ý. Trả về true nếu đã thực hiện. */
 export async function askOrder(g: HegemonyGame, issuer: number, target: number, order: number): Promise<boolean> {
   if (!g.player(target).alive) return false;
   const yes = await g.choose(target, `${nameOf(g, issuer)} ban quân lệnh — ${ORDERS[order]}. Bạn có thực hiện không?`, ['Thực hiện', 'Không thực hiện']);
   if (yes !== 0) { g.say(`${nameOf(g, target)} không thực hiện quân lệnh.`); return false; }
+  order = await reselectOrder(g, target, order);
   g.say(`${nameOf(g, target)} thực hiện quân lệnh.`);
   const p = g.player(target);
   const own = () => [...p.hand, ...EQUIP_SLOTS.flatMap((s) => p.equips[s])];

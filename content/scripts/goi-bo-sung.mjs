@@ -537,8 +537,31 @@ export default {
         + '• Khi bạn cần sử dụng lá cơ bản hoặc công cụ phổ thông có mục tiêu, nếu bạn chưa sử dụng lá đó bằng kỹ năng này trong lượt này, '
         + 'bạn có thể bỏ 1 [Hồn], xem như bạn sử dụng lá đó; bạn không thể chỉ định người có thế lực khác với [Hồn] làm mục tiêu của lá này '
         + '(người chưa có thế lực coi như khác mọi thế lực). '
-        + '(Đơn giản hóa: dùng chủ động trong giai đoạn ra bài, hoặc dùng như Đào khi có người hấp hối.)',
-      bot: { use: 'always', confirm: (v, h) => v.players.some((p) => p.alive && p.hp <= 0 && h.isAlly(p.seat)) },
+        + '(Dùng chủ động trong giai đoạn ra bài; dùng như Đào khi có người hấp hối; khi cần đáp lại có thể bỏ 1 [Hồn] bất kỳ để xem như dùng [Thiểm] hoặc [Vô Giải].)',
+      bot: {
+        use: 'always',
+        confirm: (v, h, req) => {
+          const r = req?.respond;
+          if (!r) return v.players.some((p) => p.alive && p.hp <= 0 && h.isAlly(p.seat));
+          if (r.accept.includes('shan')) return true;
+          const c = r.context;
+          if (!c || c.kind !== 'nullify') return false;
+          return !c.cancelled ? h.isAlly(c.target) && !h.isAlly(c.user) : h.isAlly(c.user) && !h.isAlly(c.target);
+        },
+      },
+      // Cần Thiểm / Vô Giải: bỏ 1 [Hồn] bất kỳ (không xét thế lực), mỗi loại 1 lần mỗi lượt
+      virtualRespond: (g, s, accept) => {
+        if (!g.generalPile(s, 'Hồn').length) return [];
+        return ['shan', 'wuxie'].filter((n) => accept.includes(n) && !yiguiUsed(g, s).includes(n));
+      },
+      payVirtual: async (g, s, as) => {
+        const huns = g.generalPile(s, 'Hồn');
+        if (!huns.length) return false;
+        const hi = huns.length > 1 ? await g.choose(s, `Dịch Quỷ: bỏ 1 [Hồn] để xem như dùng ${g.cardInfo(as).label}`, huns.map((id) => hunLabel(g, id))) : 0;
+        yiguiUsed(g, s).push(as);
+        g.removeFromGeneralPile(s, 'Hồn', [huns[hi]]);
+        return true;
+      },
       active: {
         cards: 'none', target: 'none',
         available: (g, s) => inMyPlay(g, s) && yiguiCombos(g, s).length > 0,

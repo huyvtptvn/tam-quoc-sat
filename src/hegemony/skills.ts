@@ -25,6 +25,8 @@ export interface SkillTrigger<K extends EventName> {
   /** Chỉ ghi nhận sự kiện (observe): không bao giờ phát động, không xét khi gom nhóm kỹ năng. */
   observer?: boolean;
   run: (g: HegemonyGame, ctx: EventMap[K], owner: number) => void | Promise<void>;
+  /** Mô tả thêm khi hỏi kích hoạt (ví dụ "cho P3"): hiện sau tên kỹ năng. */
+  prompt?: (g: HegemonyGame, ctx: EventMap[K], owner: number) => string;
 }
 
 /** Union của mọi loại trigger, để một mảng có thể chứa trigger của nhiều sự kiện khác nhau. */
@@ -63,6 +65,8 @@ export interface Skill {
    * `accept`: các lá đang cần; `dying`: người hấp hối khi đang hỏi cứu (Đào/Rượu).
    */
   virtualRespond?: (g: HegemonyGame, owner: number, accept: CardName[], ctx: { context?: RespondContext; dying?: number }) => CardName[];
+  /** Trả giá khi xem như dùng lá qua `virtualRespond` (ví dụ bỏ 1 [Hồn]). Trả về false = hủy, không dùng. */
+  payVirtual?: (g: HegemonyGame, owner: number, as: CardName) => Promise<boolean>;
   /** Chuyển hóa: lá này còn được tính như những loại nào (Long Đảm, Võ Thánh, Cấp Cứu). */
   convert?: (g: HegemonyGame, seat: number, card: Card) => CardName[];
   /** Số lần Sát tối đa mỗi lượt (Bào Hao = Infinity). */

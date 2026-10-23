@@ -87,7 +87,7 @@ export default {
             if (suit === 'club') await g.forceDiscard(src, 2, 'beige');
             else g.turnOver(src);
           }
-        }),
+        }, { prompt: (g, ctx) => `bỏ 1 lá, cho ${name(g, ctx.target)} phán xét${ctx.source !== null ? ` (nguồn sát thương: ${name(g, ctx.source)})` : ''}` }),
       ],
     },
     {
@@ -370,32 +370,44 @@ export default {
     // ---------------- Hà Thái Hậu ----------------
     {
       id: 'zhendu', name: 'Độc Tửu',
-      desc: 'Khi bắt đầu giai đoạn ra bài của người khác, bạn có thể bỏ 1 lá bài trên tay, nếu họ thỏa mãn điều kiện sử dụng [Tửu], thực hiện lần lượt: '
-        + 'họ xem như sử dụng [Tửu]; bạn gây 1 sát thương cho họ.',
-      bot: { confirm: (v, h) => !h.isAlly(v.currentSeat) && v.players[v.currentSeat].hp <= 2 },
+      desc: 'Khi bắt đầu giai đoạn ra bài của mỗi người, bạn có thể bỏ 1 lá bài trên tay để lệnh người đang có lượt xem như sử dụng 1 [Tửu]; '
+        + 'sau đó nếu đây không phải lượt của bạn, bạn gây 1 sát thương cho người đó.',
+      // Bot: lượt mình thì uống Rượu khi có Sát để đánh; lượt kẻ địch thì dùng khi họ yếu (sát thương có thể kết liễu)
+      bot: { confirm: (v, h) => (v.currentSeat === v.me
+        ? v.myHand.some((c) => c.name === 'sha') && v.myHand.length >= 2
+        : !h.isAlly(v.currentSeat) && (v.players[v.currentSeat].hp <= 2 || v.players[v.currentSeat].handCount <= 1)) },
       triggers: [
-        on('phaseStart', (g, ctx, o) => ctx.seat !== o && ctx.phase === 'play' && hand(g, o).length > 0 && g.player(ctx.seat).alive
-          && !g.player(ctx.seat).flags.jiuUsed,
+        on('phaseStart', (g, ctx, o) => ctx.phase === 'play' && hand(g, o).length > 0 && g.player(ctx.seat).alive && g.player(o).alive,
           async (g, ctx, o) => {
             const [id] = await g.chooseCards(o, 'Độc Tửu: bỏ 1 lá trên tay', [...hand(g, o)], 1, 1);
+            if (id === undefined) return;
             await discardOwn(g, o, [id]);
-            const p = g.player(ctx.seat);
-            p.flags.jiuUsed = 1;
-            p.flags.jiuBuff = 1;
-            g.say(`${p.name} xem như sử dụng Rượu.`);
-            await g.damage({ source: o, target: ctx.seat, amount: 1, card: null, cancelled: false });
-          }),
+            const t = ctx.seat;
+            if (!g.player(t).alive) return;
+            await g.useCardAs(t, 'jiu', [t], [], { label: `Độc Tửu của ${name(g, o)}` });
+            if (t !== o && g.player(t).alive) await g.damage({ source: o, target: t, amount: 1, card: null, cancelled: false });
+          }, { prompt: (g, ctx, o) => (ctx.seat === o ? 'bỏ 1 lá, bạn xem như dùng [Tửu]' : `bỏ 1 lá, ${name(g, ctx.seat)} xem như dùng [Tửu] rồi bạn gây 1 sát thương cho họ`) }),
       ],
     },
     {
       id: 'qiluan', name: 'Thích Loạn',
-      desc: 'Khi kết thúc lượt của 1 người, nếu trong lượt này bạn đã giết người, bạn có thể rút 3 lá.',
+      desc: 'Khi kết thúc lượt của mỗi người, bạn có thể rút X lá (X là số người trận vong trong lượt này); '
+        + 'với mỗi người do bạn giết trong số đó, bạn rút thêm 2 lá.',
       triggers: [
-        observe('death', (g, ctx, o) => { if (ctx.killer === o) store(g)[`qiluan:${o}`] = g.state.turnCount; }),
-        on('turnEnd', (g, _ctx, o) => store(g)[`qiluan:${o}`] === g.state.turnCount, async (g, _ctx, o) => {
-          delete store(g)[`qiluan:${o}`];
-          await g.draw(o, 3);
+        observe('death', (g, ctx, o) => {
+          const k = `qiluan:${o}`;
+          const st = store(g)[k]?.turn === g.state.turnCount ? store(g)[k] : (store(g)[k] = { turn: g.state.turnCount, deaths: 0, kills: 0 });
+          st.deaths += 1;
+          if (ctx.killer === o) st.kills += 1;
         }),
+        on('turnEnd', (g, _ctx, o) => store(g)[`qiluan:${o}`]?.turn === g.state.turnCount && store(g)[`qiluan:${o}`].deaths > 0 && g.player(o).alive,
+          async (g, _ctx, o) => {
+            const st = store(g)[`qiluan:${o}`];
+            delete store(g)[`qiluan:${o}`];
+            const n = st.deaths + 2 * st.kills;
+            g.say(`Thích Loạn: lượt này có ${st.deaths} người trận vong${st.kills ? `, ${name(g, o)} giết ${st.kills} người` : ''} — rút ${n} lá.`);
+            await g.draw(o, n);
+          }),
       ],
     },
 
