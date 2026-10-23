@@ -161,6 +161,8 @@ export class Room {
   mulligan = true;
   /** Cho người có chủ tướng có bản quân chủ đổi thành quân chủ. */
   lord = true;
+  /** Mật khẩu phòng ('' = phòng mở). */
+  password = '';
   /** Thảo Phạt (đánh boss): boss ngồi thêm 1 ghế cuối, do máy điều khiển. */
   boss: { id: string; difficulty: BossDifficulty } | null = null;
   private controllers: Controller[] = [];
@@ -188,6 +190,7 @@ export class Room {
       deck: this.deck, deckLabel: deckLabel(this.deck),
       mode: this.mode, modeLabel: this.boss ? 'Thảo Phạt' : GAME_MODES[this.mode].label, mulligan: this.mulligan, lord: this.lord,
       spectators: this.spectators.map((s) => s.name),
+      ...(this.password ? { locked: true } : {}),
       boss: this.boss ? { id: this.boss.id, name: BOSSES[this.boss.id].name, difficulty: this.boss.difficulty, difficultyLabel: BOSS_DIFFICULTY[this.boss.difficulty].label } : null,
       seats: this.seats.map((s, index) => s.kind === 'human'
         ? { index, kind: 'human', name: s.session.name, connected: s.session.connected, ...(s.session.username ? { username: s.session.username } : {}) }
@@ -483,6 +486,13 @@ export class Lobby {
   };
 
   /** Tài khoản đang kết nối: id tài khoản -> tên phòng (null nếu ở sảnh). */
+  /** Số người đang kết nối (khách + tài khoản). */
+  onlineCount(): number {
+    let n = 0;
+    for (const s of this.byToken.values()) if (s.ws) n++;
+    return n;
+  }
+
   onlineAccounts(): Map<string, string | null> {
     const out = new Map<string, string | null>();
     for (const s of this.byToken.values()) {
@@ -614,6 +624,7 @@ export class Lobby {
         if (typeof msg.mode === 'string' && msg.mode in GAME_MODES) r.mode = msg.mode as GameMode;
         if (typeof msg.mulligan === 'boolean') r.mulligan = msg.mulligan;
         if (typeof msg.lord === 'boolean') r.lord = msg.lord;
+        if (typeof msg.password === 'string') r.password = msg.password.trim().slice(0, 20);
         if (typeof msg.boss === 'string' && BOSSES[msg.boss]) {
           r.boss = { id: msg.boss, difficulty: (typeof msg.bossDifficulty === 'string' && msg.bossDifficulty in BOSS_DIFFICULTY ? msg.bossDifficulty : 'normal') as BossDifficulty };
         }
@@ -628,6 +639,7 @@ export class Lobby {
         if (room) return err('Bạn đang ở trong một phòng');
         const r = this.rooms.get(msg.roomId);
         if (!r) return err('Phòng không tồn tại');
+        if (r.password && msg.password !== r.password) return session.send({ t: 'needPassword', roomId: r.id, action: 'join', wrong: msg.password !== undefined });
         if (r.status !== 'waiting') return err('Phòng đang chơi');
         if (r.seats.length >= r.maxSeats) return err('Phòng đã đủ người');
         if (session.accountId && r.humans().some((h) => h.accountId === session.accountId)) return err('Tài khoản này đã ngồi trong phòng');
@@ -643,6 +655,7 @@ export class Lobby {
         if (room) return err('Bạn đang ở trong một phòng');
         const r = this.rooms.get(msg.roomId);
         if (!r) return err('Phòng không tồn tại');
+        if (r.password && msg.password !== r.password) return session.send({ t: 'needPassword', roomId: r.id, action: 'spectate', wrong: msg.password !== undefined });
         r.addSpectator(session);
         this.broadcastRooms();
         return;

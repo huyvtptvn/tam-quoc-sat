@@ -15,17 +15,18 @@
 <link rel="stylesheet" href="/ui/fonts.css">
 <link rel="stylesheet" href="/ui/cards.css">
 <link rel="stylesheet" href="/ui/game.css">
+<link rel="stylesheet" href="/ui/home.css">
 </head>
 <body>
 <header class="topbar">
   <a class="brand" href="/" title="Về trang chính" style="color:inherit;text-decoration:none"><span class="mark">三国</span><span>Tam Quốc Sát</span></a>
+  <nav id="lobbyNav" class="nav-tabs hidden" aria-label="Sảnh"><a class="on" href="#" id="navRooms">Phòng</a><a href="/ranking.html" target="_blank" rel="noopener">Xếp hạng</a></nav>
   <span id="connState" class="muted"></span>
   <span class="spacer"></span>
-  <span id="accBadge" class="acc-badge hidden"></span>
+  <span id="accBadge" class="me-chip hidden"></span>
   <button id="btnMenu" class="btn small ghost" type="button" aria-label="Menu" aria-expanded="false">☰</button>
   <div id="tbActions" class="tb-actions">
   <button id="btnSound" class="btn small ghost" type="button">🔊 Tiếng</button>
-  <a class="btn small ghost hide-sm" href="/ranking.html" target="_blank" rel="noopener">Xếp hạng</a>
   <button id="btnLogout" class="btn small ghost hidden" type="button">Đăng xuất</button>
   <button id="sideToggle" class="btn small ghost" type="button">Nhật ký</button>
   <button id="btnSurrender" class="btn small ghost hidden" type="button" title="Đầu hàng: tướng của bạn chết ngay, không được tính thắng">🏳 Đầu hàng</button>
@@ -36,70 +37,106 @@
 </header>
 <div id="rotateHint" class="hidden"><span>📱↻ Xoay ngang điện thoại để chơi thoải mái hơn</span><button type="button" id="rotateHintX" aria-label="Ẩn">×</button></div>
 
-<!-- Vào game -->
+<!-- Vào game: đăng nhập (khách / tài khoản / quản trị) -->
 <section id="login" class="screen">
-  <div class="hero">
-    <div class="seal-big" aria-hidden="true">三国</div>
-    <div>
-      <h1>Tam Quốc Sát<br>Quốc Chiến</h1>
-      <p>Chọn hai tướng cùng thế lực, giấu mặt đến phút quyết định. Bàn có bot ngồi sẵn, vào là chơi được.</p>
-      <div class="ui-choice" role="radiogroup" aria-label="Giao diện">
-        <span class="muted">Giao diện:</span>
-        <label><input type="radio" name="uimode" value="pc"> 💻 Máy tính</label>
-        <label><input type="radio" name="uimode" value="mobile"> 📱 Điện thoại</label>
+  <main class="auth">
+    <section class="auth-hero">
+      <div class="seal-big" aria-hidden="true">三国</div>
+      <div>
+        <h1>Tam Quốc Sát<br>Quốc Chiến</h1>
+        <p>Chọn hai tướng cùng thế lực, giấu mặt đến phút quyết định. Phòng có bot ngồi sẵn — vào là chơi được.</p>
+        <div class="auth-stats" id="authStats"><div><b id="stRooms">–</b>phòng đang mở</div><div><b id="stGames">–</b>ván đang chơi</div><div><b id="stOnline">–</b>người online</div></div>
       </div>
-      <div class="login-tabs" role="tablist">
-        <button type="button" class="on" data-ltab="guest" role="tab">Chơi như khách</button>
-        <button type="button" data-ltab="account" role="tab">Tài khoản (có xếp hạng)</button>
+    </section>
+    <section class="auth-card" aria-label="Đăng nhập">
+      <div class="seg login-tabs" role="tablist">
+        <button type="button" class="on" data-ltab="guest" role="tab">Khách</button>
+        <button type="button" data-ltab="account" role="tab">Tài khoản</button>
+        <button type="button" data-ltab="admin" role="tab">Quản trị</button>
       </div>
       <form id="loginForm">
         <input id="name" class="field" placeholder="Tên hiển thị" maxlength="24" autocomplete="nickname" required>
         <button class="btn primary" type="submit">Vào sảnh</button>
+        <p class="hint">Khách chơi bình thường nhưng không lưu Elo. Tạo tài khoản để lên bảng xếp hạng.</p>
       </form>
       <form id="accountForm" class="hidden">
         <input id="accUser" class="field" placeholder="Tên đăng nhập" maxlength="20" autocomplete="username" required>
         <input id="accPass" class="field" type="password" placeholder="Mật khẩu (ít nhất 6 ký tự)" maxlength="100" autocomplete="current-password" required>
         <input id="accDisplay" class="field hidden" placeholder="Tên hiển thị (không bắt buộc)" maxlength="24" autocomplete="nickname">
         <button class="btn primary" type="submit" id="accSubmit">Đăng nhập</button>
-        <button class="btn ghost" type="button" id="accSwitch">Chưa có tài khoản? Đăng ký</button>
+        <div class="row"><span class="muted" id="accSwitchHint">Chưa có tài khoản?</span><button class="linklike" type="button" id="accSwitch">Đăng ký</button></div>
         <p id="accErr" class="acc-err hidden" role="alert"></p>
       </form>
-      <p class="muted" style="font-size:13px;margin-top:10px">Khách vẫn chơi bình thường nhưng không được lưu điểm. <a href="/ranking.html" class="muted">Xem bảng xếp hạng</a></p>
-    </div>
-  </div>
+      <form id="adminForm" class="hidden">
+        <span class="admin-tag">🔒 Chỉ dành cho quản trị viên</span>
+        <input id="adminCode" class="field" type="password" placeholder="Mã quản trị (admin code)" autocomplete="off" required>
+        <button class="btn primary" type="submit">Vào trang quản trị</button>
+        <p class="hint">Mã là biến môi trường <code>ADMIN_TOKEN</code> trên server (chạy trên máy: file <code>.admin-token</code>).</p>
+        <p id="adminErr" class="acc-err hidden" role="alert"></p>
+      </form>
+      <div class="ui-pick ui-choice" role="radiogroup" aria-label="Giao diện">
+        <label><input type="radio" name="uimode" value="pc"> 💻 Máy tính</label>
+        <label><input type="radio" name="uimode" value="mobile"> 📱 Điện thoại</label>
+      </div>
+    </section>
+  </main>
 </section>
 
 <!-- Sảnh -->
 <section id="lobby" class="screen hidden">
-  <div class="wrap lobby-grid">
-    <div class="panel">
-      <h2>Phòng đang mở</h2>
-      <div id="rooms"></div>
+  <main class="lobby2">
+    <div class="head">
+      <h1>Sảnh chờ</h1>
+      <div class="quick">
+        <button class="btn" type="button" id="btnQuick" title="Vào phòng đang chờ còn ghế, không có thì tạo phòng mới với bot">⚡ Vào nhanh</button>
+        <button class="btn" type="button" id="btnCode" title="Nhập mã phòng bạn bè gửi">🔑 Vào bằng mã phòng</button>
+        <button class="btn primary" type="button" id="btnCreate">＋ Tạo phòng</button>
+      </div>
     </div>
-    <form id="createForm" class="panel form-col">
+    <section class="panel">
+      <h2>Phòng đang mở <span class="muted" id="roomCount" style="font-size:14px;font-weight:400"></span></h2>
+      <div class="filters" id="roomFilters">
+        <button class="chip on" type="button" data-f="all">Tất cả</button><button class="chip" type="button" data-f="waiting">Đang chờ</button><button class="chip" type="button" data-f="playing">Đang chơi</button><button class="chip" type="button" data-f="qc">Quốc Chiến</button><button class="chip" type="button" data-f="boss">Thảo Phạt</button>
+      </div>
+      <div id="rooms" class="room-cards"></div>
+    </section>
+    <aside class="side-col">
+      <section class="panel" id="meBox"></section>
+      <section class="panel">
+        <h2>Bảng xếp hạng <a href="/ranking.html" target="_blank" rel="noopener">Xem tất cả ›</a></h2>
+        <div id="lbBox" class="muted">Đang tải…</div>
+      </section>
+    </aside>
+  </main>
+</section>
+
+<!-- Hộp tạo phòng -->
+<div id="createDlg" class="dlg-back hidden">
+    <form id="createForm" class="dlg" role="dialog" aria-label="Tạo phòng">
       <h2>Tạo phòng</h2>
-      <label>Tên phòng <input id="roomName" class="field" maxlength="40" placeholder="Phòng của bạn"></label>
+      <div class="grid2">
+      <label style="grid-column:1/-1">Tên phòng <input id="roomName" class="field" maxlength="40" placeholder="Phòng của bạn"></label>
       <label>Kiểu ván
         <select id="roomKind" class="field">
           <option value="qc" selected>Quốc Chiến (ẩn phe)</option>
           <option value="boss">Thảo Phạt (cùng nhau đánh boss)</option>
         </select>
       </label>
-      <div id="bossOpts" class="form-col hidden" style="gap:8px">
+      <label><span id="roomSeatsLabel">Số người</span>
+        <select id="roomSeats" class="field">
+          <option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option><option>8</option>
+        </select>
+      </label>
+      <div id="bossOpts" class="grid2 hidden" style="grid-column:1/-1">
         <label>Boss <select id="roomBoss" class="field"></select></label>
         <label>Độ khó
           <select id="roomBossDiff" class="field">
             <option value="normal" selected>Thường</option><option value="hard">Khó</option><option value="nightmare">Ác mộng</option>
           </select>
         </label>
-        <p id="roomBossDesc" class="muted" style="margin:-4px 0 0;font-size:13px"></p>
+        <p id="roomBossDesc" class="muted desc"></p>
       </div>
-      <label><span id="roomSeatsLabel">Số người</span>
-        <select id="roomSeats" class="field">
-          <option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option><option>8</option>
-        </select>
-      </label>
-      <label>Thời gian mỗi lần trả lời
+      <label>Thời gian trả lời
         <select id="roomTimeout" class="field">
           <option value="15">15 giây</option><option value="30" selected>30 giây</option><option value="60">60 giây</option>
         </select>
@@ -109,22 +146,23 @@
           <option value="quocchien" selected>Quốc Chiến</option><option value="quantranh">Quân Tranh</option><option value="ungbien">Ứng Biến</option>
         </select>
       </label>
-      <p id="roomDeckDesc" class="muted" style="margin:-4px 0 0;font-size:13px"></p>
-      <label>Chế độ chọn tướng
+      <p id="roomDeckDesc" class="muted desc"></p>
+      <label>Chọn tướng
         <select id="roomMode" class="field">
           <option value="normal" selected>Bình thường</option>
           <option value="free">Tự chọn tướng</option>
           <option value="chaos">Loạn tướng</option>
         </select>
       </label>
-      <p id="roomModeDesc" class="muted" style="margin:-4px 0 0;font-size:13px"></p>
-      <label class="muted" style="display:flex;gap:8px;align-items:center"><input id="roomMulligan" type="checkbox" checked> Cho đổi 4 lá bài khởi đầu</label>
-      <label class="muted" style="display:flex;gap:8px;align-items:center"><input id="roomLord" type="checkbox" checked> Cho đổi chủ tướng thành quân chủ (Lưu Bị, Trương Giác, Tào Tháo, Tôn Quyền - Quân)</label>
-      <label class="muted" style="display:flex;gap:8px;align-items:center"><input id="autoFill" type="checkbox" checked> Thêm bot cho đủ ghế</label>
-      <button class="btn primary" type="submit">Tạo phòng</button>
+      <label>Mật khẩu phòng <input id="roomPassword" class="field" maxlength="20" placeholder="(bỏ trống = phòng mở)" autocomplete="off"></label>
+      <p id="roomModeDesc" class="muted desc"></p>
+      <label class="chk"><input id="roomMulligan" type="checkbox" checked> Cho đổi 4 lá khởi đầu</label>
+      <label class="chk"><input id="roomLord" type="checkbox" checked> Cho đổi thành quân chủ</label>
+      <label class="chk" style="grid-column:1/-1"><input id="autoFill" type="checkbox" checked> Thêm bot cho đủ ghế</label>
+      </div>
+      <div class="foot"><button class="btn ghost" type="button" id="createCancel">Hủy</button><button class="btn primary" type="submit">Tạo phòng</button></div>
     </form>
-  </div>
-</section>
+</div>
 
 <!-- Phòng chờ -->
 <section id="room" class="screen hidden">

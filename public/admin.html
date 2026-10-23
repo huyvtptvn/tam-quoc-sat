@@ -4,71 +4,134 @@
 <meta charset="utf-8">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%225%22 fill=%22%23a8281d%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%23f6e9d2%22 font-family=%22serif%22%3ES%3C/text%3E%3C/svg%3E">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tam Quốc Sát – Quản trị nội dung</title>
+<title>Tam Quốc Sát · Quản trị</title>
 <link rel="stylesheet" href="/ui/fonts.css">
 <link rel="stylesheet" href="/ui/cards.css">
+<link rel="stylesheet" href="/ui/game.css">
+<link rel="stylesheet" href="/ui/home.css">
 <style>
-  :root { --bg:#f4f2ee; --panel:#fff; --ink:#22201c; --muted:#76706a; --line:#e0dbd2; --accent:#8a2a2a; --ok:#2d6a37; --warn:#9a6400; }
-  * { box-sizing:border-box; }
-  body { margin:0; font:14px/1.45 system-ui, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
-  header { padding:10px 16px; background:#22201c; color:#f4f2ee; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-  header h1 { font-size:16px; margin:0; font-weight:600; }
-  header .muted { color:#bdb5aa; }
-  .wrap { display:grid; grid-template-columns:240px minmax(0,1fr) 380px; gap:12px; padding:12px 16px; }
-  @media (max-width: 1100px) { .wrap { grid-template-columns:1fr; } }
-  .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px; margin-bottom:12px; }
-  .panel h2 { font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:0 0 8px; }
-  button { font:inherit; padding:6px 10px; border-radius:6px; border:1px solid var(--line); background:#fff; cursor:pointer; margin:2px 2px 2px 0; }
-  button.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
-  button.danger { color:var(--accent); }
-  input, select { font:inherit; padding:5px 8px; border:1px solid var(--line); border-radius:6px; }
-  textarea { width:100%; min-height:460px; font:13px/1.5 ui-monospace, Consolas, monospace; padding:10px; border:1px solid var(--line); border-radius:6px; tab-size:2; resize:vertical; }
-  .file { padding:4px 6px; border-radius:4px; cursor:pointer; font-family:ui-monospace, monospace; font-size:12.5px; word-break:break-all; }
-  .file:hover { background:#f2ede4; }
-  .file.sel { background:#f3e3d3; font-weight:600; }
-  .msg { white-space:pre-wrap; font-family:ui-monospace, monospace; font-size:12.5px; padding:6px 8px; border-radius:4px; margin:4px 0; }
-  .msg.err { background:#fbeaea; color:#7a1f1f; }
-  .msg.warn { background:#fdf3e1; color:#6e4a00; }
-  .msg.ok { background:#e9f4ea; color:#1f4d27; }
-  .tabs button.on { background:#22201c; color:#fff; border-color:#22201c; }
-  .help { max-height:70vh; overflow:auto; font-size:13px; }
-  .help dt { font-family:ui-monospace, monospace; font-weight:600; margin-top:8px; }
-  .help dd { margin:2px 0 0 0; color:#4a453f; }
-  .help .vars { font-size:12px; color:var(--muted); }
-  code { font-family:ui-monospace, monospace; background:#f2ede4; padding:0 4px; border-radius:3px; }
-  table { border-collapse:collapse; width:100%; font-size:13px; }
-  td, th { border-bottom:1px solid var(--line); padding:4px 6px; text-align:left; }
-  tr.content td { background:#fbf4e8; }
-  .muted { color:var(--muted); }
-  /* Hình ảnh */
-  .img-wrap { padding:0 16px 16px; }
-  .img-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; margin-top:10px; }
-  .img-item { display:flex; flex-direction:column; align-items:center; gap:6px; padding:10px 8px; border:1px solid var(--line); border-radius:8px; background:#faf8f4; }
-  .img-item.has { border-color:#c9a46a; background:#fbf4e8; }
+  /* Trang quản trị: cùng tông màu với game */
+  .pane h1 { margin: 0 0 12px; font-size: 24px; }
+  .pane .panel { margin-bottom: 14px; }
+  .panel h2 { font-size: 16px; }
+  .content-grid { display: grid; grid-template-columns: 240px minmax(0, 1fr) 360px; gap: 14px; }
+  @media (max-width: 1200px) { .content-grid { grid-template-columns: 1fr; } }
+  .adm main button:not(.btn), .gate button:not(.btn) { font: inherit; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--rim-dim); background: linear-gradient(180deg, rgba(60,44,26,.9), rgba(34,24,14,.9)); color: var(--bone); cursor: pointer; margin: 2px 2px 2px 0; }
+  .adm main button.primary { background: linear-gradient(180deg, #b33a2a, #85241a); border-color: #e0a36a; font-weight: 700; }
+  .adm main button.danger { color: #ffb3a8; border-color: rgba(184,67,58,.7); }
+  .adm main input:not([type=checkbox]):not([type=radio]), .adm main select { font: inherit; padding: 5px 8px; border: 1px solid var(--rim-dim); border-radius: 6px; background: rgba(8,6,4,.55); color: var(--bone); }
+  textarea { width: 100%; min-height: 460px; font: 13px/1.5 ui-monospace, Consolas, monospace; padding: 10px; border: 1px solid var(--rim-dim); border-radius: 6px; tab-size: 2; resize: vertical; background: rgba(8,6,4,.6); color: var(--bone); }
+  .file { padding: 4px 6px; border-radius: 4px; cursor: pointer; font-family: ui-monospace, monospace; font-size: 12.5px; word-break: break-all; }
+  .file:hover { background: rgba(197,152,82,.12); }
+  .file.sel { background: rgba(224,83,63,.2); font-weight: 600; }
+  .msg { white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 12.5px; padding: 6px 8px; border-radius: 4px; margin: 4px 0; }
+  .msg.err { background: rgba(214,81,63,.18); color: #ffc2b8; }
+  .msg.warn { background: rgba(227,168,69,.16); color: #f6d38f; }
+  .msg.ok { background: rgba(95,174,124,.16); color: #b9e6c7; }
+  .tabs button.on { background: var(--act) !important; color: #fff; border-color: var(--act) !important; }
+  .help { max-height: 70vh; overflow: auto; font-size: 13px; }
+  .help dt { font-family: ui-monospace, monospace; font-weight: 600; margin-top: 8px; }
+  .help dd { margin: 2px 0 0 0; color: var(--bone-2); }
+  .help .vars { font-size: 12px; color: var(--bone-2); }
+  code { font-family: ui-monospace, monospace; background: rgba(0,0,0,.35); padding: 0 4px; border-radius: 3px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  td, th { border-bottom: 1px solid rgba(197,152,82,.15); padding: 5px 6px; text-align: left; }
+  th { color: var(--bone-2); font-weight: 400; }
+  tr.content td { background: rgba(197,152,82,.08); }
+  .img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 10px; }
+  .img-item { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 8px; border: 1px solid var(--rim-dim); border-radius: 8px; background: rgba(0,0,0,.25); }
+  .img-item.has { border-color: var(--rim); background: rgba(197,152,82,.08); }
   .img-item .card { --cw: 104px; }
   .img-item .portrait { --pw: 96px; }
-  .img-item .key { font-family:ui-monospace, monospace; font-size:12px; color:var(--muted); word-break:break-all; text-align:center; }
-  .img-item .acts { display:flex; gap:4px; }
-  .img-item .acts button, .img-item .acts label { font-size:12.5px; padding:4px 8px; }
-  .img-item label.up { border:1px solid var(--line); border-radius:6px; background:#fff; cursor:pointer; }
-  .img-item label.up input { display:none; }
-  .drop-hint { border:2px dashed transparent; }
-  .img-item.drag { border-color:var(--accent); border-style:dashed; }
+  .img-item .key { font-family: ui-monospace, monospace; font-size: 12px; color: var(--bone-2); word-break: break-all; text-align: center; }
+  .img-item .acts { display: flex; gap: 4px; }
+  .img-item .acts button, .img-item .acts label { font-size: 12.5px; padding: 4px 8px; }
+  .img-item label.up { border: 1px solid var(--rim-dim); border-radius: 6px; cursor: pointer; }
+  .img-item label.up input { display: none; }
+  .img-item.drag { border-color: var(--act); border-style: dashed; }
+  .gate { display: grid; place-items: center; min-height: calc(100vh - 48px); padding: 16px; }
+  .gate .auth-card { width: min(420px, 100%); }
+  .lan-link { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .lan-link code { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; padding: 6px 8px; }
+  body.locked #admApp { display: none; }
 </style>
 </head>
-<body>
-<header>
-  <h1>Quản trị nội dung</h1>
-  <span id="status" class="muted"></span>
-  <span style="flex:1"></span>
-  <input id="token" type="password" placeholder="Mã quản trị (ADMIN_TOKEN)" style="width:220px">
-  <button id="btnLogin" class="primary">Đăng nhập</button>
-  <a href="/" style="color:#f4f2ee">Trang chính</a> <a href="/game.html" style="color:#f4f2ee">Vào chơi ↗</a>
+<body class="locked">
+<header class="topbar">
+  <a class="brand" href="/admin.html" style="color:inherit;text-decoration:none"><span class="mark">三国</span><span>Quản trị</span></a>
+  <span class="admin-tag hide-sm" id="admTag">🔒 Đăng nhập bằng mã quản trị</span>
+  <span id="status" class="muted hide-sm" style="font-size:13px"></span>
+  <span class="spacer"></span>
+  <a class="btn small ghost" href="/game.html" target="_blank" rel="noopener">↗ Mở sảnh chơi</a>
+  <button class="btn small ghost" type="button" id="btnAdmLogout">Thoát quản trị</button>
 </header>
 
-<div class="wrap">
-  <div>
-    <div class="panel">
+<section id="gate" class="gate hidden">
+  <div class="auth-card">
+    <h2>Đăng nhập quản trị</h2>
+    <p class="hint">Nhập mã quản trị (ADMIN_TOKEN). Bạn cũng có thể đăng nhập ở tab <b>Quản trị</b> trên <a href="/game.html">trang chính</a>.</p>
+    <form id="gateForm" style="display:flex;flex-direction:column;gap:10px">
+      <input id="token" class="field" type="password" placeholder="Mã quản trị (ADMIN_TOKEN)" autocomplete="off">
+      <button id="btnLogin" class="btn primary" type="submit">Đăng nhập</button>
+      <p id="gateErr" class="acc-err hidden" role="alert"></p>
+    </form>
+  </div>
+</section>
+
+<div class="adm" id="admApp">
+  <nav id="admNav">
+    <span class="grp">Hệ thống</span>
+    <a href="#tong-quan" data-pane="tong-quan"><span class="i">总</span>Tổng quan</a>
+    <a href="#tai-khoan" data-pane="tai-khoan"><span class="i">人</span>Tài khoản</a>
+    <span class="grp">Nội dung</span>
+    <a href="#noi-dung" data-pane="noi-dung"><span class="i">将</span>Tướng, kỹ năng &amp; lá bài</a>
+    <a href="#hinh-anh" data-pane="hinh-anh"><span class="i">画</span>Hình ảnh</a>
+    <a href="#mo-phong" data-pane="mo-phong"><span class="i">试</span>Kiểm tra &amp; mô phỏng</a>
+    <span class="grp">Khác</span>
+    <a href="/docs.html" target="_blank" rel="noopener"><span class="i">知</span>Hướng dẫn viết kỹ năng ↗</a>
+    <a href="#lan" data-pane="lan"><span class="i">网</span>Mời qua mạng LAN</a>
+  </nav>
+  <main>
+    <section class="pane" id="pane-tong-quan">
+      <h1>Tổng quan</h1>
+      <p class="muted" style="margin:0" id="ovSub">Đang tải…</p>
+      <div class="kpis">
+        <div class="kpi"><b id="kRooms">–</b><span>Phòng đang mở</span></div>
+        <div class="kpi"><b id="kGames">–</b><span>Ván đang chơi</span></div>
+        <div class="kpi"><b id="kOnline">–</b><span>Người đang online</span></div>
+        <div class="kpi"><b id="kAcc">–</b><span>Tài khoản</span></div>
+      </div>
+      <div class="adm-grid">
+        <div class="panel">
+      <h2>Phòng đang mở <button id="btnRooms" style="float:right">Làm mới</button></h2>
+      <div id="adminRooms" class="muted">(chưa tải)</div>
+      <div class="muted" style="margin-top:4px">Giải tán = hủy ván đang chơi (không tính điểm/Elo), đưa mọi người và người xem về sảnh.</div>
+    </div>
+        <div class="panel"><h2>Lối tắt</h2>
+          <div style="display:grid;gap:8px">
+            <a class="btn" href="#noi-dung">＋ Thêm / sửa tướng, kỹ năng, lá bài</a>
+            <a class="btn" href="#hinh-anh">🖼 Tải ảnh tướng, lá bài</a>
+            <a class="btn" href="#mo-phong">🧪 Chạy mô phỏng</a>
+            <a class="btn" href="#tai-khoan">👤 Quản lý tài khoản</a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="pane hidden" id="pane-tai-khoan"><h1>Tài khoản</h1><div class="panel">
+    <h2>Tài khoản <span id="accCount" class="muted"></span> <button id="btnAccounts" style="float:right">Làm mới</button></h2>
+    <input id="accSearch" placeholder="Tìm theo tên đăng nhập / tên hiển thị" style="width:280px;margin-bottom:6px">
+    <label class="muted" style="margin-left:10px"><input type="checkbox" id="accOnline"> chỉ người đang online</label>
+    <div id="accMsg"></div>
+    <div style="max-height:420px;overflow:auto"><table id="accTable"><thead><tr>
+      <th data-s="username">Tên đăng nhập</th><th data-s="displayName">Tên hiển thị</th><th data-s="online">Trạng thái</th>
+      <th data-s="rating">Elo</th><th data-s="games">Ván</th><th data-s="winRate">Thắng %</th><th data-s="mvps">MVP</th>
+      <th data-s="boss">Thảo Phạt</th><th data-s="devices">Thiết bị</th><th data-s="createdAt">Tạo lúc</th><th data-s="lastPlayed">Chơi gần nhất</th><th></th>
+    </tr></thead><tbody></tbody></table></div>
+    <div class="muted" style="margin-top:4px">Bấm tiêu đề cột để sắp xếp. Mật khẩu chỉ lưu dạng băm, quản trị viên không xem được; chỉ có thể <b>đặt mật khẩu tạm</b> mới rồi báo lại cho người chơi.</div>
+  </div></section>
+    <section class="pane hidden" id="pane-noi-dung"><h1>Tướng, kỹ năng &amp; lá bài</h1>
+      <div class="content-grid">
+        <div><div class="panel">
       <h2>File nội dung</h2>
       <div id="files" class="muted">Đăng nhập để xem.</div>
       <div style="margin-top:10px">
@@ -83,11 +146,8 @@
         </select>
       </div>
       <button id="btnReload" style="margin-top:8px">↻ Nạp lại từ đĩa</button>
-    </div>
-  </div>
-
-  <div>
-    <div class="panel">
+    </div></div>
+        <div><div class="panel">
       <h2>Soạn thảo · <span id="curFile" class="muted">chưa chọn file</span></h2>
       <div style="margin-bottom:6px">
         <input id="path" placeholder="skills/ten-file.json" style="width:280px">
@@ -97,15 +157,28 @@
       </div>
       <textarea id="editor" spellcheck="false" placeholder="Chọn một file bên trái, hoặc tạo file mới từ mẫu."></textarea>
       <div id="result"></div>
+    </div></div>
+        <div><div class="panel">
+      <h2>Tra cứu</h2>
+      <div class="tabs" id="helpTabs">
+        <button data-tab="events" class="on">Sự kiện</button><button data-tab="actions">Hành động</button><button data-tab="vars">Biến & hàm</button><button data-tab="list">Tướng & kỹ năng</button>
+      </div>
+      <div id="help" class="help"></div>
+      <div class="muted" style="margin-top:8px">Hướng dẫn đầy đủ: file <code>content/HUONG-DAN-KY-NANG.md</code> (<a href="/docs.html" target="_blank">mở</a>)</div>
+    </div></div>
+      </div>
+    </section>
+    <section class="pane hidden" id="pane-hinh-anh"><h1>Hình ảnh</h1><div class="panel">
+    <h2>Hình ảnh lá bài & tướng</h2>
+    <div class="muted">Bấm <b>Tải ảnh</b> hoặc kéo-thả file ảnh vào ô. PNG / JPG / WEBP / GIF, tối đa 3 MB. Lá bài nên tỉ lệ 5:7 (ví dụ 500×700) — chỉ là phần tranh, khung và chữ do game tự vẽ. Tướng nên tỉ lệ 3:4. Ảnh lưu ở <code>content/images/</code>; người chơi tải lại trang là thấy. Chỉ dùng ảnh bạn có quyền sử dụng.</div>
+    <div class="tabs" id="imgTabs" style="margin-top:8px">
+      <button data-img="cards" class="on">Lá bài</button><button data-img="generals">Tướng</button><button data-img="back">Mặt sau</button>
+      <label style="margin-left:12px" class="muted"><input type="checkbox" id="imgOnlyMissing"> chỉ hiện mục chưa có ảnh</label>
     </div>
-
-    <div class="panel">
-      <h2>Phòng đang mở <button id="btnRooms" style="float:right">Làm mới</button></h2>
-      <div id="adminRooms" class="muted">(chưa tải)</div>
-      <div class="muted" style="margin-top:4px">Giải tán = hủy ván đang chơi (không tính điểm/Elo), đưa mọi người và người xem về sảnh.</div>
-    </div>
-
-    <div class="panel">
+    <div id="imgMsg"></div>
+    <div id="imgGrid" class="img-grid"></div>
+  </div></section>
+    <section class="pane hidden" id="pane-mo-phong"><h1>Kiểm tra &amp; mô phỏng</h1><div class="panel">
       <h2>Mô phỏng (bot đấu bot)</h2>
       <div>
         Số ván <input id="simGames" type="number" value="100" min="1" max="1000" style="width:80px">
@@ -115,47 +188,12 @@
       </div>
       <div class="muted" style="margin:4px 0">Mô phỏng chạy với nội dung đã LƯU trên đĩa, trong tiến trình riêng (không ảnh hưởng người đang chơi). "Thử tướng" = ghế 0 luôn cầm tướng đó.</div>
       <div id="sim"></div>
-    </div>
-  </div>
-
-  <div>
-    <div class="panel">
-      <h2>Tra cứu</h2>
-      <div class="tabs" id="helpTabs">
-        <button data-tab="events" class="on">Sự kiện</button><button data-tab="actions">Hành động</button><button data-tab="vars">Biến & hàm</button><button data-tab="list">Tướng & kỹ năng</button>
-      </div>
-      <div id="help" class="help"></div>
-      <div class="muted" style="margin-top:8px">Hướng dẫn đầy đủ: file <code>content/HUONG-DAN-KY-NANG.md</code> (<a href="/docs.html" target="_blank">mở</a>)</div>
-    </div>
-  </div>
-</div>
-
-<div class="img-wrap" id="tai-khoan">
-  <div class="panel">
-    <h2>Tài khoản <span id="accCount" class="muted"></span> <button id="btnAccounts" style="float:right">Làm mới</button></h2>
-    <input id="accSearch" placeholder="Tìm theo tên đăng nhập / tên hiển thị" style="width:280px;margin-bottom:6px">
-    <label class="muted" style="margin-left:10px"><input type="checkbox" id="accOnline"> chỉ người đang online</label>
-    <div id="accMsg"></div>
-    <div style="max-height:420px;overflow:auto"><table id="accTable"><thead><tr>
-      <th data-s="username">Tên đăng nhập</th><th data-s="displayName">Tên hiển thị</th><th data-s="online">Trạng thái</th>
-      <th data-s="rating">Elo</th><th data-s="games">Ván</th><th data-s="winRate">Thắng %</th><th data-s="mvps">MVP</th>
-      <th data-s="boss">Thảo Phạt</th><th data-s="devices">Thiết bị</th><th data-s="createdAt">Tạo lúc</th><th data-s="lastPlayed">Chơi gần nhất</th><th></th>
-    </tr></thead><tbody></tbody></table></div>
-    <div class="muted" style="margin-top:4px">Bấm tiêu đề cột để sắp xếp. Mật khẩu chỉ lưu dạng băm, quản trị viên không xem được; chỉ có thể <b>đặt mật khẩu tạm</b> mới rồi báo lại cho người chơi.</div>
-  </div>
-</div>
-
-<div class="img-wrap" id="hinh-anh">
-  <div class="panel">
-    <h2>Hình ảnh lá bài & tướng</h2>
-    <div class="muted">Bấm <b>Tải ảnh</b> hoặc kéo-thả file ảnh vào ô. PNG / JPG / WEBP / GIF, tối đa 3 MB. Lá bài nên tỉ lệ 5:7 (ví dụ 500×700) — chỉ là phần tranh, khung và chữ do game tự vẽ. Tướng nên tỉ lệ 3:4. Ảnh lưu ở <code>content/images/</code>; người chơi tải lại trang là thấy. Chỉ dùng ảnh bạn có quyền sử dụng.</div>
-    <div class="tabs" id="imgTabs" style="margin-top:8px">
-      <button data-img="cards" class="on">Lá bài</button><button data-img="generals">Tướng</button><button data-img="back">Mặt sau</button>
-      <label style="margin-left:12px" class="muted"><input type="checkbox" id="imgOnlyMissing"> chỉ hiện mục chưa có ảnh</label>
-    </div>
-    <div id="imgMsg"></div>
-    <div id="imgGrid" class="img-grid"></div>
-  </div>
+    </div></section>
+    <section class="pane hidden" id="pane-lan"><h1>Mời qua mạng LAN</h1>
+      <div class="panel"><h2>Link cho bạn bè cùng wifi</h2><div id="lan" class="muted">Đang lấy địa chỉ…</div>
+        <p class="muted" style="font-size:13px">Chỉ dùng khi server chạy trên máy của bạn. Nếu bạn bè không vào được, cho phép Node.js qua tường lửa Windows.</p></div>
+    </section>
+  </main>
 </div>
 
 <script src="/ui/cards.js"></script>
@@ -202,9 +240,19 @@ async function api(path, opts = {}) {
   return body;
 }
 
+let lanShown = false;
 async function refreshStatus() {
   const s = await (await fetch('/api/status')).json();
-  $('status').textContent = `Nội dung phiên bản ${s.contentVersion}${s.pendingContent ? ' · có thay đổi đang chờ (sẽ áp dụng khi các ván kết thúc)' : ''} · ${s.activeGames} ván đang chơi`;
+  $('status').textContent = `Nội dung v${s.contentVersion}${s.pendingContent ? ' · có thay đổi đang chờ' : ''}`;
+  $('kRooms').textContent = s.rooms; $('kGames').textContent = s.activeGames; $('kOnline').textContent = s.online ?? '–';
+  $('ovSub').textContent = `Server đang chạy · nội dung phiên bản ${s.contentVersion}${s.pendingContent ? ' · có thay đổi đang chờ (áp dụng khi các ván kết thúc)' : ''} · cập nhật ${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`;
+  if (!lanShown) {
+    lanShown = true;
+    const links = (s.lan || []).map((ip) => `http://${ip}:${s.port || location.port || 80}/game.html`);
+    $('lan').innerHTML = links.length ? links.map((u) => `<div class="lan-link"><code>${esc(u)}</code><button type="button" data-copy="${esc(u)}">Sao chép</button></div>`).join('')
+      : '<span class="muted">Máy chưa kết nối mạng LAN nào (hoặc server đang chạy trên cloud).</span>';
+    document.querySelectorAll('[data-copy]').forEach((b) => { b.onclick = async () => { try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'Đã chép'; } catch { b.textContent = 'Chép thủ công'; } }; });
+  }
 }
 
 async function loadCatalog() {
@@ -212,7 +260,6 @@ async function loadCatalog() {
   $('simFocus').innerHTML = '<option value="">(chia ngẫu nhiên)</option>' + catalog.generals.map((g) => `<option value="${g.id}">${esc(g.name)} (${esc(g.kingdomLabel)})${catalog.skills[g.skills[0]]?.origin === 'content' ? ' ★' : ''}</option>`).join('');
   showHelp(document.querySelector('#helpTabs .on').dataset.tab);
   renderImages();
-  if (location.hash === '#hinh-anh' && !loadCatalog.scrolled) { loadCatalog.scrolled = true; $('hinh-anh').scrollIntoView(); }
 }
 
 async function loadRooms() {
@@ -235,6 +282,7 @@ const fmtTime = (t) => t ? new Date(t).toLocaleString('vi-VN', { dateStyle: 'sho
 async function loadAccounts() {
   const r = await api('/api/admin/accounts');
   accList = r.accounts || [];
+  $('kAcc').textContent = accList.length;
   renderAccounts();
 }
 function renderAccounts() {
@@ -375,7 +423,33 @@ function showHelp(tab) {
 document.querySelectorAll('#helpTabs button').forEach((b) => b.onclick = () => showHelp(b.dataset.tab));
 
 loadCatalog(); refreshStatus(); setInterval(refreshStatus, 5000);
-if (token) { loadFiles().catch(() => {}); loadRooms().catch(() => {}); loadAccounts().catch(() => {}); }
+// (đăng nhập quản trị: xem unlock() bên dưới)
+
+// ---------- Khung quản trị: cổng đăng nhập, menu bên trái ----------
+function showPane() {
+  const id = (location.hash.slice(1) || 'tong-quan').split('=')[0];
+  const pane = document.getElementById(`pane-${id}`) ? id : 'tong-quan';
+  document.querySelectorAll('.pane').forEach((p) => p.classList.toggle('hidden', p.id !== `pane-${pane}`));
+  document.querySelectorAll('#admNav [data-pane]').forEach((a) => a.classList.toggle('on', a.dataset.pane === pane));
+  window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', showPane);
+async function unlock() {
+  try {
+    const r = await fetch('/api/admin/rooms', { headers: { 'x-admin-token': token } });
+    if (!r.ok) throw new Error(r.status === 401 ? 'Sai mã quản trị' : 'Không kiểm tra được mã');
+    document.body.classList.remove('locked'); $('gate').classList.add('hidden');
+    loadFiles().catch(() => {}); loadRooms().catch(() => {}); loadAccounts().catch(() => {});
+    showPane();
+  } catch (e) {
+    document.body.classList.add('locked'); $('gate').classList.remove('hidden');
+    if (token) { $('gateErr').textContent = e.message; $('gateErr').classList.remove('hidden'); }
+  }
+}
+$('gateForm').onsubmit = (e) => { e.preventDefault(); token = $('token').value.trim(); store.set('tqs_admin', token); unlock(); };
+$('btnLogin').onclick = null;
+$('btnAdmLogout').onclick = () => { try { localStorage.removeItem('tqs_admin'); } catch {} location.href = '/game.html'; };
+unlock();
 
 // ---------- Hình ảnh ----------
 let imgTab = 'cards';

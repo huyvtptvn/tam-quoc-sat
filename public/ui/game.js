@@ -160,10 +160,10 @@
         if (authToken && !m.account && !room) { authToken = ''; sess.set('tqs_auth', ''); toast('Phiên đăng nhập đã hết hạn, bạn đang chơi như khách.'); }
         account = m.account || (authToken ? account : null);
         renderAccount();
-        setConn(account ? '' : m.name);
+        setConn('');
         if (!room) {
           show('lobby');
-          if (location.hash === '#tao-phong') { $('roomName').focus(); $('createForm').scrollIntoView({ block: 'center' }); }
+          if (location.hash === '#tao-phong') openCreate();
         }
         break;
       case 'rooms': renderRooms(m.rooms); break;
@@ -199,6 +199,11 @@
       case 'chat': addChat(m.from, m.text); break;
       case 'sfx': playSfx(m); break;
       case 'notice': toast(m.text); addLog(`ℹ ${m.text}`); break;
+      case 'needPassword': {
+        const pw = prompt(m.wrong ? 'Sai mật khẩu. Nhập lại mật khẩu phòng:' : 'Phòng có mật khẩu. Nhập mật khẩu:');
+        if (pw !== null) send({ t: m.action === 'join' ? 'joinRoom' : 'spectate', roomId: m.roomId, password: pw });
+        break;
+      }
       case 'error': toast(m.message); break;
     }
   }
@@ -206,6 +211,11 @@
   // ---------- Màn hình ----------
   function show(name) {
     for (const id of ['login', 'lobby', 'room', 'game']) $(id).classList.toggle('hidden', id !== name);
+    $('lobbyNav').classList.toggle('hidden', name !== 'lobby');
+    if (name !== 'lobby') closeCreate();
+    if (name === 'lobby') loadLobbySide();
+    if (name === 'login') loadAuthStats();
+    renderAccount();
     document.body.classList.toggle('in-game', name === 'game');
     $('btnLeave').classList.toggle('hidden', name !== 'room' && name !== 'game');
     updateTopButtons(name);
@@ -213,27 +223,44 @@
     if (name === 'game') requestAnimationFrame(layoutSeats);
   }
 
+  let lastRooms = [];
+  let roomFilter = 'all';
   function renderRooms(rooms) {
+    lastRooms = rooms;
     const el = $('rooms');
-    if (!rooms.length) { el.innerHTML = '<div class="empty">Chưa có phòng nào. Tạo một phòng ở bên cạnh, bot sẽ ngồi cho đủ chỗ.</div>'; return; }
-    el.innerHTML = rooms.map((r) => {
+    $('roomCount').textContent = rooms.length ? `· ${rooms.length} phòng` : '';
+    const shown = rooms.filter((r) => roomFilter === 'all' || (roomFilter === 'waiting' && r.status === 'waiting') || (roomFilter === 'playing' && r.status !== 'waiting')
+      || (roomFilter === 'boss' && r.boss) || (roomFilter === 'qc' && !r.boss));
+    if (!rooms.length) { el.innerHTML = '<div class="empty">Chưa có phòng nào. Bấm “＋ Tạo phòng” hoặc “⚡ Vào nhanh” — bot sẽ ngồi cho đủ chỗ.</div>'; return; }
+    if (!shown.length) { el.innerHTML = '<div class="empty">Không có phòng nào khớp bộ lọc.</div>'; return; }
+    el.innerHTML = shown.map((r) => {
       const full = r.seats.length >= r.maxSeats;
       const live = r.status !== 'waiting';
-      return `<div class="room-row">
-        <span class="nm">${esc(r.name)}</span>
-        <span class="pill">${r.seats.length}/${r.maxSeats} người</span>
-        ${r.deckLabel ? `<span class="pill">${esc(r.deckLabel.replace(/ \(.*\)$/, ''))}</span>` : ''}
-        ${r.modeLabel && r.mode !== 'normal' ? `<span class="pill">${esc(r.modeLabel)}</span>` : ''}
-        <span class="pill ${live ? 'live' : ''}">${live ? 'Đang chơi' : 'Đang chờ'}</span>
-        ${r.spectators?.length ? `<span class="pill" title="${esc(r.spectators.join(', '))}">👁 ${r.spectators.length}</span>` : ''}
-        <button class="btn small" data-join="${esc(r.id)}" ${full || live ? 'disabled' : ''}>Vào phòng</button>
-        <button class="btn small ghost" data-watch="${esc(r.id)}" title="Vào xem ván đấu, không tham gia">Xem</button>
-      </div>`;
+      const humans = r.seats.filter((s) => s.kind === 'human').length;
+      const bots = r.seats.length - humans;
+      const dots = Array.from({ length: r.maxSeats }, (_, i) => {
+        const s = r.seats[i];
+        if (!s) return '<i></i>';
+        return s.kind === 'bot' ? '<i class="b" title="Bot">🤖</i>' : `<i class="p" title="${esc(s.name)}">${esc((s.name || '?').trim().charAt(0).toUpperCase())}</i>`;
+      }).join('');
+      const sub = r.boss ? `Thảo Phạt · ${esc(r.boss.name)} (${esc(r.boss.difficultyLabel)})`
+        : `${esc((r.deckLabel || 'Quốc Chiến').replace(/ \(.*\)$/, ''))} · ${esc(r.modeLabel || 'Bình thường')} · ${r.timeoutSec} giây`;
+      const state = live ? `<span class="pill live">Đang chơi</span> ${humans} người · ${bots} bot`
+        : `<span class="pill">Đang chờ</span> ${humans} người${bots ? ` · ${bots} bot` : ''} · ${full ? 'đã đủ ghế' : `còn ${r.maxSeats - r.seats.length} ghế`}`;
+      return `<article class="rcard">
+        <div class="top"><span class="ic ${r.boss ? 'boss' : ''}">${r.boss ? '魔' : '杀'}</span>
+          <div style="min-width:0"><div class="nm">${r.locked ? '<span class="lock" title="Có mật khẩu">🔒</span> ' : ''}${esc(r.name)}</div><div class="sub">${sub}</div></div></div>
+        <div class="seats-dots">${dots}</div>
+        <div class="sub">${state}${r.spectators?.length ? ` · 👁 ${r.spectators.length}` : ''} · <span class="code" title="Mã phòng">#${esc(r.id)}</span></div>
+        <div class="act">
+          ${!live && !full ? `<button class="btn primary small" data-join="${esc(r.id)}">Vào phòng</button>` : ''}
+          <button class="btn small" data-watch="${esc(r.id)}" title="Vào xem ván đấu, không tham gia">👁 Xem</button>
+        </div>
+      </article>`;
     }).join('');
     el.querySelectorAll('[data-join]').forEach((b) => { b.onclick = () => send({ t: 'joinRoom', roomId: b.dataset.join }); });
     el.querySelectorAll('[data-watch]').forEach((b) => { b.onclick = () => send({ t: 'spectate', roomId: b.dataset.watch }); });
   }
-
   /** Nút trên thanh trên cùng: đầu hàng (đang chơi, còn sống), giải tán (chủ phòng), rời/thoát xem. */
   function updateTopButtons(name) {
     const screen = name ?? (['room', 'game'].find((id) => !$(id).classList.contains('hidden')) || 'lobby');
@@ -1337,8 +1364,87 @@
     const isBoss = $('roomKind').value === 'boss';
     send({ t: 'createRoom', name: $('roomName').value.trim() || `Phòng của ${myName}`, seats, timeoutSec: Number($('roomTimeout').value),
       deck: $('roomDeck').value, mode: $('roomMode').value, mulligan: $('roomMulligan').checked, lord: $('roomLord').checked,
+      ...($('roomPassword').value.trim() ? { password: $('roomPassword').value.trim() } : {}),
       ...(isBoss ? { boss: $('roomBoss').value, bossDifficulty: $('roomBossDiff').value } : {}) });
+    closeCreate();
   };
+  // ---------- Sảnh: tạo phòng (hộp thoại), vào nhanh, vào bằng mã, bộ lọc ----------
+  function openCreate() {
+    if (!$('roomName').value) $('roomName').value = `Phòng của ${myName || 'bạn'}`;
+    $('createDlg').classList.remove('hidden');
+    setTimeout(() => $('roomName').focus(), 0);
+  }
+  function closeCreate() { $('createDlg').classList.add('hidden'); }
+  $('btnCreate').onclick = openCreate;
+  $('createCancel').onclick = closeCreate;
+  $('createDlg').onclick = (e) => { if (e.target === $('createDlg')) closeCreate(); };
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCreate(); });
+  $('btnQuick').onclick = () => {
+    // Phòng Quốc Chiến đang chờ, không khóa, còn ghế: ưu tiên phòng nhiều người thật nhất
+    const open = lastRooms.filter((r) => r.status === 'waiting' && !r.locked && !r.boss && r.seats.length < r.maxSeats)
+      .sort((a, b) => b.seats.filter((s) => s.kind === 'human').length - a.seats.filter((s) => s.kind === 'human').length);
+    if (open[0]) { send({ t: 'joinRoom', roomId: open[0].id }); return; }
+    autoFillWanted = 4;
+    send({ t: 'createRoom', name: `Phòng của ${myName || 'bạn'}`, seats: 5, timeoutSec: 30 });
+    toast('Không có phòng trống — đã tạo phòng mới 5 người với bot.');
+  };
+  $('btnCode').onclick = () => {
+    const code = (prompt('Nhập mã phòng (6 ký tự, ví dụ a1b2c3):') || '').trim().replace(/^#/, '').toLowerCase();
+    if (code) send({ t: 'joinRoom', roomId: code });
+  };
+  document.querySelectorAll('#roomFilters [data-f]').forEach((b) => {
+    b.onclick = () => {
+      roomFilter = b.dataset.f;
+      document.querySelectorAll('#roomFilters [data-f]').forEach((x) => x.classList.toggle('on', x === b));
+      renderRooms(lastRooms);
+    };
+  });
+  $('navRooms').onclick = (e) => e.preventDefault();
+
+  // Số liệu trên trang đăng nhập
+  async function loadAuthStats() {
+    try {
+      const s = await (await fetch('/api/status', { cache: 'no-store' })).json();
+      $('stRooms').textContent = s.rooms; $('stGames').textContent = s.activeGames; $('stOnline').textContent = s.online ?? '–';
+    } catch { /* server chưa chạy */ }
+  }
+  setInterval(() => { if (!$('login').classList.contains('hidden')) loadAuthStats(); }, 8000);
+
+  // Cột phải của sảnh: thông tin của bạn + top bảng xếp hạng
+  async function loadLobbySide() {
+    const me = $('meBox');
+    if (account) {
+      me.innerHTML = `<h2>Của bạn <a href="/ranking.html#u=${encodeURIComponent(account.username)}" target="_blank" rel="noopener">Hồ sơ ›</a></h2>
+        <div class="me-stats"><div><b>${account.rating}</b><span>Elo</span></div><div><b>${account.winRate}%</b><span>Thắng</span></div><div><b>${account.games}</b><span>Trận</span></div></div>
+        <div class="hist" id="meHist"></div>`;
+      try {
+        const p = await (await fetch(`/api/profile?u=${encodeURIComponent(account.username)}`)).json();
+        const rows = (p.matches || []).slice(0, 3).map((m) => {
+          const me2 = m.players.find((x) => x.username === account.username);
+          if (!me2) return '';
+          const gens = me2.generals.map((g) => C.general(g)?.name ?? g).join(' + ');
+          const d = me2.ratingAfter != null && me2.ratingBefore != null ? me2.ratingAfter - me2.ratingBefore : null;
+          return `<div><span>${esc(me2.faction)} · ${esc(gens)}</span><span class="${me2.winner ? 'w' : 'l'}">${me2.winner ? 'Thắng' : 'Thua'}${d != null ? ` ${d >= 0 ? '+' : '−'}${Math.abs(d)}` : ''}</span></div>`;
+        }).join('');
+        $('meHist').innerHTML = rows || '<div class="muted">Chưa có ván nào.</div>';
+      } catch { /* bỏ qua */ }
+    } else {
+      me.innerHTML = `<h2>Của bạn</h2><p class="muted" style="margin:0 0 10px">Bạn đang chơi như <b>khách</b> (${esc(myName)}). Kết quả không được lưu.</p>
+        <button class="btn small" type="button" id="meLogin">Đăng nhập / tạo tài khoản</button>`;
+      $('meLogin').onclick = () => logoutToLogin('account');
+    }
+    try {
+      const lb = await (await fetch('/api/leaderboard?limit=200')).json();
+      const list = lb.players || [];
+      const top = list.slice(0, 5);
+      const mine = account ? list.find((x) => x.username === account.username) : null;
+      const cls = (n) => (n === 1 ? 'g' : n === 2 ? 's' : n === 3 ? 'b' : '');
+      const row = (x, me3) => `<div class="lb-row"${me3 ? ' style="background:rgba(224,83,63,.12);border-radius:6px"' : ''}><span class="rk ${cls(x.place)}">${x.place}</span><span class="nm">${me3 ? `<b>Bạn (${esc(x.displayName)})</b>` : esc(x.displayName)}</span><span class="elo">${x.rating}</span></div>`;
+      $('lbBox').classList.remove('muted');
+      $('lbBox').innerHTML = top.length ? top.map((x) => row(x, mine && x.username === mine.username)).join('') + (mine && mine.place > 5 ? row(mine, true) : '')
+        : '<span class="muted">Chưa có ai trên bảng xếp hạng.</span>';
+    } catch { $('lbBox').textContent = 'Không tải được bảng xếp hạng.'; }
+  }
   $('btnStart').onclick = () => send({ t: 'start' });
   $('btnAddBot').onclick = () => send({ t: 'addBot' });
   $('btnRemoveBot').onclick = () => send({ t: 'removeBot' });
@@ -1408,14 +1514,13 @@
   // ---------- Tài khoản ----------
   function renderAccount() {
     const b = $('accBadge');
-    if (account) {
-      b.innerHTML = `<b>${esc(account.displayName)}</b> · ${esc(account.rank)} · Elo <b>${account.rating}</b>`;
-      b.classList.remove('hidden');
-      $('btnLogout').classList.remove('hidden');
-    } else {
-      b.classList.add('hidden');
-      $('btnLogout').classList.add('hidden');
-    }
+    const onLogin = !$('login').classList.contains('hidden');
+    if (onLogin || (!account && !myName)) { b.classList.add('hidden'); $('btnLogout').classList.add('hidden'); return; }
+    const nm = account ? account.displayName : myName;
+    b.innerHTML = `<span class="av ${account ? '' : 'guest'}">${esc((nm || '?').trim().charAt(0).toUpperCase())}</span><span><b>${esc(nm)}</b> <small>· ${account ? `${account.rating} Elo · ${esc(account.rank)}` : 'Khách'}</small></span>`;
+    b.classList.remove('hidden');
+    $('btnLogout').classList.toggle('hidden', !!room); // trong phòng / ván: phải rời phòng trước
+    $('btnLogout').textContent = account ? 'Đăng xuất' : 'Thoát';
   }
   async function refreshAccount() {
     if (!authToken) return;
@@ -1430,13 +1535,31 @@
       document.querySelectorAll('[data-ltab]').forEach((x) => x.classList.toggle('on', x === b));
       $('loginForm').classList.toggle('hidden', b.dataset.ltab !== 'guest');
       $('accountForm').classList.toggle('hidden', b.dataset.ltab !== 'account');
+      $('adminForm').classList.toggle('hidden', b.dataset.ltab !== 'admin');
+      document.querySelector('.ui-pick').classList.toggle('hidden', b.dataset.ltab === 'admin');
     };
   });
+  // Đăng nhập quản trị: kiểm tra mã với server rồi sang trang quản trị
+  $('adminCode').value = store.get('tqs_admin') || ''; // trình khởi động / lần trước đã lưu mã
+  $('adminForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const code = $('adminCode').value.trim();
+    $('adminErr').classList.add('hidden');
+    try {
+      const r = await fetch('/api/admin/rooms', { headers: { 'x-admin-token': code } });
+      if (!r.ok) throw new Error(r.status === 401 ? 'Sai mã quản trị' : 'Không kiểm tra được mã');
+      store.set('tqs_admin', code);
+      location.href = '/admin.html';
+    } catch (err) {
+      $('adminErr').textContent = err.message; $('adminErr').classList.remove('hidden');
+    }
+  };
   $('accSwitch').onclick = () => {
     registerMode = !registerMode;
     $('accDisplay').classList.toggle('hidden', !registerMode);
     $('accSubmit').textContent = registerMode ? 'Đăng ký' : 'Đăng nhập';
-    $('accSwitch').textContent = registerMode ? 'Đã có tài khoản? Đăng nhập' : 'Chưa có tài khoản? Đăng ký';
+    $('accSwitch').textContent = registerMode ? 'Đăng nhập' : 'Đăng ký';
+    $('accSwitchHint').textContent = registerMode ? 'Đã có tài khoản?' : 'Chưa có tài khoản?';
     $('accPass').autocomplete = registerMode ? 'new-password' : 'current-password';
   };
   $('accountForm').onsubmit = async (e) => {
@@ -1456,14 +1579,18 @@
       $('accErr').textContent = err.message; $('accErr').classList.remove('hidden');
     }
   };
-  $('btnLogout').onclick = async () => {
-    if (room?.status === 'playing') { toast('Đang trong ván, hãy đăng xuất sau khi ván kết thúc.'); return; }
-    try { await fetch('/api/account/logout', { method: 'POST', headers: { 'x-account-token': authToken } }); } catch { /* bỏ qua */ }
-    authToken = ''; sess.set('tqs_auth', ''); account = null; pendingLogout = true;
-    renderAccount();
-    sendHello();
-    toast('Đã đăng xuất. Bạn đang chơi như khách.');
-  };
+  /** Đăng xuất (tài khoản) hoặc thoát (khách): về màn hình đăng nhập. */
+  async function logoutToLogin(tab = 'guest') {
+    if (room) { toast('Hãy rời phòng trước khi đăng xuất.'); return; }
+    if (authToken) { try { await fetch('/api/account/logout', { method: 'POST', headers: { 'x-account-token': authToken } }); } catch { /* bỏ qua */ } }
+    authToken = ''; sess.set('tqs_auth', ''); account = null;
+    token = null; sess.set('tqs_token', '');
+    if (ws) { ws.onclose = null; try { ws.close(); } catch { /* bỏ qua */ } ws = null; }
+    setConn('');
+    show('login');
+    document.querySelector(`[data-ltab="${tab}"]`)?.click();
+  }
+  $('btnLogout').onclick = () => logoutToLogin();
 
   // Mở trang mới (không phải tải lại): về màn hình đăng nhập, chỉ điền sẵn tên khách
   // ---------- Giao diện điện thoại: menu ☰, nhắc xoay ngang, chạm giữ để xem lá bài ----------
@@ -1499,4 +1626,5 @@
   applyUiMode();
 
   if (token || authToken) connect();
+  else loadAuthStats();
 })();

@@ -568,3 +568,22 @@ test('phòng chỉ còn bot quá 5 phút thì tự đóng (người xem được
   await w.wait((m) => m.t === 'notice' && /chỉ còn bot/.test(m.text));
   a.close(); w.close();
 });
+
+test('phòng có mật khẩu: hỏi mật khẩu, sai thì báo lại, đúng thì vào được; /api/status có số người online', async () => {
+  const a = await new Client().connect('Chủ');
+  const b = await new Client().connect('Khách');
+  a.send({ t: 'createRoom', name: 'Phòng khóa', seats: 4, timeoutSec: 30, password: 'bimat' });
+  const r = await a.wait((m) => m.t === 'room' && !!m.room) as Extract<ServerMsg, { t: 'room' }>;
+  assert.equal(r.room!.locked, true);
+  b.send({ t: 'joinRoom', roomId: r.room!.id });
+  const ask = await b.wait((m) => m.t === 'needPassword') as Extract<ServerMsg, { t: 'needPassword' }>;
+  assert.equal(ask.wrong, false);
+  b.send({ t: 'joinRoom', roomId: r.room!.id, password: 'sai' });
+  await b.wait((m) => m.t === 'needPassword' && m.wrong);
+  b.send({ t: 'joinRoom', roomId: r.room!.id, password: 'bimat' });
+  await b.wait((m) => m.t === 'room' && !!m.room);
+  const st = await api('/api/status', { admin: false });
+  assert.ok(st.body.online >= 2);
+  a.send({ t: 'dissolveRoom' });
+  a.close(); b.close();
+});

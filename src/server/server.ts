@@ -139,7 +139,7 @@ export async function startServer(opts: ServerOptions = {}) {
       if (path === '/api/status') {
         return json(res, 200, {
           contentVersion: content.summary?.version ?? 0, pendingContent: content.hasPending,
-          rooms: lobby.rooms.size, activeGames: lobby.activeGames(),
+          rooms: lobby.rooms.size, activeGames: lobby.activeGames(), online: lobby.onlineCount(),
           contentErrors: content.lastErrors, contentWarnings: content.lastWarnings, content: content.summary,
           port, lan: lanAddresses(),
         });

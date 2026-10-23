@@ -16,10 +16,11 @@ export type ClientMsg =
   | { t: 'createRoom'; name?: string; seats?: number; timeoutSec?: number; /** id bộ bài: quocchien | quantranh | ungbien */ deck?: string;
       /** Chế độ chọn tướng: normal | free | chaos */ mode?: string; /** Cho đổi bài khởi đầu (mặc định có) */ mulligan?: boolean;
       /** Cho đổi chủ tướng thành quân chủ (mặc định có) */ lord?: boolean;
-      /** Thảo Phạt: id boss (bỏ trống = ván Quốc Chiến thường) và độ khó normal | hard | nightmare */ boss?: string; bossDifficulty?: string }
-  | { t: 'joinRoom'; roomId: string }
+      /** Thảo Phạt: id boss (bỏ trống = ván Quốc Chiến thường) và độ khó normal | hard | nightmare */ boss?: string; bossDifficulty?: string;
+      /** Mật khẩu phòng (bỏ trống = phòng mở). */ password?: string }
+  | { t: 'joinRoom'; roomId: string; /** Mật khẩu (phòng có khóa). */ password?: string }
   /** Vào theo dõi một phòng (đang chờ hoặc đang chơi). Thoát bằng 'leaveRoom'. */
-  | { t: 'spectate'; roomId: string }
+  | { t: 'spectate'; roomId: string; password?: string }
   /** Chủ phòng giải tán phòng (ván đang chơi bị hủy). */
   | { t: 'dissolveRoom' }
   /** Đầu hàng: tử trận ngay ở lần hỏi kế tiếp, không được tính thắng. */
@@ -62,6 +63,8 @@ export interface RoomInfo {
   boss: { id: string; name: string; difficulty: string; difficultyLabel: string } | null;
   /** Tên các khán giả đang theo dõi. */
   spectators: string[];
+  /** Phòng có mật khẩu. */
+  locked?: boolean;
   seats: SeatInfo[];
 }
 
@@ -82,4 +85,6 @@ export type ServerMsg =
   /** Âm thanh: lồng tiếng kỹ năng của tướng, hoặc câu nói khi tử trận. Client tự chọn file theo skin đang dùng. */
   | { t: 'sfx'; kind: 'skill' | 'death'; seat: number; general: string; skill?: string }
   | { t: 'notice'; text: string }
+  /** Phòng có mật khẩu: client hỏi mật khẩu rồi gửi lại joinRoom/spectate kèm password. wrong = vừa nhập sai. */
+  | { t: 'needPassword'; roomId: string; action: 'join' | 'spectate'; wrong: boolean }
   | { t: 'error'; message: string };

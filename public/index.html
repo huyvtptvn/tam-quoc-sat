@@ -2,210 +2,22 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%225%22 fill=%22%23a8281d%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%23f6e9d2%22 font-family=%22serif%22%3ES%3C/text%3E%3C/svg%3E">
-<link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#a8281d">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Tam Quốc Sát">
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tam Quốc Sát · Trang chính</title>
-<link rel="stylesheet" href="/ui/fonts.css">
-<link rel="stylesheet" href="/ui/cards.css">
-<link rel="stylesheet" href="/ui/game.css">
-<style>
-  .hub { max-width: 1040px; margin: 0 auto; padding: 36px 16px 48px; }
-  .hub-head { display: flex; gap: 28px; align-items: center; margin-bottom: 30px; }
-  .hub-head .seal-big {
-    flex: none; width: 96px; height: 148px; display: grid; place-items: center;
-    background: var(--cinnabar); color: #f6e9d2; border-radius: 8px;
-    font-family: var(--font-brush); font-size: 56px; line-height: 1; writing-mode: vertical-rl;
-    box-shadow: 0 0 0 5px rgba(168, 40, 29, .25), 0 16px 40px rgba(0,0,0,.5); transform: rotate(-3deg);
-  }
-  .hub-head h1 { margin: 0 0 6px; font-size: 34px; line-height: 1.15; }
-  .hub-head p { margin: 0; color: var(--bone-2); }
-  #srv { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 14px; }
-  #srv i { width: 9px; height: 9px; border-radius: 50%; background: var(--hp-mid); }
-  #srv.ok i { background: var(--hp-hi); box-shadow: 0 0 8px var(--hp-hi); }
-  #srv.down i { background: var(--hp-lo); }
-
-  .hub-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-  @media (max-width: 860px) { .hub-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 540px) { .hub-grid { grid-template-columns: 1fr; } .door { min-height: 0; } .door.main { padding-top: 90px; } .hub-head { flex-direction: column; align-items: flex-start; } }
-  .door {
-    position: relative;
-    display: flex; flex-direction: column; gap: 6px;
-    min-height: 150px;
-    padding: 18px 18px 16px 76px;
-    border-radius: 10px;
-    border: 1px solid var(--rim-dim);
-    background: var(--panel);
-    color: inherit; text-decoration: none;
-    transition: border-color .15s, background .15s;
-  }
-  .door:hover { border-color: var(--rim); background: rgba(40, 28, 16, .85); }
-  .door:focus-visible { outline: 2px solid var(--warn); outline-offset: 2px; }
-  .door .ic {
-    position: absolute; left: 16px; top: 18px;
-    width: 44px; height: 44px; display: grid; place-items: center;
-    border-radius: 6px; font-family: var(--font-brush); font-size: 22px; line-height: 1;
-    background: var(--cinnabar); color: #f6e9d2; transform: rotate(-4deg);
-  }
-  .door.alt .ic { background: var(--jade); }
-  .door.ink .ic { background: var(--indigo); }
-  .door.bronze .ic { background: var(--bronze); }
-  .door b { font-size: 18px; }
-  .door span { color: var(--bone-2); font-size: 14px; line-height: 1.45; }
-  .door.main { grid-row: span 2; justify-content: flex-end; padding-bottom: 22px; background:
-      radial-gradient(120% 90% at 0% 0%, rgba(168, 40, 29, .35), transparent 60%), var(--panel); }
-  .door.main b { font-size: 26px; }
-  .door.main .ic { width: 64px; height: 64px; font-size: 32px; }
-  .door.main { padding-left: 18px; padding-top: 100px; }
-
-  .hub-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; }
-  @media (max-width: 760px) { .hub-row { grid-template-columns: 1fr; } }
-  .hub-row .panel h2 { font-size: 17px; margin-bottom: 8px; }
-  .lan-link { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
-  .lan-link code { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; padding: 6px 8px; border-radius: 6px; background: rgba(0,0,0,.35); font-family: var(--font-ui); }
-  .tok { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
-  .tok .field { flex: 1 1 180px; }
-  .hub small.note { display: block; color: var(--bone-2); margin-top: 6px; font-size: 13px; }
-</style>
-</head>
-<body>
-<header class="topbar">
-  <div class="brand"><span class="mark">三国</span><span>Tam Quốc Sát</span></div>
-  <span class="spacer"></span>
-</header>
-
-<main class="hub">
-  <div class="hub-head">
-    <div class="seal-big" aria-hidden="true">三国</div>
-    <div>
-      <h1>Tam Quốc Sát · Quốc Chiến</h1>
-      <p>Chọn nơi bạn muốn đến. Giữ cửa sổ server mở trong lúc chơi.</p>
-      <div id="srv"><i></i><span>Đang kiểm tra server…</span></div>
-    </div>
-  </div>
-
-  <nav class="hub-grid" aria-label="Các trang">
-    <a class="door main" href="/game.html">
-      <span class="ic">杀</span>
-      <b>Vào chơi</b>
-      <span>Sảnh chờ: xem các phòng đang mở, vào phòng của bạn bè, chơi với người và bot.</span>
-    </a>
-    <a class="door" href="/game.html#tao-phong">
-      <span class="ic">兵</span>
-      <b>Tạo phòng</b>
-      <span>Mở phòng mới, chọn số người và thời gian. Bot tự ngồi cho đủ ghế.</span>
-    </a>
-    <a class="door" href="/ranking.html">
-      <span class="ic">榜</span>
-      <b>Bảng xếp hạng</b>
-      <span>Elo, cấp bậc, số trận thắng, MVP và lịch sử các ván của người chơi có tài khoản.</span>
-    </a>
-    <a class="door alt" href="/admin.html">
-      <span class="ic">锦囊</span>
-      <b>Quản trị nội dung</b>
-      <span>Thêm, sửa kỹ năng, tướng, lá bài. Kiểm tra lỗi và mô phỏng cân bằng.</span>
-    </a>
-    <a class="door bronze" href="/admin.html#hinh-anh">
-      <span class="ic">白</span>
-      <b>Hình ảnh</b>
-      <span>Tải ảnh cho lá bài, tướng và mặt sau. Kéo-thả là xong.</span>
-    </a>
-    <a class="door ink" href="/docs.html">
-      <span class="ic">知</span>
-      <b>Hướng dẫn kỹ năng</b>
-      <span>Cách viết kỹ năng KHI – NẾU – THÌ, bảng sự kiện, hành động, công thức mẫu.</span>
-    </a>
-  </nav>
-
-  <div class="hub-row">
-    <section class="panel">
-      <h2>Mời bạn bè cùng wifi</h2>
-      <div id="lan"><span class="muted">Đang lấy địa chỉ…</span></div>
-      <small class="note">Gửi link cho bạn bè dùng chung mạng. Nếu không vào được, cho phép Node.js qua tường lửa Windows.</small>
-    </section>
-    <section class="panel">
-      <h2>Mã quản trị</h2>
-      <div id="tokState" class="muted"></div>
-      <form class="tok" id="tokForm">
-        <input id="tokInput" class="field" type="password" placeholder="Dán mã quản trị" autocomplete="off">
-        <button class="btn" type="submit">Lưu mã</button>
-      </form>
-      <small class="note">Mã nằm trong file <code>.admin-token</code> ở thư mục game, và hiện trong cửa sổ server.</small>
-    </section>
-  </div>
-
-  <div class="hub-row">
-    <section class="panel" style="grid-column: 1 / -1">
-      <h2>Phòng đang mở</h2>
-      <div id="rooms" class="muted">Đang tải…</div>
-    </section>
-  </div>
-
-  <p style="margin-top:22px"><a class="muted" href="/play.html">Client kiểm thử (dạng bảng, dành cho người phát triển)</a></p>
-</main>
-
+<title>Tam Quốc Sát</title>
+<meta name="theme-color" content="#a8281d">
+<link rel="manifest" href="/manifest.webmanifest">
 <script>
-(function () {
-  const $ = (id) => document.getElementById(id);
-  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const store = {
-    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
-    set(k, v) { try { localStorage.setItem(k, v); } catch { /* bị chặn */ } },
-  };
-
-  // Trình khởi động mở trang này kèm #admin=<mã>: lưu lại để trang quản trị tự đăng nhập, rồi xóa khỏi địa chỉ.
-  const fromHash = new URLSearchParams(location.hash.slice(1)).get('admin');
-  if (fromHash) { store.set('tqs_admin', fromHash); history.replaceState(null, '', location.pathname); }
-  const showTok = () => {
-    $('tokState').textContent = store.get('tqs_admin') ? 'Trình duyệt này đã lưu mã — trang quản trị sẽ tự đăng nhập.' : 'Chưa lưu mã trên trình duyệt này.';
-  };
-  showTok();
-  $('tokForm').onsubmit = (e) => {
-    e.preventDefault();
-    const v = $('tokInput').value.trim();
-    if (v) { store.set('tqs_admin', v); $('tokInput').value = ''; showTok(); }
-  };
-
-  let lanShown = false;
-  async function refresh() {
-    try {
-      const s = await (await fetch('/api/status', { cache: 'no-store' })).json();
-      $('srv').className = 'ok';
-      $('srv').lastElementChild.textContent = `Server đang chạy · nội dung phiên bản ${s.contentVersion} · ${s.rooms} phòng · ${s.activeGames} ván đang chơi`;
-      if (!lanShown) {
-        lanShown = true;
-        const port = s.port || location.port || 80;
-        const links = (s.lan || []).map((ip) => `http://${ip}:${port}/game.html`);
-        $('lan').innerHTML = links.length
-          ? links.map((u) => `<div class="lan-link"><code>${esc(u)}</code><button class="btn small" type="button" data-copy="${esc(u)}">Sao chép</button></div>`).join('')
-          : '<span class="muted">Máy chưa kết nối mạng LAN nào.</span>';
-        document.querySelectorAll('[data-copy]').forEach((b) => {
-          b.onclick = async () => {
-            try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'Đã chép'; } catch { b.textContent = 'Chép thủ công'; }
-            setTimeout(() => { b.textContent = 'Sao chép'; }, 1500);
-          };
-        });
-      }
-      const rooms = await (await fetch('/api/rooms', { cache: 'no-store' })).json();
-      $('rooms').innerHTML = rooms.length ? rooms.map((r) => `<div class="room-row">
-          <span class="nm">${esc(r.name)}</span>
-          <span class="pill">${r.seats.length}/${r.maxSeats} người</span>
-          <span class="pill ${r.status !== 'waiting' ? 'live' : ''}">${r.status !== 'waiting' ? 'Đang chơi' : 'Đang chờ'}</span>
-        </div>`).join('') : 'Chưa có phòng nào. Bấm “Tạo phòng” để mở phòng đầu tiên.';
-    } catch {
-      $('srv').className = 'down';
-      $('srv').lastElementChild.textContent = 'Không kết nối được server. Hãy chạy lại file Chay-Game.';
-    }
-  }
-  refresh();
-  setInterval(refresh, 5000);
-})();
+  // Trang chính = màn hình đăng nhập của game (/game.html).
+  // Trình khởi động mở "/#admin=<mã>": lưu mã quản trị lại để trang quản trị tự đăng nhập.
+  (function () {
+    var p = new URLSearchParams(location.hash.slice(1));
+    var tok = p.get('admin');
+    if (tok) { try { localStorage.setItem('tqs_admin', tok); } catch (e) { /* bị chặn */ } }
+    location.replace('/game.html' + (tok ? '' : location.hash));
+  })();
 </script>
+</head>
+<body style="background:#142229;color:#efe4cc;font-family:serif">
+<noscript>Trình duyệt cần bật JavaScript. <a href="/game.html" style="color:#efe4cc">Vào game</a></noscript>
 </body>
 </html>
