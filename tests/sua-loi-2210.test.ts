@@ -484,3 +484,41 @@ test('Dịch Quỷ: Hồn 2 thế lực được hỏi chọn thế lực; ngư�
   assert.ok(targets.includes(3), 'người chưa xác định thế lực luôn hợp lệ');
   assert.ok(!targets.includes(1), 'không nhắm người Thục khi đã chọn Quần');
 });
+
+test('Dịch Quỷ: lá lên bản thân (Hiệp Thiên Tử, Vô Trung...) cần Hồn cùng thế lực với Tả Từ; Dã tâm gia chỉ dùng Hồn Dã tâm', async () => {
+  const { game, ctrls } = makeHG([['new_zuoci', 'lvbu'], ['yuanshao', 'yanliangwenchou'], ['caocao', 'xuchu'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0, 1);
+  for (const id of game.generalPile(0, 'Hồn')) game.removeFromGeneralPile(0, 'Hồn', [id]);
+  game.addGeneralPile(0, 'Hồn', ['caiyong', 'zhaoyun']); // Quần, Thục
+  let opts: string[] = []; let huns: string[] = [];
+  ctrls[0].set('choose', (r) => {
+    const x = r as unknown as { prompt: string; options: string[] };
+    if (x.prompt.includes('lá nào')) { opts = x.options; return { kind: 'choice', index: Math.max(0, x.options.indexOf('Hiệp Thiên Tử Dĩ Lệnh Chư Hầu')) }; }
+    if (x.prompt.includes('bỏ 1 [Hồn]')) { huns = x.options; return { kind: 'choice', index: 0 }; }
+    return { kind: 'choice', index: 0 };
+  });
+  enterPlay(game, 0);
+  assert.ok(game.isBig(0), 'Quần 2 người là đại thế lực (Hiệp Thiên Tử cần đại thế lực)');
+  assert.equal(await useSkill(game, 0, 'yigui'), null);
+  assert.ok(opts.includes('Hiệp Thiên Tử Dĩ Lệnh Chư Hầu'), opts.join(','));
+  assert.ok(game.log.some((l) => l.includes('Hiệp Thiên Tử') && l.includes('Dịch Quỷ')), 'đã dùng Hiệp Thiên Tử');
+  assert.ok(game.generalPile(0, 'Hồn').includes('zhaoyun') && !game.generalPile(0, 'Hồn').includes('caiyong'), 'bỏ Hồn Quần (cùng thế lực), giữ Hồn Thục');
+  void huns;
+  // Dã tâm gia: chỉ Hồn Dã tâm dùng lên bản thân
+  game.heroes[0].careerist = true; game.heroes[0].careeristGroup = 0;
+  const combos = (h: string[]) => { for (const id of game.generalPile(0, 'Hồn')) game.removeFromGeneralPile(0, 'Hồn', [id]); game.addGeneralPile(0, 'Hồn', h); };
+  combos(['caiyong']);
+  game.player(0).hp = game.player(0).maxHp - 1;
+  const hint = () => (game as unknown as { skillHints: (s: number) => { skill: string }[] }).skillHints(0);
+  opts = [];
+  ctrls[0].set('choose', (r) => { const x = r as unknown as { prompt: string; options: string[] }; if (x.prompt.includes('lá nào')) opts = x.options; return { kind: 'choice', index: 0 }; })
+    .set('chooseTargets', () => ({ kind: 'targets', targets: [] }));
+  game.player(0).flags = {};
+  if (hint().some((h) => h.skill === 'yigui')) await useSkill(game, 0, 'yigui');
+  assert.ok(!opts.includes('Đào') && !opts.includes('Vô Trung Sinh Hữu'), `Hồn Quần không dùng lên Dã tâm gia: ${opts.join(',')}`);
+  combos(['zhonghui']); // tướng Dã tâm gia
+  opts = [];
+  if (hint().some((h) => h.skill === 'yigui')) await useSkill(game, 0, 'yigui');
+  assert.ok(opts.includes('Đào'), `Hồn Dã tâm dùng Đào lên bản thân: ${opts.join(',')}`);
+});

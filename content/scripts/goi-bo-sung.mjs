@@ -125,7 +125,9 @@ function usableVs(g, user, target) {
 
 // ---------------- Tả Từ: Dịch Quỷ ----------------
 
-const YIGUI_NAMES = ['tao', 'jiu', 'sha', 'wuzhong', 'shunshou', 'guohe', 'juedou', 'huogong', 'shuiyan', 'jiedao', 'tiesuo', 'zhiji', 'yuanjiao', 'diaohu'];
+// Lá dùng lên chính mình (Đào, Rượu, Vô Trung, Hiệp Thiên Tử...) cũng theo luật [Hồn]: Hồn phải cùng thế lực với Tả Từ
+// (Tả Từ là Dã tâm gia: chỉ Hồn tướng Dã tâm gia mới dùng lên bản thân được)
+const YIGUI_NAMES = ['tao', 'jiu', 'sha', 'wuzhong', 'xietianzi', 'shunshou', 'guohe', 'juedou', 'huogong', 'shuiyan', 'jiedao', 'tiesuo', 'zhiji', 'yuanjiao', 'diaohu'];
 
 /** Các thế lực của một [Hồn] (tướng 2 thế lực có 2). */
 function hunKingdoms(g, id) {
@@ -549,7 +551,8 @@ export default {
       desc: '• Sau khi bạn mở tướng này lần đầu tiên, bạn nhận 2 lá từ chồng bài tướng đặt lên tướng này, gọi là [Hồn]. '
         + '• Khi bạn cần sử dụng lá cơ bản hoặc công cụ phổ thông có mục tiêu, nếu bạn chưa sử dụng lá đó bằng kỹ năng này trong lượt này, '
         + 'bạn có thể bỏ 1 [Hồn], xem như bạn sử dụng lá đó; mục tiêu của lá này chỉ có thể là người cùng thế lực với [Hồn] vừa bỏ '
-        + 'hoặc người chưa xác định thế lực ([Hồn] là tướng 2 thế lực: chọn 1 trong 2 thế lực). '
+        + 'hoặc người chưa xác định thế lực ([Hồn] là tướng 2 thế lực: chọn 1 trong 2 thế lực). Lá dùng lên chính mình (Đào, Rượu, Vô Trung, '
+        + 'Hiệp Thiên Tử...) cần [Hồn] cùng thế lực với bạn; nếu bạn là Dã tâm gia thì chỉ [Hồn] tướng Dã tâm gia. '
         + '(Dùng chủ động trong giai đoạn ra bài; dùng như Đào khi có người hấp hối; khi cần đáp lại có thể bỏ 1 [Hồn] bất kỳ để xem như dùng [Thiểm] hoặc [Vô Giải].)',
       bot: {
         use: 'always',
