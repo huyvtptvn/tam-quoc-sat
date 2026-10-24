@@ -1143,6 +1143,8 @@ export class HegemonyGame extends Game {
       const auto = (c: { e: SkillEntry; trig: { compulsory?: boolean } }) => c.e.slot.revealed && !!c.trig.compulsory;
       for (let idx = 0; idx < list.length; idx++) {
         if (done.has(idx) || !alive()) continue;
+        // Sát thương đã bị hủy (Hàn Băng Kiếm, Thiên Hương...): không còn kỹ năng "khi chịu sát thương" nào kích nữa
+        if (event === 'beforeDamage' && (ctx as { cancelled?: boolean }).cancelled) return;
         const { e, trig } = list[idx];
         if (!trig.can(this, ctx, seat)) continue;
         if (auto(list[idx])) { done.add(idx); await this.runTrigger(seat, e, trig, ctx); continue; }

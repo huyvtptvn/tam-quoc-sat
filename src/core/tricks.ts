@@ -79,30 +79,31 @@ const others = (g: Game, user: number) => g.aliveSeatsFrom(user).filter((s) => s
  * bài trên tay thì lấy ngẫu nhiên. Thứ tự lựa chọn: trang bị -> trên tay -> phán định.
  */
 export async function pickCardFrom(
-  g: Game, chooser: number, target: number, includeJudge: boolean, prompt: string,
+  g: Game, chooser: number, target: number, includeJudge: boolean, prompt: string, exclude: number[] = [],
 ): Promise<{ id: number; from: Zone } | null> {
   // Văn Ngụy: người bị chọn bài có thể tự chọn lá của mình
   if (chooser !== target) {
     const own = await g.redirectPick(chooser, target, includeJudge);
-    if (own) return own;
+    if (own && !exclude.includes(own.id)) return own;
   }
   const p = g.player(target);
   const opts: { label: string; pick: () => { id: number; from: Zone } }[] = [];
   const locked = g.equipProtected(chooser, target); // Phong Dương: không được lấy/bỏ trang bị
   for (const slot of ['armor', 'weapon', 'offHorse', 'defHorse', 'treasure'] as EquipSlot[]) {
     const id = p.equips[slot][0];
-    if (id !== undefined && !locked) {
+    if (id !== undefined && !locked && !exclude.includes(id)) {
       opts.push({ label: `${EQUIP_SLOT_LABEL[slot]}: ${cardLabel(g.card(id))}`, pick: () => ({ id, from: { kind: 'equip', seat: target, slot } }) });
     }
   }
-  if (p.hand.length > 0) {
+  const handLeft = p.hand.filter((id) => !exclude.includes(id));
+  if (handLeft.length > 0) {
     opts.push({
-      label: `Bài trên tay (ngẫu nhiên, còn ${p.hand.length} lá)`,
-      pick: () => ({ id: p.hand[g.randomInt(p.hand.length)], from: { kind: 'hand', seat: target } }),
+      label: `Bài trên tay (ngẫu nhiên, còn ${handLeft.length} lá)`,
+      pick: () => ({ id: handLeft[g.randomInt(handLeft.length)], from: { kind: 'hand', seat: target } }),
     });
   }
   if (includeJudge) {
-    for (const id of p.judgeArea) {
+    for (const id of p.judgeArea.filter((x) => !exclude.includes(x))) {
       opts.push({ label: `Phán định: ${cardLabel(g.card(id))}`, pick: () => ({ id, from: { kind: 'judge', seat: target } }) });
     }
   }

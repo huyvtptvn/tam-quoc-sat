@@ -694,7 +694,7 @@ export class Game {
   // Di chuyển bài
   // ==========================================================
 
-  private zone(z: Zone): number[] {
+  zone(z: Zone): number[] {
     switch (z.kind) {
       case 'hand': return this.player(z.seat).hand;
       case 'draw': return this.state.drawPile;

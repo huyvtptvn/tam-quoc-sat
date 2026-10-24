@@ -568,3 +568,35 @@ test('Hồng Nhan: Tiểu Kiều chưa lật tướng thì lá Bích vẫn là B
   const sp = await take(game, 0, (c) => c.suit === 'spade');
   assert.equal(game.card(sp).suit, 'spade');
 });
+
+async function hanbingSetup(pair: [string, string], nHand: number) {
+  const { game, ctrls } = makeHG([['caocao', 'xuchu'], pair, ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0, 1);
+  if (game.player(1).hand.length) await game.moveCards([...game.player(1).hand], { kind: 'hand', seat: 1 }, { kind: 'discard' }, 'test');
+  const hb = await take(game, 0, (c) => c.name === 'hanbing');
+  enterPlay(game, 0);
+  await game.useCard(0, hb, []);
+  const horse = await take(game, 1, (c) => c.name === 'dilu');
+  await game.moveCards([horse], { kind: 'hand', seat: 1 }, { kind: 'equip', seat: 1, slot: 'defHorse' }, 'test');
+  for (let i = 0; i < nHand; i++) await take(game, 1, (c) => c.name === 'tao');
+  const sha = await take(game, 0, (c) => c.name === 'sha');
+  ctrls[0].set('confirm', () => ({ kind: 'yes' })).set('choose', (r) => ({ kind: 'choice', index: (r as unknown as { options: string[] }).options.length - 1 }));
+  ctrls[1].set('respond', () => ({ kind: 'pass' })).set('confirm', () => ({ kind: 'yes' }));
+  return { game, sha };
+}
+
+test('Hàn Băng Kiếm: bỏ 2 lá trên tay cùng lúc, Thủ Thành của đồng minh chỉ kích 1 lần', async () => {
+  const { game, sha } = await hanbingSetup(['jiangwanfeiyi', 'guanyu'], 2);
+  await game.useCard(0, sha, [1]);
+  assert.equal(game.player(1).equips.defHorse.length, 1, 'chọn 2 lá trên tay, ngựa còn');
+  assert.equal(game.player(1).hand.length, 1, 'Thủ Thành chỉ rút 1 lá');
+});
+
+test('Hàn Băng Kiếm đã hủy sát thương thì Thiên Hương (Tiểu Kiều) không kích nữa', async () => {
+  const { game, sha } = await hanbingSetup(['xiaoqiao', 'lvmeng'], 2);
+  const hp0 = game.player(0).hp;
+  await game.useCard(0, sha, [1]);
+  assert.equal(game.cardCount(1), 1, 'chỉ mất 2 lá do Hàn Băng');
+  assert.equal(game.player(0).hp, hp0);
+});

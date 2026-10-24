@@ -5,7 +5,7 @@
 // ============================================================
 import { cardLabel, isBlack, isRed } from './cards.js';
 import type { Game } from './game.js';
-import type { Card } from './types.js';
+import type { Card, Zone } from './types.js';
 import { pickCardFrom } from './tricks.js';
 
 async function confirm(g: Game, seat: number, skill: string, prompt: string): Promise<boolean> {
@@ -53,9 +53,22 @@ export function installEquipment(g: Game): void {
     if (!await confirm(g, src, 'hanbing', `Hàn Băng Kiếm: không gây sát thương mà bỏ 2 lá của ${name(ctx.target)}?`)) return;
     ctx.cancelled = true;
     g.say(`${name(src)} dùng Hàn Băng Kiếm.`);
-    for (let i = 0; i < 2 && g.cardCount(ctx.target) > 0; i++) {
-      const pick = await pickCardFrom(g, src, ctx.target, false, 'Hàn Băng Kiếm: chọn lá để bỏ');
-      if (pick) await g.moveCards([pick.id], pick.from, { kind: 'discard' }, 'hanbing');
+    // Chọn đủ 2 lá rồi mới bỏ cùng lúc (một lần mất bài: Thủ Thành, Liên Doanh... chỉ kích 1 lần)
+    const picks: { id: number; from: Zone }[] = [];
+    for (let i = 0; i < 2; i++) {
+      const pick = await pickCardFrom(g, src, ctx.target, false, 'Hàn Băng Kiếm: chọn lá để bỏ', picks.map((p) => p.id));
+      if (!pick) break;
+      picks.push(pick);
+    }
+    const groups = new Map<string, { from: Zone; ids: number[] }>();
+    for (const p of picks) {
+      const key = JSON.stringify(p.from);
+      if (!groups.has(key)) groups.set(key, { from: p.from, ids: [] });
+      groups.get(key)!.ids.push(p.id);
+    }
+    for (const { from, ids } of groups.values()) {
+      const still = ids.filter((id) => g.zone(from).includes(id));
+      if (still.length) await g.moveCards(still, from, { kind: 'discard' }, 'hanbing');
     }
   }, 50);
 
