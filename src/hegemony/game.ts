@@ -1099,6 +1099,13 @@ export class HegemonyGame extends Game {
     return true;
   }
 
+  /** Hồng Nhan (tỏa định): lá Bích của chủ kỹ năng (trên tay, trang bị, phán định, đang dùng) và kết quả phán định của họ xem như Cơ. */
+  protected override spadeAsHeart(id: number): boolean {
+    if (!this.heroes?.length) return false;
+    const seat = this.cardHolder(id);
+    return seat !== null && this.player(seat).alive && this.hasSkill(seat, 'hongyan');
+  }
+
   hasSkill(seat: number, skillId: string, revealedOnly = true): boolean {
     return this.skillEntries(seat, revealedOnly).some((e) => e.skill.id === skillId);
   }

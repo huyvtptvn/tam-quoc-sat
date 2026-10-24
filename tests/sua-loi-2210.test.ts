@@ -535,3 +535,36 @@ test('Vạn Tiễn / Nam Man vẫn dùng được khi có người bị Điệu 
   assert.ok(r.ok, String((r as { reason?: string }).reason));
   assert.equal(game.player(2).hp, hp2, 'người bị Điệu Hổ không bị ảnh hưởng');
 });
+
+test('Hồng Nhan: lá Bích của Tiểu Kiều (trên tay, phán định) xem như Cơ; người khác thì không', async () => {
+  const { game } = makeHG([['xiaoqiao', 'zhouyu'], ['caocao', 'xuchu'], ['liubei', 'guanyu']]);
+  await game.setup();
+  await revealAll(game, 0);
+  const sp = await take(game, 0, (c) => c.suit === 'spade');
+  assert.equal(game.card(sp).suit, 'heart', 'lá Bích trên tay Tiểu Kiều xem như Cơ');
+  assert.ok(isRed(game.card(sp)));
+  await game.moveCards([sp], { kind: 'hand', seat: 0 }, { kind: 'hand', seat: 1 }, 'test');
+  assert.equal(game.card(sp).suit, 'spade', 'sang tay người khác lại là Bích');
+  // Kết quả phán định Bích của Tiểu Kiều xem như Cơ (Lạc Bất không trúng, Bát Quái đỏ)
+  const top = game.state.drawPile.findIndex((i) => game.card(i).suit === 'spade');
+  const [id] = game.state.drawPile.splice(top, 1);
+  game.state.drawPile.push(id);
+  const j = await game.judge(0, 'test');
+  assert.equal(j.id, id);
+  assert.equal(j.suit, 'heart');
+  await game.finishJudge(j);
+  assert.equal(game.card(id).suit, 'spade', 'vào chồng bỏ thì trở lại Bích');
+  const top2 = game.state.drawPile.findIndex((i) => game.card(i).suit === 'spade');
+  const [id2] = game.state.drawPile.splice(top2, 1);
+  game.state.drawPile.push(id2);
+  const j2 = await game.judge(1, 'test');
+  assert.equal(j2.suit, 'spade', 'phán định của người khác không đổi');
+  await game.finishJudge(j2);
+});
+
+test('Hồng Nhan: Tiểu Kiều chưa lật tướng thì lá Bích vẫn là Bích', async () => {
+  const { game } = makeHG([['xiaoqiao', 'zhouyu'], ['caocao', 'xuchu'], ['liubei', 'guanyu']]);
+  await game.setup();
+  const sp = await take(game, 0, (c) => c.suit === 'spade');
+  assert.equal(game.card(sp).suit, 'spade');
+});

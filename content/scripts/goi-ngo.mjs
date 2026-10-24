@@ -161,8 +161,8 @@ export default {
     },
     {
       id: 'hongyan', name: 'Hồng Nhan',
-      desc: 'Tỏa định kỹ: lá BÍCH của bạn và kết quả phán xét BÍCH của bạn xem như CƠ; nếu bạn có lá CƠ trong vùng trang bị, giới hạn trữ bài của bạn +1. '
-        + '(Đơn giản hóa: lá Bích chỉ được xem như Cơ khi dùng Thiên Hương và khi xét vùng trang bị; kết quả phán xét không đổi.)',
+      desc: 'Tỏa định kỹ: lá BÍCH của bạn (trên tay, trang bị, khu phán định, lá bạn dùng/đánh ra) và kết quả phán xét BÍCH của bạn xem như CƠ; '
+        + 'nếu bạn có lá CƠ trong vùng trang bị, giới hạn trữ bài của bạn +1.',
       handLimitBonus: (g, o) => (equipsOf(g, o).some((id) => ['heart', 'spade'].includes(g.card(id).suit)) ? 1 : 0),
     },
 

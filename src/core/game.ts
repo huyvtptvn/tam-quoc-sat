@@ -286,7 +286,33 @@ export class Game {
   card(id: number): Card {
     const c = this.cards.get(id);
     if (!c) throw new Error(`Lá bài ${id} không tồn tại`);
-    return c;
+    if (c.suit !== 'spade' || this.inSuitView) return c;
+    this.inSuitView = true;
+    let heart = false;
+    try { heart = this.spadeAsHeart(id); } finally { this.inSuitView = false; }
+    if (!heart) return c;
+    let v = this.heartViews.get(id);
+    if (!v) { v = { ...c, suit: 'heart' }; this.heartViews.set(id, v); }
+    return v;
+  }
+
+  private inSuitView = false;
+  private readonly heartViews = new Map<number, Card>();
+  /** Lá đang trong vùng xử lý được "của" ai (người dùng/đánh nó, hoặc người phán định). */
+  readonly processingBy = new Map<number, number>();
+
+  /** Ghế đang "sở hữu" lá này: trên tay, trang bị, khu phán định, hoặc lá người đó đang dùng/phán định. */
+  cardHolder(id: number): number | null {
+    for (const p of this.state.players) {
+      if (p.hand.includes(id) || p.judgeArea.includes(id) || Object.values(p.equips).some((l) => l.includes(id))) return p.seat;
+    }
+    if (this.state.processing.includes(id)) return this.processingBy.get(id) ?? null;
+    return null;
+  }
+
+  /** Lá Bích này có được xem như Cơ không (Hồng Nhan của Tiểu Kiều). Mặc định: không. */
+  protected spadeAsHeart(_id: number): boolean {
+    return false;
   }
 
   /** Định nghĩa cẩm nang (cách chọn mục tiêu...). */
@@ -691,6 +717,9 @@ export class Game {
       if (i < 0) throw new Error(`Lá ${id} không nằm ở vùng ${from.kind}`);
       src.splice(i, 1);
       dst.push(id);
+      if (to.kind === 'processing') {
+        if ((from.kind === 'hand' || from.kind === 'equip') && 'seat' in from) this.processingBy.set(id, from.seat);
+      } else this.processingBy.delete(id);
       // Chuyển giữa hai khu vực phán định (Xảo Biến...) thì lá vẫn giữ tên cẩm nang trì hoãn đã chuyển hóa
       if (from.kind === 'judge' && to.kind !== 'judge') this.delayedAs.delete(id);
     }
@@ -954,12 +983,19 @@ export class Game {
    * Người gọi đọc kết quả rồi BẮT BUỘC gọi finishJudge() (nên đặt trong finally).
    */
   async judge(seat: number, reason: string): Promise<Card> {
-    const card = await this.takeTop({ kind: 'processing' }, 'judge');
-    this.say(`${this.player(seat).name} phán định (${reason}): ${cardLabel(card)}.`);
+    const top = await this.takeTop({ kind: 'processing' }, 'judge');
+    this.processingBy.set(top.id, seat);
+    const card = this.card(top.id);
+    this.say(`${this.player(seat).name} phán định (${reason}): ${cardLabel(top)}${card.suit !== top.suit ? ' (Hồng Nhan: xem như Cơ)' : ''}.`);
     // Kỹ năng có thể thay lá phán định (Hoãn Thích): listener đổi ctx.card thì kết quả là lá mới
     this.cancelledJudges.delete(card.id);
     const ctx = await this.bus.emit('judged', { seat, card, reason });
     if (this.cancelledJudges.has(card.id)) this.cancelledJudges.add(ctx.card.id);
+    // Lá phán định cuối cùng (kể cả lá thay bằng kỹ năng) là kết quả phán định của người này
+    if (this.state.processing.includes(ctx.card.id)) {
+      this.processingBy.set(ctx.card.id, seat);
+      ctx.card = this.card(ctx.card.id);
+    }
     // Kết quả cuối cùng (sau mọi kỹ năng thay lá phán định như Hoãn Thích, Quỷ Tài...)
     await this.bus.emit('judgeFinal', { seat, card: ctx.card, reason });
     if (this.opts.judgePauseMs > 0) await new Promise((r) => setTimeout(r, this.opts.judgePauseMs));
