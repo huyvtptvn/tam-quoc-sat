@@ -522,3 +522,16 @@ test('Dịch Quỷ: lá lên bản thân (Hiệp Thiên Tử, Vô Trung...) cầ
   if (hint().some((h) => h.skill === 'yigui')) await useSkill(game, 0, 'yigui');
   assert.ok(opts.includes('Đào'), `Hồn Dã tâm dùng Đào lên bản thân: ${opts.join(',')}`);
 });
+
+test('Vạn Tiễn / Nam Man vẫn dùng được khi có người bị Điệu Hổ (người đó chỉ bị bỏ qua)', async () => {
+  const { game } = makeHG([['caocao', 'xuchu'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng'], ['zhangjiao', 'yuanshao']]);
+  await game.setup();
+  await revealAll(game, 0);
+  game.player(2).flags.turn_lured = 1;
+  const w = await take(game, 0, (c) => c.name === 'wanjian');
+  enterPlay(game, 0);
+  const hp2 = game.player(2).hp;
+  const r = await game.useCard(0, w, []);
+  assert.ok(r.ok, String((r as { reason?: string }).reason));
+  assert.equal(game.player(2).hp, hp2, 'người bị Điệu Hổ không bị ảnh hưởng');
+});

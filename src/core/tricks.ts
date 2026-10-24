@@ -332,13 +332,17 @@ export function registerTrick(def: TrickDef): void {
 
 /** Danh sách mục tiêu tự động cho các lá không cần chọn. */
 function autoTargets(g: Game, def: TrickDef, user: number): number[] {
-  switch (def.targeting) {
-    case 'self': return [user];
-    case 'allOthers': return others(g, user);
-    case 'all': return g.aliveSeatsFrom(user);
-    case 'custom': return def.autoTargets!(g, user);
-    default: return [];
-  }
+  const raw = (() => {
+    switch (def.targeting) {
+      case 'self': return [user];
+      case 'allOthers': return others(g, user);
+      case 'all': return g.aliveSeatsFrom(user);
+      case 'custom': return def.autoTargets!(g, user);
+      default: return [];
+    }
+  })();
+  // Cẩm nang nhiều mục tiêu: người không thể là mục tiêu (bị Điệu Hổ Ly Sơn, kỹ năng miễn...) chỉ bị bỏ qua, lá vẫn dùng được
+  return raw.filter((t) => t === user || g.canTargetWithCard(user, t));
 }
 
 export function trickTargetSpec(g: Game, seat: number, card: Card, cardName: CardName): TargetSpec {
@@ -378,7 +382,6 @@ export function checkTrickUse(g: Game, seat: number, card: Card, cardName: CardN
     if (targets.length > 0) return `${label} không cần chọn mục tiêu`;
     const auto = autoTargets(g, def, seat);
     if (auto.length === 0) return 'Không có mục tiêu hợp lệ';
-    if (auto.some((t) => t !== seat && !g.canTargetWithCard(seat, t))) return 'Không thể chọn mục tiêu này';
     return null;
   }
 
