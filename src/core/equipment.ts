@@ -122,13 +122,15 @@ export function installEquipment(g: Game): void {
   });
 }
 
-/** Quán Thạch Phủ: Sát bị né, có thể bỏ 2 lá trên tay để Sát vẫn trúng. Trả về true nếu dùng. */
+/** Quán Thạch Phủ: Sát bị né, có thể bỏ 2 lá (trên tay hoặc trang bị, trừ chính Quán Thạch Phủ) để Sát vẫn trúng. Trả về true nếu dùng. */
 export async function tryGuanshi(g: Game, source: number, target: number): Promise<boolean> {
   const p = g.player(source);
-  if (!p.alive || !g.player(target).alive || g.weaponName(source) !== 'guanshi' || p.hand.length < 2) return false;
-  if (!await confirm(g, source, 'guanshi', `Quán Thạch Phủ: bỏ 2 lá để Sát vẫn trúng ${g.player(target).name}?`)) return false;
+  const axe = p.equips.weapon.filter((id) => g.card(id).name === 'guanshi');
+  const pool = p.hand.length + Object.values(p.equips).flat().filter((id) => !axe.includes(id)).length;
+  if (!p.alive || !g.player(target).alive || g.weaponName(source) !== 'guanshi' || pool < 2) return false;
+  if (!await confirm(g, source, 'guanshi', `Quán Thạch Phủ: bỏ 2 lá (trên tay / trang bị) để Sát vẫn trúng ${g.player(target).name}?`)) return false;
   g.say(`${p.name} dùng Quán Thạch Phủ.`);
-  await g.forceDiscard(source, 2, 'guanshi');
+  await g.forceDiscard(source, 2, 'guanshi', { equip: true, exclude: axe });
   return true;
 }
 

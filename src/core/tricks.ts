@@ -84,7 +84,7 @@ export async function pickCardFrom(
   // Văn Ngụy: người bị chọn bài có thể tự chọn lá của mình
   if (chooser !== target) {
     const own = await g.redirectPick(chooser, target, includeJudge);
-    if (own && !exclude.includes(own.id)) return own;
+    if (own && !exclude.includes(own.id)) { g.pickedBy.set(own.id, chooser); return own; }
   }
   const p = g.player(target);
   const opts: { label: string; pick: () => { id: number; from: Zone } }[] = [];
@@ -109,7 +109,9 @@ export async function pickCardFrom(
   }
   if (opts.length === 0) return null;
   const i = opts.length === 1 ? 0 : await g.choose(chooser, prompt, opts.map((o) => o.label));
-  return opts[i].pick();
+  const picked = opts[i].pick();
+  g.pickedBy.set(picked.id, chooser);
+  return picked;
 }
 
 // ============================================================
@@ -417,12 +419,14 @@ export async function askNullify(
     let played: Card | null = null;
     for (const seat of g.aliveSeatsFrom(g.state.currentSeat)) {
       // Chỉ hỏi người đang có lá Vô Giải (đỡ phải hỏi cả bàn mỗi lần)
-      if (!g.player(seat).hand.some((id) => g.cardCountsAs(seat, g.card(id)).includes('wuxie')) && !g.canVirtualRespond(seat, 'wuxie')) continue;
+      if (!g.player(seat).hand.some((id) => g.cardCountsAs(seat, g.card(id)).some((n) => n === 'wuxie' || n === 'wuxie_guo'))
+        && !g.canVirtualRespond(seat, 'wuxie') && !g.canVirtualRespond(seat, 'wuxie_guo')) continue;
       if (g.isLured(seat)) continue; // bị Điệu Hổ Ly Sơn: không thể dùng/đánh bài
       const prompt = cancelled
         ? `${label} lên ${name(g, target)} đang bị Vô Giải chặn. Dùng Vô Giải để hóa giải?`
         : `Dùng Vô Giải chặn ${label} lên ${name(g, target)}?`;
-      played = await g.requestResponse(seat, ['wuxie'], prompt, user,
+      g.lastRespondAs = null;
+      played = await g.requestResponse(seat, ['wuxie_guo', 'wuxie'], prompt, user,
         { kind: 'nullify', trick, user, target, cancelled });
       if (played) { lastResponder = seat; break; }
     }
@@ -431,7 +435,8 @@ export async function askNullify(
     if (lastResponder !== null) g.stat({ kind: 'nullified', by: lastResponder, user, target, trick, cancelled });
     // Vô Giải·Quốc: chọn chặn cho riêng mục tiêu hay cả thế lực của mục tiêu
     national = false;
-    if (cancelled && played.name === 'wuxie_guo' && g.factionGroup(target).length > 1) {
+    const guo = played.name === 'wuxie_guo' || g.lastRespondAs === 'wuxie_guo';
+    if (cancelled && guo && g.factionGroup(target).length > 1) {
       national = (await g.choose(lastResponder ?? g.state.currentSeat, 'Vô Giải Khả Kích·Quốc: chặn cho ai?', ['Toàn bộ thế lực của mục tiêu', 'Chỉ mục tiêu'])) === 0;
     }
   }

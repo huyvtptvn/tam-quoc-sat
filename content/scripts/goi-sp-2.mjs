@@ -792,7 +792,7 @@ export default {
           if (ctx.target === o && ctx.source === g.state.currentSeat && ctx.source !== o) store(g)[`nizhan:${o}`] = T(g);
         }),
         observe('cardResponded', (g, ctx, o) => {
-          if (ctx.seat === o && ctx.as === 'wuxie' && g.state.currentSeat !== o) store(g)[`nizhan:${o}`] = T(g);
+          if (ctx.seat === o && (ctx.as === 'wuxie' || ctx.as === 'wuxie_guo') && g.state.currentSeat !== o) store(g)[`nizhan:${o}`] = T(g);
         }),
         observe('cardsMoved', (g, ctx, o) => {
           if (ctx.from.kind === 'hand' && ctx.from.seat === o && g.state.currentSeat !== o && g.player(o).alive

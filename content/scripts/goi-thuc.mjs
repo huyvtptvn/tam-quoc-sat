@@ -19,8 +19,9 @@ export default {
       desc: 'Khi bạn sử dụng công cụ phổ thông không phải chuyển hóa, bạn có thể rút 1 lá.',
       triggers: [
         // Công cụ phi chuyển hóa: lá thật dùng đúng tên, hoặc lá ảo không dùng lá thật nào (Ngọc Tỷ coi như dùng Tri Kỷ Tri Bỉ)
-        on('cardUsed', (g, ctx, o) => ctx.seat === o && !ctx.card.converted && ctx.as === ctx.card.name && g.cardInfo(ctx.as)?.type === 'trick',
-          async (g, _ctx, o) => { await g.draw(o, 1); }),
+        // Vô Giải Khả Kích được "sử dụng" qua lượt đáp lại (cardResponded), không qua cardUsed
+        ...['cardUsed', 'cardResponded'].map((ev) => on(ev, (g, ctx, o) => ctx.seat === o && jizhiPlain(g, ctx),
+          async (g, _ctx, o) => { await g.draw(o, 1); })),
       ],
     },
     {
@@ -599,4 +600,10 @@ function baolieCard(g, s, id) {
 /** Tật Lê: X = tầm đánh lúc dùng lá (lá trang bị: tầm đánh trước khi lắp). */
 function jiliRange(g, ctx, o) {
   return typeof ctx.rangeBefore === 'number' ? ctx.rangeBefore : g.attackRange(o);
+}
+
+/** Tập Trí: công cụ phổ thông dùng đúng lá thật (Vô Giải·Quốc dùng như Vô Giải vẫn tính), không chuyển hóa. */
+function jizhiPlain(g, ctx) {
+  if (!ctx.card || ctx.card.converted || g.cardInfo(ctx.as)?.type !== 'trick') return false;
+  return ctx.as === ctx.card.name || (ctx.card.name === 'wuxie_guo' && ctx.as === 'wuxie');
 }

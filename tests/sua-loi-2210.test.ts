@@ -600,3 +600,115 @@ test('Hàn Băng Kiếm đã hủy sát thương thì Thiên Hương (Tiểu Ki�
   assert.equal(game.cardCount(1), 1, 'chỉ mất 2 lá do Hàn Băng');
   assert.equal(game.player(0).hp, hp0);
 });
+
+// ================= Bug sheet 27/10 =================
+import { FIRST_OPTION, onlySkill } from './hg-helpers.js';
+import { tryGuanshi } from '../src/core/equipment.js';
+
+test('BUG-003 Tập Trí: Hoàng Nguyệt Anh dùng Vô Giải Khả Kích thì rút 1 lá', async () => {
+  const { game, ctrls } = makeHG([['caocao', 'xuchu'], ['huangyueying', 'zhugeliang'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0, 1);
+  const wx = await take(game, 1, (c) => c.name === 'wuxie');
+  const gh = await take(game, 0, (c) => c.name === 'guohe');
+  ctrls[1].set('respond', (_r, v) => (v.responseOptions.find((o) => o.cardId === wx) ? { kind: 'card', cardId: wx } : { kind: 'pass' }))
+    .set('confirm', onlySkill('jizhi'));
+  const before = game.player(1).hand.length;
+  enterPlay(game, 0);
+  await game.useCard(0, gh, [1]);
+  assert.ok(game.state.discardPile.includes(wx), 'đã dùng Vô Giải');
+  assert.equal(game.player(1).hand.length, before, 'mất Vô Giải, rút lại 1 lá (Quá Hà bị chặn)');
+});
+
+test('BUG-006 Dịch Quỷ: Hồn dùng được như Vô Giải·Quốc (chung lượt với Vô Giải)', async () => {
+  const { game } = makeHG([['caocao', 'xuchu'], ['new_zuoci', 'huatuo'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 1);
+  assert.ok(game.generalPile(1, 'Hồn').length > 0);
+  assert.ok(game.canVirtualRespond(1, 'wuxie_guo'), 'có thể xem như Vô Giải·Quốc');
+  assert.ok(game.canVirtualRespond(1, 'wuxie'));
+});
+
+test('BUG-004 Tinh Sách: so số lá đã dùng với máu lúc lá kết toán xong (Đào hồi máu thì không kích)', async () => {
+  const { game, ctrls } = makeHG([['guohuai', 'xuchu'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0, 1, 2);
+  const asked: string[] = [];
+  ctrls[0].set('confirm', (r) => { asked.push((r as { skill?: string }).skill ?? ''); return { kind: 'no' }; });
+  game.player(0).hp = 1;
+  const tao = await take(game, 0, (c) => c.name === 'tao');
+  enterPlay(game, 0);
+  await game.useCard(0, tao, [0]);
+  assert.equal(game.player(0).hp, 2);
+  assert.ok(!asked.includes('jingce'), 'lá thứ 1 kết toán xong, máu đã là 2: không kích');
+  const wz = await take(game, 0, (c) => c.name === 'wuzhong');
+  await game.useCard(0, wz, []);
+  assert.ok(asked.includes('jingce'), 'lá thứ 2, máu 2: kích');
+});
+
+test('BUG-005 Hợp Tung: lá giao đi được lật ngửa (mọi người thấy trong nhật ký)', async () => {
+  const { game } = makeHG([['caocao', 'xuchu'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0, 1);
+  const id = game.player(0).hand[0];
+  game.log.length = 0;
+  await game.doTransfer(0, [id], 1);
+  const text = game.log.map((l: unknown) => String((l as { text?: string }).text ?? l)).join('\n');
+  const label = (await import('../src/core/cards.js')).cardLabel(game.card(id));
+  assert.ok(text.includes(label), text);
+});
+
+test('BUG-007 Liên Phiên: lá của người khác do Tô Phi chỉ định bỏ (Quá Hà) cũng được đếm', async () => {
+  const { game, ctrls } = makeHG([['sunquan', 'sufei'], ['liubei', 'guanyu'], ['caocao', 'xuchu']]);
+  await game.setup();
+  await revealAll(game, 0, 1);
+  const gh = await take(game, 0, (c) => c.name === 'guohe');
+  ctrls[1].set('respond', () => ({ kind: 'pass' }));
+  enterPlay(game, 0);
+  await game.useCard(0, gh, [1]);
+  // @ts-expect-error mô-đun JS của gói kỹ năng
+  const { store } = await import('../content/scripts/lib/tro-giup.mjs');
+  const found = (store(game)['lianpian:0']?.n ?? 0) >= 1;
+  assert.ok(found, 'đã ghi nhận lá Tô Phi chỉ định bỏ');
+});
+
+test('BUG-008 Ngọc Toái: kích khi là mục tiêu Nam Man (bài Đen nhiều mục tiêu)', async () => {
+  const { game, ctrls } = makeHG([['caocao', 'xuchu'], ['fengxi', 'lvmeng'], ['liubei', 'guanyu']]);
+  await game.setup();
+  await revealAll(game, 0, 1);
+  const nm = await take(game, 0, (c) => c.name === 'nanman' && (c.suit === 'spade' || c.suit === 'club'));
+  const asked: string[] = [];
+  ctrls[1].set('confirm', (r) => { asked.push((r as { skill?: string }).skill ?? ''); return { kind: 'no' }; }).set('respond', () => ({ kind: 'pass' }));
+  enterPlay(game, 0);
+  await game.useCard(0, nm, []);
+  assert.ok(asked.includes('yusui'), asked.join(','));
+});
+
+test('BUG-009 Quán Thạch Phủ: bỏ 2 lá bất kỳ (tay hoặc trang bị, trừ chính rìu)', async () => {
+  const { game, ctrls } = makeHG([['caocao', 'xuchu'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0);
+  if (game.player(0).hand.length) await game.moveCards([...game.player(0).hand], { kind: 'hand', seat: 0 }, { kind: 'discard' }, 'test');
+  const axe = await take(game, 0, (c) => c.name === 'guanshi');
+  await game.moveCards([axe], { kind: 'hand', seat: 0 }, { kind: 'equip', seat: 0, slot: 'weapon' }, 'test');
+  const horse = await take(game, 0, (c) => c.name === 'dilu');
+  await game.moveCards([horse], { kind: 'hand', seat: 0 }, { kind: 'equip', seat: 0, slot: 'defHorse' }, 'test');
+  const one = await take(game, 0, (c) => c.name === 'sha');
+  let offered: number[] = [];
+  ctrls[0].set('confirm', () => ({ kind: 'yes' })).set('discard', (r) => { offered = (r as unknown as { cardIds: number[] }).cardIds; return { kind: 'discard', cardIds: offered.slice(0, 2) }; });
+  assert.equal(await tryGuanshi(game, 0, 1), true, '1 lá trên tay + 1 ngựa vẫn dùng được');
+  assert.deepEqual([...offered].sort(), [one, horse].sort(), 'không cho bỏ chính Quán Thạch Phủ');
+  assert.ok(game.player(0).equips.weapon.includes(axe));
+});
+void FIRST_OPTION;
+
+test('BUG-006 Diệt Ngô (Đỗ Dự): có Võ Khố thì lá trên tay tính được như Vô Giải·Quốc', async () => {
+  const { game } = makeHG([['duyu', 'xuchu'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0);
+  // @ts-expect-error mô-đun JS của gói kỹ năng
+  const { store } = await import('../content/scripts/lib/tro-giup.mjs');
+  store(game)['wuku:0'] = 1;
+  const id = await take(game, 0, (c) => c.name === 'sha');
+  assert.ok(game.cardCountsAs(0, game.card(id)).includes('wuxie_guo'));
+});

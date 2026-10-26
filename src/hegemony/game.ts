@@ -2,7 +2,7 @@
 // HegemonyGame: chế độ Quốc Chiến, kế thừa engine lõi.
 // Chỉ GHI ĐÈ các điểm móc của Game, không sửa luật lõi.
 // ============================================================
-import { buildStandardDeck } from '../core/cards.js';
+import { buildStandardDeck, cardLabel } from '../core/cards.js';
 import { Game, type GameOptions } from '../core/game.js';
 import './cards.js'; // đăng ký các cẩm nang riêng của Quốc Chiến
 import type { EventName } from '../core/events.js';
@@ -959,7 +959,8 @@ export class HegemonyGame extends Game {
     this.player(seat).flags.turn_transferUsed = 1;
     const draw = this.isRevealedAny(target);
     await this.moveCards([...cardIds], { kind: 'hand', seat }, { kind: 'hand', seat: target }, 'transfer');
-    this.say(`${this.player(seat).name} Hợp Tung: giao ${cardIds.length} lá cho ${this.player(target).name}.`);
+    // Lá Hợp Tung được giao ngửa: mọi người đều thấy là lá gì
+    this.say(`${this.player(seat).name} Hợp Tung (ngửa bài): giao ${cardIds.map((id) => cardLabel(this.card(id))).join(', ')} cho ${this.player(target).name}.`);
     if (!draw) return;
     const ctx = await this.bus.emit('transferDraw', { seat, drawer: seat, target, count: cardIds.length });
     if (this.player(ctx.drawer).alive) await this.draw(ctx.drawer, ctx.count, 'transfer');

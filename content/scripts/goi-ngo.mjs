@@ -664,14 +664,17 @@ export default {
       id: 'lianpian', name: 'Liên Phiên',
       desc: 'Khi bắt đầu giai đoạn kết thúc của 1 người, nếu trong lượt này tổng số lá tiến vào chồng bài bỏ do bạn chỉ định bỏ đi > số máu của bạn, '
         + 'nếu lượt này là lượt của: bạn: bạn có thể lệnh 1 người cùng thế lực với bạn bổ sung bài trên tay đến giới hạn máu của họ; người khác: họ có thể '
-        + 'chọn bỏ 1 lá của bạn hoặc lệnh bạn hồi 1 máu. (Đơn giản hóa: chỉ đếm các lá của chính bạn bị bỏ vào chồng bài bỏ.)',
+        + 'chọn bỏ 1 lá của bạn hoặc lệnh bạn hồi 1 máu.',
       triggers: [
         observe('cardsMoved', (g, ctx, o) => {
           if (ctx.to.kind !== 'discard' || NOT_DISCARD.has(ctx.reason)) return;
-          if (!((ctx.from.kind === 'hand' || ctx.from.kind === 'equip') && ctx.from.seat === o)) return;
+          if (!['hand', 'equip', 'judge'].includes(ctx.from.kind)) return;
+          // Lá do bạn chỉ định bỏ: bài của bạn tự bỏ, hoặc bài của người khác do bạn chọn (Quá Hà, Hàn Băng, kỹ năng...)
+          const n = ctx.cardIds.filter((id) => g.chooserOf(id, ctx.from) === o).length;
+          if (!n) return;
           const k = `lianpian:${o}`;
           const prev = store(g)[k];
-          store(g)[k] = { turn: g.state.turnCount, n: (prev?.turn === g.state.turnCount ? prev.n : 0) + ctx.cardIds.length };
+          store(g)[k] = { turn: g.state.turnCount, n: (prev?.turn === g.state.turnCount ? prev.n : 0) + n };
         }),
         on('phaseStart', (g, ctx, o) => ctx.phase === 'end' && ctx.seat === o && lianpianReady(g, o)
           && sameFactionSeats(g, o).some((s) => hand(g, s).length < g.player(s).maxHp),

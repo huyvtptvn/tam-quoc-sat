@@ -92,8 +92,9 @@ export async function pickCard(g, chooser, target, prompt, { hand: useHand = tru
   if (!opts.length) return null;
   const i = opts.length === 1 ? 0 : await g.choose(chooser, prompt, opts.map((o) => o.label));
   const o = opts[i];
-  if (o.hand) return { id: p.hand[g.randomInt(p.hand.length)], from: { kind: 'hand', seat: target } };
-  return { id: o.id, from: o.from };
+  const pick = o.hand ? { id: p.hand[g.randomInt(p.hand.length)], from: { kind: 'hand', seat: target } } : { id: o.id, from: o.from };
+  g.pickedBy?.set(pick.id, chooser);
+  return pick;
 }
 
 /** Bỏ 1 lá của `target` do `chooser` chọn. */

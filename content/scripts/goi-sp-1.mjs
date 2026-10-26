@@ -259,22 +259,25 @@ export default {
       id: 'jingce', name: 'Tinh Sách',
       desc: 'Giai đoạn ra bài, sau khi lá thứ X do bạn sử dụng kết toán xong (X là số máu hiện tại của bạn), nếu không có ai đang hấp hối, '
         + 'bạn có thể yêu cầu 1 người thế lực xác định khác bạn chấp hành 1 [Quân Lệnh]; nếu họ không chấp hành, bạn rút 2 lá. '
-        + '(Đơn giản hóa: lá "coi như dùng" do kỹ năng tạo ra không được tính thời điểm kết toán.)',
+        + '(X so với số máu lúc lá kết toán xong, ví dụ dùng Đào hồi máu thì tính theo máu sau khi hồi. '
+        + 'Đơn giản hóa: lá "coi như dùng" do kỹ năng tạo ra không được tính thời điểm kết toán.)',
       triggers: [
-        // Lá thứ X: trang bị / cẩm nang trì hoãn kết toán ngay; lá khác chờ tới khi vào chồng bỏ
+        // Lá thứ X: trang bị / cẩm nang trì hoãn kết toán ngay; lá khác chờ tới khi vào chồng bỏ rồi mới so với máu lúc đó
         on('cardUsed', (g, ctx, o) => {
-          if (ctx.seat !== o || !inMyPlay(g, o) || (g.player(o).flags.stat_usedPlay ?? 0) !== g.player(o).hp) return false;
+          if (ctx.seat !== o || !inMyPlay(g, o)) return false;
+          const nth = g.player(o).flags.stat_usedPlay ?? 0;
           const t = g.cardInfo(ctx.as)?.type;
-          if (t === 'equip' || t === 'delayed') return !anyDying(g) && jingceTargets(g, o).length > 0;
-          if (ctx.card.id >= 0) store(g)[`jingce:${o}`] = ctx.card.id;
+          if (t === 'equip' || t === 'delayed') return nth === g.player(o).hp && !anyDying(g) && jingceTargets(g, o).length > 0;
+          if (ctx.card.id >= 0) (store(g)[`jingce:${o}`] ??= {})[ctx.card.id] = nth;
           return false;
         }, (g, _ctx, o) => jingceRun(g, o)),
         on('cardsMoved', (g, ctx, o) => ctx.reason === 'settle' && ctx.from.kind === 'processing' && inMyPlay(g, o)
-          && store(g)[`jingce:${o}`] !== undefined && ctx.cardIds.includes(store(g)[`jingce:${o}`])
+          && ctx.cardIds.some((id) => store(g)[`jingce:${o}`]?.[id] === g.player(o).hp)
           && !anyDying(g) && jingceTargets(g, o).length > 0,
           (g, _ctx, o) => jingceRun(g, o)),
         observe('cardsMoved', (g, ctx, o) => {
-          if (ctx.from.kind === 'processing' && ctx.cardIds.includes(store(g)[`jingce:${o}`])) delete store(g)[`jingce:${o}`];
+          const m = store(g)[`jingce:${o}`];
+          if (m && ctx.from.kind === 'processing') for (const id of ctx.cardIds) delete m[id];
         }),
         observe('phaseEnd', (g, ctx, o) => { if (ctx.seat === o) delete store(g)[`jingce:${o}`]; }),
       ],

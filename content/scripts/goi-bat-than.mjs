@@ -993,7 +993,7 @@ export default {
         + 'sau đó lựa chọn 1 mục: 1. lệnh họ bỏ X lá trên tay (X là giới hạn máu của họ); 2. lệnh họ mất máu đến khi bằng với số máu của bạn.',
       bot: { confirm: (v) => v.players[v.me].hp >= 3 },
       triggers: [
-        on('cardUsed', (g, ctx, o) => ctx.seat !== o && ctx.targets.includes(o) && isBlackCard(ctx.card) && g.player(ctx.seat).alive
+        on('cardUsed', (g, ctx, o) => ctx.seat !== o && usedTargets(g, ctx).includes(o) && isBlackCard(ctx.card) && g.player(ctx.seat).alive
           && diffFaction(g, o, ctx.seat) && g.player(o).hp > 0 && counter(g, 'yusui', o, turnKey(g)).n === 0,
           async (g, ctx, o) => {
             counter(g, 'yusui', o, turnKey(g)).n++;
@@ -1103,3 +1103,10 @@ export default {
   ],
 };
 
+
+/** Mục tiêu thực của lá vừa dùng: bài nhiều mục tiêu tự động (Nam Man, Vạn Tiễn...) không ghi trong ctx.targets. */
+function usedTargets(g, ctx) {
+  if (ctx.targets?.length) return ctx.targets;
+  const def = g.trickDef(ctx.as);
+  return def && def.targeting !== 'one' ? g.autoTargetsOf(ctx.seat, ctx.as) : [];
+}

@@ -568,13 +568,14 @@ export default {
       // Cần Thiểm / Vô Giải: bỏ 1 [Hồn] bất kỳ (không xét thế lực), mỗi loại 1 lần mỗi lượt
       virtualRespond: (g, s, accept) => {
         if (!g.generalPile(s, 'Hồn').length) return [];
-        return ['shan', 'wuxie'].filter((n) => accept.includes(n) && !yiguiUsed(g, s).includes(n));
+        // Vô Giải·Quốc dùng chung lượt với Vô Giải (mỗi lượt 1 lần cho cả hai)
+        return ['shan', 'wuxie_guo', 'wuxie'].filter((n) => accept.includes(n) && !yiguiUsed(g, s).includes(n === 'wuxie_guo' ? 'wuxie' : n));
       },
       payVirtual: async (g, s, as) => {
         const huns = g.generalPile(s, 'Hồn');
         if (!huns.length) return false;
         const hi = huns.length > 1 ? await g.choose(s, `Dịch Quỷ: bỏ 1 [Hồn] để xem như dùng ${g.cardInfo(as).label}`, huns.map((id) => hunLabel(g, id))) : 0;
-        yiguiUsed(g, s).push(as);
+        yiguiUsed(g, s).push(as === 'wuxie_guo' ? 'wuxie' : as);
         g.removeFromGeneralPile(s, 'Hồn', [huns[hi]]);
         return true;
       },

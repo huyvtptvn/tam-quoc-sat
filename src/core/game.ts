@@ -298,6 +298,13 @@ export class Game {
 
   private inSuitView = false;
   private readonly heartViews = new Map<number, Card>();
+  /** Người vừa chỉ định lá này (Quá Hà, Hàn Băng, kỹ năng bỏ/lấy bài...) — xóa sau lần di chuyển kế tiếp. Liên Phiên dùng. */
+  readonly pickedBy = new Map<number, number>();
+  /** Ai đã chỉ định lá `id` vào lần di chuyển này: người chọn (nếu có) hoặc chủ vùng chứa lá. */
+  chooserOf(id: number, from: Zone): number | null {
+    return this.pickedBy.get(id) ?? ('seat' in from ? from.seat : null);
+  }
+
   /** Lá đang trong vùng xử lý được "của" ai (người dùng/đánh nó, hoặc người phán định). */
   readonly processingBy = new Map<number, number>();
 
@@ -725,8 +732,12 @@ export class Game {
     }
     // Chia bài và đổi bài khởi đầu nằm ngoài ván (trước lượt đầu tiên): không phải "mất bài"/"nhận bài",
     // nên không kích hoạt kỹ năng nào (Đồn Điền của Đặng Ngải, các kỹ năng khi nhận/mất bài...).
-    if (reason === 'deal' || reason === 'mulligan') return;
-    await this.bus.emit('cardsMoved', { cardIds: [...ids], from, to, reason });
+    if (reason === 'deal' || reason === 'mulligan') { for (const id of ids) this.pickedBy.delete(id); return; }
+    try {
+      await this.bus.emit('cardsMoved', { cardIds: [...ids], from, to, reason });
+    } finally {
+      for (const id of ids) this.pickedBy.delete(id);
+    }
   }
 
   async draw(seat: number, n: number, reason = 'draw'): Promise<number[]> {
@@ -852,11 +863,12 @@ export class Game {
     if (!picked) {
       // Kỹ năng "xem như dùng" một lá để đáp lại (Thao Loạn: Thiểm, Vô Giải)
       const virtual = await this.virtualResponse(seat, accept, reason, source, context);
-      if (virtual) return virtual;
+      if (virtual) { this.lastRespondAs = virtual.name; return virtual; }
       return accept.includes('sha') ? tryZhangbaResponse(this, seat, reason) : null;
     }
     const { card, as } = picked;
     const p = this.player(seat);
+    this.lastRespondAs = as;
 
     this.noteUseAs(seat, card, as);
     await this.moveCards([card.id], { kind: 'hand', seat }, { kind: 'processing' }, 'respond');
@@ -872,6 +884,9 @@ export class Game {
     }
     return card;
   }
+
+  /** Lá vừa đánh ra trong requestResponse được tính là lá gì (Vô Giải·Quốc chuyển hóa / ảo). */
+  lastRespondAs: CardName | null = null;
 
   /** Hỏi `seat` chọn một lá trên tay thuộc `accept`, kiểm tra hợp lệ nhưng CHƯA di chuyển lá. */
   async pickResponse(
@@ -945,11 +960,11 @@ export class Game {
   /**
    * Bắt `seat` bỏ `count` lá. Mặc định chỉ bài trên tay; opts.equip: được bỏ cả trang bị ("bỏ X lá" theo luật).
    */
-  async forceDiscard(seat: number, count: number, reason: string, opts: { equip?: boolean } = {}): Promise<number[]> {
+  async forceDiscard(seat: number, count: number, reason: string, opts: { equip?: boolean; exclude?: number[] } = {}): Promise<number[]> {
     const p = this.player(seat);
     // Kê Lặc: lá thuộc loại bị cấm bỏ (cờ turn_banDiscardType_<loại>) không được chọn để bỏ
     const equipIds = opts.equip ? (Object.keys(p.equips) as EquipSlot[]).flatMap((s) => p.equips[s]) : [];
-    const allowed = [...p.hand, ...equipIds].filter((id) => !p.flags[`turn_banDiscardType_${this.card(id).type}`]);
+    const allowed = [...p.hand, ...equipIds].filter((id) => !p.flags[`turn_banDiscardType_${this.card(id).type}`] && !opts.exclude?.includes(id));
     count = Math.min(count, allowed.length);
     if (count <= 0) return [];
     const res = await this.ask({
