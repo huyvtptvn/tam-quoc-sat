@@ -229,6 +229,7 @@ export default {
     // ---------------- Đặng Ngải ----------------
     {
       id: 'tuntian', name: 'Đồn Điền',
+      specialName: 'Điền',
       desc: 'Sau khi bạn mất đi bài ngoài lượt, bạn có thể tiến hành phán xét, nếu kết quả phán xét không phải là chất CƠ, bạn có thể đặt kết quả '
         + 'phán xét này từ chồng bài bỏ lên tướng này, gọi là [Điền]. Khoảng cách từ bạn tới người khác -X (X là số [Điền] bạn có).',
       offenseBonus: (g, o) => g.player(o).special.length,
@@ -710,6 +711,7 @@ export default {
     {
       id: 'wuku', name: 'Vũ Khố',
       desc: 'Tỏa định kỹ: khi 1 người thế lực xác định khác bạn sử dụng 1 trang bị, bạn tăng 1 [Võ Khố] (tối đa 2).',
+      tokens: (g, o) => [{ name: 'Võ Khố', count: store(g)[`wuku:${o}`] ?? 0, showZero: true, tip: 'Võ Khố (tối đa 2): giảm 1 để Diệt Ngô chuyển hóa bài' }],
       triggers: [
         on('cardUsed', (g, ctx, o) => ctx.seat !== o && g.cardInfo(ctx.as)?.type === 'equip' && g.isDifferentFaction(ctx.seat, o)
           && (store(g)[`wuku:${o}`] ?? 0) < 2, async (g, _ctx, o) => {

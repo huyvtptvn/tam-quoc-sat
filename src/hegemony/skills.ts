@@ -87,6 +87,10 @@ export interface Skill {
   defenseBonus?: (g: HegemonyGame, owner: number) => number;
   /** Cộng thêm giới hạn bài trên tay (Tông Thất). Chỉ hiệu lực khi đã lật. */
   handLimitBonus?: (g: HegemonyGame, owner: number) => number;
+  /** Token hiển thị trên tướng (Võ Khố 2...). Chỉ hiện các token có count > 0 (trừ khi showZero). */
+  tokens?: (g: HegemonyGame, owner: number) => { name: string; count: number; tip?: string; showZero?: boolean }[];
+  /** Tên của khu bài trên tướng (player.special) khi kỹ năng này dùng nó, ví dụ 'Điền' (Đồn Điền). */
+  specialName?: string;
   /** Trả true để CẤM chủ kỹ năng chọn `target` làm mục tiêu (Tự Thủ). Chỉ hiệu lực khi đã lật. */
   restrictTarget?: (g: HegemonyGame, owner: number, target: number) => boolean;
 

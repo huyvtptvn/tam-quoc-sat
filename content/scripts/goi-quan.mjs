@@ -448,6 +448,7 @@ export default {
     // ---------------- Vu Cát ----------------
     {
       id: 'qianhuan', name: 'Thiên Huyễn',
+      specialName: 'Huyễn',
       desc: 'Sau khi 1 người cùng thế lực nhận sát thương, bạn có thể đem 1 lá của bạn đặt lên tướng này, gọi là [Huyễn] (không thể đặt lá trùng chất với những [Huyễn] đã có). '
         + 'Khi 1 người cùng thế lực trở thành mục tiêu duy nhất của lá cơ bản/công cụ phổ thông, bạn có thể đưa 1 [Huyễn] vào chồng bài bỏ, hủy bỏ mục tiêu này. '
         + 'Khi có lá tiến vào vùng phán xét của người cùng thế lực với bạn, bạn có thể đưa 1 [Huyễn] vào chồng bài bỏ, đưa lá đó vào chồng bài bỏ.',

@@ -42,6 +42,10 @@ export interface PublicPlayer {
   careeristGroup?: number;
   /** Chồng tướng riêng trên tướng (Hồn của Tả Từ, Lục của Tôn Lâm...): tên, số lá, và id tướng nếu người xem được thấy. */
   generalPiles?: { name: string; count: number; ids?: string[] }[];
+  /** Token trên tướng do kỹ năng tạo (Võ Khố...). which: tướng mang kỹ năng (chủ / phó), không có = kỹ năng ngoài. */
+  tokens?: { name: string; count: number; tip?: string; which?: 'main' | 'deputy' }[];
+  /** Tên khu bài trên tướng (Điền, Phục Binh...). */
+  specialName?: string;
   /** Là quân chủ. */
   lord?: boolean;
 }

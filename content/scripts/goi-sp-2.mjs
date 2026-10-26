@@ -279,6 +279,7 @@ export default {
     // ================= Trình Dục =================
     {
       id: 'shefu', name: 'Phục Binh',
+      specialName: 'Phục Binh',
       desc: '• Một lần trong giai đoạn ra bài, bạn có thể đặt 1 lá trên tay lên tướng của bạn, gọi là [Phục Binh]. '
         + '• Khi 1 người khác sử dụng bài trên tay, bạn có thể đưa 1 [Phục Binh] có cùng tên với lá đó vào chồng bài bỏ, hủy bỏ hoàn toàn lá đó. '
         + '• Khi bắt đầu giai đoạn chuẩn bị, nếu số [Phục Binh] > 2, bạn đưa số [Phục Binh] vào chồng bài bỏ đến khi còn 2. '

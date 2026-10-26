@@ -1760,6 +1760,8 @@ export class HegemonyGame extends Game {
         ...pp,
         generals: { main: sv(h.main), deputy: sv(h.deputy) },
         ...(pp.generalPiles ? { generalPiles: pp.generalPiles.map(({ name, count }) => ({ name, count })) } : {}),
+        tokens: undefined, specialName: undefined,
+        ...this.tokenView(pp.seat, false),
       };
     });
     v.spectator = true;
@@ -1855,6 +1857,22 @@ export class HegemonyGame extends Game {
   // View
   // ==========================================================
 
+  /** Token trên tướng + tên khu bài trên tướng. Người khác chỉ thấy của kỹ năng trên tướng đã lật. */
+  private tokenView(seat: number, own: boolean): { tokens?: NonNullable<PlayerView['players'][number]['tokens']>; specialName?: string } {
+    const h = this.heroes[seat];
+    if (!h || !this.player(seat).alive) return {};
+    const tokens: NonNullable<PlayerView['players'][number]['tokens']> = [];
+    const names = new Set<string>();
+    for (const e of this.skillEntries(seat, !own)) {
+      const which = e.slot === h.main ? 'main' as const : e.slot === h.deputy ? 'deputy' as const : undefined;
+      try {
+        for (const t of e.skill.tokens?.(this, seat) ?? []) if (t.count > 0 || t.showZero) tokens.push({ name: t.name, count: t.count, ...(t.tip ? { tip: t.tip } : {}), ...(which ? { which } : {}) });
+      } catch { /* kỹ năng lỗi không làm hỏng view */ }
+      if (e.skill.specialName) names.add(e.skill.specialName);
+    }
+    return { ...(tokens.length ? { tokens } : {}), ...(names.size ? { specialName: [...names].join(' / ') } : {}) };
+  }
+
   override makeView(seat: number, req?: Request): PlayerView {
     const v = viewFor(this, seat, req);
     v.players = v.players.map((pp) => {
@@ -1880,6 +1898,7 @@ export class HegemonyGame extends Game {
           })),
         } : {}),
         ...(isLordId(h.main.generalId) && (h.main.revealed || visible) ? { lord: true } : {}),
+        ...this.tokenView(pp.seat, pp.seat === seat),
       };
     });
     if (this.bossSeat !== null) v.boss = this.bossView();

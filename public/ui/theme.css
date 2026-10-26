@@ -318,3 +318,19 @@ body.ui-mobile .dialog.result .score-table .total { font-size: 14px; }
 .hpcol.tight { gap: 3px; }
 .myseat .hpcol.tight { gap: 5px; }
 body.ui-mobile .hpcol.tight { gap: 2px; }
+
+/* ---------- Token trên tướng (Võ Khố, Hồn, Điền...) ---------- */
+.tok { display: inline-flex; align-items: center; gap: 4px; padding: 1px 3px 1px 7px; border-radius: 999px; font: 600 11px/1.4 var(--font-sans);
+  color: var(--gold-1); background: rgba(10, 13, 20, .9); border: 1px solid rgba(224, 180, 90, .7); box-shadow: 0 2px 6px rgba(0,0,0,.5); white-space: nowrap; }
+.tok b { display: inline-grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px; background: var(--gold); color: #2a1a05; font-size: 11px; }
+button.tok { cursor: pointer; }
+button.tok:hover { border-color: var(--gold-1); filter: brightness(1.15); }
+.toks { position: absolute; z-index: 5; right: 3px; top: 24px; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; pointer-events: none; }
+.seat .toks { top: 18px; right: 2px; }
+.seat .tok, .seat-toks .tok { font-size: 9.5px; padding: 0 2px 0 5px; }
+.seat .tok b { min-width: 14px; height: 14px; font-size: 9.5px; }
+.seat-toks { display: flex; flex-wrap: wrap; gap: 3px; }
+.myseat .seat-toks .tok { font-size: 11px; }
+body.ui-mobile .seat .tok, body.ui-mobile .seat-toks .tok { font-size: 8.5px; }
+body.ui-mobile .seat .tok b { min-width: 12px; height: 12px; font-size: 8.5px; }
+.ip-gen .portrait .ntag { font-size: .9em; }

@@ -346,6 +346,7 @@
   function renderGame() {
     if (!view || $('game').classList.contains('hidden')) return;
     checkReveals();
+    privateNotes();
     renderSeats();
     renderCenter();
     renderMine();
@@ -354,6 +355,16 @@
     renderAction();
     updateTopButtons();
     prev.first = false;
+  }
+
+  /** Ghi chú riêng (xem bài / xem tướng...): không ghi cạnh ô tướng nữa — ghi vào nhật ký, bảng xem bài tự bật lên. */
+  let seenNotes = [];
+  function privateNotes() {
+    const cur = view.notes || [];
+    let start = 0;
+    if (seenNotes.length) { const i = cur.lastIndexOf(seenNotes[seenNotes.length - 1]); start = i >= 0 ? i + 1 : 0; }
+    if (!prev.first) for (const n of cur.slice(start)) addLog(`🔒 ${n}`);
+    seenNotes = [...cur];
   }
 
   const players = () => view.players;
@@ -436,19 +447,57 @@
     if (withEmpty === 'slots') return `<div class="eqgrid">${eq}</div>`;
     if (withEmpty === 'extras') return extrasHTML(p);
     const jd = (p.judgeArea || []).map((c) => `<span class="j" title="${esc(C.cardLabel(c) + ' — ' + C.cardDesc(c.name))}">${esc([...C.glyphOf(c)][0])}</span>`).join('');
-    const sp = (p.special || []).length ? `<div class="eq" title="Bài trên tướng">Trên tướng: ${p.special.length} lá</div>` : '';
-    const gp = (p.generalPiles || []).map((pile) => {
-      const names = (pile.ids || []).map((id) => C.general(id)?.name ?? id);
-      const tip = names.length ? names.join(', ') : 'Tướng úp';
-      return `<div class="eq" title="[${esc(pile.name)}] ${esc(tip)}">[${esc(pile.name)}]: ${pile.count} tướng${names.length ? ` <span class="muted">(${esc(names.join(', '))})</span>` : ''}</div>`;
-    }).join('');
-    return `${withEmpty ? `<div class="eqgrid">${eq}</div>` : eq}${jd ? `<div class="judges">${jd}</div>` : ''}${sp}${gp}`;
+    return `${withEmpty ? `<div class="eqgrid">${eq}</div>` : eq}${jd ? `<div class="judges">${jd}</div>` : ''}`;
   }
   /** Phần phụ của ghế người khác: khu phán định, bài trên tướng, chồng tướng. */
   function extrasHTML(p) {
     const html = zonesHTML({ ...p, equips: {} }, false);
     return html;
   }
+
+  /** Token gắn với 1 tướng (Võ Khố...): hiện đè lên cạnh ảnh tướng đó. */
+  function slotTokensHTML(p, which) {
+    const list = (p.tokens || []).filter((t) => t.which === which);
+    if (!list.length) return '';
+    return `<div class="toks">${list.map((t) => `<span class="tok" title="${esc(t.tip || t.name)}">${esc(t.name)}<b>${t.count}</b></span>`).join('')}</div>`;
+  }
+  /** Token chung của người chơi: chồng tướng ([Hồn]...), khu bài trên tướng ([Điền]...), token kỹ năng ngoài. Bấm để xem. */
+  function seatTokensHTML(p) {
+    const out = [];
+    (p.generalPiles || []).forEach((pile, i) => out.push(`<button type="button" class="tok pile" data-tok="pile:${i}" data-seat="${p.seat}" title="[${esc(pile.name)}] — bấm để xem">${esc(pile.name)}<b>${pile.count}</b></button>`));
+    if ((p.special || []).length) out.push(`<button type="button" class="tok pile" data-tok="special" data-seat="${p.seat}" title="Bài trên tướng — bấm để xem">${esc(p.specialName || 'Trên tướng')}<b>${p.special.length}</b></button>`);
+    (p.tokens || []).filter((t) => !t.which).forEach((t) => out.push(`<span class="tok" title="${esc(t.tip || t.name)}">${esc(t.name)}<b>${t.count}</b></span>`));
+    return out.length ? `<div class="seat-toks">${out.join('')}</div>` : '';
+  }
+  /** Bảng xem nội dung một token (chồng tướng / bài trên tướng), có nút X để đóng. */
+  function openTokenBox(seat, key) {
+    const p = view?.players?.[seat];
+    if (!p) return;
+    let title = '', body = '';
+    if (key === 'special') {
+      title = `${p.name} · [${p.specialName || 'Trên tướng'}] ${p.special.length} lá`;
+      body = `<div class="ip-cards">${p.special.map((c) => C.cardHTML(c)).join('')}</div>`;
+    } else {
+      const pile = p.generalPiles?.[Number(key.split(':')[1])];
+      if (!pile) return;
+      title = `${p.name} · [${pile.name}] ${pile.count} tướng`;
+      body = pile.ids?.length
+        ? `<div class="ip-gens">${pile.ids.map((id) => `<div class="ip-gen">${C.portraitHTML(id, { nameTag: true })}</div>`).join('')}</div>`
+        : `<p class="muted" style="text-align:center">Các tướng này đang úp — chỉ chủ nhân xem được.</p>`;
+    }
+    $('infoPop').innerHTML = `<div class="ip-box" role="dialog" aria-label="${esc(title)}"><div class="ip-head"><b>${esc(title)}</b><button type="button" class="ip-x" aria-label="Đóng">×</button></div>${body}</div>`;
+    hideSkillTip();
+    $('infoPop').classList.remove('hidden');
+    const close = () => $('infoPop').classList.add('hidden');
+    $('infoPop').querySelector('.ip-x').onclick = close;
+    $('infoPop').onclick = (e) => { if (e.target === $('infoPop')) close(); };
+  }
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest?.('.tok[data-tok]');
+    if (!t) return;
+    e.stopPropagation();
+    openTokenBox(Number(t.dataset.seat), t.dataset.tok);
+  }, true);
 
   function gensHTML(p, isMe) {
     const g = p.generals;
@@ -459,10 +508,10 @@
       const mine = (slot) => C.portraitHTML(slot.generalId, { down: !slot.revealed && slot.generalId, removed: slot.removed, cls: 'no-ntag' });
       const nm = (slot) => (slot.generalId ? esc(C.general(slot.generalId)?.name ?? slot.generalId) : 'Úp');
       // Ảnh kéo hết chiều cao ô; kỹ năng đè lên ảnh từ dưới lên; tên tướng nằm ngoài ảnh (bên dưới) cho khỏi lẫn với kỹ năng
-      return `<div class="gens">${['main', 'deputy'].map((w) => `<div class="gen-col"><div class="pwrap">${mine(g[w])}<span class="gname">${nm(g[w])}</span>${genSkillsHTML(g[w], w)}</div></div>`).join('')}</div>`;
+      return `<div class="gens">${['main', 'deputy'].map((w) => `<div class="gen-col"><div class="pwrap">${mine(g[w])}<span class="gname">${nm(g[w])}</span>${slotTokensHTML(p, w)}${genSkillsHTML(g[w], w)}</div></div>`).join('')}</div>`;
     }
     // Ghế người khác: cùng format với ghế mình (tên tướng trên ảnh, kỹ năng đè lên ảnh), bản thu nhỏ
-    const col = (slot) => {
+    const col = (slot, w) => {
       const nm = slot.generalId ? esc(C.general(slot.generalId)?.name ?? slot.generalId) : '';
       const gen = slot.generalId && !slot.removed && C.general(slot.generalId);
       const sk = gen ? `<div class="gskills">${gen.skills.map((id) => {
@@ -471,9 +520,9 @@
         const len = [...info.name].length;
         return `<span class="gsk${slot.revealed ? '' : ' hidden-gen'}${len > 12 ? ' xlong' : len > 8 ? ' long' : ''}">${locked ? '<span class="ico">锁</span>' : ''}<span class="nm">${esc(info.name)}</span></span>`;
       }).join('')}</div>` : '';
-      return `<div class="gen-col"><div class="pwrap">${one(slot)}${nm ? `<span class="gname">${nm}${slot.revealed || slot.removed ? '' : ' <i>(úp)</i>'}</span>` : ''}${sk}</div></div>`;
+      return `<div class="gen-col"><div class="pwrap">${one(slot)}${nm ? `<span class="gname">${nm}${slot.revealed || slot.removed ? '' : ' <i>(úp)</i>'}</span>` : ''}${slotTokensHTML(p, w)}${sk}</div></div>`;
     };
-    return `<div class="gens">${col(g.main)}${col(g.deputy)}</div>`;
+    return `<div class="gens">${col(g.main, 'main')}${col(g.deputy, 'deputy')}</div>`;
   }
 
   function seatFlags(p, el) {
@@ -528,6 +577,7 @@
           <div class="meta">
             <div class="mhead"><span class="seatno" title="Thứ tự lượt: ghế ${s + 1}">${s + 1}</span><span class="who" title="${esc(p.name)}">${esc(p.name)}</span><span class="handcount" title="Số bài trên tay">${p.handCount}</span></div>
             <div class="tags">${kingdomTag(p)}${markTags(p)}</div>
+            ${seatTokensHTML(p)}
             ${eqRowsHTML(p, true)}
           </div>
         </div>
@@ -657,15 +707,14 @@
       el.addEventListener('animationend', done);
     }
     prev.hp.set(p.seat, p.hp);
-    const notes = (view.notes || []).slice(-2).map((n) => `<div class="notes">${esc(n)}</div>`).join('');
     el.innerHTML = `${selTargets().includes(p.seat) ? '<span class="target-badge">Mục tiêu</span>' : ''}${gensHTML(p, true)}
       ${p.alive ? hpColHTML(p, true) : '<div class="hpcol dead"><span>✝</span></div>'}
       <div class="side">
         <div class="who"><span class="seatno" title="Thứ tự lượt: ghế ${p.seat + 1}">${p.seat + 1}</span>${esc(p.name)}<span class="handcount" title="Số bài trên tay">${p.handCount ?? view.myHand.length}</span></div>
         <div class="tags">${kingdomTag(p)}${markTags(p)}</div>
+        ${seatTokensHTML(p)}
         ${eqRowsHTML(p, false)}
         <div class="zones">${zonesHTML(p, 'extras')}</div>
-        ${notes}
       </div>`;
     el.querySelectorAll('[data-gsk]').forEach((b) => {
       b.onclick = (e) => {
@@ -1714,7 +1763,7 @@
     $('infoPop').innerHTML = `<div class="ip-box seat-detail" role="dialog" aria-label="${esc(p.name)}">
       <div class="ip-head"><b>${esc(p.name)} · ghế ${seat + 1}</b><button type="button" class="ip-x" aria-label="Đóng">×</button></div>
       <div class="sd-gens">${gen(p.generals.main)}${gen(p.generals.deputy)}</div>
-      <div class="sd-meta">${p.alive ? hpHTML(p, true) : '<span class="dead-mark">Đã trận vong</span>'}<span class="handcount">${p.handCount ?? 0} lá trên tay</span><div class="tags">${kingdomTag(p)}${markTags(p)}</div></div>
+      <div class="sd-meta">${p.alive ? hpHTML(p, true) : '<span class="dead-mark">Đã trận vong</span>'}<span class="handcount">${p.handCount ?? 0} lá trên tay</span><div class="tags">${kingdomTag(p)}${markTags(p)}</div>${seatTokensHTML(p)}${(p.tokens || []).filter((t) => t.which).map((t) => `<span class="tok">${esc(t.name)}<b>${t.count}</b></span>`).join('')}</div>
       <div class="sd-meta">${eqRowsHTML(p, false)}<div class="zones">${zonesHTML(p, 'extras')}</div></div>
     </div>`;
     hideSkillTip();
