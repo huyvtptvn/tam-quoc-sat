@@ -313,3 +313,8 @@ body.ui-mobile .dialog.result .score-table td, body.ui-mobile .dialog.result .sc
 body.ui-mobile .dialog.result .score-table .portrait { --pw: 32px; }
 body.ui-mobile .dialog.result .score-detail { display: none; }
 body.ui-mobile .dialog.result .score-table .total { font-size: 14px; }
+
+/* Máu nhiều (6–8): giọt sát nhau hơn để vẫn vẽ đủ từng giọt */
+.hpcol.tight { gap: 3px; }
+.myseat .hpcol.tight { gap: 5px; }
+body.ui-mobile .hpcol.tight { gap: 2px; }

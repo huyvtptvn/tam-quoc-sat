@@ -386,9 +386,10 @@
     const hp = Math.max(0, p.hp);
     const ratio = p.maxHp ? hp / p.maxHp : 0;
     const cls = ratio > .66 ? 'hi' : ratio > .34 ? 'mid' : 'lo';
-    const many = p.maxHp > (big ? 6 : 5);
+    const many = p.maxHp > 8;
     const drops = many ? '<i></i>' : Array.from({ length: p.maxHp }, (_, i) => `<i class="${i < hp ? '' : 'lost'}"></i>`).join('');
-    return `<div class="hpcol ${cls}" title="${hp}/${p.maxHp} máu">${drops}<span class="num">${hp}/${p.maxHp}</span></div>`;
+    // Chỉ hiện số giọt; máu quá nhiều (không đủ chỗ vẽ từng giọt) mới ghi số
+    return `<div class="hpcol ${cls}${p.maxHp > 5 ? ' tight' : ''}" title="${hp}/${p.maxHp} máu">${drops}${many ? `<span class="num">${hp}/${p.maxHp}</span>` : ''}</div>`;
   }
 
   /** 5 ô trang bị luôn đủ, đúng thứ tự: Vũ khí, Phòng cụ, Ngựa +1, Ngựa −1, Bảo vật. short: nhãn viết tắt (ghế người khác). */
