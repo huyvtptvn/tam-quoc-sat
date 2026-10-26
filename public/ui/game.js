@@ -328,6 +328,7 @@
   }
   function showRevealPop() {
     const r = revealQueue.shift();
+    $('infoPop').onclick = null;
     if (!r) { $('infoPop').classList.add('hidden'); return; }
     const cards = r.cards ? (r.cards.length ? `<div class="ip-cards">${r.cards.map((c) => C.cardHTML(c)).join('')}</div>` : '<p class="muted">Không có lá bài nào.</p>') : '';
     const gens = r.generals?.length ? `<div class="ip-gens">${r.generals.map((id) => `<div class="ip-gen">${C.portraitHTML(id, { nameTag: true })}</div>`).join('')}</div>` : '';
@@ -378,6 +379,27 @@
     let s = '';
     for (let i = 0; i < p.maxHp; i++) s += `<i class="${i < hp ? '' : 'lost'}"></i>`;
     return `<div class="hp ${cls}" title="${hp}/${p.maxHp} máu">${s}</div>`;
+  }
+
+  /** Máu dạng giọt xếp dọc cạnh ảnh tướng. Máu nhiều quá thì 1 giọt + số. */
+  function hpColHTML(p, big) {
+    const hp = Math.max(0, p.hp);
+    const ratio = p.maxHp ? hp / p.maxHp : 0;
+    const cls = ratio > .66 ? 'hi' : ratio > .34 ? 'mid' : 'lo';
+    const many = p.maxHp > (big ? 6 : 5);
+    const drops = many ? '<i></i>' : Array.from({ length: p.maxHp }, (_, i) => `<i class="${i < hp ? '' : 'lost'}"></i>`).join('');
+    return `<div class="hpcol ${cls}" title="${hp}/${p.maxHp} máu">${drops}<span class="num">${hp}/${p.maxHp}</span></div>`;
+  }
+
+  /** 5 ô trang bị luôn đủ, đúng thứ tự: Vũ khí, Phòng cụ, Ngựa +1, Ngựa −1, Bảo vật. short: nhãn viết tắt (ghế người khác). */
+  function eqRowsHTML(p, short) {
+    const SHORT = { weapon: 'VK', armor: 'PC', defHorse: '+1', offHorse: '−1', treasure: 'BV' };
+    return `<div class="eqgrid${short ? ' short' : ''}">${SLOTS.map(([k, label]) => {
+      const c = p.equips?.[k];
+      const sl = `<span class="sl">${short ? SHORT[k] : label}</span>`;
+      if (!c) return `<div class="eq empty" title="${label}: trống">${sl}<span class="cn">—</span></div>`;
+      return `<div class="eq" data-eqcard="${c.id}" title="${esc(label + ': ' + C.cardLabel(c) + ' ' + C.SUIT[c.suit] + C.RANK[c.rank] + '\n' + C.cardDesc(c.name))}">${sl}<span class="cn">${esc(C.cardLabel(c))}</span><span class="sr ${C.isRed(c) ? 'red' : ''}">${C.SUIT[c.suit]}${C.RANK[c.rank]}</span></div>`;
+    }).join('')}</div>`;
   }
 
   function kingdomTag(p) {
@@ -436,15 +458,21 @@
       const mine = (slot) => C.portraitHTML(slot.generalId, { down: !slot.revealed && slot.generalId, removed: slot.removed, cls: 'no-ntag' });
       const nm = (slot) => (slot.generalId ? esc(C.general(slot.generalId)?.name ?? slot.generalId) : 'Úp');
       // Ảnh kéo hết chiều cao ô; kỹ năng đè lên ảnh từ dưới lên; tên tướng nằm ngoài ảnh (bên dưới) cho khỏi lẫn với kỹ năng
-      return `<div class="gens">${['main', 'deputy'].map((w) => `<div class="gen-col"><div class="pwrap">${mine(g[w])}${genSkillsHTML(g[w], w)}</div><div class="gname">${nm(g[w])}</div></div>`).join('')}</div>`;
+      return `<div class="gens">${['main', 'deputy'].map((w) => `<div class="gen-col"><div class="pwrap">${mine(g[w])}<span class="gname">${nm(g[w])}</span>${genSkillsHTML(g[w], w)}</div></div>`).join('')}</div>`;
     }
-    // Ghế người khác: tên tướng ghi đầy đủ dưới ảnh (không bị cắt)
-    const nm = (slot) => {
-      if (!slot.generalId) return '<span class="gn muted">Úp</span>';
-      const n = C.general(slot.generalId)?.name ?? slot.generalId;
-      return `<span class="gn${slot.removed ? ' muted' : ''}" title="${esc(n)}">${esc(n)}${!slot.revealed ? ' <i>(úp)</i>' : ''}</span>`;
+    // Ghế người khác: cùng format với ghế mình (tên tướng trên ảnh, kỹ năng đè lên ảnh), bản thu nhỏ
+    const col = (slot) => {
+      const nm = slot.generalId ? esc(C.general(slot.generalId)?.name ?? slot.generalId) : '';
+      const gen = slot.generalId && !slot.removed && C.general(slot.generalId);
+      const sk = gen ? `<div class="gskills">${gen.skills.map((id) => {
+        const info = C.catalog.skills[id] || { name: id, desc: '' };
+        const locked = /^Tỏa định kỹ/i.test(info.desc || '');
+        const len = [...info.name].length;
+        return `<span class="gsk${slot.revealed ? '' : ' hidden-gen'}${len > 12 ? ' xlong' : len > 8 ? ' long' : ''}">${locked ? '<span class="ico">锁</span>' : ''}<span class="nm">${esc(info.name)}</span></span>`;
+      }).join('')}</div>` : '';
+      return `<div class="gen-col"><div class="pwrap">${one(slot)}${nm ? `<span class="gname">${nm}${slot.revealed || slot.removed ? '' : ' <i>(úp)</i>'}</span>` : ''}${sk}</div></div>`;
     };
-    return `<div class="gens-col"><div class="gens">${one(g.main)}${one(g.deputy)}</div><div class="gnames">${nm(g.main)}${nm(g.deputy)}</div></div>`;
+    return `<div class="gens">${col(g.main)}${col(g.deputy)}</div>`;
   }
 
   function seatFlags(p, el) {
@@ -493,11 +521,13 @@
       const turn = p.seat === view.currentSeat && p.alive ? `<span class="turn-flag">${esc(PHASE_LABEL[view.phase] ?? '')}</span>` : '';
       const tg = selTargets().includes(s) ? '<span class="target-badge">Mục tiêu</span>' : '';
       el.innerHTML = `${turn}${tg}
-        <div class="seat-head"><span class="seatno" title="Thứ tự lượt: ghế ${s + 1}">${s + 1}</span><span class="who" title="${esc(p.name)}">${esc(p.name)}</span>${p.alive ? hpHTML(p, false) : '<span class="dead-mark">Tử trận</span>'}<span class="handcount" title="Số bài trên tay">${p.handCount}</span></div>
-        <div class="seat-body">${gensHTML(p, false)}
-          <div class="side">
+        <div class="sx">
+          ${gensHTML(p, false)}
+          ${p.alive ? hpColHTML(p) : '<div class="hpcol dead"><span>✝</span></div>'}
+          <div class="meta">
+            <div class="mhead"><span class="seatno" title="Thứ tự lượt: ghế ${s + 1}">${s + 1}</span><span class="who" title="${esc(p.name)}">${esc(p.name)}</span><span class="handcount" title="Số bài trên tay">${p.handCount}</span></div>
             <div class="tags">${kingdomTag(p)}${markTags(p)}</div>
-            ${zonesHTML(p, 'slots')}
+            ${eqRowsHTML(p, true)}
           </div>
         </div>
         <div class="zones">${zonesHTML(p, 'extras')}</div>`;
@@ -537,7 +567,7 @@
     const g = 8;
     // Thu nhỏ ghế (scale) nếu bàn không đủ chỗ cho mọi ghế mà không đè lên nhau
     let f = 1, sw = sw0, sh = sh0, k = 0, top = m, sideCap = 0;
-    for (f = 1; f >= 0.6; f = Math.round((f - 0.05) * 100) / 100) {
+    for (f = 1; f >= 0.34; f = Math.round((f - 0.03) * 100) / 100) {
       sw = sw0 * f; sh = sh0 * f;
       const yt2f = sh * 1.5 + g * 2, ybf = H - sh / 2 - g;
       sideCap = ybf >= yt2f ? Math.floor((ybf - yt2f) / (sh + g)) + 1 : 0;
@@ -547,7 +577,7 @@
       top = m - 2 * k;
       if (top <= topCapF) break;
     }
-    f = Math.max(0.6, f);
+    f = Math.max(0.34, f);
     // Dùng thuộc tính "scale" riêng (không đụng "transform") để hiệu ứng rung khi mất máu vẫn chạy
     // transform-origin 0 0: tâm ghế vẫn nằm đúng điểm (left, top) sau khi thu nhỏ
     els.forEach((el) => { el.style.scale = f < 1 ? String(f) : ''; el.style.transformOrigin = f < 1 ? '0 0' : ''; });
@@ -580,6 +610,13 @@
     center.classList.toggle('tight', B - T < 250 || R - L < 420);
   }
   window.addEventListener('resize', () => requestAnimationFrame(layoutSeats));
+  // Ghế đổi kích thước (ảnh / phông chữ tải xong, thêm trang bị...): xếp lại cho khỏi đè nhau
+  if (window.ResizeObserver) {
+    let raf = 0;
+    const seatRO = new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(layoutSeats); });
+    new MutationObserver((ms) => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) seatRO.observe(n); }).observe($('seats'), { childList: true });
+  }
+  document.fonts?.ready?.then(() => requestAnimationFrame(layoutSeats));
   // Khu bài của mình cao/thấp lại (thanh hỏi nhiều nút, nhiều lá) làm bàn co giãn: xếp lại ghế cho khỏi bị che
   if (window.ResizeObserver) {
     let lastH = 0, lastW = 0;
@@ -621,11 +658,12 @@
     prev.hp.set(p.seat, p.hp);
     const notes = (view.notes || []).slice(-2).map((n) => `<div class="notes">${esc(n)}</div>`).join('');
     el.innerHTML = `${selTargets().includes(p.seat) ? '<span class="target-badge">Mục tiêu</span>' : ''}${gensHTML(p, true)}
+      ${p.alive ? hpColHTML(p, true) : '<div class="hpcol dead"><span>✝</span></div>'}
       <div class="side">
-        <div class="who"><span class="seatno" title="Thứ tự lượt: ghế ${p.seat + 1}">${p.seat + 1}</span>${esc(p.name)}</div>
-        ${p.alive ? hpHTML(p, true) : '<span class="dead-mark">Đã tử trận</span>'}
+        <div class="who"><span class="seatno" title="Thứ tự lượt: ghế ${p.seat + 1}">${p.seat + 1}</span>${esc(p.name)}<span class="handcount" title="Số bài trên tay">${p.handCount ?? view.myHand.length}</span></div>
         <div class="tags">${kingdomTag(p)}${markTags(p)}</div>
-        <div class="slots">${zonesHTML(p, true)}</div>
+        ${eqRowsHTML(p, false)}
+        <div class="zones">${zonesHTML(p, 'extras')}</div>
         ${notes}
       </div>`;
     el.querySelectorAll('[data-gsk]').forEach((b) => {
@@ -830,7 +868,7 @@
   // Bấm ảnh tướng người khác (khi không phải đang chọn mục tiêu): bật/tắt bảng kỹ năng (điện thoại)
   document.addEventListener('click', (e) => {
     const p = e.target.closest?.('#seats .portrait[data-gen]');
-    if (!p) return;
+    if (!p || uiMode === 'mobile' || !$('infoPop').classList.contains('hidden')) return;
     const seat = Number(p.closest('.seat')?.dataset.seat);
     if (targetSpec()?.seats.includes(seat)) return;
     showGenTip(p, true);
@@ -1108,7 +1146,7 @@
 
   function clickSeat(seat) {
     const spec = targetSpec();
-    if (!spec || !spec.seats.includes(seat)) return;
+    if (!spec || !spec.seats.includes(seat)) { openSeatDetail(seat); return; }
     const i = sel.targets.indexOf(seat);
     if (i >= 0) sel.targets.splice(i, 1);
     else if (spec.max === 1) sel.targets = [seat];
@@ -1312,8 +1350,13 @@
         ${account ? '' : ' Đăng nhập tài khoản để được lưu điểm và xếp hạng.'}</p>`;
     } else body = '<p class="muted">Không có bảng điểm.</p>';
     const title = !winner ? 'Ván hòa' : bossMode ? (winner === 'Liên quân' ? `Hạ được ${view.boss.name}!` : `${view.boss.name} thắng`) : won ? 'Bạn thắng' : `${winner} thắng`;
-    openModal(`<div class="dialog" style="width:min(720px,100%)">
-      <h2>${esc(title)}</h2>
+    const big = !winner ? 'Hòa' : bossMode ? (winner === 'Liên quân' ? 'Thảo Phạt Thành Công' : 'Thất Bại') : won ? 'Chiến Thắng' : 'Thất Bại';
+    const lose = big === 'Thất Bại';
+    const mvp = scores?.players.find((p) => p.titles.includes('MVP'));
+    openModal(`<div class="dialog result" style="width:min(760px,100%)">
+      <h2 class="res-title script-title${lose ? ' lose' : ''}">${esc(big)}</h2>
+      <p class="sub" style="margin-bottom:4px">${esc(title)}</p>
+      ${mvp ? `<div class="mvp-line">${C.portraitHTML(mvp.generals[0], { cls: 'no-ntag' })}<span>MVP: <b>${esc(mvp.name)}</b></span></div>` : ''}
       <p class="sub">${esc(result.reason === 'victory' ? `Kết thúc sau ${result.turns} lượt.` : 'Không còn bài hoặc quá số lượt tối đa.')}</p>
       ${body}
       <div class="foot">${match ? `<a class="btn ghost" href="/ranking.html#van-${esc(match.id)}" target="_blank" rel="noopener">Xem chi tiết ván</a>` : ''}<button type="button" class="btn primary" id="goBack">Về phòng chờ</button></div>
@@ -1616,6 +1659,70 @@
   // Mở trang mới (không phải tải lại): về màn hình đăng nhập, chỉ điền sẵn tên khách
   // ---------- Giao diện điện thoại: menu ☰, nhắc xoay ngang, chạm giữ để xem lá bài ----------
   document.querySelectorAll('input[name="uimode"]').forEach((r) => { r.onchange = () => { if (r.checked) setUiMode(r.value); }; });
+  // ---------- Ảnh tướng ở màn đăng nhập ----------
+  function setAuthArt() {
+    const img = $('authArt');
+    if (!img || img.dataset.set) return;
+    img.dataset.set = '1';
+    // Không cần catalog: thử lần lượt skin đầu tiên của vài tướng nổi tiếng, cái nào có ảnh thì dùng
+    const ids = ['lvbu', 'zhaoyun', 'guanyu', 'machao', 'zhouyu', 'caocao', 'sunce', 'zhangliao'].sort(() => Math.random() - .5);
+    const tryNext = () => {
+      const id = ids.shift();
+      if (!id) return;
+      img.onerror = tryNext;
+      img.onload = () => img.classList.remove('hidden');
+      img.src = `/skins/${id}/1/full.png`;
+    };
+    tryNext();
+  }
+  setAuthArt();
+
+  // ---------- Toàn màn hình (điện thoại: ẩn thanh địa chỉ, khóa xoay ngang nếu trình duyệt cho phép) ----------
+  const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+  async function enterFull() {
+    const el = document.documentElement;
+    try {
+      if (el.requestFullscreen) await el.requestFullscreen({ navigationUI: 'hide' });
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    } catch { return; }
+    try { await screen.orientation?.lock?.('landscape'); } catch { /* iPhone / trình duyệt không cho khóa xoay */ }
+    requestAnimationFrame(() => { try { layoutSeats(); } catch { /* chưa vào bàn */ } });
+  }
+  function renderFullBtn() { const b = $('btnFull'); if (b) b.textContent = fsEl() ? '⛶ Thoát toàn màn hình' : '⛶ Toàn màn hình'; }
+  $('btnFull').onclick = () => { if (fsEl()) (document.exitFullscreen || document.webkitExitFullscreen)?.call(document); else enterFull(); document.body.classList.remove('menu-open'); };
+  document.addEventListener('fullscreenchange', renderFullBtn);
+  document.addEventListener('webkitfullscreenchange', renderFullBtn);
+  // Điện thoại: chạm lần đầu trên bàn chơi thì tự vào toàn màn hình (mỗi phiên một lần; thoát rồi thì không tự bật lại)
+  let autoFullDone = false;
+  document.addEventListener('pointerup', () => {
+    if (autoFullDone || uiMode !== 'mobile' || $('game').classList.contains('hidden') || fsEl()) return;
+    autoFullDone = true;
+    if (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen) enterFull();
+  }, true);
+  window.addEventListener('orientationchange', () => setTimeout(() => { try { layoutSeats(); } catch { /* chưa vào bàn */ } }, 250));
+
+  // ---------- Chạm vào ghế: xem chi tiết tướng, kỹ năng, trang bị (rõ trên điện thoại) ----------
+  function openSeatDetail(seat) {
+    const p = view?.players?.[seat];
+    if (!p || !p.generals) return;
+    const gen = (slot) => {
+      const g = slot.generalId && C.general(slot.generalId);
+      const sk = g ? (g.skills || []).map((id) => { const i = C.catalog.skills[id] || { name: id, desc: '' }; return `<div class="sd-sk"><b>${esc(i.name)}</b> ${esc(i.desc || '')}</div>`; }).join('') : '<div class="sd-sk muted">Tướng đang úp — chưa biết là ai.</div>';
+      return `<div class="sd-gen">${C.portraitHTML(slot.generalId, { down: !slot.revealed && slot.generalId, removed: slot.removed, noTitle: true })}<h4>${g ? esc(g.name) : 'Tướng úp'}${g && !slot.revealed ? ' <small class="muted">(úp)</small>' : ''}</h4>${sk}</div>`;
+    };
+    $('infoPop').innerHTML = `<div class="ip-box seat-detail" role="dialog" aria-label="${esc(p.name)}">
+      <div class="ip-head"><b>${esc(p.name)} · ghế ${seat + 1}</b><button type="button" class="ip-x" aria-label="Đóng">×</button></div>
+      <div class="sd-gens">${gen(p.generals.main)}${gen(p.generals.deputy)}</div>
+      <div class="sd-meta">${p.alive ? hpHTML(p, true) : '<span class="dead-mark">Đã trận vong</span>'}<span class="handcount">${p.handCount ?? 0} lá trên tay</span><div class="tags">${kingdomTag(p)}${markTags(p)}</div></div>
+      <div class="sd-meta">${eqRowsHTML(p, false)}<div class="zones">${zonesHTML(p, 'extras')}</div></div>
+    </div>`;
+    hideSkillTip();
+    $('infoPop').classList.remove('hidden');
+    const close = () => $('infoPop').classList.add('hidden');
+    $('infoPop').querySelector('.ip-x').onclick = close;
+    $('infoPop').onclick = (e) => { if (e.target === $('infoPop')) close(); };
+  }
+
   $('btnUiMode').onclick = () => { setUiMode(uiMode === 'mobile' ? 'pc' : 'mobile'); document.body.classList.remove('menu-open'); };
   $('btnMenu').onclick = (e) => {
     e.stopPropagation();

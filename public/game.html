@@ -4,18 +4,19 @@
 <meta charset="utf-8">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%225%22 fill=%22%23a8281d%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%23f6e9d2%22 font-family=%22serif%22%3ES%3C/text%3E%3C/svg%3E">
 <link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#a8281d">
+<meta name="theme-color" content="#0b0f16">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Tam Quốc Sát">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tam Quốc Sát · Quốc Chiến</title>
 <link rel="stylesheet" href="/ui/fonts.css">
 <link rel="stylesheet" href="/ui/cards.css">
 <link rel="stylesheet" href="/ui/game.css">
 <link rel="stylesheet" href="/ui/home.css">
+<link rel="stylesheet" href="/ui/theme.css">
 </head>
 <body>
 <header class="topbar">
@@ -32,6 +33,7 @@
   <button id="btnSurrender" class="btn small ghost hidden" type="button" title="Đầu hàng: tướng của bạn chết ngay, không được tính thắng">🏳 Đầu hàng</button>
   <button id="btnDissolve" class="btn small ghost hidden" type="button" title="Giải tán phòng: hủy ván (nếu đang chơi), mọi người về sảnh">Giải tán</button>
   <button id="btnLeave" class="btn small ghost hidden" type="button">Rời phòng</button>
+  <button id="btnFull" class="btn small ghost" type="button" title="Toàn màn hình (ẩn thanh địa chỉ trình duyệt)">⛶ Toàn màn hình</button>
   <button id="btnUiMode" class="btn small ghost" type="button" title="Đổi giao diện máy tính / điện thoại">📱 Giao diện</button>
   </div>
 </header>
@@ -39,16 +41,19 @@
 
 <!-- Vào game: đăng nhập (khách / tài khoản / quản trị) -->
 <section id="login" class="screen">
+  <img id="authArt" class="auth-art hidden" alt="">
   <main class="auth">
     <section class="auth-hero">
       <div class="seal-big" aria-hidden="true">三国</div>
       <div>
-        <h1>Tam Quốc Sát<br>Quốc Chiến</h1>
+        <h1>Tam quốc phân tranh<span class="l2">Anh hùng xuất thế</span></h1>
         <p>Chọn hai tướng cùng thế lực, giấu mặt đến phút quyết định. Phòng có bot ngồi sẵn — vào là chơi được.</p>
         <div class="auth-stats" id="authStats"><div><b id="stRooms">–</b>phòng đang mở</div><div><b id="stGames">–</b>ván đang chơi</div><div><b id="stOnline">–</b>người online</div></div>
       </div>
     </section>
     <section class="auth-card" aria-label="Đăng nhập">
+      <h2 class="auth-title script-title">Tam Quốc Sát</h2>
+      <p class="auth-sub">QUỐC CHIẾN · 3–10 NGƯỜI · CHƠI TRÊN TRÌNH DUYỆT</p>
       <div class="seg login-tabs" role="tablist">
         <button type="button" class="on" data-ltab="guest" role="tab">Khách</button>
         <button type="button" data-ltab="account" role="tab">Tài khoản</button>
@@ -124,7 +129,7 @@
       </label>
       <label><span id="roomSeatsLabel">Số người</span>
         <select id="roomSeats" class="field">
-          <option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option><option>8</option>
+          <option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
         </select>
       </label>
       <div id="bossOpts" class="grid2 hidden" style="grid-column:1/-1">
