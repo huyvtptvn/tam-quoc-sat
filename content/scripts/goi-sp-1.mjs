@@ -211,6 +211,7 @@ export default {
     },
     {
       id: 'zhaofu', name: 'Chiêu Phụ',
+      tokens: (g) => Object.entries(shang(g)).map(([s, n]) => ({ name: 'Thưởng', count: n, seat: Number(s), tip: '[Thưởng] của Chiêu Phụ (Toàn Tông)' })),
       desc: 'Khi bắt đầu giai đoạn ra bài, nếu tổng số [Thưởng] của tất cả người khác < 3, bạn có thể bỏ 1 lá và chọn 1 người khác, họ tăng 1 [Thưởng]. '
         + 'Sau khi lá cơ bản/công cụ phổ thông do người có [Thưởng] sử dụng kết toán xong, bạn có thể lệnh họ giảm 1 [Thưởng], xem như bạn sử dụng lá đó. '
         + '(Đơn giản hóa: số [Thưởng] chỉ hiện trong nhật ký; lá được tính là "kết toán xong" khi lá thật vào chồng bỏ.)',
@@ -485,6 +486,7 @@ export default {
     },
     {
       id: 'jiansu', name: 'Kiệm Tố', position: 'deputy',
+      tokens: (g, o) => [{ name: 'Kim', count: kim(g, o).length, tip: '[Kim]: các lá này trên tay được gọi là Kim (công khai)' }],
       desc: 'Phó tướng kỹ, giảm 0.5 máu gốc: Khi bạn nhận bài ngoài lượt, bạn có thể gọi những lá này trên tay bạn là [Kim] chừng nào lá đó còn trên tay bạn '
         + '([Kim] công khai). Khi bắt đầu giai đoạn ra bài, bạn có thể bỏ đi tùy ý [Kim], sau đó chọn 1 người đã bị thương có số máu ≤ số [Kim] đã bỏ, lệnh họ hồi 1 máu. '
         + '(Đơn giản hóa: Điền Dự luôn tính 3 cá; [Kim] được công bố trong nhật ký; chọn người hồi máu trước rồi bỏ đủ số [Kim].)',

@@ -1760,8 +1760,8 @@ export class HegemonyGame extends Game {
         ...pp,
         generals: { main: sv(h.main), deputy: sv(h.deputy) },
         ...(pp.generalPiles ? { generalPiles: pp.generalPiles.map(({ name, count }) => ({ name, count })) } : {}),
-        tokens: undefined, specialName: undefined,
-        ...this.tokenView(pp.seat, false),
+        tokens: undefined, specialName: undefined, specialPiles: undefined, special: [],
+        ...this.tokenView(pp.seat, null),
       };
     });
     v.spectator = true;
@@ -1857,20 +1857,47 @@ export class HegemonyGame extends Game {
   // View
   // ==========================================================
 
-  /** Token trên tướng + tên khu bài trên tướng. Người khác chỉ thấy của kỹ năng trên tướng đã lật. */
-  private tokenView(seat: number, own: boolean): { tokens?: NonNullable<PlayerView['players'][number]['tokens']>; specialName?: string } {
+  /** Tên chồng bài trên tướng theo lý do đặt lên (moveCards reason). */
+  private static readonly PILE_NAMES: Record<string, string> = {
+    tuntian: 'Điền', qianhuan: 'Huyễn', sidi: 'Ngự', shefu: 'Phục Binh', yinbing: 'Trách', qiuan: 'Hàm', midao: 'Mễ',
+    quanji: 'Quyền', huaiyi: 'Dị', tunchu: 'Lương', zhaoshu: 'Chiếu Thư', muniu: 'Mộc Ngưu', khongthanh: 'Cầm',
+    batkhuat: 'Sang', hongfa: 'Thiên Binh', flamemap: 'Phong Hỏa',
+  };
+
+  /**
+   * Token trên tướng + các chồng bài trên tướng, nhìn từ `viewer`.
+   * Người khác: chỉ thấy số lượng (không thấy lá / tướng bên trong), chỉ token của kỹ năng trên tướng đã lật.
+   */
+  private tokenView(seat: number, viewer: number | null): Pick<PlayerView['players'][number], 'tokens' | 'specialName' | 'specialPiles'> {
     const h = this.heroes[seat];
     if (!h || !this.player(seat).alive) return {};
+    const own = viewer === seat;
     const tokens: NonNullable<PlayerView['players'][number]['tokens']> = [];
     const names = new Set<string>();
-    for (const e of this.skillEntries(seat, !own)) {
-      const which = e.slot === h.main ? 'main' as const : e.slot === h.deputy ? 'deputy' as const : undefined;
-      try {
-        for (const t of e.skill.tokens?.(this, seat) ?? []) if (t.count > 0 || t.showZero) tokens.push({ name: t.name, count: t.count, ...(t.tip ? { tip: t.tip } : {}), ...(which ? { which } : {}) });
-      } catch { /* kỹ năng lỗi không làm hỏng view */ }
-      if (e.skill.specialName) names.add(e.skill.specialName);
+    for (const o of this.state.players) {
+      if (!o.alive || !this.heroes[o.seat]) continue;
+      const oh = this.heroes[o.seat];
+      for (const e of this.skillEntries(o.seat, viewer !== o.seat)) {
+        const which = e.slot === oh.main ? 'main' as const : e.slot === oh.deputy ? 'deputy' as const : undefined;
+        try {
+          for (const t of e.skill.tokens?.(this, o.seat) ?? []) {
+            const on = t.seat ?? o.seat;
+            if (on !== seat || !(t.count > 0 || t.showZero)) continue;
+            tokens.push({ name: t.name, count: t.count, ...(t.tip ? { tip: t.tip } : {}), ...(which && on === o.seat ? { which } : {}) });
+          }
+        } catch { /* kỹ năng lỗi không làm hỏng view */ }
+        if (o.seat === seat && e.skill.specialName) names.add(e.skill.specialName);
+      }
     }
-    return { ...(tokens.length ? { tokens } : {}), ...(names.size ? { specialName: [...names].join(' / ') } : {}) };
+    const fallback = names.size ? [...names].join(' / ') : 'Trên tướng';
+    const piles = new Map<string, number[]>();
+    for (const id of this.player(seat).special) {
+      const nm = HegemonyGame.PILE_NAMES[this.specialReason.get(id) ?? ''] ?? fallback;
+      if (!piles.has(nm)) piles.set(nm, []);
+      piles.get(nm)!.push(id);
+    }
+    const specialPiles = [...piles].map(([name, ids]) => ({ name, count: ids.length, ...(own ? { cards: ids.map((id) => this.card(id)) } : {}) }));
+    return { ...(tokens.length ? { tokens } : {}), ...(names.size ? { specialName: fallback } : {}), ...(specialPiles.length ? { specialPiles } : {}) };
   }
 
   override makeView(seat: number, req?: Request): PlayerView {
@@ -1894,11 +1921,13 @@ export class HegemonyGame extends Game {
         ...(h.careerist && h.careeristGroup !== undefined && this.shownKingdom(pp.seat) === 'careerist' ? { careeristGroup: h.careeristGroup } : {}),
         ...(this.generalPilesOf(pp.seat).length ? {
           generalPiles: this.generalPilesOf(pp.seat).map(([name, pile]) => ({
-            name, count: pile.ids.length, ...(pile.open || pp.seat === seat ? { ids: [...pile.ids] } : {}),
+            name, count: pile.ids.length, ...(pp.seat === seat ? { ids: [...pile.ids] } : {}),
           })),
         } : {}),
         ...(isLordId(h.main.generalId) && (h.main.revealed || visible) ? { lord: true } : {}),
-        ...this.tokenView(pp.seat, pp.seat === seat),
+        ...this.tokenView(pp.seat, seat),
+        // Bài trên tướng của người khác: chỉ cho biết số lượng (specialPiles), không gửi mặt lá
+        ...(pp.seat === seat ? {} : { special: [] }),
       };
     });
     if (this.bossSeat !== null) v.boss = this.bossView();

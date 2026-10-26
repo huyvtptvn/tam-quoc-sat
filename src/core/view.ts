@@ -46,6 +46,8 @@ export interface PublicPlayer {
   tokens?: { name: string; count: number; tip?: string; which?: 'main' | 'deputy' }[];
   /** Tên khu bài trên tướng (Điền, Phục Binh...). */
   specialName?: string;
+  /** Bài trên tướng chia theo chồng. Người khác chỉ thấy số lượng; chủ nhân thấy cả lá (cards). */
+  specialPiles?: { name: string; count: number; cards?: Card[] }[];
   /** Là quân chủ. */
   lord?: boolean;
 }

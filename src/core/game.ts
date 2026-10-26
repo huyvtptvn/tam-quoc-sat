@@ -305,6 +305,9 @@ export class Game {
     return this.pickedBy.get(id) ?? ('seat' in from ? from.seat : null);
   }
 
+  /** Lý do lá được đặt lên tướng (khu special): dùng để chia bài trên tướng thành từng chồng [Điền], [Trách]... */
+  readonly specialReason = new Map<number, string>();
+
   /** Lá đang trong vùng xử lý được "của" ai (người dùng/đánh nó, hoặc người phán định). */
   readonly processingBy = new Map<number, number>();
 
@@ -724,6 +727,8 @@ export class Game {
       if (i < 0) throw new Error(`Lá ${id} không nằm ở vùng ${from.kind}`);
       src.splice(i, 1);
       dst.push(id);
+      if (to.kind === 'special') this.specialReason.set(id, reason);
+      else if (from.kind === 'special') this.specialReason.delete(id);
       if (to.kind === 'processing') {
         if ((from.kind === 'hand' || from.kind === 'equip') && 'seat' in from) this.processingBy.set(id, from.seat);
       } else this.processingBy.delete(id);

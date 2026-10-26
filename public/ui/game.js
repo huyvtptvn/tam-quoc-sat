@@ -465,7 +465,7 @@
   function seatTokensHTML(p) {
     const out = [];
     (p.generalPiles || []).forEach((pile, i) => out.push(`<button type="button" class="tok pile" data-tok="pile:${i}" data-seat="${p.seat}" title="[${esc(pile.name)}] — bấm để xem">${esc(pile.name)}<b>${pile.count}</b></button>`));
-    if ((p.special || []).length) out.push(`<button type="button" class="tok pile" data-tok="special" data-seat="${p.seat}" title="Bài trên tướng — bấm để xem">${esc(p.specialName || 'Trên tướng')}<b>${p.special.length}</b></button>`);
+    (p.specialPiles || []).forEach((pile, i) => out.push(`<button type="button" class="tok pile" data-tok="sp:${i}" data-seat="${p.seat}" title="[${esc(pile.name)}] ${pile.count} lá — bấm để xem">${esc(pile.name)}<b>${pile.count}</b></button>`));
     (p.tokens || []).filter((t) => !t.which).forEach((t) => out.push(`<span class="tok" title="${esc(t.tip || t.name)}">${esc(t.name)}<b>${t.count}</b></span>`));
     return out.length ? `<div class="seat-toks">${out.join('')}</div>` : '';
   }
@@ -474,16 +474,19 @@
     const p = view?.players?.[seat];
     if (!p) return;
     let title = '', body = '';
-    if (key === 'special') {
-      title = `${p.name} · [${p.specialName || 'Trên tướng'}] ${p.special.length} lá`;
-      body = `<div class="ip-cards">${p.special.map((c) => C.cardHTML(c)).join('')}</div>`;
+    const hiddenNote = (n, what) => `<p class="muted" style="text-align:center;margin:18px 0">${n} ${what} — chỉ ${esc(p.name)} xem được nội dung.</p>`;
+    if (key.startsWith('sp:')) {
+      const pile = p.specialPiles?.[Number(key.split(':')[1])];
+      if (!pile) return;
+      title = `${p.name} · [${pile.name}] ${pile.count} lá`;
+      body = pile.cards?.length ? `<div class="ip-cards">${pile.cards.map((c) => C.cardHTML(c)).join('')}</div>` : hiddenNote(pile.count, 'lá');
     } else {
       const pile = p.generalPiles?.[Number(key.split(':')[1])];
       if (!pile) return;
       title = `${p.name} · [${pile.name}] ${pile.count} tướng`;
       body = pile.ids?.length
         ? `<div class="ip-gens">${pile.ids.map((id) => `<div class="ip-gen">${C.portraitHTML(id, { nameTag: true })}</div>`).join('')}</div>`
-        : `<p class="muted" style="text-align:center">Các tướng này đang úp — chỉ chủ nhân xem được.</p>`;
+        : hiddenNote(pile.count, 'tướng');
     }
     $('infoPop').innerHTML = `<div class="ip-box" role="dialog" aria-label="${esc(title)}"><div class="ip-head"><b>${esc(title)}</b><button type="button" class="ip-x" aria-label="Đóng">×</button></div>${body}</div>`;
     hideSkillTip();

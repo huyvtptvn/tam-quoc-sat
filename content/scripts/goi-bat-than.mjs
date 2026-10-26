@@ -163,6 +163,7 @@ export default {
     // ================= Trương Lỗ =================
     {
       id: 'bushi', name: 'Bố Thí',
+      tokens: (g, o) => [{ name: 'Nghĩa Xá', count: store(g)[`yishe:${o}`] ?? 0 }],
       desc: 'Khi kết thúc lượt, bạn nhận X [Nghĩa Xá] (X là số máu của bạn). Khi bắt đầu giai đoạn chuẩn bị của người khác, nếu bạn có [Nghĩa Xá], '
         + 'bạn có thể giao 1 lá cho họ, sau đó bỏ 1 [Nghĩa Xá] và rút 2 lá. Khi bắt đầu giai đoạn chuẩn bị của bạn, bạn bỏ X lá '
         + '(X là số người còn sống trừ số máu của bạn và trừ 2), sau đó bỏ tất cả [Nghĩa Xá].',
@@ -892,6 +893,7 @@ export default {
     },
     {
       id: 'zhuihuan', name: 'Truy Hoàn',
+      tokens: (g, o) => [...(store(g)[`zhuihuan:${o}`] ?? new Map()).keys()].map((t) => ({ name: 'Truy Hoàn', count: 1, seat: t, tip: '[Truy Hoàn] (úp): không ai biết loại' })),
       desc: 'Khi bạn kết thúc lượt, bạn có thể chọn tối đa 2 người, lệnh mỗi người nhận 1 [Truy Hoàn] khác nhau đến khi bắt đầu lượt tiếp theo của bạn '
         + '(không ai được biết loại đã nhận). Sau khi họ nhận sát thương, họ bỏ đi [Truy Hoàn]: [Sát thương]: họ gây 1 sát thương cho nguồn sát thương; '
         + '[Bỏ bài]: nguồn sát thương bỏ 2 lá trên tay.',

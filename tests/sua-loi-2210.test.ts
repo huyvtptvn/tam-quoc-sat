@@ -712,3 +712,17 @@ test('BUG-006 Diệt Ngô (Đỗ Dự): có Võ Khố thì lá trên tay tính �
   const id = await take(game, 0, (c) => c.name === 'sha');
   assert.ok(game.cardCountsAs(0, game.card(id)).includes('wuxie_guo'));
 });
+
+test('Token trên tướng: người khác chỉ thấy số lượng, chủ nhân thấy lá; token đặt lên người khác ([Thưởng])', async () => {
+  const { game } = makeHG([['dengai', 'xuchu'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng']]);
+  await game.setup();
+  await revealAll(game, 0);
+  const id = game.player(0).hand[0];
+  await game.moveCards([id], { kind: 'hand', seat: 0 }, { kind: 'special', seat: 0 }, 'tuntian');
+  assert.deepEqual(game.makeView(1).players[0].specialPiles, [{ name: 'Điền', count: 1 }]);
+  assert.equal(game.makeView(1).players[0].special.length, 0, 'người khác không nhận mặt lá');
+  assert.equal(game.makeView(0).players[0].specialPiles?.[0].cards?.[0].id, id);
+  game.addGeneralPile(0, 'Lục', ['caocao'], true);
+  assert.equal(game.makeView(1).players[0].generalPiles?.[0].ids, undefined, 'chồng tướng: người khác chỉ thấy số');
+  assert.deepEqual(game.makeView(0).players[0].generalPiles?.[0].ids, ['caocao']);
+});

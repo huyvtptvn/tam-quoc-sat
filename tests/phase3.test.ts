@@ -322,7 +322,10 @@ test('Bất Khuất: lật Sẹo khác điểm thì sống; trùng điểm thì 
   assert.equal(game.player(1).alive, true);
   assert.equal(game.player(1).hp, 1);
   assert.deepEqual(game.player(1).special, [scar.id]);
-  assert.equal(game.makeView(2).players[1].special[0].id, scar.id, 'Sẹo là thông tin công khai');
+  // Người khác chỉ thấy số lượng [Sang]; chủ nhân thấy cả lá
+  assert.deepEqual(game.makeView(2).players[1].specialPiles, [{ name: 'Sang', count: 1 }]);
+  assert.equal(game.makeView(2).players[1].special.length, 0);
+  assert.equal(game.makeView(1).players[1].specialPiles?.[0].cards?.[0].id, scar.id);
 
   stackTop(game, (c) => c.rank === scar.rank, [scar.id]);
   game.player(0).flags = {};
