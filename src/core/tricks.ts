@@ -409,7 +409,7 @@ export function checkTrickUse(g: Game, seat: number, card: Card, cardName: CardN
  * Trả về: có bị chặn không, và nhóm người được chặn luôn (Vô Giải·Quốc chặn cho cả thế lực).
  */
 export async function askNullify(
-  g: Game, trick: CardName, user: number, target: number,
+  g: Game, trick: CardName, user: number, target: number, muted?: Set<number>, muteable = false,
 ): Promise<{ cancelled: boolean; group: number[] }> {
   let cancelled = false;
   let national = false;
@@ -422,13 +422,15 @@ export async function askNullify(
       if (!g.player(seat).hand.some((id) => g.cardCountsAs(seat, g.card(id)).some((n) => n === 'wuxie' || n === 'wuxie_guo'))
         && !g.canVirtualRespond(seat, 'wuxie') && !g.canVirtualRespond(seat, 'wuxie_guo')) continue;
       if (g.isLured(seat)) continue; // bị Điệu Hổ Ly Sơn: không thể dùng/đánh bài
+      if (muted?.has(seat)) continue; // đã chọn "không hỏi lại với lá này"
       const prompt = cancelled
         ? `${label} lên ${name(g, target)} đang bị Vô Giải chặn. Dùng Vô Giải để hóa giải?`
         : `Dùng Vô Giải chặn ${label} lên ${name(g, target)}?`;
       g.lastRespondAs = null;
       played = await g.requestResponse(seat, ['wuxie_guo', 'wuxie'], prompt, user,
-        { kind: 'nullify', trick, user, target, cancelled });
+        { kind: 'nullify', trick, user, target, cancelled, ...(muted && muteable ? { muteable: true } : {}) });
       if (played) { lastResponder = seat; break; }
+      if (g.lastPassMuted && muted) muted.add(seat);
     }
     if (!played) break;
     cancelled = !cancelled;
@@ -453,13 +455,15 @@ export async function resolveTrick(g: Game, user: number, card: Card, cardName: 
   const targets = (def.targeting === 'one' ? (def.expandTargets ? def.expandTargets(g, user, chosen) : chosen) : autoTargets(g, def, user))
     .filter((t) => t === user || !g.isLured(t));
   const skip = new Set<number>();
+  // Người chọn "không hỏi lại với lá này": bỏ qua họ khi hỏi Vô Giải cho các mục tiêu còn lại của lá
+  const muted = new Set<number>();
   if (def.before) await def.before(g, user, targets, card);
   try {
     for (const t of targets) {
       if (!g.player(t).alive || skip.has(t)) continue;
       const tg = await g.bus.emit('trickTargeted', { user, target: t, card, name: cardName, cancelled: false });
       if (tg.cancelled) continue;
-      const res = await askNullify(g, cardName, user, t);
+      const res = await askNullify(g, cardName, user, t, muted, targets.length > 1);
       if (res.cancelled) {
         for (const s of res.group) skip.add(s);
         const who = res.group.length > 1 ? res.group.map((s) => name(g, s)).join(', ') : name(g, t);

@@ -121,7 +121,9 @@ export type Request =
   /** Giai đoạn ra bài: chọn 1 lá để dùng hoặc kết thúc. */
   | { type: 'play'; seat: number }
   /** Yêu cầu đáp lại, ví dụ bị Sát thì đánh Thiểm. `context` cho bot/UI biết tình huống. */
-  | { type: 'respond'; seat: number; accept: CardName[]; reason: string; source: number | null; context?: RespondContext }
+  | { type: 'respond'; seat: number; accept: CardName[]; reason: string; source: number | null; context?: RespondContext;
+      /** Kỹ năng "xem như dùng" lá cần đáp (Dịch Quỷ, Diệt Ngô...): hiện thành nút ngay trong bước chọn lá. */
+      virtuals?: VirtualOption[] }
   /** Có người hấp hối, hỏi có dùng Đào cứu không. */
   | { type: 'save'; seat: number; dying: number; need: number }
   /**
@@ -151,13 +153,17 @@ export type Request =
   /** Chọn từ min đến max lá trong `cardIds` (bài trên tay của chính mình), ví dụ Hỏa Công. */
   | { type: 'chooseCards'; seat: number; prompt: string; cardIds: number[]; min: number; max: number; cards?: Card[] };
 
+/** Một cách đáp lại bằng kỹ năng: trả lời `{ kind: 'useSkill', skill: 'virtual:<skill>:<as>' }`. */
+export interface VirtualOption { skill: string; name: string; as: CardName; label: string; reveal: boolean }
+
 /** Tình huống của một yêu cầu đáp lại. */
 export type RespondContext =
   | { kind: 'slash'; source: number; card: Card }
   | { kind: 'aoe'; trick: CardName; user: number }
   | { kind: 'duel'; opponent: number }
   /** `cancelled`: hiện tại cẩm nang đang bị chặn hay không. */
-  | { kind: 'nullify'; trick: CardName; user: number; target: number; cancelled: boolean }
+  | { kind: 'nullify'; trick: CardName; user: number; target: number; cancelled: boolean;
+      /** Cẩm nang nhiều mục tiêu: được chọn "không hỏi lại với lá này". */ muteable?: boolean }
   /** Thanh Long Yển Nguyệt Đao: có Sát tiếp mục tiêu này không. */
   | { kind: 'extraSlash'; target: number }
   | { kind: 'provoke'; by: number };
@@ -167,7 +173,8 @@ export type Response =
   | { kind: 'useCard'; cardId: number; targets: number[]; as?: CardName }
   | { kind: 'endPlay' }
   | { kind: 'card'; cardId: number }
-  | { kind: 'pass' }
+  /** `mute`: không hỏi Vô Giải lại cho đến hết lá cẩm nang đang xử lý. */
+  | { kind: 'pass'; mute?: boolean }
   | { kind: 'discard'; cardIds: number[] }
   /** Dùng kỹ năng chủ động trong giai đoạn ra bài. */
   | { kind: 'useSkill'; skill: string; cardIds: number[]; targets: number[] }

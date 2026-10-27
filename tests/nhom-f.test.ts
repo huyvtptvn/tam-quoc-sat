@@ -135,10 +135,15 @@ test('Vũ Khố: chỉ người thế lực xác định khác dùng trang bị 
   // cùng thế lực (Ngụy) không tăng; Thục tăng 1 -> dùng được Diệt Ngô
   const [peach] = await give(game, 0, 'tao');
   assert.ok(game.cardCountsAs(0, game.card(peach)).includes('shan'), 'có Võ Khố: Đào tính như Thiểm');
-  ctrls[0].set('respond', () => ({ kind: 'card', cardId: peach })).set('confirm', YES);
+  // Khi đáp lại: tay bài không sáng cả, Diệt Ngô hiện thành nút; bấm rồi chọn lá chuyển hóa
+  let req: { virtuals?: { skill: string }[] } | null = null;
+  ctrls[0].set('respond', (r) => { req = r as never; return { kind: 'pass' }; }).set('confirm', YES)
+    .set('chooseCards', () => ({ kind: 'cards', cardIds: [peach] }));
   const h0 = handSize(game, 0);
   const played = await game.requestResponse(0, ['shan'], 'test', 1);
   assert.ok(played);
+  assert.ok(req!.virtuals?.some((o) => o.skill === 'miewu'), 'có nút Diệt Ngô');
+  assert.ok(game.state.discardPile.includes(peach), 'lá Đào được chuyển hóa vào chồng bỏ');
   assert.equal(handSize(game, 0), h0 - 1 + 1, 'rút 1 lá sau khi dùng Diệt Ngô');
   const [p2] = await give(game, 0, 'tao');
   assert.equal(game.cardCountsAs(0, game.card(p2)).includes('shan'), false, 'hết Võ Khố (chỉ 1 dấu) thì không chuyển hóa nữa');

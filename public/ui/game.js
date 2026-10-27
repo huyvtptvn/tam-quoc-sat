@@ -1062,18 +1062,30 @@
         case 'save': {
           const need = r.type === 'respond' ? r.accept.map((a) => C.info(a).label).join(' hoặc ') : 'Đào';
           prompt = r.type === 'respond'
-            ? (r.reason.includes(need) ? `${esc(r.reason).replace(esc(need), `<b>${esc(need)}</b>`)}?` : `${esc(r.reason)} — đánh <b>${esc(need)}</b>?`)
+            ? r.context?.kind === 'nullify' ? esc(r.reason)
+            : (r.reason.includes(need) ? `${esc(r.reason).replace(esc(need), `<b>${esc(need)}</b>`)}?` : `${esc(r.reason)} — đánh <b>${esc(need)}</b>?`)
             : r.dying === view.me ? `Bạn đang hấp hối, cần thêm <b>${r.need}</b> lá Đào (hoặc Rượu).` : `<b>${esc(pname(r.dying))}</b> đang hấp hối, cần thêm <b>${r.need}</b> lá Đào.`;
-          if (!view.responseOptions.length && !(r.type === 'save' && view.specialSaves?.length)) prompt += ' <span class="muted">Bạn không có lá phù hợp.</span>';
+          const virt = (r.type === 'respond' && r.virtuals) || [];
+          if (!view.responseOptions.length && virt.length) prompt += ' <span class="muted">Dùng kỹ năng bên dưới.</span>';
+          else if (!view.responseOptions.length && !(r.type === 'save' && view.specialSaves?.length)) prompt += ' <span class="muted">Bạn không có lá phù hợp.</span>';
           else if (sel.cards.length === 1) {
             const c = cardOf(sel.cards[0]);
             const as = view.responseOptions.find((o) => o.cardId === sel.cards[0])?.as;
             prompt += ` <br>Đánh <b>${esc(C.info(as ?? c?.name).label)}</b>${as && c && as !== c.name ? ` (bằng ${esc(C.info(c.name).label)})` : ''}?`;
           } else if (view.responseOptions.length) prompt += ' <span class="muted">Bấm lá sáng viền để chọn.</span>';
-          buttons.push(btn(sel.cards.length === 1 ? 'Có' : 'Đánh', () => answer({ kind: 'card', cardId: sel.cards[0] }), 'primary', sel.cards.length !== 1));
+          if (view.responseOptions.length || !virt.length) buttons.push(btn(sel.cards.length === 1 ? 'Có' : 'Đánh', () => answer({ kind: 'card', cardId: sel.cards[0] }), 'primary', sel.cards.length !== 1));
           if (r.type === 'save') for (const s of view.specialSaves || []) buttons.push(btn(s.name, () => answer({ kind: 'useSkill', skill: s.skill, cardIds: [], targets: [] })));
+          // Kỹ năng "xem như dùng" (Dịch Quỷ, Diệt Ngô, Thao Loạn...): bấm thẳng, không phải qua bước hỏi riêng
+          for (const o of virt) {
+            buttons.push(btn(`${o.name}${o.reveal ? ' (lật tướng)' : ''} → ${o.label.replace(' Khả Kích', '')}`,
+              () => answer({ kind: 'useSkill', skill: `virtual:${o.skill}:${o.as}`, cardIds: [], targets: [] }), view.responseOptions.length ? '' : 'primary'));
+          }
           if (sel.cards.length === 1) buttons.push(btn('Không', () => { sel = emptySel(); renderGame(); }, 'ghost'));
-          buttons.push(btn('Không đánh', () => answer({ kind: 'pass' }), view.responseOptions.length ? 'ghost' : 'primary'));
+          buttons.push(btn('Không đánh', () => answer({ kind: 'pass' }), view.responseOptions.length || virt.length ? 'ghost' : 'primary'));
+          // Cẩm nang nhiều mục tiêu (Nam Man, Vạn Tiễn...): không hỏi Vô Giải lại cho các mục tiêu còn lại của lá này
+          if (r.type === 'respond' && r.context?.kind === 'nullify' && r.context.muteable) {
+            buttons.push(btn('Bỏ qua cả lá này', () => answer({ kind: 'pass', mute: true }), 'ghost'));
+          }
           break;
         }
         case 'discard':

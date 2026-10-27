@@ -7,7 +7,7 @@ import { Game, type GameOptions } from '../core/game.js';
 import './cards.js'; // đăng ký các cẩm nang riêng của Quốc Chiến
 import type { EventName } from '../core/events.js';
 import { shuffle } from '../core/rng.js';
-import type { Card, CardName, Controller, Request, RespondContext, Response, UseMode, Zone } from '../core/types.js';
+import type { Card, CardName, Controller, Request, RespondContext, Response, UseMode, VirtualOption, Zone } from '../core/types.js';
 import { viewFor, type PlayerView, type SkillHint, type SlotView } from '../core/view.js';
 import { FEMALE_GENERALS, GENERALS, getGeneral, isDualGeneral, isLordId, kingdomsOf, lordVersionOf, isGeneralId, isPair, KINGDOM_LABEL, KINGDOMS, type Kingdom } from './generals.js';
 import { EQUIP_SKILLS, GLOBAL_SKILLS, SKILLS, type ActiveSkill, type Skill, type SkillTrigger } from './skills.js';
@@ -1530,6 +1530,22 @@ export class HegemonyGame extends Game {
       for (const as of accept) if (names.includes(as)) out.push({ e, as });
     }
     return out;
+  }
+
+  override respondVirtuals(seat: number, accept: CardName[], context?: RespondContext): VirtualOption[] {
+    return this.virtualOptions(seat, accept, { context }).map(({ e, as }) => ({
+      skill: e.skill.id, name: e.skill.name, as, label: this.cardInfo(as).label, reveal: !e.slot.revealed,
+    }));
+  }
+
+  protected override async useVirtualResponse(seat: number, skill: string, as: CardName, accept: CardName[], reason: string,
+    context?: RespondContext): Promise<Card | null> {
+    const opt = this.virtualOptions(seat, accept, { context }).find((o) => o.e.skill.id === skill && o.as === as);
+    if (!opt) return null;
+    const card = await this.useVirtual(seat, opt.e, as);
+    if (!card) return null;
+    await this.bus.emit('cardResponded', { seat, card, as, reason });
+    return card;
   }
 
   override canVirtualRespond(seat: number, name: CardName): boolean {

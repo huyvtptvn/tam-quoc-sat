@@ -104,6 +104,17 @@ export class HegemonyBot extends SimpleBot {
         }
         return super.decide(req, v);
       }
+      case 'respond': {
+        const r = await super.decide(req, v);
+        if (r.kind !== 'pass' || !req.virtuals?.length) return r;
+        // Không có lá phù hợp (hoặc không muốn dùng lá thật): xét các nút kỹ năng ảo như câu hỏi xác nhận cũ
+        for (const o of req.virtuals) {
+          const c = await this.decide({ type: 'confirm', seat: req.seat, skill: o.skill, reveal: o.reveal, prompt: '',
+            respond: { accept: [o.as], ...(req.context ? { context: req.context } : {}) } }, v);
+          if (c.kind === 'yes') return { kind: 'useSkill', skill: `virtual:${o.skill}:${o.as}`, cardIds: [], targets: [] };
+        }
+        return r;
+      }
       default:
         return super.decide(req, v);
     }

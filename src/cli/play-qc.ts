@@ -88,7 +88,8 @@ class HumanController implements Controller {
       case 'save': {
         const title = req.type === 'respond' ? `⚔ ${req.reason}!` : `💀 ${req.dying === v.me ? 'Bạn' : v.players[req.dying].name} đang hấp hối (cần ${req.need} Đào).`;
         console.log(`\n${title}`);
-        const specials = req.type === 'save' ? v.specialSaves ?? [] : [];
+        const specials = req.type === 'save' ? v.specialSaves ?? []
+          : (req.virtuals ?? []).map((o) => ({ skill: `virtual:${o.skill}:${o.as}`, name: `${o.name} → ${o.label}` }));
         if (!v.responseOptions.length && !specials.length) { console.log('  Bạn không có lá phù hợp.'); return { kind: 'pass' }; }
         v.responseOptions.forEach((o, i) => {
           const c = v.myHand.find((x) => x.id === o.cardId)!;

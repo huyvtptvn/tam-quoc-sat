@@ -11,7 +11,7 @@ import { checkTrickUse, resolveJudgePhase, resolveTrick, TRICK_DEFS, trickTarget
 import {
   EQUIP_SLOTS,
   type Card, type CardName, type Controller, type EquipSlot, type GameState, type Phase, type Player,
-  type Request, type RespondContext, type Response, type UseMode, type Zone,
+  type Request, type RespondContext, type Response, type UseMode, type VirtualOption, type Zone,
 } from './types.js';
 import { viewFor, type PlayerView } from './view.js';
 
@@ -864,12 +864,24 @@ export class Game {
       if (viaBagua) return viaBagua;
     }
     await this.bus.emit('beforeRespond', { seat, accept, source });
-    const picked = await this.pickResponse(seat, accept, reason, source, context);
+    // Kỹ năng "xem như dùng" (Dịch Quỷ, Diệt Ngô, Thao Loạn...) hiện thành nút ngay trong bước chọn lá
+    const virtuals = this.respondVirtuals(seat, accept, context);
+    this.pickedVirtual = null;
+    this.respondingWithVirtuals = virtuals.length > 0;
+    let picked: { card: Card; as: CardName } | null;
+    try {
+      picked = await this.pickResponse(seat, accept, reason, source, context, virtuals);
+    } finally {
+      this.respondingWithVirtuals = false;
+    }
     if (!picked) {
-      // Kỹ năng "xem như dùng" một lá để đáp lại (Thao Loạn: Thiểm, Vô Giải)
-      const virtual = await this.virtualResponse(seat, accept, reason, source, context);
+      const chosen = this.pickedVirtual as { skill: string; as: CardName } | null;
+      this.pickedVirtual = null;
+      const virtual = chosen ? await this.useVirtualResponse(seat, chosen.skill, chosen.as, accept, reason, context)
+        // Không có nút (người chơi không thấy lựa chọn ảo): hỏi riêng như cũ
+        : !virtuals.length && !this.lastPassMuted ? await this.virtualResponse(seat, accept, reason, source, context) : null;
       if (virtual) { this.lastRespondAs = virtual.name; return virtual; }
-      return accept.includes('sha') ? tryZhangbaResponse(this, seat, reason) : null;
+      return accept.includes('sha') && !this.lastPassMuted ? tryZhangbaResponse(this, seat, reason) : null;
     }
     const { card, as } = picked;
     const p = this.player(seat);
@@ -892,14 +904,36 @@ export class Game {
 
   /** Lá vừa đánh ra trong requestResponse được tính là lá gì (Vô Giải·Quốc chuyển hóa / ảo). */
   lastRespondAs: CardName | null = null;
+  /** Lần hỏi đáp gần nhất: người chơi chọn "không hỏi lại với lá này". */
+  lastPassMuted = false;
+  /** Lựa chọn ảo người chơi vừa bấm trong bước chọn lá. */
+  protected pickedVirtual: { skill: string; as: CardName } | null = null;
+  /** Đang hỏi đáp lại có kèm nút kỹ năng ảo (Diệt Ngô không làm sáng cả tay bài nữa). */
+  respondingWithVirtuals = false;
+
+  /** Các kỹ năng "xem như dùng" lá cần đáp. Engine gốc không có. */
+  respondVirtuals(_seat: number, _accept: CardName[], _context?: RespondContext): VirtualOption[] { return []; }
+
+  /** Dùng kỹ năng ảo `skill` xem như đánh lá `as`. Engine gốc không có. */
+  protected async useVirtualResponse(_seat: number, _skill: string, _as: CardName, _accept: CardName[], _reason: string,
+    _context?: RespondContext): Promise<Card | null> { return null; }
 
   /** Hỏi `seat` chọn một lá trên tay thuộc `accept`, kiểm tra hợp lệ nhưng CHƯA di chuyển lá. */
   async pickResponse(
-    seat: number, accept: CardName[], reason: string, source: number | null, context?: RespondContext,
+    seat: number, accept: CardName[], reason: string, source: number | null, context?: RespondContext, virtuals?: VirtualOption[],
   ): Promise<{ card: Card; as: CardName } | null> {
     const p = this.player(seat);
+    this.lastPassMuted = false;
     if (!p.alive) return null;
-    const res = await this.ask({ type: 'respond', seat, accept, reason, source, ...(context ? { context } : {}) });
+    const res = await this.ask({ type: 'respond', seat, accept, reason, source, ...(context ? { context } : {}),
+      ...(virtuals?.length ? { virtuals } : {}) });
+    if (res.kind === 'pass' && res.mute) this.lastPassMuted = true;
+    if (res.kind === 'useSkill' && virtuals?.length) {
+      const m = /^virtual:(.+):([^:]+)$/.exec(res.skill);
+      const v = m && virtuals.find((o) => o.skill === m[1] && o.as === m[2]);
+      if (v) this.pickedVirtual = { skill: v.skill, as: v.as };
+      return null;
+    }
     if (res.kind !== 'card' || !p.hand.includes(res.cardId)) return null;
     const card = this.card(res.cardId);
     if (this.cardBlocked(seat, card)) return null;

@@ -26,6 +26,18 @@ export class ByType implements Controller {
       }
       return { kind: 'choice', index: req.skills.length - 1 };
     }
+    // Đáp lại có nút kỹ năng ảo (Dịch Quỷ, Thao Loạn...): không đánh lá thì hỏi như câu "confirm" cũ
+    if (req.type === 'respond' && req.virtuals?.length) {
+      const h0 = this.handlers.respond;
+      const r = h0 ? h0(req, v) : { kind: 'pass' as const };
+      if (r.kind !== 'pass') return r;
+      for (const o of req.virtuals) {
+        const c = await this.decide({ type: 'confirm', seat: req.seat, skill: o.skill, reveal: o.reveal, prompt: '',
+          respond: { accept: [o.as], ...(req.context ? { context: req.context } : {}) } }, v);
+        if (c.kind === 'yes') return { kind: 'useSkill', skill: `virtual:${o.skill}:${o.as}`, cardIds: [], targets: [] };
+      }
+      return r;
+    }
     const h = this.handlers[req.type];
     if (h) return h(req, v);
     switch (req.type) {

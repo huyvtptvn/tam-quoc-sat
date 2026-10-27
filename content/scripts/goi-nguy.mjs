@@ -724,10 +724,33 @@ export default {
       id: 'miewu', name: 'Diệt Ngô',
       desc: 'Một lần trong lượt của mỗi người, khi bạn cần sử dụng/đánh ra 1 lá cơ bản/công cụ, bạn có thể giảm 1 [Võ Khố] để chuyển hóa '
         + 'sử dụng/đánh ra 1 lá thành 1 lá cơ bản/công cụ đó, sau đó bạn rút 1 lá. (Đơn giản hóa: chỉ chuyển hóa lá trên tay.)',
-      convert: (g, s, c) => ((store(g)[`wuku:${s}`] ?? 0) > 0 && store(g)[`miewu:${s}`] !== g.state.turnCount && g.player(s).hand.includes(c.id)
+      // Khi đáp lại có nút kỹ năng: không làm sáng cả tay bài, dùng nút "Diệt Ngô" (virtualRespond) rồi chọn lá
+      convert: (g, s, c) => (!g.respondingWithVirtuals && miewuReady(g, s) && g.player(s).hand.includes(c.id)
         ? miewuNames(g).filter((n) => n !== c.name) : []),
+      virtualRespond: (g, s, accept) => (miewuReady(g, s) && g.player(s).hand.length ? accept.filter((n) => miewuNames(g).includes(n)) : []),
+      payVirtual: async (g, s, as) => {
+        const h = g.player(s).hand;
+        if (!h.length || !miewuReady(g, s)) return false;
+        const [id] = h.length > 1 ? await g.chooseCards(s, `Diệt Ngô: chọn 1 lá trên tay chuyển hóa thành ${g.cardInfo(as).label}`, [...h], 1, 1) : [h[0]];
+        const cid = h.includes(id) ? id : h[0];
+        store(g)[`miewu:${s}`] = g.state.turnCount;
+        store(g)[`wuku:${s}`]--;
+        g.say(`Diệt Ngô: ${name(g, s)} chuyển hóa ${label(g, cid)} (còn ${store(g)[`wuku:${s}`]} Võ Khố).`);
+        await g.moveCards([cid], { kind: 'hand', seat: s }, { kind: 'discard' }, 'respond');
+        await g.draw(s, 1);
+        return true;
+      },
+      bot: {
+        confirm: (v, h, req) => {
+          const r = req?.respond;
+          if (!r) return false;
+          const c = r.context;
+          if (!c || c.kind !== 'nullify') return r.accept.includes('shan') || r.accept.includes('sha');
+          return !c.cancelled ? h.isAlly(c.target) && !h.isAlly(c.user) : h.isAlly(c.user) && !h.isAlly(c.target);
+        },
+      },
       triggers: ['cardUsed', 'cardResponded'].map((ev) => on(ev, (g, ctx, o) => ctx.seat === o && ctx.as !== ctx.card.name && ctx.card.id >= 0
-        && (store(g)[`wuku:${o}`] ?? 0) > 0 && store(g)[`miewu:${o}`] !== g.state.turnCount && miewuNames(g).includes(ctx.as)
+        && miewuReady(g, o) && miewuNames(g).includes(ctx.as)
         && !otherConverts(g, o, ctx.card, ctx.as),
         async (g, _ctx, o) => {
           store(g)[`miewu:${o}`] = g.state.turnCount;
@@ -793,6 +816,11 @@ function isXibingCard(g, ctx) {
 }
 
 /** Các lá cơ bản / công cụ thường mà Diệt Ngô có thể chuyển hóa thành. */
+/** Diệt Ngô còn dùng được: còn Võ Khố và chưa dùng trong lượt này. */
+function miewuReady(g, s) {
+  return (store(g)[`wuku:${s}`] ?? 0) > 0 && store(g)[`miewu:${s}`] !== g.state.turnCount;
+}
+
 function miewuNames(g) {
   const s = store(g);
   if (!s.miewuNames) s.miewuNames = g.allCardNames().filter((n) => ['basic', 'trick'].includes(g.cardInfo(n)?.type));
