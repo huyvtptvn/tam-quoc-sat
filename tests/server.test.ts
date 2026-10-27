@@ -484,7 +484,7 @@ test('API quản trị: danh sách tài khoản (không lộ mật khẩu/mã), 
 const regAcc = async (username: string) => (await api('/api/account/register', { method: 'POST', admin: false, body: JSON.stringify({ username, password: 'matkhau1' }), headers: { 'content-type': 'application/json' } })).body as { token: string };
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-test('tắt trang: sau khoảng chờ thì tự đăng xuất tài khoản và rời phòng chờ; tải lại kịp thì giữ nguyên', async () => {
+test('tắt trang: sau khoảng chờ thì rời phòng chờ nhưng VẪN đăng nhập (nhớ đăng nhập); tải lại kịp thì giữ nguyên', async () => {
   const old = [srv.lobby.graceMs, srv.lobby.gracePlayingMs];
   srv.lobby.graceMs = 300; srv.lobby.gracePlayingMs = 300;
   try {
@@ -508,13 +508,13 @@ test('tắt trang: sau khoảng chờ thì tự đăng xuất tài khoản và r
     await sleep(500);
     assert.ok(srv.lobby.rooms.get(r.room!.id)?.humans().length === 2, 'vẫn ngồi trong phòng');
 
-    // Tắt trang: quá khoảng chờ thì đăng xuất + rời phòng, B thành chủ phòng
+    // Tắt trang: quá khoảng chờ thì rời phòng (B thành chủ phòng) nhưng tài khoản vẫn đăng nhập
     a2.close();
     await sleep(600);
     const room = srv.lobby.rooms.get(r.room!.id)!;
     assert.equal(room.humans().length, 1);
     assert.equal(room.host.name, 'B');
-    assert.equal((await api('/api/account/me', { admin: false, headers: { 'x-account-token': auth } })).status, 401, 'mã đăng nhập đã bị thu hồi');
+    assert.equal((await api('/api/account/me', { admin: false, headers: { 'x-account-token': auth } })).status, 200, 'mã đăng nhập vẫn còn hiệu lực');
     // Mở trang lại bằng mã phiên cũ: là phiên mới, không còn trong phòng
     const a3 = await new Client().connect('A', a.token);
     const w = a3.msgs.find((m) => m.t === 'welcome') as Extract<ServerMsg, { t: 'welcome' }>;
@@ -586,4 +586,45 @@ test('phòng có mật khẩu: hỏi mật khẩu, sai thì báo lại, đúng t
   assert.ok(st.body.online >= 2);
   a.send({ t: 'dissolveRoom' });
   a.close(); b.close();
+});
+
+test('nhớ đăng nhập: mã đăng nhập hết hạn sau 30 ngày không dùng, dùng lại thì gia hạn', async () => {
+  const { AccountStore, LOGIN_TTL_MS } = await import('../src/server/accounts.js');
+  const { mkdtempSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const st = new AccountStore(mkdtempSync(join(tmpdir(), 'tqs-acc-')));
+  const { token } = st.register('nho_dn', 'matkhau123');
+  const t0 = Date.now();
+  assert.ok(st.byAuthToken(token, t0 + LOGIN_TTL_MS - 5000), '29 ngày: vẫn còn (và được gia hạn)');
+  assert.ok(st.byAuthToken(token, t0 + 2 * LOGIN_TTL_MS - 10_000), 'gia hạn từ lần dùng trước');
+  assert.equal(st.byAuthToken(token, t0 + 4 * LOGIN_TTL_MS), null, 'quá 30 ngày không dùng: hết hạn');
+  assert.equal(st.byAuthToken(token, t0 + 4 * LOGIN_TTL_MS + 1), null, 'đã bị xóa');
+});
+
+test('mất kết nối giữa ván: bot trả lời thay sau vài giây, đăng nhập lại từ tab mới thì nhận lại ghế', async () => {
+  const { token: auth } = await regAcc('giu_ghe');
+  const a = await new Client().connect('A');
+  a.autoplay = false;
+  a.send({ t: 'hello', name: 'A', token: a.token, auth });
+  await a.wait((m) => m.t === 'welcome' && !!m.account);
+  a.send({ t: 'createRoom', name: 'Phòng giữ ghế', seats: 3 });
+  const r = await a.wait((m) => m.t === 'room' && !!m.room) as Extract<ServerMsg, { t: 'room' }>;
+  a.send({ t: 'addBot' }); a.send({ t: 'addBot' });
+  await sleep(200);
+  a.send({ t: 'start' });
+  await a.wait((m) => m.t === 'request');
+  a.close(); // tắt trang giữa lúc đang được hỏi
+  await sleep(3500);
+  const room = srv.lobby.rooms.get(r.room!.id)!;
+  assert.equal(room.humans().length, 1, 'ghế vẫn giữ cho người chơi');
+  // Mở tab mới (không có mã phiên cũ), chỉ có mã đăng nhập: nhận lại đúng ghế đang giữ
+  const a2 = await new Client().connect('A');
+  a2.autoplay = false;
+  a2.send({ t: 'hello', name: 'A', auth });
+  const w = await a2.wait((m) => m.t === 'welcome' && !!m.account) as Extract<ServerMsg, { t: 'welcome' }>;
+  assert.equal(w.token, a.token, 'nhận lại phiên cũ');
+  await a2.wait((m) => m.t === 'room' && m.room?.id === r.room!.id);
+  a2.send({ t: 'dissolveRoom' }); await sleep(200);
+  a2.close();
 });

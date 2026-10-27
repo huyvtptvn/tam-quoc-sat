@@ -44,7 +44,13 @@
   let ws = null;
   let token = sess.get('tqs_token');
   let myName = store.get('tqs_name') || '';
-  let authToken = sess.get('tqs_auth') || '';
+  // "Nhớ đăng nhập": mã đăng nhập lưu trên máy (localStorage) — tắt trang / khóa máy vẫn còn đăng nhập,
+  // hết hạn sau 30 ngày không vào game. Không nhớ: chỉ sống trong tab này (sessionStorage).
+  let authToken = sess.get('tqs_auth') || store.get('tqs_login') || '';
+  function saveAuth(t, remember) {
+    sess.set('tqs_auth', remember ? '' : t);
+    try { if (remember && t) localStorage.setItem('tqs_login', t); else localStorage.removeItem('tqs_login'); } catch { /* chặn lưu trữ */ }
+  }
   let account = null;       // hồ sơ công khai khi đã đăng nhập
   let room = null;          // RoomInfo
   let mySeat = null;
@@ -157,7 +163,7 @@
       case 'welcome':
         token = m.token; sess.set('tqs_token', token);
         pendingLogout = false;
-        if (authToken && !m.account && !room) { authToken = ''; sess.set('tqs_auth', ''); toast('Phiên đăng nhập đã hết hạn, bạn đang chơi như khách.'); }
+        if (authToken && !m.account && !room) { authToken = ''; saveAuth('', false); toast('Phiên đăng nhập đã hết hạn (quá 30 ngày không vào), bạn đang chơi như khách.'); }
         account = m.account || (authToken ? account : null);
         renderAccount();
         setConn('');
@@ -1687,7 +1693,7 @@
       const r = await fetch(registerMode ? '/api/account/register' : '/api/account/login', { method: 'POST', body: JSON.stringify(body) });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error || 'Không đăng nhập được');
-      authToken = j.token; sess.set('tqs_auth', authToken);
+      authToken = j.token; saveAuth(authToken, $('accRemember')?.checked !== false);
       account = j.profile;
       myName = account.displayName; store.set('tqs_name', myName);
       $('accPass').value = '';
@@ -1700,7 +1706,7 @@
   async function logoutToLogin(tab = 'guest') {
     if (room) { toast('Hãy rời phòng trước khi đăng xuất.'); return; }
     if (authToken) { try { await fetch('/api/account/logout', { method: 'POST', headers: { 'x-account-token': authToken } }); } catch { /* bỏ qua */ } }
-    authToken = ''; sess.set('tqs_auth', ''); account = null;
+    authToken = ''; saveAuth('', false); account = null;
     token = null; sess.set('tqs_token', '');
     if (ws) { ws.onclose = null; try { ws.close(); } catch { /* bỏ qua */ } ws = null; }
     setConn('');

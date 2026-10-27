@@ -28,6 +28,8 @@ export interface Account {
   titles: Record<string, number>;
   /** Băm sha256 của các mã đăng nhập còn hiệu lực (tối đa 10 thiết bị). */
   tokens: string[];
+  /** Lần cuối mỗi mã đăng nhập được dùng (ms). Không dùng quá LOGIN_TTL_MS thì mã hết hạn. */
+  tokenUsed?: Record<string, number>;
   lastPlayed: string | null;
   /** Thảo Phạt: thống kê theo "<boss>:<độ khó>". best = số vòng ít nhất khi thắng. */
   boss?: Record<string, BossStat>;
@@ -92,6 +94,8 @@ export interface SeatOwner {
 }
 
 const USERNAME = /^[a-zA-Z0-9_.-]{3,20}$/;
+/** "Nhớ đăng nhập": mã đăng nhập hết hạn sau 30 ngày KHÔNG dùng (mỗi lần vào game lại tính lại từ đầu). */
+export const LOGIN_TTL_MS = 30 * 24 * 3600_000;
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
 const hashPw = (pw: string, salt: string) => scryptSync(pw, salt, 64).toString('hex');
 
@@ -139,8 +143,9 @@ export class AccountStore {
     const token = randomBytes(24).toString('base64url');
     const h = sha(token);
     a.tokens.push(h);
+    (a.tokenUsed ??= {})[h] = Date.now();
     this.byToken.set(h, a);
-    while (a.tokens.length > 10) this.byToken.delete(a.tokens.shift()!);
+    while (a.tokens.length > 10) { const old = a.tokens.shift()!; this.byToken.delete(old); delete a.tokenUsed[old]; }
     return token;
   }
 
@@ -189,8 +194,23 @@ export class AccountStore {
     this.save();
   }
 
-  byAuthToken(token: string | undefined | null): Account | null {
-    return token ? this.byToken.get(sha(String(token))) ?? null : null;
+  /** Tài khoản của mã đăng nhập; mã quá 30 ngày không dùng thì hết hạn. Dùng lại thì gia hạn. */
+  byAuthToken(token: string | undefined | null, now = Date.now()): Account | null {
+    if (!token) return null;
+    const h = sha(String(token));
+    const a = this.byToken.get(h);
+    if (!a) return null;
+    const used = a.tokenUsed?.[h] ?? now; // mã cũ (trước khi có hạn): tính từ lúc này
+    if (now - used > LOGIN_TTL_MS) {
+      this.byToken.delete(h);
+      a.tokens = a.tokens.filter((t) => t !== h);
+      if (a.tokenUsed) delete a.tokenUsed[h];
+      this.save();
+      return null;
+    }
+    // Gia hạn (ghi file tối đa mỗi giờ một lần cho mỗi mã)
+    if (!a.tokenUsed?.[h] || now - a.tokenUsed[h] > 3600_000) { (a.tokenUsed ??= {})[h] = now; this.save(); }
+    return a;
   }
 
   /** Danh sách tài khoản cho trang quản trị (không bao giờ kèm mật khẩu băm hay mã đăng nhập). */
@@ -219,6 +239,7 @@ export class AccountStore {
     if (!a) throw new Error('Không có tài khoản này');
     for (const t of a.tokens) this.byToken.delete(t);
     a.tokens = [];
+    a.tokenUsed = {};
     this.save();
   }
 

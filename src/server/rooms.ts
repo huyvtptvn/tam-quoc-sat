@@ -48,6 +48,8 @@ export class PlayerSession {
 // ------------------------------------------------------------
 
 let nextReqId = 1;
+/** Người chơi đang mất kết nối: bot trả lời thay sau khoảng này (thay vì chờ hết giờ cả câu). */
+export const AWAY_ANSWER_MS = 2000;
 
 /**
  * Engine gọi decide() như với bot. Controller gửi câu hỏi xuống client và chờ trả lời.
@@ -71,8 +73,10 @@ export class SocketController implements Controller {
       const reqId = nextReqId++;
       // Chọn tướng cần nhiều thời gian hơn (nhất là chế độ tự chọn với cả trăm tướng)
       // Bỏ bài nhiều lá cũng cần thêm thời gian để người chơi tự chọn
-      const ms = req.type === 'chooseGenerals' ? CHOOSE_GENERALS_MS
+      const full = req.type === 'chooseGenerals' ? CHOOSE_GENERALS_MS
         : req.type === 'discard' ? Math.max(this.timeoutMs * 2, 45_000) : this.timeoutMs;
+      // Đang mất kết nối (khóa màn hình, đổi app...): bot đánh thay ngay, ghế vẫn giữ cho người chơi
+      const ms = s.connected ? full : Math.min(full, AWAY_ANSWER_MS);
       const timer = setTimeout(() => void this.expire(reqId), ms);
       this.pending = { reqId, req, view, resolve, timer, deadline: Date.now() + ms };
       s.send({ t: 'request', reqId, request: req, view, timeoutMs: ms });
@@ -86,6 +90,15 @@ export class SocketController implements Controller {
     clearTimeout(p.timer);
     this.session?.send({ t: 'requestClosed', reqId, reason: 'timeout' });
     p.resolve(await this.bot.decide(p.req, p.view));
+  }
+
+  /** Người chơi vừa mất kết nối: câu hỏi đang chờ sẽ do bot trả lời sau `ms`. */
+  shortenPending(ms: number): void {
+    const p = this.pending;
+    if (!p || p.deadline - Date.now() <= ms) return;
+    clearTimeout(p.timer);
+    p.deadline = Date.now() + ms;
+    p.timer = setTimeout(() => void this.expire(p.reqId), ms);
   }
 
   /** Trả lời ngay câu hỏi đang chờ bằng bot (ví dụ người chơi vừa đầu hàng). */
@@ -377,6 +390,12 @@ export class Room {
     }
   }
 
+  /** Người chơi mất kết nối giữa ván: bot đánh thay các câu hỏi trong lúc vắng. */
+  onDisconnect(session: PlayerSession): void {
+    const c = this.controllerOf(session);
+    if (c instanceof SocketController) c.shortenPending(AWAY_ANSWER_MS);
+  }
+
   /** Gửi lại toàn bộ trạng thái cho một người (khi kết nối lại). */
   resync(session: PlayerSession): void {
     if (this.spectators.includes(session)) {
@@ -422,11 +441,11 @@ export class Lobby {
   /** Độ trễ của bot trong các phòng mới (ms). */
   botDelayMs = 0;
   /**
-   * Mất kết nối quá lâu (tắt trang) thì hết phiên: tự đăng xuất tài khoản và rời phòng.
-   * Khoảng chờ cho phép tải lại trang / mạng chập chờn. Giữa ván được chờ lâu hơn (khóa màn hình điện thoại...).
+   * Mất kết nối quá lâu thì hết phiên chơi: rời phòng (giữa ván: bot chơi nốt). KHÔNG đăng xuất tài khoản
+   * ("Nhớ đăng nhập" — mã đăng nhập tự hết hạn sau 30 ngày không dùng). Giữa ván giữ ghế 5 phút, bot đánh thay lúc vắng.
    */
   graceMs = 30_000;
-  gracePlayingMs = 120_000;
+  gracePlayingMs = 5 * 60_000;
   /** Phòng chỉ còn bot (không người chơi nào ngồi ghế) quá thời gian này thì tự đóng, ván bị hủy. */
   botOnlyCloseMs = 5 * 60_000;
   private readonly botOnlySince = new Map<string, number>();
@@ -514,6 +533,11 @@ export class Lobby {
   /** Kết nối mới: tạo người chơi mới, hoặc nhận lại người chơi cũ nếu token đúng. */
   attach(ws: WebSocket, msg: Extract<ClientMsg, { t: 'hello' }>): PlayerSession {
     let session = msg.token ? this.byToken.get(msg.token) : undefined;
+    // Tắt trang / đổi máy rồi vào lại: nhận lại phiên đang giữ ghế của cùng tài khoản (nếu phiên đó đang mất kết nối)
+    if (!session && msg.auth) {
+      const acc0 = this.accounts?.byAuthToken(msg.auth) ?? null;
+      if (acc0) session = [...this.byToken.values()].find((x) => x.accountId === acc0.id && !x.connected && x.roomId);
+    }
     if (session) {
       if (session.expireTimer) { clearTimeout(session.expireTimer); session.expireTimer = null; }
       if (session.ws && session.ws !== ws) session.ws.close(4000, 'Đã kết nối ở nơi khác');
@@ -556,6 +580,8 @@ export class Lobby {
     const room = session.roomId ? this.rooms.get(session.roomId) : undefined;
     room?.sendRoomState();
     if (session.expireTimer) clearTimeout(session.expireTimer);
+    // Đang có câu hỏi chờ người vừa mất kết nối: bot trả lời thay sau vài giây (không bắt cả bàn chờ hết giờ)
+    room?.onDisconnect(session);
     const wait = room?.status === 'playing' && !session.spectating ? this.gracePlayingMs : this.graceMs;
     session.expireTimer = setTimeout(() => this.expire(session), wait);
     session.expireTimer.unref?.();
@@ -565,7 +591,6 @@ export class Lobby {
   expire(session: PlayerSession): void {
     session.expireTimer = null;
     if (session.ws) return; // đã kết nối lại
-    if (session.authToken) this.accounts?.logout(session.authToken);
     session.authToken = null;
     const room = session.roomId ? this.rooms.get(session.roomId) : undefined;
     if (room) this.leave(session, room);
