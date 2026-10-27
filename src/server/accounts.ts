@@ -264,6 +264,19 @@ export class AccountStore {
     return { profile: this.publicProfile(a), matches };
   }
 
+  /** Toàn bộ lịch sử ván đang giữ trong bộ nhớ (tối đa 5000 ván gần nhất). */
+  allMatches(): readonly MatchRecord[] {
+    return this.matches;
+  }
+
+  /** Trao danh hiệu (sự kiện): cộng vào bộ danh hiệu của tài khoản. */
+  grantTitle(username: string, title: string): void {
+    const a = this.byName.get(username.toLowerCase());
+    if (!a) return;
+    a.titles[title] = (a.titles[title] ?? 0) + 1;
+    this.save();
+  }
+
   match(id: string): MatchRecord | null {
     return this.matches.find((m) => m.id === id) ?? null;
   }

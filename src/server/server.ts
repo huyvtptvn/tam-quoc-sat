@@ -19,6 +19,7 @@ import { ACTION_SPECS, GLOBAL_VARS, PLAYER_PROPS } from '../content/runtime.js';
 import { GENERALS, KINGDOM_LABEL, PAIRS } from '../hegemony/generals.js';
 import { SKILLS } from '../hegemony/skills.js';
 import { AccountStore } from './accounts.js';
+import { EVENTS, EventAwards, eventProgress, eventStandings } from './events.js';
 import { RANKS } from './elo.js';
 import { BOSS_DIFFICULTY, BOSSES } from '../hegemony/boss.js';
 
@@ -123,6 +124,11 @@ export async function startServer(opts: ServerOptions = {}) {
   const dataDir = resolve(opts.dataDir ?? process.env.DATA_DIR ?? join(ROOT, 'data'));
   const accounts = new AccountStore(dataDir);
   lobby.accounts = accounts;
+  // Sự kiện: hết hạn thì tự trao danh hiệu cho top 3 (kiểm tra mỗi phút)
+  const eventAwards = new EventAwards(dataDir);
+  const awardTick = () => { for (const id of eventAwards.tick(accounts)) log(`[sự kiện] Đã trao thưởng: ${id}`); };
+  awardTick();
+  setInterval(awardTick, 60_000).unref();
   const content = new ContentManager(contentDir, lobby, log);
   const first = await content.reload('khởi động');
   if (!first.ok) log('[nội dung] Server vẫn chạy với nội dung có sẵn. Sửa lỗi rồi lưu lại để áp dụng.');
@@ -182,6 +188,24 @@ export async function startServer(opts: ServerOptions = {}) {
       if (path === '/api/account/me') {
         const a = accounts.byAuthToken(authOf());
         return a ? json(res, 200, accounts.publicProfile(a)) : json(res, 401, { error: 'Chưa đăng nhập' });
+      }
+      if (path === '/api/events') {
+        const me = accounts.byAuthToken(authOf());
+        const now = Date.now();
+        return json(res, 200, {
+          now: new Date(now).toISOString(),
+          events: EVENTS.map((def) => {
+            const rows = eventStandings(def, accounts.allMatches(), accounts);
+            const mine = me ? rows.find((r) => r.username === me.username) ?? null : null;
+            return {
+              ...def,
+              status: now < Date.parse(def.start) ? 'upcoming' : now > Date.parse(def.end) ? 'ended' : 'live',
+              standings: rows.slice(0, 20), total: rows.length,
+              me: me ? { username: me.username, row: mine, ...eventProgress(def, accounts.allMatches(), me.username) } : null,
+              winners: eventAwards.winners(def.id),
+            };
+          }),
+        });
       }
       if (path === '/api/leaderboard') {
         return json(res, 200, { ranks: RANKS.filter((r) => Number.isFinite(r.min)), players: accounts.leaderboard(url.searchParams.get('sort') ?? 'rating', Number(url.searchParams.get('limit')) || 100) });

@@ -219,7 +219,7 @@
     for (const id of ['login', 'lobby', 'room', 'game']) $(id).classList.toggle('hidden', id !== name);
     $('lobbyNav').classList.toggle('hidden', name !== 'lobby');
     if (name !== 'lobby') closeCreate();
-    if (name === 'lobby') loadLobbySide();
+    if (name === 'lobby') { loadLobbySide(); loadEventBar(); }
     if (name === 'login') loadAuthStats();
     renderAccount();
     document.body.classList.toggle('in-game', name === 'game');
@@ -227,6 +227,33 @@
     updateTopButtons(name);
     $('sideToggle').classList.toggle('hidden', name !== 'game');
     if (name === 'game') requestAnimationFrame(layoutSeats);
+  }
+
+  // ---------- Thanh sự kiện ở sảnh ----------
+  let evBarTimer = 0;
+  async function loadEventBar() {
+    const bar = $('eventBar');
+    if (!bar) return;
+    try {
+      const data = await (await fetch('/api/events', { headers: authToken ? { 'x-account-token': authToken } : {} })).json();
+      const skew = Date.parse(data.now) - Date.now();
+      const live = data.events.filter((e) => e.status !== 'ended');
+      if (!live.length) { bar.classList.add('hidden'); return; }
+      const left = (ms) => { const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60, x = Math.floor(ms / 1e3) % 60; return `${d ? `${d} ngày ` : ''}${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}`; };
+      bar.innerHTML = live.map((e) => {
+        const mine = e.me?.row ? `Bạn đang <b>#${e.me.row.place}</b>` : e.me ? 'Bạn chưa lên bảng' : 'Đăng nhập để tham gia';
+        const lead = e.standings[0] ? `Dẫn đầu: <b>${esc(e.standings[0].displayName)}</b> (${e.kind === 'elo' ? e.standings[0].value : e.standings[0].value} ${e.kind === 'elo' ? 'Elo' : 'điểm'})` : 'Chưa ai lên bảng';
+        return `<a class="ev-item" href="/ranking.html#su-kien-${esc(e.id)}" target="_blank" rel="noopener">
+          <span class="ev-ic">🏆</span><span class="ev-main"><b>${esc(e.name)}</b><small>${lead} · ${mine}</small></span>
+          <span class="ev-cd"><small>${e.status === 'live' ? 'Còn' : 'Bắt đầu sau'}</small><b data-t="${esc(e.status === 'live' ? e.end : e.start)}">${left(Date.parse(e.status === 'live' ? e.end : e.start) - Date.now() - skew)}</b></span></a>`;
+      }).join('');
+      bar.classList.remove('hidden');
+      clearInterval(evBarTimer);
+      evBarTimer = setInterval(() => {
+        if ($('lobby').classList.contains('hidden')) { clearInterval(evBarTimer); return; }
+        bar.querySelectorAll('[data-t]').forEach((b) => { b.textContent = left(Math.max(0, Date.parse(b.dataset.t) - Date.now() - skew)); });
+      }, 1000);
+    } catch { bar.classList.add('hidden'); }
   }
 
   let lastRooms = [];

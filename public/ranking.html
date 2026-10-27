@@ -106,6 +106,49 @@
     .hero-card .portrait { --pw: 76px; } .hero-card h1 { font-size: 36px; }
     .mrow { grid-template-columns: 50px minmax(0, 1fr) auto auto; gap: 8px; padding: 8px; } .mrow .gens { display: none; } .mrow b { font-size: 13.5px; } .rk-head h1 { font-size: 34px; }
   }
+
+  /* ---------- Sự kiện ---------- */
+  .ev-tab { border-color: var(--gold-2) !important; }
+  .ev { margin-bottom: 26px; }
+  .ev-banner { position: relative; overflow: hidden; border-radius: 16px; border: 1px solid rgba(214,170,90,.55); min-height: 200px; display: flex; align-items: flex-end;
+    background: radial-gradient(120% 120% at 85% 0%, rgba(255,170,80,.25), transparent 60%), linear-gradient(110deg, #0e121b 35%, #2a1d14); box-shadow: 0 18px 50px rgba(0,0,0,.5); }
+  .ev-banner img { position: absolute; right: 0; top: -10%; height: 140%; opacity: .75; -webkit-mask-image: linear-gradient(90deg, transparent, #000 45%); mask-image: linear-gradient(90deg, transparent, #000 45%); }
+  .ev-txt { position: relative; padding: 22px 26px; max-width: 640px; }
+  .ev-txt h2 { margin: 6px 0 4px; font-family: var(--font-script); font-weight: 700; font-size: 40px; line-height: 1.1; background: var(--gold); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 2px 0 #3a2208); }
+  .ev-txt p { margin: 0 0 10px; color: var(--bone); text-shadow: 0 1px 6px #000; }
+  .ev-st { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .ev-st.live { background: #1f9b55; color: #fff; box-shadow: 0 0 12px rgba(80,220,120,.5); } .ev-st.soon { background: #3f6fd6; color: #fff; } .ev-st.end { background: #555; color: #ddd; }
+  .ev-time { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; }
+  .ev-time b { font-size: 22px; color: var(--gold-1); font-variant-numeric: tabular-nums; }
+  .ev-time small { color: var(--bone-2); }
+  .ev-win { margin: 10px 0 0; padding: 10px 14px; border-radius: 10px; background: rgba(224,180,90,.12); border: 1px solid var(--gold-2); }
+  .ev-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 16px; margin-top: 14px; }
+  .ev-info, .ev-board { background: var(--panel); border: 1px solid rgba(214,170,90,.28); border-radius: 14px; padding: 16px 18px; }
+  .ev-info p { margin: 0 0 10px; line-height: 1.6; }
+  .ev-info h3, .ev-board h3 { margin: 14px 0 8px; font-size: 16px; color: var(--gold-1); display: flex; justify-content: space-between; align-items: baseline; }
+  .ev-board h3 { margin-top: 0; }
+  .ev-info ol { margin: 0; padding-left: 20px; line-height: 1.6; }
+  .ev-rw { display: grid; gap: 8px; margin-bottom: 10px; }
+  .ev-rw .rw { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid rgba(214,170,90,.18); }
+  .ev-rw .rw b { display: block; color: var(--gold-1); } .ev-rw .rw small { color: var(--bone-2); }
+  .medal { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #2a1a05; }
+  .p1 > .medal, .rw.p1 .medal { background: linear-gradient(180deg, #fff1b8, #e0b45a 55%, #9c6a22); }
+  .p2 > .medal, .rw.p2 .medal { background: linear-gradient(180deg, #ffffff, #c9ced6 55%, #7d838d); }
+  .p3 > .medal, .rw.p3 .medal { background: linear-gradient(180deg, #ffd9b3, #c98a52 55%, #7d4f25); }
+  .evpod { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 8px; align-items: end; margin: 18px 0 12px; }
+  .evp { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 20px 6px 10px; border-radius: 12px; background: rgba(255,255,255,.04);
+    border: 1px solid rgba(214,170,90,.3); cursor: pointer; text-align: center; min-width: 0; }
+  .evp b { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .evp.p1 { padding-top: 26px; border-color: var(--gold-1); box-shadow: 0 0 22px rgba(224,180,90,.3); }
+  .evp .medal { position: absolute; top: -15px; }
+  .evp .av { width: 42px; height: 42px; font-size: 17px; } .evp.p1 .av { width: 52px; height: 52px; font-size: 21px; }
+  .evp .v { font-family: var(--font-script); font-weight: 700; font-size: 28px; line-height: 1.1; background: var(--gold); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .evp small { color: var(--bone-2); font-size: 11.5px; }
+  .evp.empty { opacity: .5; cursor: default; }
+  .ev-me { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 10px 12px; border-radius: 10px; background: rgba(224,180,90,.1); border: 1px dashed var(--gold-2); margin-bottom: 10px; font-size: 13.5px; }
+  .ev-me > b { font-size: 22px; color: var(--gold-1); } .ev-me .gold { color: var(--gold-1); }
+  @media (max-width: 760px) { .ev-grid { grid-template-columns: 1fr; } .ev-board { order: -1; } .ev-txt h2 { font-size: 30px; } .ev-txt { padding: 16px; } .ev-banner img { opacity: .4; } }
 </style>
 </head>
 <body>
@@ -128,7 +171,7 @@
     ['jail', 'Tù'], ['control', 'Khống chế'], ['support', 'Hỗ trợ'], ['end', 'Kết thúc ván']];
   const FACTION = (f) => (f === 'careerist' ? 'Dã tâm gia' : f === 'lienquan' ? 'Liên quân' : f === 'boss' ? 'Boss' : C.KINGDOM[f]?.label ?? f);
   /** Thanh chuyển giữa 2 bảng: Quốc Chiến (Elo) và Thảo Phạt (đánh boss). */
-  const modeTabs = (on) => `<div class="rk-tabs" style="margin-bottom:12px"><a class="btn small ${on === 'qc' ? 'primary' : 'ghost'}" href="#">Quốc Chiến (Elo)</a><a class="btn small ${on === 'boss' ? 'primary' : 'ghost'}" href="#thao-phat">Thảo Phạt (đánh boss)</a></div>`;
+  const modeTabs = (on) => `<div class="rk-tabs" style="margin-bottom:12px"><a class="btn small ${on === 'qc' ? 'primary' : 'ghost'}" href="#">Quốc Chiến (Elo)</a><a class="btn small ${on === 'boss' ? 'primary' : 'ghost'}" href="#thao-phat">Thảo Phạt (đánh boss)</a><a class="btn small ${on === 'ev' ? 'primary' : 'ghost'} ev-tab" href="#su-kien">🏆 Sự kiện</a></div>`;
   let bossSel = { boss: '', diff: 'all' };
 
   async function showBoss() {
@@ -278,12 +321,78 @@
       <div class="panel"><table class="score-table"><thead><tr><th></th><th>Người chơi</th><th class="num">Điểm</th><th class="num">Elo</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
 
+
+  // ---------------- Sự kiện ----------------
+  const authHdr = () => { let t = ''; try { t = sessionStorage.getItem('tqs_auth') || localStorage.getItem('tqs_login') || ''; } catch { /* chặn */ } return t ? { 'x-account-token': t } : {}; };
+  let evTimer = 0;
+  const dmy = (iso) => new Date(iso).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  function left(ms) {
+    if (ms <= 0) return 'Đã kết thúc';
+    const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60, sec = Math.floor(ms / 1e3) % 60;
+    return `${d ? `${d} ngày ` : ''}${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  }
+  async function showEvents(focus) {
+    const r = await fetch('/api/events', { headers: authHdr() });
+    const data = await r.json();
+    const skew = Date.parse(data.now) - Date.now();
+    const av = (n) => `<span class="av">${esc([...(n || '?')][0].toUpperCase())}</span>`;
+    const val = (ev, v) => (ev.kind === 'elo' ? `${v}` : fmt(v));
+    const unit = (ev) => (ev.kind === 'elo' ? 'Elo' : 'điểm');
+    const card = (ev) => {
+      const st = { live: ['Đang diễn ra', 'live'], upcoming: ['Sắp diễn ra', 'soon'], ended: ['Đã kết thúc', 'end'] }[ev.status];
+      const top = ev.standings.slice(0, 3);
+      const pod = (p, i) => (p ? `<div class="evp p${p.place}" data-u="${esc(p.username)}"><span class="medal">${p.place}</span>${av(p.displayName)}<b>${esc(p.displayName)}</b><span class="v">${val(ev, p.value)}</span><small>${unit(ev)}</small></div>`
+        : `<div class="evp p${i + 1} empty"><span class="medal">${i + 1}</span><span class="av">?</span><b>Còn trống</b><small>chờ người tranh</small></div>`);
+      const rows = ev.standings.slice(3).map((p) => `<tr class="click ${ev.me?.username === p.username ? 'me' : ''}" data-u="${esc(p.username)}"${ev.kind === 'bestScore' && p.matchId ? ` data-m="${esc(p.matchId)}"` : ''}>
+        <td class="place">${p.place}</td><td><div class="who-cell">${av(p.displayName)}<div><b>${esc(p.displayName)}</b> <small class="muted">@${esc(p.username)}</small></div></div></td>
+        <td class="num"><b>${val(ev, p.value)}</b></td><td class="num hide-sm">${ev.kind === 'elo' ? `${p.games} ván · ${p.wins} thắng` : esc((p.generals || []).map(gname).join(' + '))}</td></tr>`).join('');
+      const me = ev.me;
+      const myBox = !me ? `<div class="ev-me muted">Đăng nhập tài khoản ở màn hình vào game để tham gia và xem vị trí của bạn.</div>`
+        : me.row ? `<div class="ev-me"><span>Vị trí của bạn</span><b>#${me.row.place}</b><span>${val(ev, me.row.value)} ${unit(ev)}${me.row.place <= 3 ? ' · <b class="gold">đang trong top nhận thưởng!</b>' : top[2] ? ` · cần vượt ${val(ev, top[2].value)} để vào top 3` : ''}</span></div>`
+        : `<div class="ev-me"><span>Vị trí của bạn</span><b>—</b><span>${ev.kind === 'elo' ? `Đã chơi ${me.games}/${ev.minGames} ván có tính Elo — chơi thêm ${Math.max(0, ev.minGames - me.games)} ván để lên bảng.` : 'Chưa có ván đủ điều kiện. Chơi một ván Quốc Chiến từ 5 người trở lên để ghi điểm.'}</span></div>`;
+      const winners = ev.winners ? `<div class="ev-win">🏆 Đã trao thưởng: ${ev.winners.map((w) => `#${w.place} <b>@${esc(w.username)}</b> — ${esc(w.title)}`).join(' · ')}</div>` : '';
+      return `<section class="ev" id="ev-${esc(ev.id)}">
+        <div class="ev-banner">${ev.art ? `<img src="${esc(ev.art)}" alt="" onerror="this.remove()">` : ''}
+          <div class="ev-txt"><span class="ev-st ${st[1]}">${st[0]}</span><h2>${esc(ev.name)}</h2><p>${esc(ev.tagline)}</p>
+            <div class="ev-time"><span>⏳ <b class="cd" data-end="${esc(ev.end)}" data-start="${esc(ev.start)}">${ev.status === 'upcoming' ? `Bắt đầu sau ${left(Date.parse(ev.start) - Date.now() - skew)}` : left(Date.parse(ev.end) - Date.now() - skew)}</b></span>
+              <small>${dmy(ev.start)} → ${dmy(ev.end)}</small></div></div></div>
+        ${winners}
+        <div class="ev-grid">
+          <div class="ev-info">
+            ${ev.intro.map((t) => `<p>${esc(t)}</p>`).join('')}
+            <h3>Thể lệ</h3><ol>${ev.rules.map((t) => `<li>${esc(t)}</li>`).join('')}</ol>
+            <h3>Phần thưởng</h3><div class="ev-rw">${ev.rewards.map((w) => `<div class="rw p${w.place}"><span class="medal">${w.place}</span><div><b>${esc(w.title)}</b><small>${esc(w.text)}</small></div></div>`).join('')}</div>
+            <p class="muted" style="font-size:12.5px">Danh hiệu được trao tự động ngay khi sự kiện kết thúc và hiện trên trang cá nhân, bảng xếp hạng.</p>
+          </div>
+          <div class="ev-board">
+            <h3>Bảng xếp hạng sự kiện <small class="muted">${ev.total} người</small></h3>
+            <div class="evpod">${pod(top[1], 1)}${pod(top[0], 0)}${pod(top[2], 2)}</div>
+            ${myBox}
+            ${rows ? `<table class="rk"><tbody>${rows}</tbody></table>` : ''}
+          </div>
+        </div>
+      </section>`;
+    };
+    $('view').innerHTML = `${modeTabs('ev')}<div class="rk-head"><h1>Sự kiện</h1></div>${data.events.map(card).join('')}`;
+    document.querySelectorAll('[data-u]').forEach((el) => { el.onclick = (e) => { if (el.dataset.m && !e.target.closest('.who-cell')) location.hash = `van-${el.dataset.m}`; else location.hash = `nguoi-${encodeURIComponent(el.dataset.u)}`; }; });
+    clearInterval(evTimer);
+    evTimer = setInterval(() => {
+      if (!document.querySelector('.cd')) { clearInterval(evTimer); return; }
+      document.querySelectorAll('.cd').forEach((el) => {
+        const now = Date.now() + skew;
+        el.textContent = now < Date.parse(el.dataset.start) ? `Bắt đầu sau ${left(Date.parse(el.dataset.start) - now)}` : left(Date.parse(el.dataset.end) - now);
+      });
+    }, 1000);
+    if (focus) document.getElementById(`ev-${focus}`)?.scrollIntoView();
+  }
+
   async function route() {
     const h = decodeURIComponent(location.hash.slice(1));
     try {
       if (h.startsWith('nguoi-')) await showProfile(h.slice(6));
       else if (h.startsWith('van-')) await showMatch(h.slice(4));
       else if (h.startsWith('thao-phat')) await showBoss();
+      else if (h.startsWith('su-kien')) await showEvents(h.slice(8));
       else await showBoard();
     } catch (e) {
       $('view').innerHTML = `<div class="back"><a class="btn small ghost" href="#">← Bảng xếp hạng</a></div><div class="panel"><div class="empty">${esc(e.message)}</div></div>`;
