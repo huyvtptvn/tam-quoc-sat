@@ -91,6 +91,24 @@ export class BotBrain {
     return prior;
   }
 
+  /**
+   * Số người còn sống của từng phe (đã lộ). Phe của mình tính cả mình dù mình chưa lật.
+   * Trả kèm: mình có phải phe đông nhất không (không ít hơn phe nào khác, và ít nhất 2 người).
+   */
+  factionSizes(v: PlayerView, myKey: FactionKey | null): { sizes: Map<FactionKey, number>; mine: number; maxOther: number; biggest: boolean } {
+    const sizes = new Map<FactionKey, number>();
+    for (const p of v.players) {
+      if (!p.alive) continue;
+      const k = p.seat === v.me ? myKey : keyOf(p);
+      if (k === null) continue;
+      sizes.set(k, (sizes.get(k) ?? 0) + 1);
+    }
+    const mine = myKey ? sizes.get(myKey) ?? 1 : 1;
+    let maxOther = 0;
+    for (const [k, n] of sizes) if (k !== myKey) maxOther = Math.max(maxOther, n);
+    return { sizes, mine, maxOther, biggest: !!myKey && !myKey.startsWith('c') && mine >= 2 && mine >= maxOther };
+  }
+
   /** Các phe đã lộ và điểm sức mạnh (Điều 4–6). */
   factions(v: PlayerView): FactionInfo[] {
     const alive = v.players.filter((p) => p.alive);
@@ -177,6 +195,17 @@ export class BotBrain {
     }
     // Cuối ván (Điều 27): tăng trọng số kết liễu
     if (alive.length <= 4 && ctx.dmg && t.hp <= 1) score += 15;
+
+    // ---- Theo số người (quy tắc bổ sung) ----
+    const fs = this.factionSizes(v, ctx.myKey);
+    if (fs.biggest) {
+      // Mình là phe đông nhất: dọn người yếu nhất bàn trước (ít máu, ít bài, không giáp)
+      score += Math.max(0, 60 - 12 * t.hp - 4 * t.handCount - (armor ? 6 : 0));
+    } else if (tk && tk !== ctx.myKey) {
+      // Ưu tiên đánh phe đông người nhất
+      const n = fs.sizes.get(tk) ?? 1;
+      score += 15 * n + (n >= 2 && n === fs.maxOther ? 25 : 0);
+    }
 
     // ---- Phạt ----
     // Điều 32: có thể là đồng đội chưa lộ

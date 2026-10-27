@@ -32,7 +32,7 @@ async function pick(v: PlayerView, candidates: number[]): Promise<number> {
   return (r as { targets: number[] }).targets[0];
 }
 
-test('Tình huống A: không tự động đánh phe đông (Ngụy yếu) mà ưu tiên phe mạnh (Thục)', async () => {
+test('Tình huống A (luật mới): ưu tiên đánh phe đông người nhất (Ngụy 3 người) dù Thục mạnh hơn', async () => {
   const v = view(0, [
     P(0, { kingdom: 'wu', gens: ['sunquan', 'zhoutai'], hp: 3, handCount: 3 }),
     P(1, { kingdom: 'wei', gens: ['yuejin', 'lidian'], hp: 2, maxHp: 3, handCount: 1 }),
@@ -43,7 +43,7 @@ test('Tình huống A: không tự động đánh phe đông (Ngụy yếu) mà 
     P(6, { kingdom: 'shu', gens: ['zhugeliang', 'huangyueying'], hp: 3, handCount: 5, equips: { weapon: card('zhuge'), offHorse: card('chitu') } as never }),
   ]);
   const t = await pick(v, [1, 3, 4, 6]);
-  assert.ok(t === 4 || t === 6, `chọn người Thục, không phải Ngụy (chọn P${t})`);
+  assert.ok(t === 1 || t === 3, `chọn người Ngụy (phe đông nhất) (chọn P${t})`);
 });
 
 test('Tình huống C: cuối ván ưu tiên chặn Dã tâm gia có khả năng thắng hơn người Ngô dễ đánh', async () => {
@@ -108,4 +108,55 @@ test('Cẩm nang cả bàn: không dùng khi phần lớn người còn lại c�
   ];
   const v = view(0, players);
   assert.equal((bot as unknown as { aoeWorth: (v: PlayerView) => boolean }).aoeWorth(v), false);
+});
+
+test('Luật mới: là phe đông nhất thì đánh người yếu nhất bàn', async () => {
+  const v = view(0, [
+    P(0, { kingdom: 'wei', gens: ['caocao', 'xuchu'], hp: 4, handCount: 4 }),
+    P(1, { kingdom: 'wei', gens: ['zangba', 'yujin'], hp: 3 }),
+    P(2, { kingdom: 'wei', gens: ['yuejin', 'lidian'], hp: 3 }),
+    P(3, { kingdom: 'shu', gens: ['liubei', 'guanyu'], hp: 4, handCount: 5 }),
+    P(4, { kingdom: 'wu', gens: ['lvmeng', 'ganning'], hp: 1, handCount: 0 }),
+    P(5, { kingdom: 'shu', gens: ['zhugeliang', 'huangyueying'], hp: 3, handCount: 4 }),
+  ]);
+  assert.equal(await pick(v, [3, 4, 5]), 4);
+});
+
+test('Luật mới: không tự đánh đồng đội dù đồng đội máu thấp', async () => {
+  const v = view(0, [
+    P(0, { kingdom: 'wei', gens: ['caocao', 'xuchu'] }),
+    P(1, { kingdom: 'wei', gens: ['zangba', 'yujin'], hp: 1, handCount: 0 }),
+    P(2, { kingdom: 'shu', gens: ['liubei', 'guanyu'], hp: 4, handCount: 5 }),
+  ]);
+  assert.equal(await pick(v, [1, 2]), 2);
+});
+
+async function hezong(players: PublicPlayer[]): Promise<{ skill?: string; targets?: number[] }> {
+  const v = view(0, players);
+  const hand = [card('shan'), card('jiu')];
+  v.myHand = hand;
+  v.skillHints = [{ skill: 'transfer', targets: players.filter((p) => p.seat !== 0).map((p) => p.seat), validCards: hand.map((c) => c.id), maxCards: 3, needsTarget: true }] as never;
+  const r = await new HegemonyBot().decide({ type: 'play', seat: 0, prompt: '' } as never, v);
+  return r as never;
+}
+
+test('Luật mới: phe đông nhất không dùng Hợp Tung', async () => {
+  const r = await hezong([
+    P(0, { kingdom: 'wei', gens: ['caocao', 'xuchu'] }),
+    P(1, { kingdom: 'wei', gens: ['zangba', 'yujin'] }),
+    P(2, { kingdom: 'shu', gens: ['liubei', 'guanyu'] }),
+    P(3, { kingdom: 'wu', gens: ['lvmeng', 'ganning'] }),
+  ]);
+  assert.notEqual(r.skill, 'transfer');
+});
+
+test('Luật mới: phe nhỏ Hợp Tung cho phe yếu, không giao phe đông nhất', async () => {
+  const r = await hezong([
+    P(0, { kingdom: 'wu', gens: ['sunquan', 'zhoutai'] }),
+    P(1, { kingdom: 'wei', gens: ['zangba', 'yujin'], hp: 1 }),
+    P(2, { kingdom: 'wei', gens: ['caocao', 'xuchu'] }),
+    P(3, { kingdom: 'shu', gens: ['liubei', 'guanyu'], hp: 4 }),
+  ]);
+  assert.equal(r.skill, 'transfer');
+  assert.deepEqual(r.targets, [3]);
 });

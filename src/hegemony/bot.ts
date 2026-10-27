@@ -195,6 +195,8 @@ export class HegemonyBot extends SimpleBot {
   /** Cẩm nang cả bàn: tổng thiệt hại kỳ vọng lên kẻ địch phải lớn hơn lên đồng minh (tính cả xác suất người chưa lộ). */
   protected override aoeWorth(v: PlayerView): boolean {
     if (v.boss) return super.aoeWorth(v);
+    // Không tự đánh đồng đội: còn đồng minh đã lộ nào trúng đòn thì không dùng bài đánh cả bàn
+    if (v.players.some((p) => p.alive && p.seat !== v.me && !p.lured && this.isAlly(v, p))) return false;
     let enemy = 0, ally = 0;
     for (const p of v.players) {
       if (!p.alive || p.seat === v.me || p.lured) continue;
@@ -296,11 +298,13 @@ export class HegemonyBot extends SimpleBot {
     // Hợp Tung: giao tối đa 3 lá có dấu Hợp (lá ít giá trị nhất) cho người đã xác định thế lực — để được rút lại bằng số lá.
     // Ưu tiên người ít máu nhất, rồi thế lực có ít người đã lật tướng nhất (giúp thế lực yếu, kìm đại thế lực).
     const ht = usable.find((s) => s.skill === 'transfer');
-    if (ht) {
-      const alive = v.players.filter((p) => p.alive);
-      const factionSize = (p: PublicPlayer) => (p.kingdom === 'careerist' ? 1 : alive.filter((q) => q.kingdom != null && q.kingdom === p.kingdom).length);
-      const target = ht.targets.map((t) => v.players[t]).filter((p) => p.kingdom != null)
-        .sort((a, b) => a.hp - b.hp || factionSize(a) - factionSize(b) || a.handCount - b.handCount)[0];
+    const sizes = this.brain.factionSizes(v, this.myKey(v));
+    // Đang là phe đông nhất thì không Hợp Tung (không tiếp sức cho phe khác)
+    if (ht && !sizes.biggest) {
+      const fsize = (p: PublicPlayer) => sizes.sizes.get(keyOf(p) ?? '') ?? 1;
+      // Chỉ giao cho thế lực yếu: ít người nhất, rồi ít máu nhất; không giao cho phe đông nhất
+      const target = ht.targets.map((t) => v.players[t]).filter((p) => p.kingdom != null && !(fsize(p) >= 2 && fsize(p) === sizes.maxOther))
+        .sort((a, b) => fsize(a) - fsize(b) || a.hp - b.hp || a.handCount - b.handCount)[0];
       const give = (ht.validCards ?? []).map((id) => v.myHand.find((c) => c.id === id)!).filter(Boolean)
         .sort((a, b) => cardValue(a) - cardValue(b)).slice(0, Math.min(3, ht.maxCards ?? 3)).map((c) => c.id);
       if (target && give.length) return { kind: 'useSkill', skill: 'transfer', cardIds: give, targets: [target.seat] };
