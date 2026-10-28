@@ -94,9 +94,13 @@ export default {
       id: 'xiaoji', name: 'Kiêu Cơ',
       desc: 'Sau khi bạn mất bài trong vùng trang bị, bạn có thể: nếu đang là lượt của bạn, bạn rút 1 lá; nếu không phải lượt của bạn, bạn rút 3 lá.',
       triggers: [
+        // Mất nhiều trang bị trong cùng một lần (bỏ 2 trang bị cùng lúc...) chỉ kích 1 lần
         on('cardsMoved', (g, ctx, o) => ctx.from.kind === 'equip' && ctx.from.seat === o && g.player(o).alive
-          && !(ctx.to.kind === 'equip' && ctx.to.seat === o),
-          async (g, _ctx, o) => { await g.draw(o, g.state.currentSeat === o ? 1 : 3); }),
+          && !(ctx.to.kind === 'equip' && ctx.to.seat === o) && !(ctx.batch && store(g)[`xiaoji:${o}`] === ctx.batch),
+          async (g, ctx, o) => {
+            if (ctx.batch) store(g)[`xiaoji:${o}`] = ctx.batch;
+            await g.draw(o, g.state.currentSeat === o ? 1 : 3);
+          }),
       ],
     },
 

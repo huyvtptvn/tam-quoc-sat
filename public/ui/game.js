@@ -443,7 +443,9 @@
       const c = p.equips?.[k];
       const sl = `<span class="sl">${short ? SHORT[k] : label}</span>`;
       if (!c) return `<div class="eq empty" title="${label}: trống">${sl}<span class="cn">—</span></div>`;
-      return `<div class="eq" data-eqcard="${c.id}" title="${esc(label + ': ' + C.cardLabel(c) + ' ' + C.SUIT[c.suit] + C.RANK[c.rank] + '\n' + C.cardDesc(c.name))}">${sl}<span class="cn">${esc(C.cardLabel(c))}</span><span class="sr ${C.isRed(c) ? 'red' : ''}">${C.SUIT[c.suit]}${C.RANK[c.rank]}</span></div>`;
+      // Mộc Ngưu Lưu Mã: kèm số lá bên dưới (công khai số lượng)
+      const ox = c.name === 'muniu' ? ` (${p.muniuCount ?? 0})` : '';
+      return `<div class="eq" data-eqcard="${c.id}" title="${esc(label + ': ' + C.cardLabel(c) + ox + ' ' + C.SUIT[c.suit] + C.RANK[c.rank] + '\n' + C.cardDesc(c.name))}">${sl}<span class="cn">${esc(C.cardLabel(c) + ox)}</span><span class="sr ${C.isRed(c) ? 'red' : ''}">${C.SUIT[c.suit]}${C.RANK[c.rank]}</span></div>`;
     }).join('')}</div>`;
   }
 
@@ -772,13 +774,19 @@
     if (!r) return new Set();
     switch (r.type) {
       case 'play':
-        if (sel.skill) return new Set(sel.skill.cards === 'none' ? [] : (sel.skill.validCards ?? v.myHand.map((c) => c.id)));
+        if (sel.skill) return new Set(sel.skill.cards === 'none' ? [] : (sel.skill.validCards ?? realHand().map((c) => c.id)));
         return new Set(v.hints.map((h) => h.cardId));
       case 'respond': case 'save': return new Set(v.responseOptions.map((o) => o.cardId));
-      case 'discard': return new Set(r.cardIds ?? v.myHand.map((c) => c.id));
+      case 'discard': return new Set(r.cardIds ?? realHand().map((c) => c.id));
       case 'chooseCards': return new Set(r.cardIds);
       default: return new Set();
     }
+  }
+
+  /** Bài thật trên tay (không tính lá dưới Mộc Ngưu hiện kèm trong myHand). */
+  function realHand() {
+    const mn = new Set(view.muniuIds || []);
+    return view.myHand.filter((c) => !mn.has(c.id));
   }
 
   function selectedCards() {
@@ -794,14 +802,19 @@
     const can = selectableCards();
     const chosen = new Set(selectedCards());
     const asking = !!req();
+    const mnIds = new Set(view.muniuIds || []);
     const asOf = (id) => (sel.hint && sel.hint.cardId === id ? sel.hint.as : (req()?.type === 'respond' || req()?.type === 'save') ? view.responseOptions.find((o) => o.cardId === id)?.as : undefined);
     box.innerHTML = hand.map((c) => {
       const cls = [
         chosen.has(c.id) ? 'selected' : can.has(c.id) ? 'playable' : asking && can.size ? 'dim' : '',
         prev.hand.has(c.id) || prev.first ? '' : 'enter',
       ].join(' ');
-      return C.cardHTML(c, { cls, as: asOf(c.id) });
+      return C.cardHTML(c, { cls: cls + (mnIds.has(c.id) ? ' muniu' : ''), as: asOf(c.id) });
     }).join('');
+    // Lá dưới Mộc Ngưu Lưu Mã: biểu tượng ở góc trái dưới, dùng / đánh như bài trên tay
+    box.querySelectorAll('.card.muniu').forEach((el) => {
+      el.insertAdjacentHTML('beforeend', '<span class="mn-badge" title="Lá trong Mộc Ngưu Lưu Mã — dùng / đánh như bài trên tay">牛</span>');
+    });
     prev.hand = new Set(hand.map((c) => c.id));
     decorateMyEquips(can, chosen);
     box.querySelectorAll('.card').forEach((el) => {
@@ -1090,9 +1103,9 @@
         }
         case 'discard':
           prompt = r.reason === 'discardPhase' || !r.reason
-            ? `Giai đoạn bỏ bài: bạn có ${view.myHand.length} lá${r.limit !== undefined ? `, giới hạn trữ bài ${r.limit}` : ''} — bấm chọn <b>${r.count}</b> lá muốn bỏ (đã chọn ${sel.cards.length}).`
+            ? `Giai đoạn bỏ bài: bạn có ${realHand().length} lá${r.limit !== undefined ? `, giới hạn trữ bài ${r.limit}` : ''} — bấm chọn <b>${r.count}</b> lá muốn bỏ (đã chọn ${sel.cards.length}).`
             : `Phải bỏ <b>${r.count}</b> lá trên tay — bấm chọn lá muốn bỏ (đã chọn ${sel.cards.length}).`;
-          if (r.cardIds && r.cardIds.filter((id) => view.myHand.some((c) => c.id === id)).length < view.myHand.length) prompt += ' <span class="muted">Lá mờ không được phép bỏ.</span>';
+          if (r.cardIds && r.cardIds.filter((id) => view.myHand.some((c) => c.id === id)).length < realHand().length) prompt += ' <span class="muted">Lá mờ không được phép bỏ.</span>';
           buttons.push(btn('Bỏ bài', () => answer({ kind: 'discard', cardIds: sel.cards }), 'primary', sel.cards.length !== r.count));
           // Được bỏ cả trang bị (Anh Hồn...): mở bảng chọn gồm bài trên tay + trang bị
           if (r.cardIds && r.cardIds.some((id) => !view.myHand.some((c) => c.id === id))) {

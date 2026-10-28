@@ -120,6 +120,12 @@ export const PAIRS: [string, string][] = [
   ['new_zuoci', 'yuji'],
   // Cặp riêng của game (không có trong bản gốc)
   ['liubei', 'zhugeliang'],
+  // Bổ sung theo danh sách bug (BUG-014 → BUG-031)
+  ['simayi', 'zhangchunhua'], ['simayi', 'simazhao'], ['jiangwei', 'zhonghui'], ['jiangwei', 'xiahouba'], ['zhanghe', 'guohuai'],
+  ['dianwei', 'caoang'], ['caopi', 'xiahoushang'], ['caopi', 'chengyu'], ['caopi', 'caozhen'], ['guanyu', 'zhangfei'],
+  ['guanyu', 'liaohua'], ['zhugeliang', 'maliang'], ['zhaoyun', 'xushu'], ['zhaoyun', 'chendao'], ['machao', 'yangwan'],
+  ['wolong', 'xushu'], ['sunquan', 'zhugejin'], ['ganning', 'sufei'], ['zhouyu', 'chengpu'], ['sunjian', 'zumao'],
+  ['dingfeng', 'zhugejin'], ['yuanshao', 'liufuren'], ['liaohua', 'zhangyi'], ['liyan', 'chendao'],
 ];
 
 export function isPair(a: string, b: string): boolean {

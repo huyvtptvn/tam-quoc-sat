@@ -515,6 +515,15 @@ export class Game {
     return red ? !!f.turn_banRed : !!f.turn_banBlack;
   }
 
+  /**
+   * Dùng/đánh lá như loại `as` có bị cấm không (Ty Địch, Kê Lặc cấm một loại bài): xét theo loại bài được dùng,
+   * nên lá chuyển hóa thành cẩm nang trì hoãn (Quốc Sắc, Đoạn Lương...) cũng bị cấm khi cấm Công cụ.
+   */
+  asBlocked(seat: number, as: CardName): boolean {
+    const t = CARD_INFO[as]?.type;
+    return !!t && !!this.player(seat).flags[`turn_banType_${t}`];
+  }
+
   /** Lá này được tính là những loại bài nào. Giai đoạn 2: Long Đảm cho Sát <-> Thiểm. */
   cardCountsAs(_seat: number, card: Card): CardName[] {
     // Vô Giải Khả Kích·Quốc cũng là một lá Vô Giải Khả Kích
@@ -636,7 +645,7 @@ export class Game {
 
     const card = this.card(cardId);
     const name = as ?? card.name;
-    if (this.cardBlocked(seat, card)) return 'Lá này đang bị cấm dùng trong lượt này';
+    if (this.cardBlocked(seat, card) || this.asBlocked(seat, name)) return 'Lá này đang bị cấm dùng trong lượt này';
     if (!this.cardCountsAs(seat, card).includes(name)) return `Không thể dùng lá này như ${CARD_INFO[name].label}`;
     const info = CARD_INFO[name];
 
@@ -718,6 +727,17 @@ export class Game {
   }
 
   /** Cách DUY NHẤT để chuyển bài giữa các vùng -> đảm bảo không mất/nhân bản lá nào. */
+  /** Mã của "một lần mất bài" đang diễn ra (xem batchMoves). */
+  moveBatch: number | null = null;
+  private batchSeq = 0;
+
+  /** Gộp nhiều lần di chuyển bài (vd. bỏ lá trên tay + nhiều trang bị) thành một lần mất bài. */
+  async batchMoves<T>(fn: () => Promise<T>): Promise<T> {
+    if (this.moveBatch !== null) return fn();
+    this.moveBatch = ++this.batchSeq;
+    try { return await fn(); } finally { this.moveBatch = null; }
+  }
+
   async moveCards(ids: number[], from: Zone, to: Zone, reason: string): Promise<void> {
     if (ids.length === 0) return;
     const src = this.zone(from);
@@ -739,7 +759,7 @@ export class Game {
     // nên không kích hoạt kỹ năng nào (Đồn Điền của Đặng Ngải, các kỹ năng khi nhận/mất bài...).
     if (reason === 'deal' || reason === 'mulligan') { for (const id of ids) this.pickedBy.delete(id); return; }
     try {
-      await this.bus.emit('cardsMoved', { cardIds: [...ids], from, to, reason });
+      await this.bus.emit('cardsMoved', { cardIds: [...ids], from, to, reason, ...(this.moveBatch !== null ? { batch: this.moveBatch } : {}) });
     } finally {
       for (const id of ids) this.pickedBy.delete(id);
     }
@@ -911,6 +931,12 @@ export class Game {
   /** Đang hỏi đáp lại có kèm nút kỹ năng ảo (Diệt Ngô không làm sáng cả tay bài nữa). */
   respondingWithVirtuals = false;
 
+  /**
+   * Lá `cardId` không nằm trên tay nhưng có thể dùng/đánh như bài trên tay (Mộc Ngưu Lưu Mã): đưa lên tay trước.
+   * `check`: chỉ lấy lên nếu việc dùng hợp lệ (gọi khi lá được xem như đang trên tay). Engine gốc không có.
+   */
+  protected async prepareCard(_seat: number, _cardId: number, _check?: () => boolean): Promise<void> {}
+
   /** Các kỹ năng "xem như dùng" lá cần đáp. Engine gốc không có. */
   respondVirtuals(_seat: number, _accept: CardName[], _context?: RespondContext): VirtualOption[] { return []; }
 
@@ -928,6 +954,7 @@ export class Game {
     const res = await this.ask({ type: 'respond', seat, accept, reason, source, ...(context ? { context } : {}),
       ...(virtuals?.length ? { virtuals } : {}) });
     if (res.kind === 'pass' && res.mute) this.lastPassMuted = true;
+    if (res.kind === 'card' && !p.hand.includes(res.cardId)) await this.prepareCard(seat, res.cardId);
     if (res.kind === 'useSkill' && virtuals?.length) {
       const m = /^virtual:(.+):([^:]+)$/.exec(res.skill);
       const v = m && virtuals.find((o) => o.skill === m[1] && o.as === m[2]);
@@ -937,7 +964,7 @@ export class Game {
     if (res.kind !== 'card' || !p.hand.includes(res.cardId)) return null;
     const card = this.card(res.cardId);
     if (this.cardBlocked(seat, card)) return null;
-    const as = accept.find((a) => this.cardCountsAs(seat, card).includes(a));
+    const as = accept.find((a) => this.cardCountsAs(seat, card).includes(a) && !this.asBlocked(seat, a));
     return as ? { card, as } : null;
   }
 
@@ -1015,11 +1042,13 @@ export class Game {
     // Trả lời sai / hết giờ: tự bỏ các lá ít giá trị nhất, giữ Đào, Vô Giải, Thiểm, Rượu
     if (!valid) ids = pickDiscards(allowed, count, (id) => this.card(id));
     const fromHand = ids.filter((id) => p.hand.includes(id));
-    if (fromHand.length) await this.moveCards(fromHand, { kind: 'hand', seat }, { kind: 'discard' }, reason);
-    for (const id of ids) {
-      const slot = (Object.keys(p.equips) as EquipSlot[]).find((s) => p.equips[s].includes(id));
-      if (slot) await this.moveCards([id], { kind: 'equip', seat, slot }, { kind: 'discard' }, reason);
-    }
+    await this.batchMoves(async () => {
+      if (fromHand.length) await this.moveCards(fromHand, { kind: 'hand', seat }, { kind: 'discard' }, reason);
+      for (const id of ids) {
+        const slot = (Object.keys(p.equips) as EquipSlot[]).find((s) => p.equips[s].includes(id));
+        if (slot) await this.moveCards([id], { kind: 'equip', seat, slot }, { kind: 'discard' }, reason);
+      }
+    });
     this.say(`${p.name} bỏ ${count} lá: ${ids.map((id) => cardLabel(this.card(id))).join(', ')}.`);
     return ids;
   }
@@ -1429,6 +1458,7 @@ export class Game {
           if (await this.specialSave(helperSeat, seat, res)) continue;
           break;
         }
+        if (res.kind === 'card' && !helper.hand.includes(res.cardId)) await this.prepareCard(helperSeat, res.cardId);
         if (res.kind !== 'card' || !helper.hand.includes(res.cardId)) break;
         const card = this.card(res.cardId);
         if (this.cardBlocked(helperSeat, card)) break;
@@ -1588,6 +1618,10 @@ export class Game {
         continue;
       }
       if (res.kind !== 'useCard') return;
+      // Lá không nằm trên tay nhưng được dùng như bài trên tay (Mộc Ngưu Lưu Mã): lấy lên tay nếu dùng hợp lệ
+      if (!p.hand.includes(res.cardId)) {
+        await this.prepareCard(seat, res.cardId, () => this.checkUse(seat, res.cardId, res.targets, res.as) === null);
+      }
       const err = this.checkUse(seat, res.cardId, res.targets, res.as);
       if (err) {
         this.say(`(${p.name}: ${err})`);

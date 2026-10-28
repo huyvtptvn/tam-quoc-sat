@@ -13,7 +13,7 @@ import { FEMALE_GENERALS, GENERALS, getGeneral, isDualGeneral, isLordId, kingdom
 import { EQUIP_SKILLS, GLOBAL_SKILLS, SKILLS, type ActiveSkill, type Skill, type SkillTrigger } from './skills.js';
 import * as mech from './mechanics.js';
 import { BOSS_DIFFICULTY, BOSSES, isBossId, type BossDef, type BossDifficulty, type BossView } from './boss.js';
-import { installTreasures } from './treasures.js';
+import { installTreasures, muniuPile, takeMuniuCard } from './treasures.js';
 import { halberdTargets, installQcCards, peaceSpellBonus, sixSwordsBonus } from './qc-cards.js';
 import { EQUIP_SLOTS } from '../core/types.js';
 
@@ -1445,6 +1445,30 @@ export class HegemonyGame extends Game {
     this.say(`${p.name} dùng ký hiệu Âm Dương Ngư: +2 giới hạn trữ bài lượt này.`);
   }
 
+  /** Người khác còn tướng úp (Tiên Khu xem được). */
+  private pioneerTargets(seat: number): number[] {
+    return this.aliveSeatsFrom(seat).filter((t) => t !== seat && ['main', 'deputy'].some((w) => {
+      const sl = this.heroes[t]?.[w as 'main' | 'deputy'];
+      return !!sl && !sl.revealed && !sl.removed;
+    }));
+  }
+
+  /** Tiên Khu: chọn 1 người còn tướng úp và xem 1 tướng úp của họ. */
+  private async pioneerPeek(seat: number): Promise<void> {
+    const cands = this.pioneerTargets(seat);
+    if (!cands.length) return;
+    const [t] = await this.chooseTargets(seat, 'Tiên Khu: chọn 1 người để xem 1 tướng đang úp', cands, 1, 1, 'enemy');
+    const target = t ?? cands[0];
+    const h = this.heroes[target];
+    const slots = (['main', 'deputy'] as const).filter((w) => !h[w].revealed && !h[w].removed);
+    const which = slots.length > 1
+      ? slots[await this.choose(seat, `Tiên Khu: xem tướng nào của ${this.player(target).name}?`, ['Chủ tướng đang úp', 'Phó tướng đang úp'])] ?? slots[0]
+      : slots[0];
+    this.learnGeneral(seat, h[which].generalId);
+    this.showInfo(seat, { title: `Tiên Khu — ${which === 'main' ? 'chủ tướng' : 'phó tướng'} đang úp của ${this.player(target).name}`, generals: [h[which].generalId] });
+    this.say(`${this.player(seat).name} xem 1 tướng úp của ${this.player(target).name}.`);
+  }
+
   /** Tiêu 1 ký hiệu loại `kind`; hết thì dùng dấu Dã Tâm Gia thay. */
   private useMark(h: HeroState, kind: 'yinyang' | 'pioneer' | 'pair'): boolean {
     if (h.marks[kind] > 0) { h.marks[kind]--; return true; }
@@ -1466,7 +1490,9 @@ export class HegemonyGame extends Game {
     if (res.skill === MARK_SKILL.pioneer) {
       if (!this.useMark(h, 'pioneer')) return 'Không có ký hiệu Tiên Khu';
       this.say(`${p.name} dùng ký hiệu Tiên Khu.`);
+      // Làm cả hai: bốc đến 4 lá VÀ xem 1 tướng úp của người khác (nếu có)
       await this.draw(seat, Math.max(0, 4 - p.hand.length));
+      await this.pioneerPeek(seat);
       return null;
     }
 
@@ -1757,6 +1783,7 @@ export class HegemonyGame extends Game {
   spectatorView(): PlayerView {
     const v = this.makeView(0);
     v.myHand = [];
+    delete v.muniuIds;
     v.hints = [];
     v.responseOptions = [];
     v.notes = [];
@@ -1907,7 +1934,9 @@ export class HegemonyGame extends Game {
     }
     const fallback = names.size ? [...names].join(' / ') : 'Trên tướng';
     const piles = new Map<string, number[]>();
+    const ox = new Set(muniuPile(this, seat)); // Mộc Ngưu hiện ở ô bảo vật (số lá), không thành chồng riêng
     for (const id of this.player(seat).special) {
+      if (ox.has(id)) continue;
       const nm = HegemonyGame.PILE_NAMES[this.specialReason.get(id) ?? ''] ?? fallback;
       if (!piles.has(nm)) piles.set(nm, []);
       piles.get(nm)!.push(id);
@@ -1916,8 +1945,31 @@ export class HegemonyGame extends Game {
     return { ...(tokens.length ? { tokens } : {}), ...(names.size ? { specialName: fallback } : {}), ...(specialPiles.length ? { specialPiles } : {}) };
   }
 
+  /** Chạy `fn` khi các lá dưới Mộc Ngưu của `seat` được tính tạm như bài trên tay (để xét dùng / gợi ý). */
+  private withMuniuInHand<T>(seat: number, fn: () => T): T {
+    const p = this.player(seat);
+    const mn = p?.alive ? muniuPile(this, seat) : [];
+    if (!mn.length) return fn();
+    const real = p.hand;
+    p.hand = [...real, ...mn];
+    try { return fn(); } finally { p.hand = real; }
+  }
+
+  protected override async prepareCard(seat: number, cardId: number, check?: () => boolean): Promise<void> {
+    if (!muniuPile(this, seat).includes(cardId)) return;
+    if (check && !this.withMuniuInHand(seat, check)) return;
+    await takeMuniuCard(this, seat, cardId);
+  }
+
   override makeView(seat: number, req?: Request): PlayerView {
-    const v = viewFor(this, seat, req);
+    // Bài dưới Mộc Ngưu hiện cùng bài trên tay (kèm muniuIds để vẽ biểu tượng) và có gợi ý dùng / đánh như bài trên tay
+    const mn = this.player(seat)?.alive ? muniuPile(this, seat) : [];
+    const v = this.withMuniuInHand(seat, () => viewFor(this, seat, req));
+    if (mn.length) {
+      v.muniuIds = [...mn];
+      const me = v.players.find((x) => x.seat === seat);
+      if (me) me.handCount = this.player(seat).hand.length;
+    }
     v.players = v.players.map((pp) => {
       const h = this.heroes[pp.seat];
       if (!h) return pp;
@@ -1942,6 +1994,7 @@ export class HegemonyGame extends Game {
         } : {}),
         ...(isLordId(h.main.generalId) && (h.main.revealed || visible) ? { lord: true } : {}),
         ...this.tokenView(pp.seat, seat),
+        ...(muniuPile(this, pp.seat).length ? { muniuCount: muniuPile(this, pp.seat).length } : {}),
         // Bài trên tướng của người khác: chỉ cho biết số lượng (specialPiles), không gửi mặt lá
         ...(pp.seat === seat ? {} : { special: [] }),
       };
@@ -1992,8 +2045,8 @@ export class HegemonyGame extends Game {
         out.push({ skill: MARK_SKILL.pairTao, name: `Châu Liên Bích Hợp (như Đào)${h.marks.pair ? '' : amb}`, cards: 'none', targets: [], needsTarget: false, reveals: false });
       }
     }
-    if ((h?.marks.pioneer || h?.marks.ambition) && this.player(seat).hand.length < 4) {
-      out.push({ skill: MARK_SKILL.pioneer, name: `Tiên Khu (bốc đến 4 lá)${h.marks.pioneer ? '' : amb}`, cards: 'none', targets: [], needsTarget: false, reveals: false });
+    if ((h?.marks.pioneer || h?.marks.ambition) && (this.player(seat).hand.length < 4 || this.pioneerTargets(seat).length > 0)) {
+      out.push({ skill: MARK_SKILL.pioneer, name: `Tiên Khu (bốc đến 4 lá + xem 1 tướng úp)${h.marks.pioneer ? '' : amb}`, cards: 'none', targets: [], needsTarget: false, reveals: false });
     }
     // Hợp Tung (合纵): mỗi giai đoạn ra bài một lần, giao tối đa 3 lá có dấu "Hợp Tung" cho người không cùng thế lực / chưa xác định thế lực
     const tCards = this.player(seat).hand.filter((id) => this.isTransferable(seat, id));

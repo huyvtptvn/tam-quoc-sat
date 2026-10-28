@@ -30,7 +30,8 @@ export interface EventMap {
   phaseEnd: { seat: number; phase: Phase };
   /** Sửa count để thay đổi số lá bốc trong giai đoạn bốc bài. */
   drawPhase: { seat: number; count: number };
-  cardsMoved: { cardIds: number[]; from: Zone; to: Zone; reason: string };
+  /** `batch`: các lần di chuyển cùng một hành động (bỏ 2 lá ở 2 ô trang bị...) có cùng mã — kỹ năng "khi mất bài" chỉ kích 1 lần. */
+  cardsMoved: { cardIds: number[]; from: Zone; to: Zone; reason: string; batch?: number };
   /** `rangeBefore`: với lá trang bị, tầm đánh của người dùng ngay TRƯỚC khi lắp (Tật Lê tính X lúc dùng lá). */
   cardUsed: { seat: number; card: Card; as: CardName; targets: number[]; rangeBefore?: number };
   cardResponded: { seat: number; card: Card; as: CardName; reason: string };

@@ -20,5 +20,5 @@
   { "id": "yangwan", "name": "Dương Uyển", "kingdom": "shu", "halfHp": 3, "gender": "female", "skills": ["youyan", "zhuihuan"] },
   { "id": "zongyux", "name": "Tông Dự", "kingdom": "shu", "halfHp": 3, "skills": ["qiao", "chengshang"] },
   { "id": "fengxi", "name": "Phùng Hy", "kingdom": "wu", "halfHp": 3, "skills": ["yusui", "boyan"] },
-  { "id": "yanghu", "name": "Dương Hỗ", "kingdom": "wei", "halfHp": 4, "skills": ["deshao", "mingfa"] }
+  { "id": "yanghu", "name": "Dương Hỗ", "kingdom": "wei", "halfHp": 3, "skills": ["deshao", "mingfa"] }
 ]

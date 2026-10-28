@@ -400,12 +400,15 @@ export default {
       active: {
         cards: 'none', target: 'one',
         available: (g, s) => !g.player(s).flags.lifu,
-        validTarget: (g, _s, t) => g.isAliveSeat(t) && g.cardCount(t) >= 2,
+        // Chọn được cả người có ít hơn 2 lá (kể cả không có lá): họ bỏ hết số lá đang có, vẫn nhận lá trên cùng chồng bài
+        validTarget: (g, _s, t) => g.isAliveSeat(t),
         run: async (g, s, _c, [t]) => {
           g.player(s).flags.lifu = 1;
           const n = Math.min(2, g.cardCount(t));
-          const ids = await chooseOwn(g, t, `Lễ Phụ của ${name(g, s)}: bỏ ${n} lá`, n, n);
-          await discardOwn(g, t, ids ?? []);
+          if (n > 0) {
+            const ids = await chooseOwn(g, t, `Lễ Phụ của ${name(g, s)}: bỏ ${n} lá`, n, n);
+            await discardOwn(g, t, ids ?? []);
+          }
           if (!g.player(t).alive) return;
           const card = await g.takeTop({ kind: 'hand', seat: t }, 'lifu');
           g.tell(s, `Lễ Phụ: lá trên cùng chồng bài là ${label(g, card.id)}, đã giao cho ${name(g, t)}.`);

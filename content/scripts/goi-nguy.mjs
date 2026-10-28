@@ -507,7 +507,7 @@ export default {
         + 'Sau khi bắt đầu lượt của người thế lực khác bạn, bạn có thể đưa tối đa 3 [Ngự] vào chồng bài bỏ, đưa ra số lựa chọn khác nhau tương ứng với mỗi [Ngự]: '
         + '1. Bạn chọn 1 loại bài có cùng loại với 1 trong số [Ngự] vừa bỏ, họ không thể sử dụng loại bài này trong lượt này; '
         + '2. Bạn chọn 1 kỹ năng của tướng đã mở của họ, vô hiệu kỹ năng đó trong lượt này; '
-        + '3. Bạn lệnh họ chọn 1 người khác có cùng thế lực với bạn, người này hồi 1 máu.',
+        + '3. Bạn lệnh họ chọn 1 người khác (không phải bạn) có cùng thế lực với bạn, người này hồi 1 máu.',
       bot: { confirm: (v, h) => v.currentSeat === v.me || !h.isAlly(v.currentSeat) },
       triggers: [
         on('damaged', (g, ctx, o) => g.player(ctx.target).alive && (ctx.target === o || g.isSameFaction(ctx.target, o))
@@ -531,9 +531,9 @@ export default {
             const left = ['ban', 'skill', 'heal'];
             for (let k = 0; k < ids.length && g.player(t).alive; k++) {
               const avail = left.filter((x) => x !== 'skill' || sidiSkills(g, t).length > 0)
-                .filter((x) => x !== 'heal' || g.alivePlayers().some((p) => p.seat !== t && (p.seat === o || g.isSameFaction(p.seat, o)) && p.hp < p.maxHp));
+                .filter((x) => x !== 'heal' || g.alivePlayers().some((p) => p.seat !== t && p.seat !== o && g.isSameFaction(p.seat, o) && p.hp < p.maxHp));
               if (!avail.length) break;
-              const LABEL = { ban: 'Cấm một loại bài trong lượt', skill: 'Vô hiệu 1 kỹ năng trong lượt', heal: 'Họ chọn 1 người cùng thế lực với bạn hồi 1 máu' };
+              const LABEL = { ban: 'Cấm một loại bài trong lượt', skill: 'Vô hiệu 1 kỹ năng trong lượt', heal: 'Họ chọn 1 người khác cùng thế lực với bạn hồi 1 máu' };
               const i = avail.length > 1 ? await g.choose(o, `Ty Địch (${k + 1}/${ids.length}): chọn hiệu quả`, avail.map((x) => LABEL[x])) : 0;
               const pick = avail[i];
               left.splice(left.indexOf(pick), 1);
@@ -551,7 +551,8 @@ export default {
                 g.player(t).flags[`turn_noSkill_${sk[si]}`] = 1;
                 g.say(`Kỹ năng ${g.skillName(sk[si])} của ${name(g, t)} bị vô hiệu trong lượt này.`);
               } else {
-                const cands = g.alivePlayers().map((p) => p.seat).filter((s) => s !== t && (s === o || g.isSameFaction(s, o)) && g.player(s).hp < g.player(s).maxHp);
+                // Chỉ người KHÁC cùng thế lực với Tào Chân (không hồi cho chính Tào Chân)
+                const cands = g.alivePlayers().map((p) => p.seat).filter((s) => s !== t && s !== o && g.isSameFaction(s, o) && g.player(s).hp < g.player(s).maxHp);
                 const [x] = await g.chooseTargets(t, `Ty Địch: chọn 1 người cùng thế lực với ${name(g, o)} để hồi 1 máu`, cands, 1, 1);
                 if (x !== undefined) await g.recover(x, 1, o);
               }

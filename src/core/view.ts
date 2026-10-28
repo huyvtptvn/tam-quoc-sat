@@ -21,6 +21,8 @@ export interface PublicPlayer {
   hp: number;
   maxHp: number;
   handCount: number;
+  /** Số lá dưới Mộc Ngưu Lưu Mã (công khai số lượng). */
+  muniuCount?: number;
   alive: boolean;
   /** Bài ở khu vực riêng trên tướng (ngửa, ai cũng thấy). */
   special: Card[];
@@ -93,6 +95,8 @@ export interface RevealInfo {
 export interface PlayerView {
   me: number;
   myHand: Card[];
+  /** Các lá trong myHand thực ra nằm dưới Mộc Ngưu Lưu Mã (dùng / đánh như bài trên tay). */
+  muniuIds?: number[];
   players: PublicPlayer[];
   drawPileCount: number;
   discardPileCount: number;
@@ -153,6 +157,7 @@ export function viewFor(game: Game, seat: number, req?: Request): PlayerView {
       const card = game.card(id);
       // Một lá có thể dùng được theo nhiều cách (ví dụ Long Đảm: Thiểm cũng là Sát)
       for (const as of new Set(game.cardCountsAs(seat, card))) {
+        if (game.asBlocked(seat, as)) continue;
         const asField = as === card.name ? {} : { as };
         const spec = game.targetSpec(seat, id, as);
         if (!spec.needsTarget) {
@@ -171,7 +176,7 @@ export function viewFor(game: Game, seat: number, req?: Request): PlayerView {
     const accept: CardName[] = req.type === 'respond' ? req.accept : req.dying === seat ? ['tao', 'jiu'] : ['tao'];
     for (const id of me.hand) {
       if (game.cardBlocked(seat, game.card(id))) continue;
-      const as = accept.find((a) => game.cardCountsAs(seat, game.card(id)).includes(a));
+      const as = accept.find((a) => game.cardCountsAs(seat, game.card(id)).includes(a) && !game.asBlocked(seat, a));
       if (as) responseOptions.push({ cardId: id, as });
     }
   }

@@ -32,6 +32,15 @@ export function muniuPile(g: Game, seat: number): number[] {
 }
 
 
+/** Đưa ngay lá `id` dưới Mộc Ngưu lên tay (người chơi bấm thẳng lá Mộc Ngưu để dùng/đánh). */
+export async function takeMuniuCard(g: Game, seat: number, id: number): Promise<boolean> {
+  if (!muniuPile(g, seat).includes(id)) return false;
+  tagSet(g).delete(id);
+  await g.moveCards([id], { kind: 'special', seat }, { kind: 'hand', seat }, 'muniu');
+  g.say(`${nameOf(g, seat)} lấy 1 lá từ Mộc Ngưu Lưu Mã.`);
+  return true;
+}
+
 /** Lấy 1 lá dưới Mộc Ngưu lên tay (để dùng/đánh như bài trên tay). */
 async function pullFromMuniu(g: Game, seat: number, fit: number[], prompt: string, optional: boolean): Promise<number | null> {
   if (!fit.length) return null;
@@ -115,33 +124,8 @@ SKILLS.muniu = {
       g.say(`${p.name} chuyển Mộc Ngưu Lưu Mã cho ${nameOf(g, to)}.`);
     },
   },
-  triggers: [
-    // Cần đánh một lá (Thiểm, Sát...): có thể lấy lá phù hợp từ Mộc Ngưu
-    on({
-      event: 'beforeRespond',
-      can: (g, ctx, owner) => ctx.seat === owner
-        && muniuPile(g, owner).some((id) => ctx.accept.some((n) => g.cardCountsAs(owner, g.card(id)).includes(n))),
-      run: async (g, ctx, owner) => {
-        const fit = muniuPile(g, owner).filter((id) => ctx.accept.some((n) => g.cardCountsAs(owner, g.card(id)).includes(n)));
-        await pullFromMuniu(g, owner, fit, 'Mộc Ngưu: lấy lá nào lên tay để đánh?', true);
-      },
-    }),
-    // Có người hấp hối: có thể lấy Đào (hoặc Rượu nếu chính mình hấp hối) từ Mộc Ngưu
-    on({
-      event: 'dying',
-      can: (g, ctx, owner) => muniuPile(g, owner).some((id) => {
-        const n = g.cardCountsAs(owner, g.card(id));
-        return n.includes('tao') || (ctx.seat === owner && n.includes('jiu'));
-      }),
-      run: async (g, ctx, owner) => {
-        const fit = muniuPile(g, owner).filter((id) => {
-          const n = g.cardCountsAs(owner, g.card(id));
-          return n.includes('tao') || (ctx.seat === owner && n.includes('jiu'));
-        });
-        await pullFromMuniu(g, owner, fit, `Mộc Ngưu: ${nameOf(g, ctx.seat)} hấp hối — lấy lá nào lên tay để cứu?`, true);
-      },
-    }),
-  ],
+  // Bài dưới Mộc Ngưu hiện cùng bài trên tay (có biểu tượng Mộc Ngưu): bấm thẳng để dùng / đánh / cứu người,
+  // game tự lấy lá lên tay ngay trước khi dùng (HegemonyGame.prepareCard).
 };
 
 /** Giai đoạn ra bài: lấy 1 lá dưới Mộc Ngưu lên tay để dùng (Sát, cẩm nang, trang bị...). */

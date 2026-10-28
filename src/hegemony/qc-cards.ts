@@ -307,10 +307,23 @@ export function installQcCards(g: HegemonyGame): void {
   const say = (t: string) => g.say(t);
 
   // ---------- Thanh Long Yển Nguyệt Đao (Quốc Chiến): mục tiêu không thể lật tướng đến khi Sát xử lý xong ----------
+  // Khóa ngay khi mục tiêu bị chọn (trước mọi kỹ năng "khi trở thành mục tiêu của Sát" như Thiên Mệnh của Lưu Hiệp),
+  // rồi chỉnh lại sau khi mục tiêu đã chốt (bị chuyển mục tiêu / hủy).
+  const locked = new WeakMap<object, number>();
+  const lock = (t: number, d: number) => { const f = g.player(t).flags; f.qinglongLock = Math.max(0, (f.qinglongLock ?? 0) + d); };
   g.bus.on('slashTargeted', (ctx) => {
-    if (g.weaponName(ctx.source) !== 'qinglong_qc') return;
-    if (ctx.cancelled) return;
-    g.player(ctx.target).flags.qinglongLock = (g.player(ctx.target).flags.qinglongLock ?? 0) + 1;
+    if (g.weaponName(ctx.source) !== 'qinglong_qc' || ctx.cancelled) return;
+    lock(ctx.target, 1);
+    locked.set(ctx, ctx.target);
+  }, 1000);
+  g.bus.on('slashTargeted', (ctx) => {
+    const was = locked.get(ctx);
+    if (was === undefined) return;
+    if (ctx.cancelled || was !== ctx.target) {
+      lock(was, -1);
+      locked.delete(ctx);
+      if (!ctx.cancelled) { lock(ctx.target, 1); locked.set(ctx, ctx.target); }
+    }
   }, -10); // sau khi mục tiêu đã chốt (chuyển/hủy mục tiêu)
   g.bus.on('slashEnd', (ctx) => {
     const f = g.player(ctx.target).flags;

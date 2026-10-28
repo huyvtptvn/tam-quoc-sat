@@ -614,7 +614,9 @@ export default {
         observe('cardUsed', (g, ctx, o) => {
           if (!(ctx.seat === o || g.isSameFaction(ctx.seat, o)) || ctx.card.id < 0) return;
           const def = g.trickDef(ctx.as);
-          const tg = def && def.targeting !== 'one' ? g.autoTargetsOf(ctx.seat, ctx.as) : ctx.targets;
+          // Bài nhiều mục tiêu: tự động (Nam Man...) hoặc mở rộng từ mục tiêu đã chọn (Lục Lực Đồng Tâm, Liên Quân Thịnh Yến...)
+          const tg = def && def.targeting !== 'one' ? g.autoTargetsOf(ctx.seat, ctx.as)
+            : def?.expandTargets && ctx.targets?.length ? def.expandTargets(g, ctx.seat, ctx.targets) : ctx.targets;
           if (tg.length > 1) store(g)[`chenglve:${o}`] = { cardId: ctx.card.id, user: ctx.seat, hurt: false };
         }),
         observe('damageDealt', (g, ctx, o) => {

@@ -125,10 +125,12 @@ export async function chooseOwn(g, seat, prompt, min, max, { withEquip = true, f
 
 /** Bỏ các lá của chính mình (có thể gồm trang bị). */
 export async function discardOwn(g, seat, ids, reason = 'skill') {
-  for (const id of ids) {
-    const z = zoneOf(g, seat, id);
-    if (z) await g.moveCards([id], z, { kind: 'discard' }, reason);
-  }
+  await g.batchMoves(async () => {
+    for (const id of ids) {
+      const z = zoneOf(g, seat, id);
+      if (z) await g.moveCards([id], z, { kind: 'discard' }, reason);
+    }
+  });
   if (ids.length) g.say(`${name(g, seat)} bỏ ${ids.map((id) => label(g, id)).join(', ')}.`);
 }
 

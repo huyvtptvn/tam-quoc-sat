@@ -66,10 +66,12 @@ export function installEquipment(g: Game): void {
       if (!groups.has(key)) groups.set(key, { from: p.from, ids: [] });
       groups.get(key)!.ids.push(p.id);
     }
-    for (const { from, ids } of groups.values()) {
-      const still = ids.filter((id) => g.zone(from).includes(id));
-      if (still.length) await g.moveCards(still, from, { kind: 'discard' }, 'hanbing');
-    }
+    await g.batchMoves(async () => {
+      for (const { from, ids } of groups.values()) {
+        const still = ids.filter((id) => g.zone(from).includes(id));
+        if (still.length) await g.moveCards(still, from, { kind: 'discard' }, 'hanbing');
+      }
+    });
   }, 50);
 
   // ---------- Cổ Đĩnh Đao, Đằng Giáp (hỏa +1) ----------
