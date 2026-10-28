@@ -383,3 +383,13 @@ body.ui-mobile .seat.hurt { animation: hurt-flash .6s ease; }
   0% { background: rgba(160, 30, 20, .85); box-shadow: 0 0 0 2px #e0533d, 0 0 18px rgba(224, 83, 63, .7); }
   100% { }
 }
+
+/* ---------- PWA: hướng dẫn cài trên iPhone ---------- */
+.pwa-help { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 16px; background: rgba(4, 3, 2, .72); }
+.pwa-card { width: min(380px, 100%); max-height: calc(100dvh - 32px); overflow: auto; text-align: center;
+  background: var(--panel, #161009); border: 1px solid rgba(214, 170, 90, .55); border-radius: 14px; padding: 18px 20px; }
+.pwa-card img { border-radius: 14px; }
+.pwa-card h3 { margin: 8px 0 6px; }
+.pwa-card ol { text-align: left; margin: 8px 0; padding-left: 22px; line-height: 1.6; }
+.pwa-card p { color: var(--bone-2, #cbbd9f); font-size: 13.5px; }
+.pwa-ico { display: inline-block; padding: 0 4px; border: 1px solid currentColor; border-radius: 4px; font-size: 12px; }

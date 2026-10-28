@@ -279,7 +279,14 @@ export async function startServer(opts: ServerOptions = {}) {
       const file = normalize(path === '/' ? '/index.html' : path).replace(/^([/\\])+/, '');
       const full = resolve(publicDir, file);
       if (full.startsWith(publicDir) && existsSync(full) && statSync(full).isFile()) {
-        res.writeHead(200, { 'content-type': MIME[extname(full)] ?? 'application/octet-stream' });
+        const ext = extname(full);
+        // Giao diện luôn kiểm tra bản mới (PWA cập nhật ngay khi push); sw.js không bao giờ bị lưu cũ
+        const fresh = ['.html', '.js', '.css', '.webmanifest'].includes(ext);
+        res.writeHead(200, {
+          'content-type': MIME[ext] ?? 'application/octet-stream',
+          ...(fresh ? { 'cache-control': 'no-cache' } : {}),
+          ...(file === 'sw.js' ? { 'service-worker-allowed': '/' } : {}),
+        });
         return res.end(readFileSync(full));
       }
       if (path === '/docs/ky-nang') {
