@@ -1509,8 +1509,29 @@
     d.innerHTML = `<b>${esc(from)}:</b> ${esc(text)}`;
     $('chatLog').appendChild(d);
     $('chatLog').scrollTop = $('chatLog').scrollHeight;
-    if ($('chatLog').classList.contains('hidden')) toast(`${from}: ${text}`);
+    // Khung đang tắt / đang ở tab Nhật ký: báo nổi + chấm đỏ trên nút
+    if ($('chatLog').classList.contains('hidden') || !sideVisible()) {
+      toast(`${from}: ${text}`);
+      $('sideToggle').classList.add('unread');
+    }
   }
+
+  // ---------- Bật / tắt khung Nhật ký + Trò chuyện ----------
+  /** Màn hình hẹp / giao diện điện thoại: khung trượt ra (overlay); màn hình rộng: cột bên phải. */
+  const sideOverlay = () => document.body.classList.contains('ui-mobile') || window.innerWidth <= 1180;
+  const sideVisible = () => (sideOverlay() ? $('side').classList.contains('open') : !document.body.classList.contains('side-off'));
+  function setSide(on) {
+    if (sideOverlay()) $('side').classList.toggle('open', on);
+    else {
+      document.body.classList.toggle('side-off', !on);
+      try { localStorage.setItem('tqs_side_off', on ? '0' : '1'); } catch { /* bỏ qua */ }
+    }
+    if (on) $('sideToggle').classList.remove('unread');
+    $('sideToggle').classList.toggle('on', on);
+    // Bàn rộng / hẹp lại: xếp lại ghế
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 0);
+  }
+  try { if (localStorage.getItem('tqs_side_off') === '1') document.body.classList.add('side-off'); } catch { /* bỏ qua */ }
 
   // ---------- Đồng hồ ----------
   setInterval(() => {
@@ -1637,10 +1658,12 @@
     if (!spectating && room?.status === 'playing' && !confirm('Rời phòng giữa ván? Máy sẽ chơi thay bạn đến hết ván.')) return;
     send({ t: 'leaveRoom' });
   };
-  $('sideToggle').onclick = () => $('side').classList.toggle('open');
-  document.querySelectorAll('#side .tabs button').forEach((b) => {
+  $('sideToggle').onclick = () => setSide(!sideVisible());
+  $('sideClose').onclick = () => setSide(false);
+  document.querySelectorAll('#side .tabs button[data-tab]').forEach((b) => {
     b.onclick = () => {
-      document.querySelectorAll('#side .tabs button').forEach((x) => x.classList.toggle('on', x === b));
+      document.querySelectorAll('#side .tabs button[data-tab]').forEach((x) => x.classList.toggle('on', x === b));
+      if (b.dataset.tab === 'chat') $('sideToggle').classList.remove('unread');
       $('log').classList.toggle('hidden', b.dataset.tab !== 'log');
       $('chatLog').classList.toggle('hidden', b.dataset.tab !== 'chat');
     };

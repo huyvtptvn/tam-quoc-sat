@@ -403,7 +403,18 @@ input.field:focus { border-color: var(--rim); outline: none; }
 #log div.turn { color: #f6d79b; font-weight: 700; padding-top: 8px; }
 #chatForm { display: flex; gap: 6px; padding: 8px; border-top: 1px solid var(--rim-dim); }
 #chatForm input { flex: 1; min-width: 0; }
-#sideToggle { display: none; }
+/* Nút bật/tắt khung: luôn có trong trận (cả máy tính) */
+#side .tabs .side-x { flex: 0 0 auto; width: 38px; padding: 6px 0; font-size: 20px; line-height: 1; color: var(--bone-2); }
+#side .tabs .side-x:hover { color: var(--bone); }
+#sideToggle { position: relative; }
+#sideToggle.unread::after {
+  content: ''; position: absolute; top: 3px; right: 3px; width: 8px; height: 8px; border-radius: 50%;
+  background: #e0533d; box-shadow: 0 0 0 2px rgba(0,0,0,.5);
+}
+@media (min-width: 1181px) {
+  body:not(.ui-mobile).side-off #game { grid-template-columns: minmax(0, 1fr); }
+  body:not(.ui-mobile).side-off #side { display: none; }
+}
 
 @media (max-width: 1180px) {
   #game { grid-template-columns: 1fr; }
@@ -413,7 +424,6 @@ input.field:focus { border-color: var(--rim); outline: none; }
     background: rgba(8, 6, 4, .96);
   }
   #side.open { transform: none; }
-  #sideToggle { display: inline-flex; }
 }
 @media (max-width: 900px) {
   :root { --cw-hand: 78px; --pw-seat: 44px; --pw-me: 64px; }

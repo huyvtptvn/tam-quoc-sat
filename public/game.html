@@ -29,7 +29,7 @@
   <div id="tbActions" class="tb-actions">
   <button id="btnSound" class="btn small ghost" type="button">🔊 Tiếng</button>
   <button id="btnLogout" class="btn small ghost hidden" type="button">Đăng xuất</button>
-  <button id="sideToggle" class="btn small ghost" type="button">Nhật ký</button>
+  <button id="sideToggle" class="btn small ghost" type="button" title="Bật / tắt nhật ký và trò chuyện">💬 Nhật ký</button>
   <button id="btnSurrender" class="btn small ghost hidden" type="button" title="Đầu hàng: tướng của bạn chết ngay, không được tính thắng">🏳 Đầu hàng</button>
   <button id="btnDissolve" class="btn small ghost hidden" type="button" title="Giải tán phòng: hủy ván (nếu đang chơi), mọi người về sảnh">Giải tán</button>
   <button id="btnLeave" class="btn small ghost hidden" type="button">Rời phòng</button>
@@ -219,6 +219,7 @@
     <div class="tabs">
       <button type="button" class="on" data-tab="log">Nhật ký</button>
       <button type="button" data-tab="chat">Trò chuyện</button>
+      <button type="button" id="sideClose" class="side-x" title="Tắt nhật ký và trò chuyện" aria-label="Tắt nhật ký và trò chuyện">×</button>
     </div>
     <div id="log"></div>
     <div id="chatLog" class="hidden"></div>
