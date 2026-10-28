@@ -366,3 +366,20 @@ body.ui-mobile .event-bar .ev-ic { font-size: 20px; }
   border: 1px solid #7a5216; box-shadow: 0 1px 3px rgba(0,0,0,.5);
   pointer-events: none;
 }
+
+/* Bảng kết quả: nút ở chân luôn hiện (bảng điểm cuộn bên trong), kể cả màn hình điện thoại nằm ngang */
+.dialog.result { display: flex; flex-direction: column; max-height: calc(100dvh - 32px); }
+.dialog.result > * { flex: none; }
+.dialog.result .score-wrap { flex: 1 1 auto; min-height: 60px; max-height: none; overflow: auto; }
+.dialog.result .foot { margin-top: 10px; }
+body.ui-mobile #modal { padding: 6px; }
+body.ui-mobile .dialog { max-height: calc(100dvh - 12px); }
+body.ui-mobile .dialog.result { max-height: calc(100dvh - 12px); }
+body.ui-mobile .dialog.result .foot { margin-top: 6px; }
+body.ui-mobile .dialog.result .foot .btn { padding: 6px 12px; }
+/* Điện thoại: mất máu chỉ nháy đỏ, không rung ô tướng */
+body.ui-mobile .seat.hurt { animation: hurt-flash .6s ease; }
+@keyframes hurt-flash {
+  0% { background: rgba(160, 30, 20, .85); box-shadow: 0 0 0 2px #e0533d, 0 0 18px rgba(224, 83, 63, .7); }
+  100% { }
+}

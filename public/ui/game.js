@@ -1470,16 +1470,21 @@
       ${mvp ? `<div class="mvp-line">${C.portraitHTML(mvp.generals[0], { cls: 'no-ntag' })}<span>MVP: <b>${esc(mvp.name)}</b></span></div>` : ''}
       <p class="sub">${esc(result.reason === 'victory' ? `Kết thúc sau ${result.turns} lượt.` : 'Không còn bài hoặc quá số lượt tối đa.')}</p>
       ${body}
-      <div class="foot">${match ? `<a class="btn ghost" href="/ranking.html#van-${esc(match.id)}" target="_blank" rel="noopener">Xem chi tiết ván</a>` : ''}<button type="button" class="btn primary" id="goBack">Về phòng chờ</button></div>
+      <div class="foot">${match ? `<a class="btn ghost" href="/ranking.html#van-${esc(match.id)}" target="_blank" rel="noopener">Xem chi tiết ván</a>` : ''}${room ? `<button type="button" class="btn ghost" id="goLobby">${spectating ? 'Thoát xem' : 'Rời phòng'}</button>` : ''}<button type="button" class="btn primary" id="goBack">${room ? 'Về phòng chờ' : 'Về sảnh'}</button></div>
     </div>`);
-    $('goBack').onclick = () => {
+    const leaveResult = () => {
       gameOverShown = false;
       closeModal();
       view = null;
       prev.first = true; prev.hp.clear(); prev.hand.clear(); prev.played.clear();
       narration = [];
+    };
+    $('goBack').onclick = () => {
+      leaveResult();
       if (room) { show('room'); renderRoom(); } else show('lobby');
     };
+    // Rời phòng luôn về sảnh (không phải mở menu ☰ trên điện thoại)
+    if ($('goLobby')) $('goLobby').onclick = () => { leaveResult(); send({ t: 'leaveRoom' }); };
   }
 
   // ---------- Hộp thoại chung, thông báo ----------
