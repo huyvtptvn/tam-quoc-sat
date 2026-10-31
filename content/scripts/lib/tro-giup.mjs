@@ -33,11 +33,14 @@ export function store(g) {
 export function limitedUsed(g, seat, id) {
   return !!store(g)[`limited:${id}:${seat}`];
 }
+// g.usedLimited: để giao diện biết Hạn định kỹ đã dùng hay chưa
 export function markLimited(g, seat, id) {
   store(g)[`limited:${id}:${seat}`] = true;
+  g.usedLimited?.add(`${id}:${seat}`);
 }
 export function resetLimited(g, seat, id) {
   delete store(g)[`limited:${id}:${seat}`];
+  g.usedLimited?.delete(`${id}:${seat}`);
 }
 
 /** Mỗi lượt (của bất kỳ ai) 1 lần: trả true nếu CHƯA dùng trong lượt hiện tại, và đánh dấu đã dùng. */

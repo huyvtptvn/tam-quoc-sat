@@ -140,20 +140,20 @@ export async function tryGuanshi(g: Game, source: number, target: number): Promi
 export async function tryQinglong(g: Game, source: number, target: number): Promise<void> {
   if (!g.player(source).alive || !g.player(target).alive || g.weaponName(source) !== 'qinglong') return;
   if (!g.canBeSlashTarget(source, target)) return;
-  const picked = await g.pickResponse(source, ['sha'], `Thanh Long Yển Nguyệt Đao: Sát tiếp ${g.player(target).name}?`,
+  const picked = await g.pickSlash(source, `Thanh Long Yển Nguyệt Đao: Sát tiếp ${g.player(target).name}?`,
     target, { kind: 'extraSlash', target });
-  if (picked) await g.slashOutOfTurn(source, target, picked.card, picked.as);
+  if (picked) await g.slashOutOfTurn(source, target, picked.card, picked.as, picked);
 }
 
 /**
  * Trượng Bát Xà Mâu (khi cần đánh Sát): bỏ 2 lá trên tay coi như đánh 1 Sát.
  * Gọi khi người chơi không đánh lá Sát thật. Trả về lá Sát ảo đã đánh, hoặc null.
  */
-export async function tryZhangbaResponse(g: Game, seat: number, reason: string): Promise<Card | null> {
+export async function tryZhangbaResponse(g: Game, seat: number, reason: string, skipConfirm = false): Promise<Card | null> {
   const p = g.player(seat);
   const usable = p.hand.filter((id) => !g.cardBlocked(seat, g.card(id)));
   if (!p.alive || g.weaponName(seat) !== 'zhangba' || usable.length < 2) return null;
-  if (!await confirm(g, seat, 'zhangba', `Trượng Bát Xà Mâu: dùng 2 lá trên tay như 1 lá Sát (${reason})?`)) return null;
+  if (!skipConfirm && !await confirm(g, seat, 'zhangba', `Trượng Bát Xà Mâu: dùng 2 lá trên tay như 1 lá Sát (${reason})?`)) return null;
   const ids = await g.chooseCards(seat, 'Trượng Bát Xà Mâu: chọn 2 lá', usable, 2, 2);
   const card = zhangbaCard(g, ids);
   await g.moveCards(ids, { kind: 'hand', seat }, { kind: 'processing' }, 'respond');

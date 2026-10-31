@@ -26,7 +26,7 @@ async function jinxianRun(g, o) {
       // Chính Bành Dạng: đưa Bành Dạng lên đầu danh sách (úp lại để lần sau mở ra phát động tiếp)
       if (t === o) can = [...can].sort((a, b) => (h[b].generalId === 'pengyang') - (h[a].generalId === 'pengyang'));
       const i = can.length > 1 ? await g.choose(t, 'Cận Hãm: úp 1 tướng', can.map((w) => g.generalName(h[w].generalId))) : 0;
-      g.hideGeneral(t, can[i]);
+      await g.hideGeneral(t, can[i]);
     }
   }
 }

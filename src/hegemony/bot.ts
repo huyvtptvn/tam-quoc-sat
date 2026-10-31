@@ -129,6 +129,10 @@ export class HegemonyBot extends SimpleBot {
       const eq = Object.keys(me.equips ?? {}).length;
       return me.hp >= 3 && eq >= 2 ? 1 : 0;
     }
+    // Thiết Kỵ: chỉ bỏ bài khi có Thiểm để né
+    if (options[0]?.startsWith('Không bỏ (không thể dùng Thiểm') && options[1]?.startsWith('Bỏ 1 lá')) {
+      return v.myHand.some((c) => c.name === 'shan') ? 1 : 0;
+    }
     if (options[0]?.startsWith('Bỏ 2')) {
       const me = v.players[v.me];
       return v.myHand.length >= 3 || me.hp <= 2 ? 0 : 1;
@@ -285,8 +289,12 @@ export class HegemonyBot extends SimpleBot {
 
     // Chế Hoành: đổi các lá Sát dư (chỉ giữ 1 lá Sát) lấy bài mới
     if (usable.some((s) => s.skill === 'chehoanh')) {
-      const shas = v.myHand.filter((c) => c.name === 'sha');
-      if (shas.length >= 2) return { kind: 'useSkill', skill: 'chehoanh', cardIds: shas.slice(1).map((c) => c.id), targets: [] };
+      // Chỉ bài thật trên tay (không lấy lá dưới Mộc Ngưu), tối đa bằng giới hạn máu
+      const mn = new Set(v.muniuIds ?? []);
+      const ch = usable.find((s) => s.skill === 'chehoanh')!;
+      const max = Math.max(1, ch.maxCards ?? me.maxHp);
+      const shas = v.myHand.filter((c) => c.name === 'sha' && !mn.has(c.id));
+      if (shas.length >= 2) return { kind: 'useSkill', skill: 'chehoanh', cardIds: shas.slice(1, 1 + max).map((c) => c.id), targets: [] };
     }
 
     // Mộc Ngưu Lưu Mã: bài trên tay dư thì cất bớt 1 lá rẻ nhất xuống (không phải bỏ ở giai đoạn bỏ bài)

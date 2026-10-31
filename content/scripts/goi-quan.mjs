@@ -58,6 +58,7 @@ export default {
       triggers: [
         on('drawPhase', (g, ctx, o) => ctx.seat === o && ctx.count > 0, async (g, ctx, o) => {
           ctx.count = 0;
+          ctx.replaced = true; // thay vì rút bài: các kỹ năng giai đoạn rút bài khác không dùng tiếp được
           const j = await g.judge(o, 'Song Hùng');
           g.player(o).flags.shuangxiong = isRed(j) ? 1 : 2;
           if (g.state.processing.includes(j.id)) await g.moveCards([j.id], { kind: 'processing' }, { kind: 'hand', seat: o }, 'shuangxiong');
@@ -301,6 +302,7 @@ export default {
           && others(g, o, (s) => allCards(g, s, true).length > 0).length > 0,
           async (g, ctx, o) => {
             ctx.count = 0;
+            ctx.replaced = true; // thay vì rút bài: các kỹ năng giai đoạn rút bài khác không dùng tiếp được
             for (const s of g.aliveSeatsFrom(o)) {
               if (s !== o && allCards(g, s, true).length) await takeFrom(g, o, s, `Hoàng Chinh: lấy 1 lá của ${name(g, s)}`, { judge: true });
             }
@@ -596,7 +598,7 @@ export default {
             const all = ['main', 'deputy'].every((w) => h[w].revealed || h[w].removed);
             if (all) {
               store(g)[`anyong:lost:${o}`] = 1;
-              g.say(`${name(g, o)} mất kỹ năng Ám Dũng.`);
+              g.loseSkill(o, 'anyong'); // ghi nhận mất kỹ năng (giao diện hiện kỹ năng đã mất)
               await g.loseHp(o, 1);
             } else if (shown >= 1 && hand(g, o).length) {
               await g.forceDiscard(o, 2, 'anyong');
@@ -766,7 +768,7 @@ async function qingchengHide(g, s, t) {
   const opts = ['main', 'deputy'].filter((w) => !h[w].removed && h[w].revealed);
   if (!opts.length) return;
   const i = opts.length > 1 ? await g.choose(s, `Khuynh Thành: úp tướng nào của ${name(g, t)}`, opts.map((w) => g.generalName(h[w].generalId))) : 0;
-  g.hideGeneral(t, opts[i]);
+  await g.hideGeneral(t, opts[i]);
 }
 
 /** Thế lực của `t` (đã xác định) khác với thế lực của `o` (kể cả khi `o` còn úp tướng: tính theo thế lực thật). */

@@ -44,7 +44,8 @@ export interface ActiveSkill {
   checkCards?: (g: HegemonyGame, seat: number, cardIds: number[]) => string | null;
   /** Số lá tối thiểu/tối đa (để gợi ý cho UI/bot). */
   minCards?: number;
-  maxCards?: number;
+  /** Số lá tối đa (hoặc hàm tính theo tình huống, ví dụ Chế Hành = giới hạn máu). */
+  maxCards?: number | ((g: HegemonyGame, seat: number) => number);
   /** Một lá có được chọn không (để UI/bot biết lá nào hợp lệ). */
   cardOk?: (g: HegemonyGame, seat: number, cardId: number) => boolean;
   run: (g: HegemonyGame, seat: number, cardIds: number[], targets: number[]) => Promise<void>;
@@ -67,6 +68,8 @@ export interface Skill {
   virtualRespond?: (g: HegemonyGame, owner: number, accept: CardName[], ctx: { context?: RespondContext; dying?: number }) => CardName[];
   /** Trả giá khi xem như dùng lá qua `virtualRespond` (ví dụ bỏ 1 [Hồn]). Trả về false = hủy, không dùng. */
   payVirtual?: (g: HegemonyGame, owner: number, as: CardName) => Promise<boolean>;
+  /** Chuyển hóa được cả lá trong vùng trang bị (Cấp Cứu: bài đỏ trên tay hoặc trang bị). */
+  convertEquips?: boolean;
   /** Chuyển hóa: lá này còn được tính như những loại nào (Long Đảm, Võ Thánh, Cấp Cứu). */
   convert?: (g: HegemonyGame, seat: number, card: Card) => CardName[];
   /** Số lần Sát tối đa mỗi lượt (Bào Hao = Infinity). */
@@ -628,8 +631,10 @@ export const SKILLS: Record<string, Skill> = {
         const fit = ownCards(g, t).filter((id) => g.card(id).suit === suit);
         const label = SUIT_OPTIONS[SUITS.indexOf(suit)];
         if (fit.length) {
-          const i = await g.choose(t, `Thiết Kỵ: bỏ 1 lá ${label} hoặc không thể dùng Thiểm`, [`Bỏ 1 lá ${label}`, 'Không thể dùng Thiểm']);
-          if (i === 0) {
+          // Mục tiêu tự quyết định; hết giờ / không chọn = không bỏ bài (chỉ mất quyền dùng Thiểm)
+          const i = await g.choose(t, `Thiết Kỵ của ${nameOf(g, owner)}: bỏ 1 lá ${label} để vẫn được dùng Thiểm?`,
+            [`Không bỏ (không thể dùng Thiểm với Sát này)`, `Bỏ 1 lá ${label} (vẫn được dùng Thiểm)`]);
+          if (i === 1) {
             const [id] = await g.chooseCards(t, `Thiết Kỵ: chọn 1 lá ${label} để bỏ`, fit, 1, 1, true);
             await discardOwnCards(g, t, [id ?? fit[0]], 'thietky');
             return;
@@ -686,10 +691,10 @@ export const SKILLS: Record<string, Skill> = {
         g.player(seat).flags.khieuhan = 1;
         const me = nameOf(g, seat);
         const picked = g.canTargetWithCard(t, seat) && g.canBeSlashTarget(t, seat)
-          ? await g.pickResponse(t, ['sha'], `${me} khiêu khích: dùng Sát vào ${me}? (không thì ${me} bỏ 1 lá của bạn)`, seat, { kind: 'provoke', by: seat })
+          ? await g.pickSlash(t, `${me} khiêu khích: dùng Sát vào ${me}? (không thì ${me} bỏ 1 lá của bạn)`, seat, { kind: 'provoke', by: seat })
           : null;
         if (picked) {
-          await g.slashOutOfTurn(t, seat, picked.card, picked.as);
+          await g.slashOutOfTurn(t, seat, picked.card, picked.as, picked);
           return;
         }
         const pick = await pickCardFrom(g, seat, t, false, `Khiêu Hấn: chọn 1 lá của ${nameOf(g, t)} để bỏ`);
@@ -807,6 +812,7 @@ export const SKILLS: Record<string, Skill> = {
       cards: 'any',
       target: 'none',
       equipCards: true,
+      maxCards: (g, seat) => (g.equipOf(seat, 'treasure')?.name === 'mingzhu' ? g.cardCount(seat) : g.player(seat).maxHp),
       available: (g, seat) => !g.player(seat).flags.chehoanh && g.cardCount(seat) > 0,
       checkCards: (g, seat, ids) => (g.equipOf(seat, 'treasure')?.name === 'mingzhu' || ids.length <= g.player(seat).maxHp
         ? null : `Chỉ được bỏ tối đa ${g.player(seat).maxHp} lá (lắp Định Lan Dạ Minh Châu thì không giới hạn)`),
@@ -1058,7 +1064,8 @@ export const SKILLS: Record<string, Skill> = {
   capcuu: {
     id: 'capcuu',
     name: 'Cấp Cứu',
-    desc: 'Ngoài lượt của bạn, bạn có thể chuyển hóa sử dụng bài Đỏ thành [Đào].',
+    desc: 'Ngoài lượt của bạn, bạn có thể chuyển hóa sử dụng bài Đỏ (trên tay hoặc trong vùng trang bị) thành [Đào].',
+    convertEquips: true,
     convert: (g, seat, card) => (isRed(card) && g.state.currentSeat !== seat ? ['tao'] : []),
   },
 
@@ -1178,11 +1185,11 @@ export const SKILLS: Record<string, Skill> = {
           const min = Math.min(...others.map((s) => g.distance(t, s)));
           const nearest = others.filter((s) => g.distance(t, s) === min && g.canTargetWithCard(t, s) && g.canBeSlashTarget(t, s));
           const picked = nearest.length
-            ? await g.pickResponse(t, ['sha'], `Loạn Vũ: dùng Sát vào người gần nhất (${nearest.map((s) => nameOf(g, s)).join(', ')}), nếu không bạn mất 1 máu`, seat)
+            ? await g.pickSlash(t, `Loạn Vũ: dùng Sát vào người gần nhất (${nearest.map((s) => nameOf(g, s)).join(', ')}), nếu không bạn mất 1 máu`, seat)
             : null;
           if (picked) {
             const [v] = nearest.length > 1 ? await g.chooseTargets(t, 'Loạn Vũ: chọn mục tiêu của Sát', nearest, 1, 1, 'enemy') : nearest;
-            await g.slashOutOfTurn(t, v ?? nearest[0], picked.card, picked.as);
+            await g.slashOutOfTurn(t, v ?? nearest[0], picked.card, picked.as, picked);
           } else {
             await g.loseHp(t, 1);
           }
@@ -1365,7 +1372,7 @@ const judgedBy = (g: HegemonyGame) => storeOf(g, 'judgedBy', () => new Map<numbe
 const liegongBonus = (g: HegemonyGame) => storeOf(g, 'liegong', () => new Set<string>()) as Set<string>;
 const jianchuGive = (g: HegemonyGame) => storeOf(g, 'jianchu', () => new Set<string>()) as Set<string>;
 const dodgedSlash = (g: HegemonyGame) => storeOf(g, 'dodged', () => new Set<number>()) as Set<number>;
-const limited = (g: HegemonyGame) => storeOf(g, 'limited', () => new Set<string>()) as Set<string>;
+const limited = (g: HegemonyGame) => g.usedLimited;
 
 /** Ngũ Hổ Tướng Đại Kỳ (Thụ Việt của Lưu Bị - Quân): `seat` thuộc thế lực Thục và quân chủ Thục đang có Thụ Việt. */
 export function wuhu(g: HegemonyGame, seat: number): boolean {
@@ -1859,7 +1866,7 @@ Object.assign(SKILLS, {
           if (h.main.revealed && h.deputy.revealed && !h.deputy.removed) {
             const hideMain = !g.isLord(owner) && !h.main.removed
               && (await g.choose(owner, 'Ngũ Tử Lương Tướng Đạo: úp 1 tướng', [`Úp phó tướng ${g.generalName(h.deputy.generalId)}`, `Úp chủ tướng ${g.generalName(h.main.generalId)}`])) === 1;
-            g.hideGeneral(owner, hideMain ? 'main' : 'deputy');
+            await g.hideGeneral(owner, hideMain ? 'main' : 'deputy');
           }
           wuziBlocked(g).add(owner);
           const choices = wuziChoices(g);
@@ -2103,6 +2110,7 @@ Object.assign(SKILLS, {
       can: (_g, ctx, owner) => ctx.seat === owner && ctx.count > 0,
       run: async (g, ctx, owner) => {
         ctx.count = 0;
+        ctx.replaced = true; // thay vì rút bài: các kỹ năng giai đoạn rút bài khác không dùng tiếp được
         const shown: number[] = [];
         for (let i = 0; i < 5; i++) shown.push((await g.takeTop({ kind: 'processing' }, 'shelie')).id);
         g.say(`Thiệp Liệp lật 5 lá: ${shown.map((id) => cardLabel(g.card(id))).join(', ')}.`);

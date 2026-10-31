@@ -410,8 +410,8 @@ export default {
           && (g.player(ctx.seat).flags.stat_dmg ?? 0) > 0 && g.canTargetWithCard(o, ctx.seat) && g.canBeSlashTarget(o, ctx.seat)
           && hand(g, o).some((id) => g.cardCountsAs(o, g.card(id)).includes('sha')),
           async (g, ctx, o) => {
-            const picked = await g.pickResponse(o, ['sha'], `Tru Hại: dùng Sát vào ${name(g, ctx.seat)}`, ctx.seat);
-            if (picked) await g.slashOutOfTurn(o, ctx.seat, picked.card, picked.as);
+            const picked = await g.pickSlash(o, `Tru Hại: dùng Sát vào ${name(g, ctx.seat)}`, ctx.seat);
+            if (picked) await g.slashOutOfTurn(o, ctx.seat, picked.card, picked.as, picked);
           }),
       ],
     },
@@ -468,8 +468,9 @@ export default {
     {
       id: 'jujian', name: 'Cử Tiến', position: 'deputy',
       desc: 'Phó tướng kỹ, giảm 0.5 máu gốc: khi 1 người cùng thế lực với bạn tiến vào trạng thái hấp hối, bạn có thể lệnh họ hồi đến 1 máu, sau đó bạn đổi Phó tướng.',
+      // Giảm 0.5 máu gốc khi làm phó tướng: tính thẳng vào số âm dương ngư (để ký hiệu Âm Dương Ngư được tính đúng)
+      fishDelta: -1,
       triggers: [
-        observe('gameStart', (g, _ctx, o) => fishPenalty(g, o, 'deputy')),
         on('dying', (g, ctx, o) => (ctx.seat === o || g.isSameFaction(ctx.seat, o)) && g.player(ctx.seat).alive && g.player(ctx.seat).hp < 1
           && g.player(o).alive, async (g, ctx, o) => {
           const p = g.player(ctx.seat);
@@ -548,8 +549,8 @@ export default {
           async (g, _ctx, o) => {
             for (const s of others(g, o, (x) => g.isDifferentFaction(x, o) && g.distance(x, o) <= g.attackRange(x))) {
               if (!g.player(o).alive) return;
-              const picked = await g.pickResponse(s, ['sha'], `Báo Liệt của ${name(g, o)}: dùng Sát vào ${name(g, o)}? (không thì bị bỏ 1 lá)`, o);
-              if (picked && g.canTargetWithCard(s, o)) await g.slashOutOfTurn(s, o, picked.card, picked.as);
+              const picked = await g.pickSlash(s, `Báo Liệt của ${name(g, o)}: dùng Sát vào ${name(g, o)}? (không thì bị bỏ 1 lá)`, o);
+              if (picked && g.canTargetWithCard(s, o)) await g.slashOutOfTurn(s, o, picked.card, picked.as, picked);
               else if (allCards(g, s).length) await discardFrom(g, o, s, 'Báo Liệt: chọn lá để bỏ');
             }
           }, { compulsory: true }),
@@ -568,21 +569,6 @@ export default {
 
 // ---------------- Hàm riêng ----------------
 
-/** "Giảm 0.5 máu gốc": tướng ở vị trí `which` bớt 1 âm dương ngư khi tính máu đầu ván (chỉ áp dụng một lần). */
-function fishPenalty(g, o, which) {
-  const k = `fishPenalty:${o}:${which}`;
-  if (store(g)[k]) return;
-  store(g)[k] = 1;
-  const h = g.hero(o);
-  const p = g.player(o);
-  const sum = g.generalHalfHp(h.main.generalId) + g.generalHalfHp(h.deputy.generalId);
-  if (p.maxHp !== Math.floor(sum / 2)) return;
-  const v = Math.max(1, Math.floor((sum - 1) / 2));
-  if (v < p.maxHp) {
-    p.maxHp = v;
-    p.hp = Math.min(p.hp, v);
-  }
-}
 
 /** Khiêm Sách: các mục tiêu thuộc Đại thế lực của lá công cụ vừa dùng. */
 function qianceTargets(g, ctx) {

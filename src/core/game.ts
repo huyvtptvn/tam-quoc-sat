@@ -77,6 +77,9 @@ export interface GameResult {
 export type UseResult = { ok: true } | { ok: false; reason: string };
 
 /** Ném ra để thoát ngay khỏi chuỗi async lồng nhau khi ván kết thúc. */
+/** Kết quả hỏi dùng Sát ngoài lượt: lá thật, 2 lá ghép (Trượng Bát) hoặc lá ảo từ kỹ năng. */
+export interface SlashPick { card: Card; as: CardName; parts?: number[]; virtual?: boolean }
+
 export class GameOver extends Error {
   constructor(public readonly reason: EndReason) {
     super('GameOver');
@@ -885,7 +888,7 @@ export class Game {
     }
     await this.bus.emit('beforeRespond', { seat, accept, source });
     // Kỹ năng "xem như dùng" (Dịch Quỷ, Diệt Ngô, Thao Loạn...) hiện thành nút ngay trong bước chọn lá
-    const virtuals = this.respondVirtuals(seat, accept, context);
+    const virtuals = [...this.respondVirtuals(seat, accept, context), ...(accept.includes('sha') ? this.zhangbaOption(seat) : [])];
     this.pickedVirtual = null;
     this.respondingWithVirtuals = virtuals.length > 0;
     let picked: { card: Card; as: CardName } | null;
@@ -897,11 +900,16 @@ export class Game {
     if (!picked) {
       const chosen = this.pickedVirtual as { skill: string; as: CardName } | null;
       this.pickedVirtual = null;
+      if (chosen?.skill === 'zhangba') {
+        const zb = await tryZhangbaResponse(this, seat, reason, true);
+        if (zb) { this.lastRespondAs = 'sha'; return zb; }
+        return null;
+      }
       const virtual = chosen ? await this.useVirtualResponse(seat, chosen.skill, chosen.as, accept, reason, context)
         // Không có nút (người chơi không thấy lựa chọn ảo): hỏi riêng như cũ
         : !virtuals.length && !this.lastPassMuted ? await this.virtualResponse(seat, accept, reason, source, context) : null;
       if (virtual) { this.lastRespondAs = virtual.name; return virtual; }
-      return accept.includes('sha') && !this.lastPassMuted ? tryZhangbaResponse(this, seat, reason) : null;
+      return accept.includes('sha') && !this.lastPassMuted && !virtuals.some((o) => o.skill === 'zhangba') ? tryZhangbaResponse(this, seat, reason) : null;
     }
     const { card, as } = picked;
     const p = this.player(seat);
@@ -936,6 +944,55 @@ export class Game {
    * `check`: chỉ lấy lên nếu việc dùng hợp lệ (gọi khi lá được xem như đang trên tay). Engine gốc không có.
    */
   protected async prepareCard(_seat: number, _cardId: number, _check?: () => boolean): Promise<void> {}
+
+  /** Nút Trượng Bát Xà Mâu (2 lá trên tay như Sát) khi cần đánh / dùng Sát. */
+  zhangbaOption(seat: number): VirtualOption[] {
+    const p = this.player(seat);
+    const usable = p.hand.filter((id) => !this.cardBlocked(seat, this.card(id)));
+    return p.alive && this.weaponName(seat) === 'zhangba' && usable.length >= 2 && !this.asBlocked(seat, 'sha')
+      ? [{ skill: 'zhangba', name: 'Trượng Bát Xà Mâu', as: 'sha', label: 'Sát', reveal: false }] : [];
+  }
+
+  /** Dùng kỹ năng ảo `skill` để có 1 lá `as` sẽ được DÙNG (không phải đánh ra). Engine gốc không có. */
+  protected async payVirtualUse(_seat: number, _skill: string, _as: CardName, _context?: RespondContext): Promise<Card | null> { return null; }
+
+  /**
+   * Hỏi `seat` có dùng Sát ngoài lượt không (Khiêu Khích, Loạn Vũ, Tá Đao Sát Nhân, Báo Liệt, Thanh Long...).
+   * Ngoài lá trên tay còn có: kỹ năng trước khi đáp (Ngạo Tài, Thiên Binh), nút kỹ năng ảo và Trượng Bát Xà Mâu.
+   * Kết quả đưa thẳng vào slashOutOfTurn.
+   */
+  async pickSlash(seat: number, reason: string, source: number | null, context?: RespondContext): Promise<SlashPick | null> {
+    if (!this.player(seat).alive) return null;
+    await this.bus.emit('beforeRespond', { seat, accept: ['sha'], source });
+    const virtuals = [...this.respondVirtuals(seat, ['sha'], context), ...this.zhangbaOption(seat)];
+    this.pickedVirtual = null;
+    this.respondingWithVirtuals = virtuals.length > 0;
+    let picked: { card: Card; as: CardName } | null;
+    try {
+      picked = await this.pickResponse(seat, ['sha'], reason, source, context, virtuals);
+    } finally {
+      this.respondingWithVirtuals = false;
+    }
+    if (picked) return picked;
+    const chosen = this.pickedVirtual as { skill: string; as: CardName } | null;
+    this.pickedVirtual = null;
+    if (!chosen) return null;
+    if (chosen.skill === 'zhangba') {
+      const usable = this.player(seat).hand.filter((id) => !this.cardBlocked(seat, this.card(id)));
+      if (usable.length < 2) return null;
+      let ids = await this.chooseCards(seat, 'Trượng Bát Xà Mâu: chọn 2 lá trên tay dùng như Sát', usable, 2, 2);
+      if (ids.length !== 2 || !ids.every((id) => usable.includes(id))) ids = pickDiscards(usable, 2, (id) => this.card(id));
+      return { card: this.virtualCard('sha', this.card(ids[0])), as: 'sha', parts: ids };
+    }
+    const card = await this.payVirtualUse(seat, chosen.skill, chosen.as, context);
+    return card ? { card, as: chosen.as, virtual: true } : null;
+  }
+
+  /** Lá trang bị `cardId` của `seat` được dùng như `name` nhờ kỹ năng (Cấp Cứu...). Engine gốc: không. */
+  equipConvertible(_seat: number, _cardId: number, _name: CardName): boolean { return false; }
+
+  /** Các lá `seat` có thể dùng / đánh như bài trên tay (Quốc Chiến: thêm bài dưới Mộc Ngưu Lưu Mã). */
+  respondCards(seat: number): number[] { return this.player(seat).hand; }
 
   /** Các kỹ năng "xem như dùng" lá cần đáp. Engine gốc không có. */
   respondVirtuals(_seat: number, _accept: CardName[], _context?: RespondContext): VirtualOption[] { return []; }
@@ -1099,8 +1156,15 @@ export class Game {
    * Dùng Sát ngoài giai đoạn ra bài (ví dụ bị Khiêu Hấn). Không tính vào số lần Sát của lượt.
    * `card` phải đang nằm trên tay `source`.
    */
-  async slashOutOfTurn(source: number, target: number, card: Card, as: CardName): Promise<void> {
+  async slashOutOfTurn(source: number, target: number, card: Card, as: CardName, pick?: Partial<SlashPick>): Promise<void> {
     const p = this.player(source);
+    // Trượng Bát Xà Mâu (2 lá) hoặc lá ảo từ kỹ năng
+    if (pick?.parts?.length || pick?.virtual) {
+      if (!p.alive || !this.isAliveSeat(target) || target === source || this.isLured(target)) return;
+      if (pick.parts && !pick.parts.every((id) => p.hand.includes(id))) return;
+      await this.useCardAs(source, 'sha', [target], pick.parts ?? [], pick.parts ? { label: 'Trượng Bát Xà Mâu' } : {});
+      return;
+    }
     if (!p.alive || !this.isAliveSeat(target) || target === source || !p.hand.includes(card.id) || this.isLured(target)) return;
     this.noteUseAs(source, card, as);
     await this.moveCards([card.id], { kind: 'hand', seat: source }, { kind: 'processing' }, 'use');
@@ -1306,7 +1370,11 @@ export class Game {
   }
 
   /** Trang bị một lá: lá cũ cùng ô (nếu có) vào chồng bỏ. */
+  /** Trang bị đặc biệt không vào vùng trang bị (Chiếu Thư đặt lên tướng). Trả về true nếu đã xử lý. */
+  protected async equipElsewhere(_seat: number, _card: Card): Promise<boolean> { return false; }
+
   async equip(seat: number, card: Card): Promise<void> {
+    if (await this.equipElsewhere(seat, card)) return;
     const slot = CARD_INFO[card.name].slot!;
     const p = this.player(seat);
     const rangeBefore = this.attackRange(seat); // lúc dùng lá, trang bị chưa có hiệu lực
@@ -1458,8 +1526,11 @@ export class Game {
           if (await this.specialSave(helperSeat, seat, res)) continue;
           break;
         }
-        if (res.kind === 'card' && !helper.hand.includes(res.cardId)) await this.prepareCard(helperSeat, res.cardId);
-        if (res.kind !== 'card' || !helper.hand.includes(res.cardId)) break;
+        // Lá trang bị dùng như Đào nhờ kỹ năng (Cấp Cứu của Hoa Đà: bài đỏ trên tay hoặc trang bị)
+        const eqSlot = res.kind === 'card' && !helper.hand.includes(res.cardId) && this.equipConvertible(helperSeat, res.cardId, 'tao')
+          ? EQUIP_SLOTS.find((sl) => helper.equips[sl].includes(res.cardId)) : undefined;
+        if (res.kind === 'card' && !eqSlot && !helper.hand.includes(res.cardId)) await this.prepareCard(helperSeat, res.cardId);
+        if (res.kind !== 'card' || (!eqSlot && !helper.hand.includes(res.cardId))) break;
         const card = this.card(res.cardId);
         if (this.cardBlocked(helperSeat, card)) break;
         const names = this.cardCountsAs(helperSeat, card);
@@ -1468,7 +1539,7 @@ export class Game {
         if (!savedAs) break;
 
         this.noteUseAs(helperSeat, card, savedAs);
-        await this.moveCards([card.id], { kind: 'hand', seat: helperSeat }, { kind: 'processing' }, 'save');
+        await this.moveCards([card.id], eqSlot ? { kind: 'equip', seat: helperSeat, slot: eqSlot } : { kind: 'hand', seat: helperSeat }, { kind: 'processing' }, 'save');
         try {
           await this.onCardUsedAs(helperSeat, card, savedAs, 'save');
           this.say(`${helper.name} dùng ${this.labelAs(card, savedAs)} cứu ${p.name}.`);
@@ -1592,7 +1663,7 @@ export class Game {
         return resolveJudgePhase(this, seat);
       case 'draw': {
         const ctx = await this.bus.emit('drawPhase', { seat, count: 2 });
-        await this.draw(seat, Math.max(0, ctx.count));
+        if (!ctx.replaced) await this.draw(seat, Math.max(0, ctx.count));
         return;
       }
       case 'play':

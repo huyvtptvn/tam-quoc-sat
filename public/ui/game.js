@@ -497,8 +497,30 @@
     return `<div class="toks">${list.map((t) => `<span class="tok" title="${esc(t.tip || t.name)}">${esc(t.name)}<b>${t.count}</b></span>`).join('')}</div>`;
   }
   /** Token chung của người chơi: chồng tướng ([Hồn]...), khu bài trên tướng ([Điền]...), token kỹ năng ngoài. Bấm để xem. */
-  function seatTokensHTML(p) {
+  /** Ô kỹ năng: đã mất (gạch ngang) / Hạn định kỹ đã dùng (mờ). */
+  function skFlags(p, id) {
+    const st = p?.skillState;
+    if (st?.lost?.some((x) => x.id === id)) return ' sk-lost';
+    if (st?.limited?.some((x) => x.id === id && x.used)) return ' sk-used';
+    return '';
+  }
+
+  /** Chip trạng thái kỹ năng: Hạn định kỹ, kỹ năng đã mất / nhận thêm, trang bị ảo. */
+  function skillStateChips(p) {
+    const st = p.skillState;
+    if (!st) return [];
     const out = [];
+    for (const x of st.limited || []) {
+      out.push(`<span class="tok lim${x.used ? ' used' : ''}" title="Hạn định kỹ ${esc(x.name)}: ${x.used ? 'ĐÃ DÙNG' : 'chưa dùng'}">${x.used ? '✓' : '⏳'} ${esc(x.name)}</span>`);
+    }
+    for (const x of st.lost || []) out.push(`<span class="tok lost" title="Đã mất kỹ năng ${esc(x.name)}">✕ ${esc(x.name)}</span>`);
+    for (const x of st.granted || []) out.push(`<span class="tok gain" title="Kỹ năng nhận thêm: ${esc(x.name)}">＋ ${esc(x.name)}</span>`);
+    for (const x of st.virtualEquips || []) out.push(`<span class="tok veq" title="Trang bị ảo từ kỹ năng ${esc(x.from)}">◇ ${esc(x.label)}</span>`);
+    return out;
+  }
+
+  function seatTokensHTML(p) {
+    const out = skillStateChips(p);
     (p.generalPiles || []).forEach((pile, i) => out.push(`<button type="button" class="tok pile" data-tok="pile:${i}" data-seat="${p.seat}" title="[${esc(pile.name)}] — bấm để xem">${esc(pile.name)}<b>${pile.count}</b></button>`));
     (p.specialPiles || []).forEach((pile, i) => out.push(`<button type="button" class="tok pile" data-tok="sp:${i}" data-seat="${p.seat}" title="[${esc(pile.name)}] ${pile.count} lá — bấm để xem">${esc(pile.name)}<b>${pile.count}</b></button>`));
     (p.tokens || []).filter((t) => !t.which).forEach((t) => out.push(`<span class="tok" title="${esc(t.tip || t.name)}">${esc(t.name)}<b>${t.count}</b></span>`));
@@ -556,7 +578,7 @@
         const info = C.catalog.skills[id] || { name: id, desc: '' };
         const locked = /^Tỏa định kỹ/i.test(info.desc || '');
         const len = [...info.name].length;
-        return `<span class="gsk${slot.revealed ? '' : ' hidden-gen'}${len > 12 ? ' xlong' : len > 8 ? ' long' : ''}">${locked ? '<span class="ico">锁</span>' : ''}<span class="nm">${esc(info.name)}</span></span>`;
+        return `<span class="gsk${slot.revealed ? '' : ' hidden-gen'}${skFlags(p, id)}${len > 12 ? ' xlong' : len > 8 ? ' long' : ''}">${locked ? '<span class="ico">锁</span>' : ''}<span class="nm">${esc(info.name)}</span></span>`;
       }).join('')}</div>` : '';
       return `<div class="gen-col"><div class="pwrap">${one(slot)}${nm ? `<span class="gname">${nm}${slot.revealed || slot.removed ? '' : ' <i>(úp)</i>'}</span>` : ''}${slotTokensHTML(p, w)}${sk}</div></div>`;
     };
@@ -888,7 +910,7 @@
       const on = sel.skill?.skill === id ? ' active' : '';
       const tip = `【${info.name}】${info.desc || ''}${slot.revealed ? '' : '\n(Tướng đang úp: dùng kỹ năng sẽ lật tướng)'}`;
       const len = [...info.name].length;
-      return `<button type="button" class="gsk${st ? ' on' : ''}${on}${slot.revealed ? '' : ' hidden-gen'}${len > 14 ? ' xlong' : len > 10 ? ' long' : ''}" data-gsk="${esc(id)}" data-which="${which}" data-tip="${esc(tip)}" aria-label="${esc(info.name)}">`
+      return `<button type="button" class="gsk${st ? ' on' : ''}${on}${slot.revealed ? '' : ' hidden-gen'}${skFlags(view?.players?.[view.me], id)}${len > 14 ? ' xlong' : len > 10 ? ' long' : ''}" data-gsk="${esc(id)}" data-which="${which}" data-tip="${esc(tip)}" aria-label="${esc(info.name)}">`
         + `${locked ? '<span class="ico">锁</span>' : ''}<span class="nm">${esc(info.name)}</span></button>`;
     }).join('')}</div>`;
   }
@@ -1064,8 +1086,13 @@
           } else {
             const any = view.hints.length || (view.skillHints || []).some((h) => !h.skill.startsWith('reveal:'));
             prompt = any ? 'Lượt của bạn: bấm lá bài sáng viền để dùng (lá cần mục tiêu: bấm tiếp vào người trên bàn), hoặc bấm kỹ năng sáng.' : 'Không còn lá nào dùng được.';
+            const mineSk = new Set(myGeneralSkills().map((x) => x.id));
             for (const h of view.skillHints || []) {
               if (h.skill.startsWith('reveal:')) buttons.push(btn(h.name, () => answer({ kind: 'useSkill', skill: h.skill, cardIds: [], targets: [] }), 'ghost'));
+              // Điện thoại: kỹ năng trang bị / chung (Đặt lên Chiếu Thư, Mộc Ngưu, Hợp Tung, ký hiệu...) hiện thẳng thành nút ở đây cho dễ thấy
+              else if (document.body.classList.contains('ui-mobile') && !mineSk.has(h.skill)) {
+                buttons.push(btn(C.catalog.skills[h.skill]?.name || h.name, () => clickSkill(h.skill), 'ghost'));
+              }
             }
           }
           buttons.push(btn('Kết thúc ra bài', () => answer({ kind: 'endPlay' }), sel.hint || sel.skill ? 'ghost' : (view.hints.length ? '' : 'primary')));

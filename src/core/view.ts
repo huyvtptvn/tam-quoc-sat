@@ -23,6 +23,13 @@ export interface PublicPlayer {
   handCount: number;
   /** Số lá dưới Mộc Ngưu Lưu Mã (công khai số lượng). */
   muniuCount?: number;
+  /** Trạng thái kỹ năng để hiện trên ô tướng: Hạn định kỹ (đã dùng?), kỹ năng đã mất, kỹ năng nhận thêm, trang bị ảo. */
+  skillState?: {
+    limited?: { id: string; name: string; used: boolean }[];
+    lost?: { id: string; name: string }[];
+    granted?: { id: string; name: string }[];
+    virtualEquips?: { label: string; from: string }[];
+  };
   alive: boolean;
   /** Bài ở khu vực riêng trên tướng (ngửa, ai cũng thấy). */
   special: Card[];
@@ -178,6 +185,14 @@ export function viewFor(game: Game, seat: number, req?: Request): PlayerView {
       if (game.cardBlocked(seat, game.card(id))) continue;
       const as = accept.find((a) => game.cardCountsAs(seat, game.card(id)).includes(a) && !game.asBlocked(seat, a));
       if (as) responseOptions.push({ cardId: id, as });
+    }
+    // Cứu người: lá trang bị dùng như Đào nhờ kỹ năng (Cấp Cứu)
+    if (req.type === 'save') {
+      for (const sl of Object.keys(me.equips) as (keyof typeof me.equips)[]) {
+        for (const id of me.equips[sl]) {
+          if (!game.cardBlocked(seat, game.card(id)) && game.equipConvertible(seat, id, 'tao')) responseOptions.push({ cardId: id, as: 'tao' });
+        }
+      }
     }
   }
 

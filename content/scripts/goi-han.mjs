@@ -295,7 +295,7 @@ export default {
             await give(g, t, o, [id]);
           }
           const w = slotOf(g, o, 'zhangrang');
-          if (red > black && w) g.hideGeneral(o, w);
+          if (red > black && w) await g.hideGeneral(o, w);
         }, { compulsory: true }),
       ],
     },
@@ -675,7 +675,7 @@ export default {
           const hidden = ['main', 'deputy'].filter((w) => !h[w].revealed && !h[w].removed);
           if (!hidden.length && shown.length) {
             const i = shown.length > 1 ? await g.choose(o, `Dục Tước: úp tướng nào của ${name(g, t)}`, shown.map((w) => g.generalName(h[w].generalId))) : 0;
-            g.hideGeneral(t, shown[i]);
+            await g.hideGeneral(t, shown[i]);
             store(g)[`yujueBlock:${t}`] = g.state.turnCount;
           } else if (hidden.length) {
             g.turnOver(t);

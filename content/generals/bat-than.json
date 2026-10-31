@@ -9,7 +9,7 @@
   { "id": "zhonghui", "name": "Chung Hội", "kingdom": "ye", "halfHp": 4, "skills": ["quanji", "paiyi"] },
   { "id": "dongzhao", "name": "Đổng Chiêu", "kingdom": "wei", "halfHp": 3, "skills": ["quanjin", "zaoyun"] },
   { "id": "yanbaihu", "name": "Nghiêm Bạch Hổ", "kingdom": "qun", "halfHp": 4, "skills": ["zhidao", "jilix"] },
-  { "id": "simazhao", "name": "Tư Mã Chiêu", "kingdom": "ye", "halfHp": 4, "skills": ["suzhi", "zhaoxin"] },
+  { "id": "simazhao", "name": "Tư Mã Chiêu", "kingdom": "ye", "halfHp": 3, "skills": ["suzhi", "zhaoxin"] },
   { "id": "sunchen", "name": "Tôn Lâm", "kingdom": "ye", "halfHp": 4, "skills": ["shilu", "xiongnve"] },
   { "id": "wenqin", "name": "Văn Khâm", "kingdom": "wei", "halfHp": 4, "skills": ["jinfa"] },
   { "id": "gongsunyuan", "name": "Công Tôn Uyên", "kingdom": "ye", "halfHp": 4, "skills": ["huaiyi", "huaiyi_di", "zisui"] },

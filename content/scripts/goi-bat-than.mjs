@@ -139,7 +139,7 @@ export default {
         // 1+: Tuân Tuân
         on('drawPhase', (g, ctx, o) => ctx.seat === o && ctx.count > 0 && woundedFactions(g) >= 1 && g.state.drawPile.length >= 4,
           async (g, ctx, o) => {
-            ctx.count = 0;
+            ctx.count = 0; // Tuân Tuân chỉ là cách rút 2 lá (vẫn là rút bài): không chặn kỹ năng rút thêm
             const top = g.state.drawPile.slice(-4).reverse();
             const keep = await g.chooseCards(o, `${XINGZHAO_HINT} (Tuân Tuân): chọn 2 lá để lấy`, top, 2, 2, true);
             await g.moveCards(keep, { kind: 'draw' }, { kind: 'hand', seat: o }, 'xunxun');
@@ -269,9 +269,11 @@ export default {
             const kind = ctx.target === o && counter(g, 'quanji_in', o, turnKey(g)).n === 0 ? 'quanji_in' : 'quanji_out';
             counter(g, kind, o, turnKey(g)).n++;
             await g.draw(o, 1);
-            if (!hand(g, o).length) return;
-            const [id] = await g.chooseCards(o, 'Quyền Kế: chọn 1 lá đặt lên tướng làm [Quyền]', [...hand(g, o)], 1, 1);
-            await toPile(g, o, 'Quyền', [id], 'quanji');
+            // Lá trên tay hoặc trong vùng trang bị đều đặt được
+            const pool = allCards(g, o);
+            if (!pool.length) return;
+            const [id] = await g.chooseCards(o, 'Quyền Kế: chọn 1 lá (trên tay hoặc trang bị) đặt lên tướng làm [Quyền]', pool, 1, 1, true);
+            await toPile(g, o, 'Quyền', [id ?? pool[0]], 'quanji');
           }),
       ],
     },

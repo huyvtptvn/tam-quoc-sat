@@ -236,8 +236,11 @@ export default {
       triggers: [
         on('cardsMoved', (g, ctx, o) => g.state.currentSeat !== o && g.player(o).alive
           && (ctx.from.kind === 'hand' || ctx.from.kind === 'equip') && ctx.from.seat === o
-          && !(ctx.to.kind === 'equip' && ctx.to.seat === o) && !(ctx.to.kind === 'hand' && ctx.to.seat === o),
-          async (g, _ctx, o) => {
+          && !(ctx.to.kind === 'equip' && ctx.to.seat === o) && !(ctx.to.kind === 'hand' && ctx.to.seat === o)
+          && !(ctx.batch && store(g)[`tuntian:${o}`] === ctx.batch),
+          async (g, ctx, o) => {
+            // Mất nhiều lá trong cùng một lần (bỏ hết trang bị do Xuyên Tâm...) chỉ phán xét 1 lần
+            if (ctx.batch) store(g)[`tuntian:${o}`] = ctx.batch;
             const j = await g.judge(o, 'Đồn Điền');
             try {
               if (j.suit !== 'heart' && g.state.processing.includes(j.id)) {
@@ -254,7 +257,7 @@ export default {
       id: 'jixi', name: 'Cấp Tập', position: 'main',
       desc: 'Chủ tướng kỹ, giảm 0.5 máu gốc: bạn có thể chuyển hóa sử dụng [Điền] thành [Thuận Thủ Khiên Dương].',
       bot: { use: 'always', target: 'enemy' },
-      triggers: [observe('gameStart', (g, _ctx, o) => fishPenalty(g, o, 'main'))],
+      fishDelta: -1, // giảm 0.5 máu gốc khi làm chủ tướng
       active: {
         cards: 'none', target: 'one',
         available: (g, s) => g.player(s).special.length > 0,
@@ -700,7 +703,7 @@ export default {
                 const ws = ['main', 'deputy'].filter((w) => !h[w].removed && h[w].revealed);
                 if (!ws.length) continue;
                 const i = ws.length > 1 ? await g.choose(o, `Tức Binh: úp tướng nào của ${name(g, s)}`, ws.map((w) => g.generalName(h[w].generalId))) : 0;
-                g.hideGeneral(s, ws[i]);
+                await g.hideGeneral(s, ws[i]);
                 g.player(s).flags.turn_xibingLock = 1;
               }
             }
@@ -773,21 +776,6 @@ function viewFactions(v) {
   return new Set(v.players.filter((p) => p.alive && p.kingdom).map((p) => (p.kingdom === 'careerist' ? `c${p.careeristGroup ?? p.seat}` : p.kingdom))).size;
 }
 
-/** "Giảm 0.5 máu gốc": tướng ở vị trí `which` bớt 1 âm dương ngư khi tính máu đầu ván (chỉ áp dụng một lần). */
-function fishPenalty(g, o, which) {
-  const k = `fishPenalty:${o}:${which}`;
-  if (store(g)[k]) return;
-  store(g)[k] = 1;
-  const h = g.hero(o);
-  const p = g.player(o);
-  const sum = g.generalHalfHp(h.main.generalId) + g.generalHalfHp(h.deputy.generalId);
-  if (p.maxHp !== Math.floor(sum / 2)) return; // máu đã được tính theo cách khác (quân chủ, engine đã trừ...)
-  const v = Math.max(1, Math.floor((sum - 1) / 2));
-  if (v < p.maxHp) {
-    p.maxHp = v;
-    p.hp = Math.min(p.hp, v);
-  }
-}
 
 /** Hạc Dực: trao/thu Phi Ảnh cho những người cùng đội hình. */
 function syncHeyi(g, o) {

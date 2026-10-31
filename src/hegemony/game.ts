@@ -1051,7 +1051,16 @@ export class HegemonyGame extends Game {
     if (!pool.length) { this.say(`${p.name} không còn tướng cùng thế lực để đổi phó tướng.`); return false; }
     if (!h.deputy.revealed) await this.reveal(seat, 'deputy');
     const old = h.deputy.generalId;
-    const next = pool[this.randomInt(pool.length)];
+    // Xem ngẫu nhiên 3 tướng cùng thế lực, chọn 1 làm phó tướng mới
+    const offer: string[] = [];
+    const rest = [...pool];
+    while (offer.length < 3 && rest.length) offer.push(rest.splice(this.randomInt(rest.length), 1)[0]);
+    let next = offer[0];
+    if (offer.length > 1) {
+      this.showInfo(seat, { title: 'Đổi phó tướng — 3 tướng để chọn', generals: [...offer] });
+      const i = await this.choose(seat, 'Đổi phó tướng: chọn 1 tướng làm phó tướng mới', offer.map((id) => getGeneral(id).name));
+      next = offer[i] ?? offer[0];
+    }
     this.transformedOut.add(old);
     if (grant) this.transformGrants.add(`${grant.owner}:${grant.skill}`);
     h.deputy = { generalId: next, revealed: false };
@@ -1080,13 +1089,32 @@ export class HegemonyGame extends Game {
   }
 
   /** Úp lại một tướng đã lật (暗置), ví dụ Khuynh Thành. */
-  hideGeneral(seat: number, which: SlotKey): void {
+  /** Chồng tướng riêng -> kỹ năng tạo ra nó (để biết chồng thuộc tướng nào). */
+  private static readonly GEN_PILE_SKILL: Record<string, string> = { 'Hồn': 'yigui', 'Lục': 'shilu' };
+
+  async hideGeneral(seat: number, which: SlotKey): Promise<void> {
     const h = this.hero(seat);
     const slot = h[which];
     if (!slot.revealed || slot.removed) return;
     slot.revealed = false;
     this.player(seat).team = this.teamLabel(seat);
     this.say(`${this.player(seat).name} úp lại ${SLOT_LABEL[which]} ${getGeneral(slot.generalId).name}.`);
+    // Tướng bị úp: bài / tướng đặt trên tướng đó (Quyền, Điền, Hồn, Sang...) mất đi
+    const skills = new Set(getGeneral(slot.generalId).skills);
+    const other = h[which === 'main' ? 'deputy' : 'main'];
+    const keep = new Set(other.removed ? [] : getGeneral(other.generalId).skills);
+    const cards = this.player(seat).special.filter((id) => {
+      const r = this.specialReason.get(id) ?? '';
+      return skills.has(r) && !keep.has(r);
+    });
+    if (cards.length) {
+      await this.moveCards(cards, { kind: 'special', seat }, { kind: 'discard' }, 'hide');
+      this.say(`${this.player(seat).name} mất ${cards.length} lá đặt trên ${getGeneral(slot.generalId).name}.`);
+    }
+    for (const [name, pile] of this.genPiles.get(seat) ?? []) {
+      const sk = HegemonyGame.GEN_PILE_SKILL[name];
+      if (sk && skills.has(sk) && !keep.has(sk) && pile.ids.length) this.removeFromGeneralPile(seat, name, [...pile.ids]);
+    }
   }
 
   /** `seat` có được lật tướng lúc này không (Họa Thủy cấm người khác lật trong lượt của chủ kỹ năng). */
@@ -1146,6 +1174,8 @@ export class HegemonyGame extends Game {
         if (done.has(idx) || !alive()) continue;
         // Sát thương đã bị hủy (Hàn Băng Kiếm, Thiên Hương...): không còn kỹ năng "khi chịu sát thương" nào kích nữa
         if (event === 'beforeDamage' && (ctx as { cancelled?: boolean }).cancelled) return;
+        // Đã "thay vì rút bài" (Hoàng Chinh, Song Hùng, Thiệp Liệp...): Ngọc Tỷ, Cộng Tu... không kích nữa
+        if (event === 'drawPhase' && (ctx as { replaced?: boolean }).replaced) return;
         const { e, trig } = list[idx];
         if (!trig.can(this, ctx, seat)) continue;
         if (auto(list[idx])) { done.add(idx); await this.runTrigger(seat, e, trig, ctx); continue; }
@@ -1574,6 +1604,11 @@ export class HegemonyGame extends Game {
     return card;
   }
 
+  protected override async payVirtualUse(seat: number, skill: string, as: CardName, context?: RespondContext): Promise<Card | null> {
+    const opt = this.virtualOptions(seat, [as], { context }).find((o) => o.e.skill.id === skill && o.as === as);
+    return opt ? this.useVirtual(seat, opt.e, as) : null;
+  }
+
   override canVirtualRespond(seat: number, name: CardName): boolean {
     return this.virtualOptions(seat, [name], {}).length > 0;
   }
@@ -1805,6 +1840,7 @@ export class HegemonyGame extends Game {
         ...(pp.generalPiles ? { generalPiles: pp.generalPiles.map(({ name, count }) => ({ name, count })) } : {}),
         tokens: undefined, specialName: undefined, specialPiles: undefined, special: [],
         ...this.tokenView(pp.seat, null),
+        skillState: this.skillState(pp.seat, null),
       };
     });
     v.spectator = true;
@@ -1903,7 +1939,7 @@ export class HegemonyGame extends Game {
   /** Tên chồng bài trên tướng theo lý do đặt lên (moveCards reason). */
   private static readonly PILE_NAMES: Record<string, string> = {
     tuntian: 'Điền', qianhuan: 'Huyễn', sidi: 'Ngự', shefu: 'Phục Binh', yinbing: 'Trách', qiuan: 'Hàm', midao: 'Mễ',
-    quanji: 'Quyền', huaiyi: 'Dị', tunchu: 'Lương', zhaoshu: 'Chiếu Thư', muniu: 'Mộc Ngưu', khongthanh: 'Cầm',
+    quanji: 'Quyền', huaiyi: 'Dị', tunchu: 'Lương', zhaoshu: 'Chiếu', zhaoshu_book: 'Chiếu Thư', muniu: 'Mộc Ngưu', khongthanh: 'Cầm',
     batkhuat: 'Sang', hongfa: 'Thiên Binh', flamemap: 'Phong Hỏa',
   };
 
@@ -1945,6 +1981,48 @@ export class HegemonyGame extends Game {
     return { ...(tokens.length ? { tokens } : {}), ...(names.size ? { specialName: fallback } : {}), ...(specialPiles.length ? { specialPiles } : {}) };
   }
 
+  /** Hạn định kỹ đã dùng: `${skillId}:${seat}`. */
+  readonly usedLimited = new Set<string>();
+
+  /** Trạng thái kỹ năng của `seat` nhìn từ `viewer` (người khác chỉ thấy phần của tướng đã lật). */
+  private skillState(seat: number, viewer: number | null): NonNullable<PlayerView['players'][number]['skillState']> | undefined {
+    const h = this.heroes[seat];
+    const p = this.player(seat);
+    if (!h || !p.alive) return undefined;
+    const own = viewer === seat;
+    const limited: { id: string; name: string; used: boolean }[] = [];
+    const lost: { id: string; name: string }[] = [];
+    for (const which of ['main', 'deputy'] as const) {
+      const slot = h[which];
+      if (slot.removed || (!own && !slot.revealed)) continue;
+      for (const id of getGeneral(slot.generalId).skills) {
+        const sk = SKILLS[id];
+        if (!sk) continue;
+        if (this.lostSkills.get(seat)?.has(id)) { lost.push({ id, name: sk.name }); continue; }
+        if (/Hạn định( kỹ)?\s*[.:]/i.test(sk.desc ?? '')) limited.push({ id, name: sk.name, used: this.usedLimited.has(`${id}:${seat}`) });
+      }
+    }
+    const granted = (this.granted.get(seat) ?? []).filter((x) => SKILLS[x.id]).map((x) => ({ id: x.id, name: SKILLS[x.id].name }));
+    // Trang bị ảo từ kỹ năng (tướng đã lật / kỹ năng nhận thêm): ngựa, Bát Quái...
+    const virtualEquips: { label: string; from: string }[] = [];
+    for (const e of this.skillEntries(seat, true)) {
+      if (e.slot === EQUIPMENT_SLOT && !(this.granted.get(seat) ?? []).some((x) => x.id === e.skill.id)) continue;
+      try {
+        const d = e.skill.defenseBonus?.(this, seat) ?? 0;
+        const o = e.skill.offenseBonus?.(this, seat) ?? 0;
+        const a = !this.equipOf(seat, 'armor') ? e.skill.virtualArmor?.(this, seat) : null;
+        if (d > 0) virtualEquips.push({ label: d === 1 ? 'Ngựa +1' : `Phòng thủ +${d}`, from: e.skill.name });
+        if (o > 0 && o < 50) virtualEquips.push({ label: o === 1 ? 'Ngựa −1' : `Tấn công −${o}`, from: e.skill.name });
+        if (a) virtualEquips.push({ label: this.cardInfo(a).label, from: e.skill.name });
+      } catch { /* kỹ năng lỗi không làm hỏng view */ }
+    }
+    const out = {
+      ...(limited.length ? { limited } : {}), ...(lost.length ? { lost } : {}),
+      ...(granted.length ? { granted } : {}), ...(virtualEquips.length ? { virtualEquips } : {}),
+    };
+    return Object.keys(out).length ? out : undefined;
+  }
+
   /** Chạy `fn` khi các lá dưới Mộc Ngưu của `seat` được tính tạm như bài trên tay (để xét dùng / gợi ý). */
   private withMuniuInHand<T>(seat: number, fn: () => T): T {
     const p = this.player(seat);
@@ -1953,6 +2031,29 @@ export class HegemonyGame extends Game {
     const real = p.hand;
     p.hand = [...real, ...mn];
     try { return fn(); } finally { p.hand = real; }
+  }
+
+  /** Chiếu Thư: dùng xong đặt lên tướng (không chiếm ô bảo vật, không thể bị phá / lấy / dời), chết thì vào chồng bỏ. */
+  protected override async equipElsewhere(seat: number, card: Card): Promise<boolean> {
+    if (card.name !== 'zhaoshu') return false;
+    const p = this.player(seat);
+    if (!p.hand.includes(card.id)) return true;
+    await this.moveCards([card.id], { kind: 'hand', seat }, { kind: 'special', seat }, 'zhaoshu_book');
+    this.say(`${p.name} dùng Chiếu Thư, đặt lên tướng của mình.`);
+    await this.bus.emit('cardUsed', { seat, card, as: card.name, targets: [seat] });
+    return true;
+  }
+
+  override equipConvertible(seat: number, cardId: number, name: CardName): boolean {
+    const p = this.player(seat);
+    if (!p?.alive || !EQUIP_SLOTS.some((sl) => p.equips[sl].includes(cardId))) return false;
+    const card = this.card(cardId);
+    return this.skillEntries(seat).some((e) => e.skill.convertEquips && (e.skill.convert?.(this, seat, card) ?? []).includes(name));
+  }
+
+  override respondCards(seat: number): number[] {
+    const p = this.player(seat);
+    return p.alive ? [...p.hand, ...muniuPile(this, seat)] : p.hand;
   }
 
   protected override async prepareCard(seat: number, cardId: number, check?: () => boolean): Promise<void> {
@@ -1995,6 +2096,7 @@ export class HegemonyGame extends Game {
         ...(isLordId(h.main.generalId) && (h.main.revealed || visible) ? { lord: true } : {}),
         ...this.tokenView(pp.seat, seat),
         ...(muniuPile(this, pp.seat).length ? { muniuCount: muniuPile(this, pp.seat).length } : {}),
+        ...((() => { const st = this.skillState(pp.seat, seat); return st ? { skillState: st } : {}; })()),
         // Bài trên tướng của người khác: chỉ cho biết số lượng (specialPiles), không gửi mặt lá
         ...(pp.seat === seat ? {} : { special: [] }),
       };
@@ -2031,7 +2133,7 @@ export class HegemonyGame extends Game {
       if (validCards.length < minCards) continue;
       out.push({
         skill: e.skill.id, name: e.skill.name, cards: a.cards, targets, needsTarget: a.target === 'one', reveals: !e.slot.revealed,
-        minCards, maxCards: a.maxCards ?? (a.cards === 'one' ? 1 : a.cards === 'none' ? 0 : hand.length), validCards,
+        minCards, maxCards: (typeof a.maxCards === 'function' ? a.maxCards(this, seat) : a.maxCards) ?? (a.cards === 'one' ? 1 : a.cards === 'none' ? 0 : hand.length), validCards,
       });
     }
     const h = this.heroes[seat];

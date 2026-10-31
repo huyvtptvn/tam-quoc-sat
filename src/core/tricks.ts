@@ -227,9 +227,9 @@ export const TRICK_DEFS: Partial<Record<CardName, TrickDef>> = {
         ? await g.chooseTargets(user, `Tá Đao Sát Nhân: chọn người để ${name(g, a)} phải dùng Sát vào`, victims, 1, 1, 'enemy')
         : [];
       if (b !== undefined) {
-        const picked = await g.pickResponse(a, ['sha'], `${name(g, user)} dùng Tá Đao Sát Nhân: dùng Sát vào ${name(g, b)}, nếu không phải giao vũ khí`,
+        const picked = await g.pickSlash(a, `${name(g, user)} dùng Tá Đao Sát Nhân: dùng Sát vào ${name(g, b)}, nếu không phải giao vũ khí`,
           user, { kind: 'extraSlash', target: b });
-        if (picked) { await g.slashOutOfTurn(a, b, picked.card, picked.as); return; }
+        if (picked) { await g.slashOutOfTurn(a, b, picked.card, picked.as, picked); return; }
       }
       const w = g.player(a).equips.weapon[0];
       if (w === undefined || !g.player(user).alive) return;
@@ -419,7 +419,7 @@ export async function askNullify(
     let played: Card | null = null;
     for (const seat of g.aliveSeatsFrom(g.state.currentSeat)) {
       // Chỉ hỏi người đang có lá Vô Giải (đỡ phải hỏi cả bàn mỗi lần)
-      if (!g.player(seat).hand.some((id) => g.cardCountsAs(seat, g.card(id)).some((n) => n === 'wuxie' || n === 'wuxie_guo'))
+      if (!g.respondCards(seat).some((id) => g.cardCountsAs(seat, g.card(id)).some((n) => n === 'wuxie' || n === 'wuxie_guo'))
         && !g.canVirtualRespond(seat, 'wuxie') && !g.canVirtualRespond(seat, 'wuxie_guo')) continue;
       if (g.isLured(seat)) continue; // bị Điệu Hổ Ly Sơn: không thể dùng/đánh bài
       if (muted?.has(seat)) continue; // đã chọn "không hỏi lại với lá này"

@@ -11,7 +11,7 @@ import { EQUIP_SLOTS, type Card, type CardName } from '../core/types.js';
 import type { HegemonyGame } from './game.js';
 import type { Kingdom } from './generals.js';
 import { formation, nextOnTable } from './mechanics.js';
-import { EQUIP_SKILLS, GLOBAL_SKILLS, SKILLS } from './skills.js';
+import { GLOBAL_SKILLS, SKILLS } from './skills.js';
 
 const hg = (g: Game) => g as HegemonyGame;
 const nameOf = (g: Game, s: number) => g.player(s).name;
@@ -255,8 +255,11 @@ export const FACTION_TRICKS: Partial<Record<Kingdom, CardName>> = { wei: 'haolin
 const EDICT = new WeakMap<Game, Set<number>>();
 const edictTags = (g: Game) => { let s = EDICT.get(g); if (!s) EDICT.set(g, (s = new Set())); return s; };
 export const edictPile = (g: Game, seat: number) => g.player(seat).special.filter((id) => edictTags(g).has(id));
-const edictOwner = (g: Game, seat: number) => g.alivePlayers().find((p) => p.seat !== seat
-  && g.equipOf(p.seat, 'treasure')?.name === 'zhaoshu' && hg(g).isSameFaction(p.seat, seat))?.seat;
+/** Người đang có Chiếu Thư đặt trên tướng. */
+const hasEdict = (g: Game, seat: number) => g.player(seat).special.some((id) => g.card(id).name === 'zhaoshu');
+/** Chủ Chiếu Thư cùng thế lực với `seat` (kể cả chính mình). */
+const edictOwner = (g: Game, seat: number) => g.alivePlayers().find((p) => hasEdict(g, p.seat)
+  && (p.seat === seat || hg(g).isSameFaction(p.seat, seat)))?.seat;
 
 SKILLS.zhaoshu_dat = {
   id: 'zhaoshu_dat',
@@ -279,10 +282,10 @@ SKILLS.zhaoshu_dat = {
 SKILLS.zhaoshu = {
   id: 'zhaoshu',
   name: 'Chiếu Thư',
-  desc: 'Bảo vật. Một lần trong giai đoạn ra bài, nếu có 4 [Chiếu] khác chất, bạn có thể bỏ hết [Chiếu] để nhận ngẫu nhiên 1 lá cẩm nang thế lực.',
+  desc: 'Chiếu Thư (đặt trên tướng, không chiếm ô bảo vật). Một lần trong giai đoạn ra bài, nếu có 4 [Chiếu] khác chất, bạn có thể bỏ hết [Chiếu] để nhận ngẫu nhiên 1 lá cẩm nang thế lực.',
   active: {
     cards: 'none', target: 'none',
-    available: (g, seat) => !g.player(seat).flags.zhaoshuDoi && new Set(edictPile(g, seat).map((id) => g.card(id).suit)).size >= 4
+    available: (g, seat) => hasEdict(g, seat) && !g.player(seat).flags.zhaoshuDoi && new Set(edictPile(g, seat).map((id) => g.card(id).suit)).size >= 4
       && g.state.removedPile.some((id) => Object.values(FACTION_TRICKS).includes(g.card(id).name)),
     run: async (g, seat) => {
       g.player(seat).flags.zhaoshuDoi = 1;
@@ -296,8 +299,7 @@ SKILLS.zhaoshu = {
     },
   },
 };
-EQUIP_SKILLS.zhaoshu = 'zhaoshu';
-GLOBAL_SKILLS.push('zhaoshu_dat');
+GLOBAL_SKILLS.push('zhaoshu_dat', 'zhaoshu');
 
 // ============================================================
 // Trang bị và hiệu ứng theo sự kiện

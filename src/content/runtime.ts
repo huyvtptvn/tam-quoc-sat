@@ -551,7 +551,7 @@ async function runAction(a: CompiledAction, rt: Runtime): Promise<typeof STOP | 
         which = opts[i];
       }
       if (!ok(which)) return;
-      if (a.do === 'removeGeneral') await g.removeGeneral(s, which); else g.hideGeneral(s, which);
+      if (a.do === 'removeGeneral') await g.removeGeneral(s, which); else await g.hideGeneral(s, which);
       return;
     }
     case 'pindian': {

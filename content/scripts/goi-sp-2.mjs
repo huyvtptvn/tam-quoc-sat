@@ -573,7 +573,7 @@ export default {
           if (!left.length) return;
           const i = left.length > 1 ? await g.choose(s, 'Khẩn Thương: chọn kỹ năng để mất', ['Mã Thuật', 'Khẩn Thương']) : 0;
           (store(g)[`lost:${s}`] ??= new Set()).add(left[i]);
-          g.say(`${name(g, s)} mất kỹ năng ${left[i] === 'kenshang' ? 'Khẩn Thương' : 'Mã Thuật'}.`);
+          g.loseSkill(s, left[i]); // ghi nhận mất kỹ năng (giao diện hiện kỹ năng đã mất)
         },
       },
       triggers: [
@@ -700,7 +700,7 @@ export default {
           const which = slotOf(g, o, 'chendeng');
           if (which && h.main.revealed && h.deputy.revealed && !h[which].removed) {
             const i = await g.choose(o, 'Hào Khôi: úp tướng Trần Đăng?', ['Úp tướng này', 'Không']);
-            if (i === 0) g.hideGeneral(o, which);
+            if (i === 0) await g.hideGeneral(o, which);
           }
           if (g.transformGrantUsed({ owner: o, skill: 'haokui' })) return; // mỗi ván chỉ cho đổi tướng 1 lần
           const [t] = await g.chooseTargets(o, 'Hào Khôi: chọn 1 người cùng thế lực có thể đổi phó tướng (bỏ trống = thôi)',

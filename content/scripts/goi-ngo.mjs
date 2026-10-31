@@ -624,7 +624,7 @@ export default {
           && ['main', 'deputy'].every((w) => g.hero(o)[w].revealed || g.hero(o)[w].removed), async (g, _ctx, o) => {
           delete store(g)[`zhiwei:${o}`];
           const w = slotOf(g, o, 'luyusheng');
-          if (w) g.hideGeneral(o, w);
+          if (w) await g.hideGeneral(o, w);
         }, { compulsory: true }),
       ],
     },

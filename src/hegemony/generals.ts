@@ -129,7 +129,10 @@ export const PAIRS: [string, string][] = [
 ];
 
 export function isPair(a: string, b: string): boolean {
-  return PAIRS.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
+  if (PAIRS.some(([x, y]) => (x === a && y === b) || (x === b && y === a))) return true;
+  // Quân chủ là hảo cặp với mọi tướng cùng thế lực
+  const lordPair = (l: string, o: string) => isLordId(l) && isGeneralId(o) && kingdomsOf(o).includes(getGeneral(l).kingdom);
+  return lordPair(a, b) || lordPair(b, a);
 }
 
 const BY_ID = new Map(GENERALS.map((g) => [g.id, g]));

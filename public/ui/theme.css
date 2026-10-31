@@ -393,3 +393,14 @@ body.ui-mobile .seat.hurt { animation: hurt-flash .6s ease; }
 .pwa-card ol { text-align: left; margin: 8px 0; padding-left: 22px; line-height: 1.6; }
 .pwa-card p { color: var(--bone-2, #cbbd9f); font-size: 13.5px; }
 .pwa-ico { display: inline-block; padding: 0 4px; border: 1px solid currentColor; border-radius: 4px; font-size: 12px; }
+
+/* ---------- Trạng thái kỹ năng trên ô tướng ---------- */
+.tok.lim { background: rgba(120, 70, 160, .35); border-color: rgba(190, 140, 230, .6); }
+.tok.lim.used { opacity: .45; text-decoration: line-through; filter: grayscale(.8); }
+.tok.lost { background: rgba(140, 30, 25, .35); border-color: rgba(224, 83, 63, .6); text-decoration: line-through; }
+.tok.gain { background: rgba(40, 120, 80, .35); border-color: rgba(100, 200, 150, .6); }
+.tok.veq { background: transparent; border-style: dashed; opacity: .9; }
+.gsk.sk-lost { opacity: .45; text-decoration: line-through; filter: grayscale(1); }
+.gsk.sk-lost .nm::after { content: ' (mất)'; font-size: .8em; }
+.gsk.sk-used { opacity: .55; filter: grayscale(.7); }
+.gsk.sk-used .nm::after { content: ' ✓'; }
