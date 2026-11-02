@@ -167,11 +167,8 @@ export async function tryZhangbaResponse(g: Game, seat: number, reason: string, 
   return card;
 }
 
-/**
- * Lá Sát ảo ghép từ 2 lá: cùng màu thì mang chất lá đầu.
- * Khác màu thì theo luật là "không màu" — engine chưa có khái niệm này nên coi như đỏ (Nhân Vương Thuẫn không chặn).
- */
+/** Lá Sát ảo ghép từ 2 lá: cùng màu thì mang chất lá đầu, khác màu thì không màu (Nhân Vương Thuẫn không chặn). */
 export function zhangbaCard(g: Game, ids: number[]): Card {
   const [a, b] = ids.map((id) => g.card(id));
-  return g.virtualCard('sha', isRed(a) === isRed(b) ? a : { ...a, suit: 'heart' });
+  return g.virtualCard('sha', isRed(a) === isRed(b) ? a : undefined);
 }

@@ -341,11 +341,12 @@ export function cardLabel(card: Card): string {
 }
 
 export function isRed(card: Card): boolean {
-  return card.suit === 'heart' || card.suit === 'diamond';
+  return !card.noColor && (card.suit === 'heart' || card.suit === 'diamond');
 }
 
+/** Lá không màu thì không đỏ cũng không đen. */
 export function isBlack(card: Card): boolean {
-  return !isRed(card);
+  return !card.noColor && !isRed(card);
 }
 
 /**

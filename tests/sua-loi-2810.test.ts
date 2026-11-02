@@ -41,9 +41,10 @@ test('BUG-014 → 031: các hảo cặp mới', () => {
 });
 
 test('BUG-011: Thành Lược (Hứa Du) kích khi đồng minh dùng Lục Lực Đồng Tâm nhiều mục tiêu', async () => {
-  const { game, ctrls } = makeHG([['caocao', 'xuyou'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng']]);
+  // Cần có đại thế lực (Ngụy 2 người) thì mới dùng được Lục Lực Đồng Tâm; nhắm tiểu thế lực (Thục, Ngô)
+  const { game, ctrls } = makeHG([['caocao', 'xuyou'], ['liubei', 'guanyu'], ['sunquan', 'lvmeng'], ['caoren', 'caohong']]);
   await game.setup();
-  await revealAll(game, 0, 1, 2);
+  await revealAll(game, 0, 1, 2, 3);
   const [ll] = await give(game, 0, 'lulitongxin');
   ctrls[0].set('confirm', (r) => ({ kind: (r as { skill: string }).skill === 'chenglve' ? 'yes' : 'no' }));
   enterPlay(game, 0);

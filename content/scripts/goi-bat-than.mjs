@@ -59,7 +59,7 @@ const dmg = (g, source, target, amount = 1) => g.damage({ source, target, amount
 const turnKey = (g) => `${g.state.turnCount}`;
 const phaseKey = (g) => `${g.state.turnCount}:${g.state.phase}`;
 const revealedCount = (g, s) => { const h = g.hero(s); return (h.main.revealed ? 1 : 0) + (h.deputy.revealed ? 1 : 0); };
-const isBlackCard = (c) => !isRed(c);
+const isBlackCard = (c) => !c.noColor && !isRed(c);
 
 /** Bộ đếm theo khóa (lượt/giai đoạn). */
 function counter(g, id, seat, key) {
@@ -237,7 +237,8 @@ export default {
       desc: 'Tỏa định kỹ: Khi bắt đầu giai đoạn chuẩn bị của người thế lực khác bạn, nếu bạn không ở trong tầm đánh của họ, bạn lệnh họ chọn 1 mục: '
         + '1. Lệnh bạn rút 1 lá; 2. Bỏ 1 lá trong vùng trang bị của bạn, sau đó họ mất 1 máu.',
       triggers: [
-        on('phaseStart', (g, ctx, o) => ctx.seat !== o && ctx.phase === 'start' && g.player(ctx.seat).alive && diffFaction(g, o, ctx.seat)
+        // "thế lực khác bạn" (其他势力): kể cả người còn đang úp (chưa có thế lực)
+        on('phaseStart', (g, ctx, o) => ctx.seat !== o && ctx.phase === 'start' && g.player(ctx.seat).alive && g.isOtherFaction(o, ctx.seat)
           && g.distance(ctx.seat, o) > g.attackRange(ctx.seat),
           async (g, ctx, o) => {
             const t = ctx.seat;
@@ -541,8 +542,15 @@ export default {
         }, { compulsory: true }),
         on('phaseEnd', (g, ctx, o) => ctx.seat === o && ctx.phase === 'play' && g.generalPile(o, 'Lục').length >= 2,
           async (g, _ctx, o) => {
-            const pile = g.generalPile(o, 'Lục');
-            g.removeFromGeneralPile(o, 'Lục', pile.slice(0, 2), true);
+            // Người chơi tự chọn 2 [Lục] để bỏ (giữ lại tướng có thế lực mình cần)
+            const pick = [];
+            for (let k = 0; k < 2; k++) {
+              const left = g.generalPile(o, 'Lục').filter((id) => !pick.includes(id));
+              const i = left.length > 1 ? await g.choose(o, `Hung Ngược: chọn [Lục] thứ ${k + 1}/2 để bỏ`,
+                left.map((id) => `${g.generalName(id)} (${({ wei: 'Ngụy', shu: 'Thục', wu: 'Ngô', qun: 'Quần', ye: 'Dã tâm gia' })[g.generalKingdom(id)] ?? '?'})`)) : 0;
+              pick.push(left[i] ?? left[0]);
+            }
+            g.removeFromGeneralPile(o, 'Lục', pick, true);
             store(g)[`xiongnve_def:${o}`] = true;
             g.say(`${name(g, o)}: đến đầu lượt sau, sát thương phải nhận từ người khác −1.`);
           }),

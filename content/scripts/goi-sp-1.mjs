@@ -547,7 +547,7 @@ export default {
       triggers: [
         on('damageDealt', (g, ctx, o) => {
           if (ctx.target !== o || !ctx.card) return false;
-          if (!limitedUsed(g, o, 'yaowu')) return !isRed(ctx.card);
+          if (!limitedUsed(g, o, 'yaowu')) return (!ctx.card.noColor && !isRed(ctx.card));
           return !isBlackCard(ctx.card) && ctx.source !== null && g.player(ctx.source).alive;
         }, async (g, ctx, o) => {
           if (!limitedUsed(g, o, 'yaowu')) await g.draw(o, 1);

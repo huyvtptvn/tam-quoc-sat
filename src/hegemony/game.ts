@@ -505,7 +505,12 @@ export class HegemonyGame extends Game {
     return FEMALE_GENERALS.has(slot.generalId) || getGeneral(slot.generalId).female ? 'female' : 'male';
   }
 
+  /**
+   * CÙNG THẾ LỰC (势力相同): cả hai đã có thế lực và giống nhau. Người đang úp (chưa có thế lực) không cùng thế lực với ai,
+   * trừ chính mình (mỗi người luôn cùng thế lực với bản thân, kể cả khi đang úp).
+   */
   isSameFaction(a: number, b: number): boolean {
+    if (a === b) return true;
     const ka = this.shownKingdom(a);
     if (ka === 'careerist') {
       // Dã tâm gia: chỉ cùng phe với đồng minh Lạp Long Nhân Tâm (cùng nhóm)
@@ -576,14 +581,27 @@ export class HegemonyGame extends Game {
     return k === 'careerist' ? big.includes(`seat:${this.heroes[seat]?.careeristGroup ?? seat}`) : big.includes(k);
   }
 
-  /** `seat` thuộc tiểu thế lực: đã có thế lực nhưng không phải đại thế lực. */
-  isSmall(seat: number): boolean {
-    return this.shownKingdom(seat) !== null && !this.isBig(seat);
+  /** Trên bàn đã phân hóa đại / tiểu thế lực chưa (có ít nhất 1 đại thế lực: phe đông nhất ≥ 2 người, hoặc có Ngọc Tỷ). */
+  hasFactionDivision(): boolean {
+    return this.bigFactions().length > 0;
   }
 
-  /** Khác phe: cả hai đã lộ và không cùng phe. Người chưa lộ thì không cùng mà cũng không khác. */
+  /**
+   * `seat` thuộc tiểu thế lực: chỉ khi trên bàn ĐÃ có đại thế lực; khi đó mọi người không thuộc đại thế lực
+   * (kể cả người chưa xác định thế lực) đều là tiểu thế lực. Chưa có đại thế lực thì không ai là tiểu thế lực.
+   */
+  isSmall(seat: number): boolean {
+    return this.player(seat).alive && this.hasFactionDivision() && !this.isBig(seat);
+  }
+
+  /** KHÔNG CÙNG THẾ LỰC (势力不同): cả hai đã có thế lực và khác nhau. Người chưa lộ thì không cùng mà cũng không "không cùng". */
   isDifferentFaction(a: number, b: number): boolean {
     return this.shownKingdom(a) !== null && this.shownKingdom(b) !== null && !this.isSameFaction(a, b);
+  }
+
+  /** KHÁC THẾ LỰC (其他势力 — "thế lực khác"): người khác mà không cùng thế lực, kể cả khi một trong hai đang úp. */
+  isOtherFaction(a: number, b: number): boolean {
+    return a !== b && !this.isSameFaction(a, b);
   }
 
   private teamLabel(seat: number): string {
@@ -2056,16 +2074,65 @@ export class HegemonyGame extends Game {
     return p.alive ? [...p.hand, ...muniuPile(this, seat)] : p.hand;
   }
 
+  /** Các loại lá mà lá trang bị `cardId` của `seat` được chuyển hóa thành (Kiếm Ca: phi cơ bản thành Sát; Cấp Cứu...). */
+  equipConvertNames(seat: number, cardId: number): CardName[] {
+    const p = this.player(seat);
+    if (!p?.alive || !EQUIP_SLOTS.some((sl) => p.equips[sl].includes(cardId))) return [];
+    const card = this.card(cardId);
+    const out = new Set<CardName>();
+    for (const e of this.skillEntries(seat)) if (e.skill.convertEquips) for (const n of e.skill.convert?.(this, seat, card) ?? []) out.add(n);
+    return [...out];
+  }
+
+  /** Chạy `fn` khi lá trang bị `cardId` được tính tạm như bài trên tay. */
+  private withEquipInHand<T>(seat: number, cardId: number, fn: () => T): T {
+    const p = this.player(seat);
+    const real = p.hand;
+    p.hand = [...real, cardId];
+    try { return fn(); } finally { p.hand = real; }
+  }
+
   protected override async prepareCard(seat: number, cardId: number, check?: () => boolean): Promise<void> {
+    // Lá trang bị dùng / đánh ra như lá khác nhờ kỹ năng (Kiếm Ca của Thạch Thao): lấy khỏi vùng trang bị ngay trước khi dùng
+    const slot = EQUIP_SLOTS.find((sl) => this.player(seat).equips[sl].includes(cardId));
+    if (slot && this.equipConvertNames(seat, cardId).length) {
+      if (check && !this.withEquipInHand(seat, cardId, check)) return;
+      await this.moveCards([cardId], { kind: 'equip', seat, slot }, { kind: 'hand', seat }, 'convert');
+      return;
+    }
     if (!muniuPile(this, seat).includes(cardId)) return;
     if (check && !this.withMuniuInHand(seat, check)) return;
     await takeMuniuCard(this, seat, cardId);
+  }
+
+  /** Gợi ý dùng / đánh lá trang bị như lá khác (Kiếm Ca): thêm vào view cho giao diện bấm vào trang bị. */
+  private addEquipConvertOptions(seat: number, req: Request | undefined, v: PlayerView): void {
+    if (!req || !this.player(seat)?.alive) return;
+    const p = this.player(seat);
+    for (const sl of EQUIP_SLOTS) {
+      for (const id of p.equips[sl]) {
+        const names = this.equipConvertNames(seat, id);
+        if (!names.length || this.cardBlocked(seat, this.card(id))) continue;
+        if (req.type === 'play') {
+          for (const as of names) {
+            if (as === 'tao' && p.hp >= p.maxHp) continue;
+            const spec = this.withEquipInHand(seat, id, () => this.targetSpec(seat, id, as));
+            const ok = spec.needsTarget ? spec.candidates.length > 0 : this.withEquipInHand(seat, id, () => this.checkUse(seat, id, [], as)) === null;
+            if (ok) v.hints.push({ cardId: id, as, needsTarget: spec.needsTarget, targets: spec.candidates, minTargets: spec.min, maxTargets: spec.max });
+          }
+        } else if (req.type === 'respond') {
+          const as = req.accept.find((a) => names.includes(a) && !this.asBlocked(seat, a));
+          if (as && !v.responseOptions.some((o) => o.cardId === id)) v.responseOptions.push({ cardId: id, as });
+        }
+      }
+    }
   }
 
   override makeView(seat: number, req?: Request): PlayerView {
     // Bài dưới Mộc Ngưu hiện cùng bài trên tay (kèm muniuIds để vẽ biểu tượng) và có gợi ý dùng / đánh như bài trên tay
     const mn = this.player(seat)?.alive ? muniuPile(this, seat) : [];
     const v = this.withMuniuInHand(seat, () => viewFor(this, seat, req));
+    this.addEquipConvertOptions(seat, req, v);
     if (mn.length) {
       v.muniuIds = [...mn];
       const me = v.players.find((x) => x.seat === seat);

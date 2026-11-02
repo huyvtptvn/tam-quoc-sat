@@ -582,12 +582,12 @@ export default {
       desc: 'Một lần trong lượt của mỗi người, sau khi trở thành mục tiêu của lá cơ bản Đen hoặc công cụ phổ thông Đen do người khác sử dụng, '
         + 'có thể lệnh cho họ chọn 1 mục: 1. Lượt này họ không thể sử dụng bài Đen; 2. Lá này không có hiệu quả với bạn.',
       triggers: [
-        on('slashTargeted', (g, ctx, o) => ctx.target === o && ctx.source !== o && !isRed(ctx.card) && !ctx.cancelled
+        on('slashTargeted', (g, ctx, o) => ctx.target === o && ctx.source !== o && (!ctx.card.noColor && !isRed(ctx.card)) && !ctx.cancelled
           && store(g)[`zhente:${o}`] !== g.state.turnCount, async (g, ctx, o) => {
           store(g)[`zhente:${o}`] = g.state.turnCount;
           if (await zhenteChoice(g, ctx.source, o) === 1) { ctx.cancelled = true; g.say(`Sát không có hiệu lực với ${name(g, o)}.`); }
         }),
-        on('trickTargeted', (g, ctx, o) => ctx.target === o && ctx.user !== o && !isRed(ctx.card)
+        on('trickTargeted', (g, ctx, o) => ctx.target === o && ctx.user !== o && (!ctx.card.noColor && !isRed(ctx.card))
           && store(g)[`zhente:${o}`] !== g.state.turnCount, async (g, ctx, o) => {
           store(g)[`zhente:${o}`] = g.state.turnCount;
           if (await zhenteChoice(g, ctx.user, o) === 1) { ctx.cancelled = true; g.say(`${g.cardInfo(ctx.name).label} không có hiệu lực với ${name(g, o)}.`); }

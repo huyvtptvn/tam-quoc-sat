@@ -3,7 +3,7 @@
 // Chứa state, xử lý vòng lượt, dùng bài, sát thương, hấp hối, tử vong.
 // Không phụ thuộc mạng hay giao diện -> chạy được trong test, server, trình duyệt.
 // ============================================================
-import { buildDeck, CARD_INFO, cardLabel, EQUIP_SLOT_LABEL, pickDiscards } from './cards.js';
+import { buildDeck, CARD_INFO, cardLabel, EQUIP_SLOT_LABEL, isRed, pickDiscards } from './cards.js';
 import { installEquipment, tryGuanshi, tryQinglong, tryZhangbaResponse } from './equipment.js';
 import { EventBus, type DamageCtx } from './events.js';
 import { createRng, shuffle, type Rng } from './rng.js';
@@ -191,6 +191,8 @@ export class Game {
     return {
       id: -(++this.virtualSeq), name, type: CARD_INFO[name].type, virtual: true,
       suit: like?.suit ?? 'spade', rank: like?.rank ?? 0,
+      // Không chuyển hóa từ lá thật nào (Căng Võ, Ly Gián, Ngọc Tỷ, Bát Quái...): không màu
+      ...(like && !like.noColor ? {} : { noColor: true }),
     } as Card;
   }
 
@@ -334,6 +336,14 @@ export class Game {
   }
 
   /** Tên mọi loại bài đang có (kể cả lá thêm từ content/). */
+  /**
+   * Công cụ phổ thông: cẩm nang không trì hoãn, không phải cẩm nang thế lực (Hiệu Lệnh Thiên Hạ, Khắc Phục Trung Nguyên,
+   * Cố Quốc An Bang, Văn Hòa Loạn Võ) và không phải Sắc Lệnh.
+   */
+  isCommonTrick(name: CardName): boolean {
+    return CARD_INFO[name]?.type === 'trick' && !['haoling', 'kefu', 'guguo', 'wenhe', 'chiling'].includes(name);
+  }
+
   allCardNames(): CardName[] {
     return Object.keys(CARD_INFO) as CardName[];
   }
@@ -982,7 +992,8 @@ export class Game {
       if (usable.length < 2) return null;
       let ids = await this.chooseCards(seat, 'Trượng Bát Xà Mâu: chọn 2 lá trên tay dùng như Sát', usable, 2, 2);
       if (ids.length !== 2 || !ids.every((id) => usable.includes(id))) ids = pickDiscards(usable, 2, (id) => this.card(id));
-      return { card: this.virtualCard('sha', this.card(ids[0])), as: 'sha', parts: ids };
+      const [a, b] = ids.map((id) => this.card(id));
+      return { card: this.virtualCard('sha', isRed(a) === isRed(b) ? a : undefined), as: 'sha', parts: ids };
     }
     const card = await this.payVirtualUse(seat, chosen.skill, chosen.as, context);
     return card ? { card, as: chosen.as, virtual: true } : null;
@@ -1285,12 +1296,12 @@ export class Game {
    * Không tính vào số lần Sát của lượt trừ khi countSlash = true.
    */
   async useCardAs(seat: number, name: CardName, targets: number[], cardIds: number[] = [],
-    opts: { from?: Zone; countSlash?: boolean; label?: string; nature?: 'fire' | 'thunder' } = {}): Promise<void> {
+    opts: { from?: Zone; countSlash?: boolean; label?: string; nature?: 'fire' | 'thunder'; restrictTargets?: boolean } = {}): Promise<void> {
     return this.asActor(seat, () => this.useCardAsInner(seat, name, targets, cardIds, opts));
   }
 
   private async useCardAsInner(seat: number, name: CardName, targets: number[], cardIds: number[],
-    opts: { from?: Zone; countSlash?: boolean; label?: string; nature?: 'fire' | 'thunder' }): Promise<void> {
+    opts: { from?: Zone; countSlash?: boolean; label?: string; nature?: 'fire' | 'thunder'; restrictTargets?: boolean }): Promise<void> {
     const p = this.player(seat);
     if (!p.alive) return;
     // Điệu Hổ Ly Sơn: người bị điệu hổ không thể là mục tiêu của lá bài (kể cả lá "xem như dùng" bởi kỹ năng)
@@ -1301,8 +1312,10 @@ export class Game {
     const from: Zone = opts.from ?? { kind: 'hand', seat };
     if (cardIds.length) await this.moveCards(cardIds, from, { kind: 'processing' }, 'use');
     // Dùng lá thật làm lá khác = chuyển hóa; không dùng lá nào = lá ảo "phi chuyển hóa" (Ngọc Tỷ...)
+    // Nhiều lá: cùng màu thì mang màu đó, khác màu thì lá thành ra không màu (Kỳ Sách 1 đen + 1 đỏ...)
+    const sameColor = cardIds.every((id) => isRed(this.card(id)) === isRed(this.card(cardIds[0])));
     const card0 = cardIds.length === 1 ? { ...this.card(cardIds[0]), name, converted: this.card(cardIds[0]).name !== name } as Card
-      : cardIds.length ? { ...this.virtualCard(name, this.card(cardIds[0])), converted: true } as Card
+      : cardIds.length ? { ...this.virtualCard(name, sameColor ? this.card(cardIds[0]) : undefined), converted: true } as Card
         : this.virtualCard(name);
     const card = opts.nature ? { ...card0, nature: opts.nature } as Card : card0;
     try {
@@ -1314,7 +1327,7 @@ export class Game {
       this.say(`${p.name} dùng ${lbl}${via}${tgt ? ` vào ${tgt}` : ''}.`);
       await this.bus.emit('cardUsed', { seat, card, as: name, targets });
       if (info.type === 'trick') {
-        await resolveTrick(this, seat, card, name, targets);
+        await resolveTrick(this, seat, card, name, targets, !!opts.restrictTargets);
         return;
       }
       switch (name) {

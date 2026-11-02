@@ -16,14 +16,12 @@ const SUITS = ['spade', 'heart', 'club', 'diamond'];
 const SUIT_NAMES = ['♠ Bích', '♥ Cơ', '♣ Chuồn', '♦ Rô'];
 const PHASE_NAMES = { start: 'chuẩn bị', judge: 'phán định', draw: 'rút bài', play: 'ra bài', discard: 'bỏ bài', end: 'kết thúc' };
 
-/** `a` cùng thế lực với `o`. Nếu `o` chưa lật tướng thì so với thế lực thật của `o` (lật để kích hoạt). */
+/**
+ * `a` CÙNG THẾ LỰC với `o`: cả hai đã có thế lực và giống nhau (hoặc chính là `o`).
+ * Người đang úp chưa có thế lực nên không cùng thế lực với ai (không đoán theo thế lực thật: lật ra có thể thành dã tâm gia).
+ */
 function allyOf(g, a, o) {
-  if (a === o) return true;
-  const ka = g.shownKingdom(a);
-  if (ka === null) return false;
-  if (g.isRevealedAny(o)) return g.isSameFaction(a, o); // nhóm Dã tâm gia cùng phe
-  if (ka === 'careerist') return false;
-  return g.realKingdom(o) === ka;
+  return a === o || g.isSameFaction(a, o);
 }
 
 /** Lá dùng chỉ định đúng 1 người khác làm mục tiêu: Sát hoặc cẩm nang thường chọn 1 mục tiêu. */
@@ -732,7 +730,8 @@ export default {
     // ================= Thạch Thao =================
     {
       id: 'jiange', name: 'Kiếm Ca',
-      desc: 'Bạn có thể chuyển hóa sử dụng/đánh ra lá phi cơ bản thành [Sát].',
+      desc: 'Bạn có thể chuyển hóa sử dụng/đánh ra lá phi cơ bản (trên tay hoặc trong vùng trang bị) thành [Sát].',
+      convertEquips: true,
       convert: (_g, _s, c) => (!isBasic(c) ? ['sha'] : []),
     },
     {

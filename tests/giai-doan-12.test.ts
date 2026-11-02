@@ -49,7 +49,8 @@ test('Đại thế lực: hòa số người thì cả hai đều lớn; 1 ngư�
   await solo.setup();
   await revealAll(solo, 0, 3);
   assert.deepEqual(solo.bigFactions(), []);
-  assert.ok(solo.isSmall(0) && solo.isSmall(3));
+  // Chưa có đại thế lực thì cũng không ai là tiểu thế lực (BUG-064)
+  assert.ok(!solo.isSmall(0) && !solo.isSmall(3));
 });
 
 test('Ngọc Tỷ: thế lực của người lắp là đại thế lực duy nhất', async () => {

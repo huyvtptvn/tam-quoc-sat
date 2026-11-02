@@ -13,7 +13,7 @@ const VALUE = { tao: 6, wuxie: 5, wuxie_guo: 5, shan: 4, jiu: 3, sha: 2 };
 const cardValue = (c) => VALUE[c.name] ?? 1;
 const cheapest = (g, ids) => [...ids].sort((a, b) => cardValue(g.card(a)) - cardValue(g.card(b)));
 /** Lá ảo không có màu (dùng không cần lá thật, hoặc chuyển hóa nhiều lá). */
-const colorless = (c) => c.id < 0;
+const colorless = (c) => !!c.noColor;
 const isBlackCard = (c) => !colorless(c) && !isRed(c);
 
 /**

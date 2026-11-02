@@ -7,7 +7,9 @@ export default {};
 
 export const name = (g, s) => g.player(s).name;
 export const hand = (g, s) => g.player(s).hand;
-export const isRed = (c) => c.suit === 'heart' || c.suit === 'diamond';
+export const isRed = (c) => !c.noColor && (c.suit === 'heart' || c.suit === 'diamond');
+/** Lá đen (lá không màu không đỏ cũng không đen). */
+export const isBlack = (c) => !c.noColor && !isRed(c);
 export const colorOf = (c) => (isRed(c) ? 'đỏ' : 'đen');
 export const SLOTS = ['weapon', 'armor', 'defHorse', 'offHorse', 'treasure'];
 export const SLOT_LABEL = { weapon: 'Vũ khí', armor: 'Giáp', defHorse: 'Ngựa +1', offHorse: 'Ngựa −1', treasure: 'Bảo vật' };

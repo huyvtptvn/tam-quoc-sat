@@ -72,10 +72,13 @@ registerTrick({
 // Lục Lực Đồng Tâm: chọn 1 người thuộc đại hoặc tiểu thế lực -> mọi người cùng cấp đó. Đang xích thì bốc 1, không thì bị xích.
 registerTrick({
   name: 'lulitongxin', targeting: 'one', min: 1, max: 1, recast: true, harmful: false,
-  validTarget: (g, _user, t) => hg(g).shownKingdom(t) !== null,
+  // Chỉ dùng được khi trên bàn đã phân hóa đại / tiểu thế lực. Chọn 1 người: tác động lên cả đại thế lực hoặc cả tiểu thế lực
+  // (tiểu thế lực gồm cả người chưa xác định thế lực).
+  canUse: (g) => (hg(g).hasFactionDivision() ? null : 'Chưa có đại thế lực trên bàn: không phân được đại / tiểu thế lực'),
+  validTarget: (g, _user, t) => hg(g).hasFactionDivision() && (hg(g).isBig(t) || hg(g).isSmall(t)),
   expandTargets: (g, _user, [c]) => {
     const big = hg(g).isBig(c);
-    return g.aliveSeatsFrom(g.state.currentSeat).filter((s) => hg(g).shownKingdom(s) !== null && hg(g).isBig(s) === big);
+    return g.aliveSeatsFrom(g.state.currentSeat).filter((s) => (big ? hg(g).isBig(s) : hg(g).isSmall(s)));
   },
   effect: async (g, _user, t) => {
     const p = g.player(t);

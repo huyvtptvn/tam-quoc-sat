@@ -49,6 +49,8 @@ export interface Card {
   readonly nature?: 'fire' | 'thunder';
   /** Lá ảo ("coi như dùng một lá ..."): không nằm ở vùng nào, id âm. */
   readonly virtual?: boolean;
+  /** Lá không màu (không đỏ, không đen): lá ảo không chuyển hóa từ lá thật nào, hoặc ghép từ nhiều lá khác màu. */
+  readonly noColor?: boolean;
   /**
    * Lá được CHUYỂN HÓA từ lá thật (Hỏa Kế, Loạn Kích, kỹ năng "coi như dùng" bằng bài...).
    * Lá ảo không dùng lá thật nào (Ngọc Tỷ coi như dùng Tri Kỷ Tri Bỉ, Thần Tốc) không phải chuyển hóa.

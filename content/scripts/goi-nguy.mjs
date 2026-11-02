@@ -426,7 +426,8 @@ export default {
           const x = hand(g, s).length;
           const names = g.allCardNames().filter((n) => {
             const def = g.trickDef(n);
-            if (!def || n === 'wuxie' || n === 'wuxie_guo' || def.canUse?.(g, s)) return false;
+            // Chỉ công cụ phổ thông (không công cụ thời gian / công cụ thế lực)
+            if (!def || !g.isCommonTrick(n) || n === 'wuxie' || n === 'wuxie_guo' || def.canUse?.(g, s)) return false;
             if (def.targeting === 'one') return g.targetsAs(s, n).length > 0 && (def.min ?? 1) <= x;
             const auto = g.autoTargetsOf(s, n);
             return auto.length > 0 && auto.length <= x;
@@ -800,7 +801,7 @@ function sidiSkills(g, t) {
 const allRevealed = (g, s) => ['main', 'deputy'].every((w) => g.hero(s)[w].revealed || g.hero(s)[w].removed);
 
 function isXibingCard(g, ctx) {
-  return ctx.seat === g.state.currentSeat && g.state.phase === 'play' && !isRed(ctx.card) && ctx.targets.length === 1
+  return ctx.seat === g.state.currentSeat && g.state.phase === 'play' && (!ctx.card.noColor && !isRed(ctx.card)) && ctx.targets.length === 1
     && (ctx.as === 'sha' || g.cardInfo(ctx.as)?.type === 'trick');
 }
 

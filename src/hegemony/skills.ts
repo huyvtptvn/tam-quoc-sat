@@ -1455,7 +1455,8 @@ function guanxingTrigger(fromYizhi: boolean): AnyTrigger {
     event: 'phaseStart',
     can: (g, ctx, owner) => ctx.seat === owner && ctx.phase === 'start' && (!fromYizhi || !mainHas(g, owner)),
     run: async (g, _ctx, owner) => {
-      const x = fromYizhi || g.hasSkill(owner, 'yizhi', false) ? 5 : Math.min(5, g.alivePlayers().length);
+      // Di Chí: chủ tướng có Quan Tinh -> Quan Tinh đó luôn xem 5 lá; chủ tướng không có -> nhận Quan Tinh thường (theo số người còn sống)
+      const x = !fromYizhi && g.hasSkill(owner, 'yizhi', false) ? 5 : Math.min(5, g.alivePlayers().length);
       await arrangeTop(g, owner, x, true, 'Quan Tinh');
     },
   });

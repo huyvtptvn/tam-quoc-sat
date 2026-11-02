@@ -378,6 +378,8 @@ export function checkTrickUse(g: Game, seat: number, card: Card, cardName: CardN
 
   const def = TRICK_DEFS[cardName];
   if (!def) return `${label} chỉ dùng để đáp lại`;
+  // Trùng chú luôn được (kể cả khi lá không dùng được lúc này, ví dụ Lục Lực Đồng Tâm khi chưa có đại thế lực)
+  if (targets.length === 0 && def.recast && def.targeting === 'one') return null;
   const extra = def.canUse?.(g, seat);
   if (extra) return extra;
 
@@ -449,10 +451,12 @@ export async function askNullify(
 // Xử lý cẩm nang
 // ============================================================
 
-export async function resolveTrick(g: Game, user: number, card: Card, cardName: CardName, chosen: number[]): Promise<void> {
+export async function resolveTrick(g: Game, user: number, card: Card, cardName: CardName, chosen: number[], restrict = false): Promise<void> {
   const def = TRICK_DEFS[cardName]!;
   // Người bị Điệu Hổ Ly Sơn không phải mục tiêu hợp lệ của lá bài (Nam Man, Vạn Tiễn, Đào Viên, Lục Lực Đồng Tâm...)
-  const targets = (def.targeting === 'one' ? (def.expandTargets ? def.expandTargets(g, user, chosen) : chosen) : autoTargets(g, def, user))
+  // `restrict`: lá nhiều mục tiêu tự động nhưng chỉ tác động lên những người trong `chosen` (Dịch Quỷ: theo thế lực của [Hồn])
+  const targets = (def.targeting === 'one' ? (def.expandTargets ? def.expandTargets(g, user, chosen) : chosen)
+    : autoTargets(g, def, user).filter((t) => !restrict || chosen.includes(t)))
     .filter((t) => t === user || !g.isLured(t));
   const skip = new Set<number>();
   // Người chọn "không hỏi lại với lá này": bỏ qua họ khi hỏi Vô Giải cho các mục tiêu còn lại của lá

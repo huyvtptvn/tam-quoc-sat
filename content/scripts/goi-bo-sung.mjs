@@ -127,7 +127,8 @@ function usableVs(g, user, target) {
 
 // Lá dùng lên chính mình (Đào, Rượu, Vô Trung, Hiệp Thiên Tử...) cũng theo luật [Hồn]: Hồn phải cùng thế lực với Tả Từ
 // (Tả Từ là Dã tâm gia: chỉ Hồn tướng Dã tâm gia mới dùng lên bản thân được)
-const YIGUI_NAMES = ['tao', 'jiu', 'sha', 'wuzhong', 'xietianzi', 'shunshou', 'guohe', 'juedou', 'huogong', 'shuiyan', 'jiedao', 'tiesuo', 'zhiji', 'yuanjiao', 'diaohu'];
+/** Lá Dịch Quỷ dùng được: Sát, Đào, Rượu và mọi công cụ phổ thông (trừ Vô Giải: chỉ dùng khi đáp lại). */
+const yiguiNames = (g) => ['sha', 'tao', 'jiu', ...g.allCardNames().filter((n) => g.isCommonTrick(n) && n !== 'wuxie' && n !== 'wuxie_guo')];
 
 /** Các thế lực của một [Hồn] (tướng 2 thế lực có 2). */
 function hunKingdoms(g, id) {
@@ -158,15 +159,18 @@ function yiguiCandidates(g, s, n) {
   const def = g.trickDef(n);
   if (!def || def.canUse?.(g, s)) return [];
   if (def.targeting === 'self') return [s];
-  if (def.targeting === 'one' && !def.expandTargets) return g.targetsAs(s, n);
-  return [];
+  if (def.targeting === 'one') return def.expandTargets ? [] : g.targetsAs(s, n);
+  // Lá nhiều mục tiêu tự động (Nam Man, Vạn Tiễn, Đào Viên, Ngũ Cốc, Dĩ Dật Đãi Lao...): chỉ tác động lên người hợp với [Hồn]
+  return g.autoTargetsOf(s, n);
 }
+/** Lá `n` có tự chọn mục tiêu không (khác: tự động theo luật của lá). */
+const yiguiAuto = (g, n) => { const d = g.trickDef(n); return !!d && d.targeting !== 'one' && d.targeting !== 'self'; };
 function yiguiCombos(g, s) {
   const pile = g.generalPile(s, 'Hồn');
   if (!pile.length) return [];
   const used = yiguiUsed(g, s);
   const out = [];
-  for (const n of YIGUI_NAMES) {
+  for (const n of yiguiNames(g)) {
     if (used.includes(n) || !g.cardInfo(n)) continue;
     const cands = yiguiCandidates(g, s, n);
     if (!cands.length) continue;
@@ -601,6 +605,7 @@ export default {
           let targets;
           const def = g.trickDef(n);
           if (n === 'tao' || n === 'jiu' || def?.targeting === 'self') targets = [s];
+          else if (yiguiAuto(g, n)) targets = ok; // mọi người hợp lệ (cùng thế lực với [Hồn] hoặc chưa xác định thế lực)
           else {
             const max = n === 'sha' ? 1 : Math.min(def?.max ?? 1, ok.length);
             targets = await g.chooseTargets(s, `Dịch Quỷ: chọn mục tiêu của ${g.cardInfo(n).label}`, ok, 1, max, harmfulAs(g, n) ? 'enemy' : 'ally');
@@ -608,7 +613,7 @@ export default {
           }
           yiguiUsed(g, s).push(n);
           g.removeFromGeneralPile(s, 'Hồn', [hun]);
-          await g.useCardAs(s, n, targets, [], { countSlash: true, label: 'Dịch Quỷ' });
+          await g.useCardAs(s, n, targets, [], { countSlash: true, label: 'Dịch Quỷ', restrictTargets: yiguiAuto(g, n) });
         },
       },
       triggers: [
